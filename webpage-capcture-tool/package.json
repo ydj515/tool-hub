@@ -1,0 +1,17 @@
+{
+  "name": "webpage-capture-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "iconv-lite": "^0.7.0",
+    "playwright": "^1.57.0",
+    "xlsx": "^0.18.5"
+  }
+}
