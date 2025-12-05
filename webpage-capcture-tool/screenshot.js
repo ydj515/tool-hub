@@ -7,7 +7,7 @@ function logOptions(opts) {
 
   console.log(`입력 파일: ${filePaths.join(", ")}`);
   console.log(
-    `컬럼 매핑: pk='${columns.pkKey}', subject='${columns.subjectKey}', url='${columns.urlKey}'`
+    `컬럼 매핑: id='${columns.id}', subject='${columns.subjectKey}', url='${columns.urlKey}'`
   );
   console.log(
     `옵션: sheet='${sheetName}', out='${outDir}', dedupe=${dedupe}, waitMs=${waitMs}, headless=${headless}`

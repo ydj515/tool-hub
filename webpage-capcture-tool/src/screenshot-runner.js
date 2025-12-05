@@ -9,11 +9,11 @@ function ensureOutputDir(outDir) {
 }
 
 function buildBaseName(index, row, columns) {
-  const { pkKey, subjectKey } = columns;
-  const pk = row[pkKey] || "";
+  const { idKey, subjectKey } = columns;
+  const id = row[idKey] || "";
   const subject = row[subjectKey] || "";
 
-  const namePart = subject || pk || "no-subject";
+  const namePart = subject || id || "no-subject";
   return `${String(index).padStart(3, "0")}_${namePart}`
     .replace(/[\\/:*?"<>|]/g, "_")
     .slice(0, 150);
