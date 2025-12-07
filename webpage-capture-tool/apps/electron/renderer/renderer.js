@@ -227,7 +227,7 @@ function handleDropFiles(fileList) {
   const paths = files
     .map((file) => {
       console.log("[renderer] file:", file.name, file.path);
-      return file.path; // 👈 Electron에서 제공하는 절대 경로
+      return file.path; // Electron에서 제공하는 절대 경로
     })
     .filter((p) => {
       if (!p) return false;
@@ -252,7 +252,7 @@ function handleDropFiles(fileList) {
   }
 }
 
-// 🔹 dropzone 위로 올라왔을 때
+// dropzone 위로 올라왔을 때
 ["dragenter", "dragover"].forEach((evt) => {
   dropzone.addEventListener(evt, (e) => {
     e.preventDefault();
@@ -261,7 +261,7 @@ function handleDropFiles(fileList) {
   });
 });
 
-// 🔹 dropzone 밖으로 나가거나 실제 드롭 됐을 때
+// dropzone 밖으로 나가거나 실제 드롭 됐을 때
 ["dragleave", "drop"].forEach((evt) => {
   dropzone.addEventListener(evt, (e) => {
     e.preventDefault();
@@ -270,7 +270,7 @@ function handleDropFiles(fileList) {
   });
 });
 
-// 🔹 실제 드롭 처리
+// 실제 드롭 처리
 dropzone.addEventListener("drop", (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -278,7 +278,7 @@ dropzone.addEventListener("drop", (e) => {
   handleDropFiles(e.dataTransfer.files);
 });
 
-// 🔹 클릭 시 파일 선택
+// 클릭 시 파일 선택
 dropzone.addEventListener("click", async () => {
   const files = await window.captureApi.selectFiles();
   if (files && files.length > 0) {
@@ -294,16 +294,4 @@ dropzone.addEventListener("click", async () => {
     ];
     filesInput.value = merged.join(", ");
   }
-});
-
-["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
-  window.addEventListener(evt, (e) => {
-    console.log("[window]", evt, e.dataTransfer?.files?.length);
-  });
-});
-
-["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
-  dropzone.addEventListener(evt, (e) => {
-    console.log("[dropzone]", evt, e.dataTransfer?.files?.length);
-  });
 });
