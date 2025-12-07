@@ -25,7 +25,7 @@ async function takeScreenshots(rows, options) {
 
   ensureOutputDir(outDir);
 
-  const browser = await chromium.launch({ headless });
+  const browser = await chromium.launch({ headless, timeout: 30000 });
 
   try {
     const page = await browser.newPage();
@@ -48,7 +48,7 @@ async function takeScreenshots(rows, options) {
 
       console.log(`[${i + 1}/${rows.length}] ${url}`);
       try {
-        await page.goto(url, { waitUntil: "networkidle" });
+        await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
         await page.waitForTimeout(waitMs);
 
         await page.screenshot({ path: filePath, fullPage: true });
