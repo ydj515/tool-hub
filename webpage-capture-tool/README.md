@@ -2,6 +2,10 @@
 
 Playwright 기반으로 URL 목록을 순회하며 전체 페이지 스크린샷을 저장하는 CLI와 Electron UI를 한 저장소에서 관리합니다. npm workspaces를 사용합니다.
 
+![main](./docs/main.png)
+
+![log](./docs/log.png)
+
 ## 패키지 구성
 - `packages/core` (`@webpage-capture/core`): 옵션 파서, 데이터 로더, Playwright 스크린샷 실행 로직.
 - `packages/cli` (`@webpage-capture/cli`): CLI 엔트리(`webpage-capture`), 샘플 데이터(`sample-files/`, `datalist.xlsx`).
