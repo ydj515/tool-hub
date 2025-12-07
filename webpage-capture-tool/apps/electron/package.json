@@ -7,8 +7,8 @@
     "start": "electron .",
     "setup": "npx playwright install chromium",
     "setup:bundle": "PLAYWRIGHT_BROWSERS_PATH=playwright-browsers npx playwright install chromium",
-    "build:mac": "npm run setup:bundle && electron-builder --mac",
-    "build:win": "npm run setup:bundle && electron-builder --win"
+    "build:mac": "npm run setup:bundle && npx electron-builder --mac",
+    "build:win": "npm run setup:bundle && npx electron-builder --win"
   },
   "build": {
     "appId": "com.toolhub.webpagecapture",

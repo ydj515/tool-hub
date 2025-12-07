@@ -14,5 +14,9 @@
     "setup:bundle": "npm run setup:bundle --workspace @webpage-capture/electron-app",
     "build:mac": "npm run build:mac --workspace @webpage-capture/electron-app",
     "build:win": "npm run build:win --workspace @webpage-capture/electron-app"
+  },
+  "devDependencies": {
+    "electron": "31.3.1",
+    "electron-builder": "24.9.1"
   }
 }
