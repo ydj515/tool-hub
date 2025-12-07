@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const { spawn } = require("child_process");
 
 let mainWindow;
@@ -44,12 +45,17 @@ function getPlaywrightBrowsersPath() {
   );
   if (fs.existsSync(local)) return local;
 
-  const cache = path.join(
-    process.env.HOME || "",
-    "Library",
-    "Caches",
-    "ms-playwright"
-  );
+  const homeDir = os.homedir() || process.env.HOME || process.env.USERPROFILE || "";
+  const cache = (() => {
+    switch (process.platform) {
+      case "win32":
+        return path.join(homeDir, "AppData", "Local", "ms-playwright");
+      case "linux":
+        return path.join(homeDir, ".cache", "ms-playwright");
+      default:
+        return path.join(homeDir, "Library", "Caches", "ms-playwright");
+    }
+  })();
   if (fs.existsSync(cache)) return cache;
 
   return null;
