@@ -110,6 +110,12 @@ async function runCapture(opts) {
   console.log(`DONE (saved ${saved}/${total})`);
   if (failed && failed.length > 0) {
     console.log(
+      JSON.stringify({
+        type: "failed-summary",
+        failed
+      })
+    );
+    console.log(
       `FAILED_URLS: ${failed.map((f) => f.url).filter(Boolean).join(",")}`
     );
   }

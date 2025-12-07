@@ -98,27 +98,59 @@ function addFailedUrl(url) {
   renderFailedList();
 }
 
-function parseFailedFromMessage(message) {
+function parseStructuredLogLine(line) {
+  if (!line) return false;
+  try {
+    const obj = JSON.parse(line);
+    if (obj && obj.type === "error" && obj.url) {
+      addFailedUrl(obj.url);
+      return true;
+    }
+    if (
+      obj &&
+      obj.type === "failed-summary" &&
+      Array.isArray(obj.failed) &&
+      obj.failed.length > 0
+    ) {
+      obj.failed
+        .map((f) => f && f.url)
+        .filter(Boolean)
+        .forEach(addFailedUrl);
+      return true;
+    }
+  } catch (e) {
+    // not JSON, ignore
+  }
+  return false;
+}
+
+function parseLegacyFailedLine(line) {
+  if (!line) return;
+  const summary = line.match(/FAILED_URLS:\s*(.+)/);
+  if (summary && summary[1]) {
+    summary[1]
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach(addFailedUrl);
+    return;
+  }
+
+  const m = line.match(/-> failed:\s*([^\s]+)/i);
+  if (m && m[1]) {
+    addFailedUrl(m[1]);
+  }
+}
+
+function handleLogMessage(message) {
   if (!message) return;
   message
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
     .forEach((line) => {
-      const summary = line.match(/FAILED_URLS:\s*(.+)/);
-      if (summary && summary[1]) {
-        summary[1]
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-          .forEach(addFailedUrl);
-        return;
-      }
-
-      const m = line.match(/-> failed:\s*([^\s]+)/i);
-      if (m && m[1]) {
-        addFailedUrl(m[1]);
-      }
+      if (parseStructuredLogLine(line)) return;
+      parseLegacyFailedLine(line);
     });
 }
 
@@ -167,7 +199,7 @@ cancelBtn.addEventListener("click", async () => {
 window.captureApi.onLog((payload) => {
   const { type, message } = payload;
   appendLog(type, message);
-  parseFailedFromMessage(message);
+  handleLogMessage(message);
   if (message && message.includes("종료")) {
     setRunning(false);
   }

@@ -57,6 +57,8 @@ async function takeScreenshots(rows, options) {
       } catch (e) {
         const errorMsg = e && e.message ? e.message : `${e}`;
         failed.push({ url, error: errorMsg });
+        // Emit structured error for consumers that parse logs.
+        console.log(JSON.stringify({ type: "error", url, message: errorMsg }));
         console.error(` -> failed: ${url}`, errorMsg);
       }
     }
