@@ -21,6 +21,7 @@ function logHelp() {
   --wait            페이지 대기 시간(ms), 기본 2000
   --headless false  브라우저 표시
   --dedupe false    URL 중복 제거 끄기
+  --onlyUrls        지정한 URL만 실행(콤마 또는 줄바꿈 구분)
 `);
 }
 
@@ -46,6 +47,24 @@ function logOptions(opts) {
   if (csvEncoding) {
     console.log(`CSV 인코딩: ${csvEncoding}`);
   }
+  if (opts.onlyUrls && opts.onlyUrls.length > 0) {
+    console.log(`대상 URL 필터: ${opts.onlyUrls.length}개`);
+  }
+}
+
+function filterRowsByUrl(rows, urlKey, onlyUrls = []) {
+  if (!onlyUrls.length) return rows;
+
+  const allowSet = new Set(
+    onlyUrls.map((u) => (u || "").trim()).filter((u) => u.length > 0)
+  );
+
+  if (allowSet.size === 0) return rows;
+
+  return rows.filter((row) => {
+    const url = (row[urlKey] || "").trim();
+    return allowSet.has(url);
+  });
 }
 
 async function runCapture(opts) {
@@ -66,17 +85,34 @@ async function runCapture(opts) {
     return;
   }
 
-  const rows = opts.dedupe
-    ? dedupeByUrl(allRows, opts.columns.urlKey)
-    : allRows;
+  let rows = opts.dedupe ? dedupeByUrl(allRows, opts.columns.urlKey) : allRows;
+
+  if (opts.onlyUrls && opts.onlyUrls.length > 0) {
+    const filtered = filterRowsByUrl(rows, opts.columns.urlKey, opts.onlyUrls);
+    console.log(
+      `지정 URL 필터 적용: ${filtered.length}/${rows.length} (지정 ${opts.onlyUrls.length}개)`
+    );
+    rows = filtered;
+  }
+
+  if (rows.length === 0) {
+    console.log("필터 결과 실행할 대상이 없습니다.");
+    return;
+  }
+
   console.log(
     `총 행: ${allRows.length}, 스샷 대상(중복 URL ${
       opts.dedupe ? "제거" : "유지"
     }): ${rows.length}`
   );
 
-  const { saved, total } = await takeScreenshots(rows, opts);
+  const { saved, total, failed } = await takeScreenshots(rows, opts);
   console.log(`DONE (saved ${saved}/${total})`);
+  if (failed && failed.length > 0) {
+    console.log(
+      `FAILED_URLS: ${failed.map((f) => f.url).filter(Boolean).join(",")}`
+    );
+  }
 }
 
 async function runCli(argv) {

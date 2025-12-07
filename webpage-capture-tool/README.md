@@ -4,6 +4,8 @@ Playwright 기반으로 URL 목록을 순회하며 전체 페이지 스크린샷
 
 ![main](./docs/main.png)
 
+![fail](./docs/fail.png)
+
 ![log](./docs/log.png)
 
 ## 패키지 구성

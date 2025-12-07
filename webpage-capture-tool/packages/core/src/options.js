@@ -43,6 +43,13 @@ function toBoolean(value, defaultValue) {
   return true;
 }
 
+function parseCsvList(value) {
+  return (value || "")
+    .split(/[,\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function normalizeEncoding(value) {
   return (value || "").trim().toLowerCase();
 }
@@ -96,6 +103,7 @@ function parseCliOptions(argv) {
   const outDir = raw.out || raw.outDir || DEFAULTS.outDir;
   const { encoding: csvEncoding, warning: csvEncodingWarning } =
     resolveCsvEncoding(raw.csvEncoding);
+  const onlyUrls = parseCsvList(raw.onlyUrls || raw.onlyurls);
 
   return {
     filePaths,
@@ -107,7 +115,8 @@ function parseCliOptions(argv) {
     outDir: path.resolve(outDir),
     headless: toBoolean(raw.headless, DEFAULTS.headless),
     dedupe: toBoolean(raw.dedupe, DEFAULTS.dedupe),
-    viewport: DEFAULTS.viewport
+    viewport: DEFAULTS.viewport,
+    onlyUrls
   };
 }
 

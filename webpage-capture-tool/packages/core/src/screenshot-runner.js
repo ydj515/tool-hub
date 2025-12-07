@@ -32,6 +32,7 @@ async function takeScreenshots(rows, options) {
     await page.setViewportSize(viewport);
 
     let saved = 0;
+    const failed = [];
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -54,11 +55,13 @@ async function takeScreenshots(rows, options) {
         saved++;
         console.log(` -> saved: ${filePath}`);
       } catch (e) {
-        console.error(` -> failed: ${url}`, e.message);
+        const errorMsg = e && e.message ? e.message : `${e}`;
+        failed.push({ url, error: errorMsg });
+        console.error(` -> failed: ${url}`, errorMsg);
       }
     }
 
-    return { saved, total: rows.length };
+    return { saved, total: rows.length, failed };
   } finally {
     await browser.close();
   }

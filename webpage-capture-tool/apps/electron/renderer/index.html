@@ -112,6 +112,25 @@
       </section>
 
       <section class="card">
+        <p class="section-title">실패 URL</p>
+        <div class="failed-header">
+          <div class="pill" id="failed-count">0개</div>
+          <div class="inline gap-10">
+            <button class="btn secondary" id="copy-failed" disabled>
+              실패 URL 복사
+            </button>
+          </div>
+        </div>
+        <p class="hint">실패한 URL만 모아서 확인하고 재실행할 수 있습니다.</p>
+        <div class="failed-box">
+          <pre id="failed-urls"></pre>
+        </div>
+        <div class="inline actions">
+          <button class="btn" id="rerun-failed" disabled>실패 URL만 재실행</button>
+        </div>
+      </section>
+
+      <section class="card">
         <p class="section-title">로그</p>
         <div class="logs">
           <pre id="logs"></pre>
