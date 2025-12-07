@@ -1,3 +1,18 @@
+["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
+  window.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (evt === "dragover" && e.dataTransfer) {
+      e.dataTransfer.dropEffect = "copy";
+    }
+  });
+  document.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+});
+
 const filesInput = document.getElementById("files");
 const outDirInput = document.getElementById("outDir");
 const sheetInput = document.getElementById("sheet");
@@ -42,9 +57,11 @@ function buildArgs() {
   const args = ["--files", files.join(",")];
 
   if (sheetInput.value) args.push("--sheet", sheetInput.value.trim());
-  if (csvEncodingInput.value) args.push("--csvEncoding", csvEncodingInput.value.trim());
+  if (csvEncodingInput.value)
+    args.push("--csvEncoding", csvEncodingInput.value.trim());
   if (colIdInput.value) args.push("--id", colIdInput.value.trim());
-  if (colSubjectInput.value) args.push("--subject", colSubjectInput.value.trim());
+  if (colSubjectInput.value)
+    args.push("--subject", colSubjectInput.value.trim());
   if (colUrlInput.value) args.push("--url", colUrlInput.value.trim());
   if (outDirInput.value) args.push("--out", outDirInput.value.trim());
   if (waitInput.value) args.push("--wait", waitInput.value.trim());
@@ -67,7 +84,7 @@ runBtn.addEventListener("click", async () => {
     const args = buildArgs();
     setRunning(true);
     logsEl.textContent = "";
-    appendLog("app", `실행 명령: node screenshot.js ${args.join(" ")}`);
+    appendLog("app", `실행 명령: webpage-capture ${args.join(" ")}`);
     const res = await window.captureApi.run(args);
     if (res && res.error) {
       appendLog("error", res.error);
@@ -94,23 +111,39 @@ setRunning(false);
 
 function handleDropFiles(fileList) {
   const allowed = [".xlsx", ".xls", ".csv", ".txt"];
-  const paths = Array.from(fileList || [])
-    .map((f) => f.path)
+
+  const files = Array.from(fileList || []);
+  console.log("[renderer] drop files:", files.length, files);
+
+  const paths = files
+    .map((file) => {
+      console.log("[renderer] file:", file.name, file.path);
+      return file.path; // 👈 Electron에서 제공하는 절대 경로
+    })
     .filter((p) => {
-      const lower = (p || "").toLowerCase();
+      if (!p) return false;
+      const lower = p.toLowerCase();
       return allowed.some((ext) => lower.endsWith(ext));
     });
+
+  console.log("[renderer] paths:", paths);
 
   if (paths.length > 0) {
     const merged = [
       ...new Set(
-        [...(filesInput.value ? filesInput.value.split(",").map((s) => s.trim()) : []), ...paths].filter(Boolean)
+        [
+          ...(filesInput.value
+            ? filesInput.value.split(",").map((s) => s.trim())
+            : []),
+          ...paths
+        ].filter(Boolean)
       )
     ];
     filesInput.value = merged.join(", ");
   }
 }
 
+// 🔹 dropzone 위로 올라왔을 때
 ["dragenter", "dragover"].forEach((evt) => {
   dropzone.addEventListener(evt, (e) => {
     e.preventDefault();
@@ -119,6 +152,7 @@ function handleDropFiles(fileList) {
   });
 });
 
+// 🔹 dropzone 밖으로 나가거나 실제 드롭 됐을 때
 ["dragleave", "drop"].forEach((evt) => {
   dropzone.addEventListener(evt, (e) => {
     e.preventDefault();
@@ -127,18 +161,40 @@ function handleDropFiles(fileList) {
   });
 });
 
+// 🔹 실제 드롭 처리
 dropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  dropzone.classList.remove("dragover");
   handleDropFiles(e.dataTransfer.files);
 });
 
+// 🔹 클릭 시 파일 선택
 dropzone.addEventListener("click", async () => {
   const files = await window.captureApi.selectFiles();
   if (files && files.length > 0) {
     const merged = [
       ...new Set(
-        [...(filesInput.value ? filesInput.value.split(",").map((s) => s.trim()) : []), ...files].filter(Boolean)
+        [
+          ...(filesInput.value
+            ? filesInput.value.split(",").map((s) => s.trim())
+            : []),
+          ...files
+        ].filter(Boolean)
       )
     ];
     filesInput.value = merged.join(", ");
   }
+});
+
+["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
+  window.addEventListener(evt, (e) => {
+    console.log("[window]", evt, e.dataTransfer?.files?.length);
+  });
+});
+
+["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
+  dropzone.addEventListener(evt, (e) => {
+    console.log("[dropzone]", evt, e.dataTransfer?.files?.length);
+  });
 });

@@ -1,6 +1,9 @@
-const { parseCliOptions } = require("./src/options");
-const { loadRowsFromFiles, dedupeByUrl } = require("./src/data-loader");
-const { takeScreenshots } = require("./src/screenshot-runner");
+const {
+  parseCliOptions,
+  loadRowsFromFiles,
+  dedupeByUrl,
+  takeScreenshots
+} = require("@webpage-capture/core");
 
 function logHelp() {
   console.log(`웹페이지 캡처 CLI
@@ -22,7 +25,16 @@ function logHelp() {
 }
 
 function logOptions(opts) {
-  const { filePaths, columns, sheetName, outDir, dedupe, waitMs, headless, csvEncoding } = opts;
+  const {
+    filePaths,
+    columns,
+    sheetName,
+    outDir,
+    dedupe,
+    waitMs,
+    headless,
+    csvEncoding
+  } = opts;
 
   console.log(`입력 파일: ${filePaths.join(", ")}`);
   console.log(
@@ -36,8 +48,7 @@ function logOptions(opts) {
   }
 }
 
-async function run() {
-  const opts = parseCliOptions(process.argv.slice(2));
+async function runCapture(opts) {
   if (opts.help) {
     logHelp();
     return;
@@ -55,18 +66,25 @@ async function run() {
     return;
   }
 
-  const rows = opts.dedupe ? dedupeByUrl(allRows, opts.columns.urlKey) : allRows;
+  const rows = opts.dedupe
+    ? dedupeByUrl(allRows, opts.columns.urlKey)
+    : allRows;
   console.log(
-    `총 행: ${allRows.length}, 스샷 대상(중복 URL ${opts.dedupe ? "제거" : "유지"}): ${
-      rows.length
-    }`
+    `총 행: ${allRows.length}, 스샷 대상(중복 URL ${
+      opts.dedupe ? "제거" : "유지"
+    }): ${rows.length}`
   );
 
   const { saved, total } = await takeScreenshots(rows, opts);
   console.log(`DONE (saved ${saved}/${total})`);
 }
 
-run().catch((e) => {
-  console.error(e.message || e);
-  process.exit(1);
-});
+async function runCli(argv) {
+  const opts = parseCliOptions(argv);
+  await runCapture(opts);
+}
+
+module.exports = {
+  runCli,
+  runCapture
+};

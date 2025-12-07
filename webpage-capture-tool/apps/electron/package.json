@@ -1,11 +1,10 @@
 {
-  "name": "webpage-capture-tool-electron",
+  "name": "@webpage-capture/electron-app",
   "version": "0.1.0",
   "description": "Playwright 기반 웹페이지 캡처 CLI + Electron GUI 래퍼",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "cli": "node screenshot.js",
     "setup": "npx playwright install chromium",
     "setup:bundle": "PLAYWRIGHT_BROWSERS_PATH=playwright-browsers npx playwright install chromium",
     "build:mac": "npm run setup:bundle && electron-builder --mac",
@@ -20,10 +19,8 @@
       "preload.js",
       "renderer/**/*",
       "assets/**/*",
-      "node_modules/**/*",
-      "screenshot.js",
-      "src/**/*",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
     ],
     "extraResources": [
       {
@@ -45,19 +42,16 @@
   "keywords": [
     "playwright",
     "screenshot",
-    "electron",
-    "csv",
-    "xlsx"
+    "electron"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "iconv-lite": "^0.7.0",
-    "playwright": "^1.57.0",
-    "xlsx": "^0.18.5"
+    "@webpage-capture/core": "0.1.0",
+    "@webpage-capture/cli": "0.1.0"
   },
   "devDependencies": {
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1"
+    "electron": "31.3.1",
+    "electron-builder": "24.9.1"
   }
 }

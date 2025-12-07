@@ -1,0 +1,24 @@
+{
+  "name": "@webpage-capture/cli",
+  "version": "0.1.0",
+  "description": "CLI wrapper for the webpage capture tool (Playwright-based screenshot runner)",
+  "main": "screenshot.js",
+  "bin": {
+    "webpage-capture": "bin/screenshot.js"
+  },
+  "scripts": {
+    "cli": "node bin/screenshot.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@webpage-capture/core": "0.1.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "screenshot.js",
+    "sample-files",
+    "sample-screenshots",
+    "datalist.xlsx"
+  ]
+}

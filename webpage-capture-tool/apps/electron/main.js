@@ -21,10 +21,11 @@ function createWindow() {
 }
 
 function getScriptPath() {
-  if (app.isPackaged) {
-    return path.join(process.resourcesPath, "app.asar", "screenshot.js");
+  try {
+    return require.resolve("@webpage-capture/cli/bin/screenshot.js");
+  } catch (err) {
+    return null;
   }
-  return path.join(__dirname, "screenshot.js");
 }
 
 function getPlaywrightBrowsersPath() {
@@ -66,10 +67,16 @@ function runCli(args) {
   }
 
   const scriptPath = getScriptPath();
+  if (!scriptPath) {
+    return {
+      error:
+        "CLI 스크립트를 찾지 못했습니다. 의존성(@webpage-capture/cli) 설치를 확인하세요."
+    };
+  }
   const browsersPath = getPlaywrightBrowsersPath();
   const nodeCmd = process.execPath;
   const child = spawn(nodeCmd, [scriptPath, ...args], {
-    cwd: app.isPackaged ? process.resourcesPath : __dirname,
+    cwd: process.cwd(),
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: "1",

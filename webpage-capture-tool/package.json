@@ -1,17 +1,21 @@
 {
   "name": "webpage-capture-tool",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for the webpage capture CLI and Electron app",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cli": "npm run cli --workspace @webpage-capture/cli --",
+    "start": "npm run start --workspace @webpage-capture/electron-app",
+    "setup": "npm run setup --workspace @webpage-capture/electron-app",
+    "setup:bundle": "npm run setup:bundle --workspace @webpage-capture/electron-app",
+    "build:mac": "npm run build:mac --workspace @webpage-capture/electron-app",
+    "build:win": "npm run build:win --workspace @webpage-capture/electron-app"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "iconv-lite": "^0.7.0",
-    "playwright": "^1.57.0",
-    "xlsx": "^0.18.5"
+    "electron": "31.3.1"
   }
 }
