@@ -7,7 +7,7 @@ Playwright로 URL 목록을 순회하며 전체 페이지 스크린샷을 저장
 # 워크스페이스에서
 npm run cli --workspace @webpage-capture/cli -- --file datalist.xlsx
 # 혹은 bin 노출 후
-npx webpage-capture --file packages/cli/sample-files/sample.xlsx --headless false
+npx webpage-capture --file sample.xlsx --headless false
 ```
 
 ## 주요 옵션

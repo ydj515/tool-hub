@@ -23,9 +23,9 @@ npm run setup
 ## CLI 사용
 루트에서 실행:
 ```bash
-npm run cli -- --file absolutePath/packages/cli/sample-files/sample.xlsx
+npm run cli -- --file absolutePath/docs/sample-files/sample.xlsx
 # 또는
-npx webpage-capture --file packages/cli/sample-files/sample.xlsx --wait 2500 --headless false
+npx webpage-capture --file docs/sample-files/sample.xlsx --wait 2500 --headless false
 ```
 
 주요 옵션은 `--sheet`, `--id`/`--subject`/`--url`, `--out`(기본: 실행 디렉토리의 `./screenshots`), `--wait`, `--headless false`, `--dedupe false`, `--csvEncoding utf8|cp949|euc-kr`. TXT 파일은 한 줄 한 URL, `#` 주석 허용.
@@ -35,6 +35,7 @@ npx webpage-capture --file packages/cli/sample-files/sample.xlsx --wait 2500 --h
 ## Electron 앱
 ```bash
 npm start                 # dev 모드로 GUI 실행
+npm install --workspace @webpage-capture/electron-app
 npm run setup:bundle      # Playwright 브라우저 번들 다운로드
 npm run build:mac         # macOS dmg (workspace 스크립트 호출)
 npm run build:win         # Windows nsis
