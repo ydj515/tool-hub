@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webpage Capture Tool</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Webpage Capture Tool</h1>
+    </header>
+    <main>
+      <section class="card">
+        <p class="section-title">입력 파일</p>
+        <div class="field">
+          <label class="mb-6">입력 파일 (xlsx/csv/txt)</label>
+          <div class="field">
+            <input type="text" id="files" placeholder="콤마로 구분된 경로" />
+          </div>
+          <div class="dropzone clickable" id="dropzone">
+            <p class="drop-title">여기에 파일을 드래그&드롭하거나 클릭하세요</p>
+            <p class="drop-sub">xlsx, xls, csv, txt · 여러 파일 가능</p>
+          </div>
+          <p class="hint">
+            여러 개를 드래그&드롭하거나 직접 경로를 입력할 수 있습니다.
+          </p>
+        </div>
+
+      </section>
+
+      <section class="card">
+        <p class="section-title">출력 설정</p>
+        <div class="field">
+          <label class="mb-6">출력 폴더</label>
+          <div class="inline fill gap-10">
+            <button class="btn secondary" id="pick-out">폴더 선택</button>
+            <input type="text" id="outDir" placeholder="./screenshots" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="mb-6">시트명</label>
+          <input type="text" id="sheet" placeholder="page-list" />
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="section-title">캡처 옵션</p>
+
+        <div class="row">
+          <div class="field">
+            <label class="mb-6">CSV 인코딩</label>
+            <input type="text" id="csvEncoding" placeholder="utf8 또는 cp949" />
+          </div>
+          <div class="field">
+            <label class="mb-6">대기 시간 (ms)</label>
+            <input
+              type="number"
+              id="wait"
+              placeholder="2000"
+              value="2000"
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="mb-6">ID 컬럼</label>
+            <input type="text" id="colId" placeholder="id" />
+          </div>
+          <div class="field">
+            <label class="mb-6">Subject 컬럼</label>
+            <input type="text" id="colSubject" placeholder="subject" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="mb-6">URL 컬럼</label>
+            <input type="text" id="colUrl" placeholder="detailPage" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field inline align-center">
+            <input type="checkbox" id="dedupe" checked />
+            <label for="dedupe">중복 URL 제거</label>
+            <span
+              class="hint-icon"
+              data-tooltip="동일한 URL이 여러 번 등장하면 한 번만 캡처합니다."
+              >?</span
+            >
+          </div>
+          <div class="field inline align-center">
+            <input type="checkbox" id="headless" checked />
+            <label for="headless">헤드리스 실행</label>
+            <span
+              class="hint-icon"
+              data-tooltip="브라우저 창을 표시하지 않고 백그라운드로 실행합니다."
+              >?</span
+            >
+          </div>
+        </div>
+
+        <div class="inline actions">
+          <button class="btn" id="run">실행</button>
+          <button class="btn danger" id="cancel">취소</button>
+        </div>
+        <div class="status" id="status">대기 중</div>
+      </section>
+
+      <section class="card">
+        <p class="section-title">실패 URL</p>
+        <div class="failed-header">
+          <div class="pill" id="failed-count">0개</div>
+          <div class="inline gap-10">
+            <button class="btn secondary" id="copy-failed" disabled>
+              실패 URL 복사
+            </button>
+          </div>
+        </div>
+        <p class="hint">실패한 URL만 모아서 확인하고 재실행할 수 있습니다.</p>
+        <div class="failed-box">
+          <pre id="failed-urls"></pre>
+        </div>
+        <div class="inline actions">
+          <button class="btn" id="rerun-failed" disabled>실패 URL만 재실행</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="section-title">로그</p>
+        <div class="logs">
+          <pre id="logs"></pre>
+        </div>
+      </section>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
