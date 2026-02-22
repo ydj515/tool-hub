@@ -1,0 +1,31 @@
+# Algo Scope 기본 Codex 실행 정책
+# AGENTS.md는 행동 규칙, 이 파일은 명령 실행 정책을 담당한다.
+
+# 파괴적 명령 차단
+prefix_rule(["git", "reset", "--hard"], "forbidden", justification="로컬 변경사항 손실 위험")
+prefix_rule(["git", "clean", "-fdx"], "forbidden", justification="추적되지 않은 파일까지 강제 삭제")
+prefix_rule(["rm", "-rf", "/"], "forbidden", justification="시스템 전체 삭제 위험")
+
+# 셸 문자열 래퍼 실행은 사용자 확인
+prefix_rule(["bash", "-c"], "prompt", justification="문자열 래퍼 실행은 실제 의도 확인 필요")
+prefix_rule(["bash", "-lc"], "prompt", justification="문자열 래퍼 실행은 실제 의도 확인 필요")
+prefix_rule(["zsh", "-c"], "prompt", justification="문자열 래퍼 실행은 실제 의도 확인 필요")
+prefix_rule(["zsh", "-lc"], "prompt", justification="문자열 래퍼 실행은 실제 의도 확인 필요")
+prefix_rule(["sh", "-c"], "prompt", justification="문자열 래퍼 실행은 실제 의도 확인 필요")
+
+# 원격/네트워크 영향 명령은 사용자 확인
+prefix_rule(["npm", "install"], "prompt", justification="의존성 설치/변경 가능성")
+prefix_rule(["npm", "ci"], "prompt", justification="의존성 재설치 및 잠재적 변경 확인")
+prefix_rule(["npm", "update"], "prompt", justification="의존성 버전 변경 가능성")
+prefix_rule(["npm", "audit"], "prompt", justification="네트워크 접근 필요")
+prefix_rule(["npm", "outdated"], "prompt", justification="네트워크 접근 필요")
+prefix_rule(["git", "push"], "prompt", justification="원격 저장소 변경")
+prefix_rule(["git", "pull"], "prompt", justification="원격 저장소 동기화")
+prefix_rule(["git", "fetch"], "prompt", justification="원격 저장소 접근")
+prefix_rule(["git", "clone"], "prompt", justification="원격 저장소 복제")
+
+# 반복적이고 안전한 검증 명령은 자동 허용
+prefix_rule(["npm", "run", "lint"], "allow")
+prefix_rule(["npm", "run", "build"], "allow")
+prefix_rule(["npm", "run", "test"], "allow")
+prefix_rule(["npm", "run", "dev"], "allow")

@@ -1,0 +1,4 @@
+[otel]
+environment = "staging"   # dev | staging | prod
+exporter = "none"          # none | otlp-http | otlp-grpc
+log_user_prompt = false     # redact prompt text unless policy allows
