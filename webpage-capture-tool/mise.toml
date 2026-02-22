@@ -1,0 +1,37 @@
+[tools]
+node = "24.12.0"
+
+[tasks.setup]
+alias = "su"
+description = "Setup Electron app"
+run = "npm install"
+
+[tasks.cli]
+alias = "c"
+description = "Run CLI workspace"
+run = "npm run cli --workspace @webpage-capture/cli --"
+
+[tasks.start]
+alias = "s"
+description = "Start Electron app"
+run = "npm run start --workspace @webpage-capture/electron-app"
+
+[tasks.setup]
+alias = "su"
+description = "Setup Electron app"
+run = "npm run setup --workspace @webpage-capture/electron-app"
+
+[tasks.setup-bundle]
+alias = "sb"
+description = "Setup bundle for Electron app"
+run = "npm run setup:bundle --workspace @webpage-capture/electron-app"
+
+[tasks.build-mac]
+alias = "bm"
+description = "Build macOS package"
+run = "npm run build:mac --workspace @webpage-capture/electron-app"
+
+[tasks.build-win]
+alias = "bw"
+description = "Build Windows package"
+run = "npm run build:win --workspace @webpage-capture/electron-app"
