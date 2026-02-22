@@ -12,7 +12,9 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
     return NextResponse.json({ error: "파일이 없거나 만료되었습니다." }, { status: 404 });
   }
 
-  return new NextResponse(item.buffer, {
+  const body = new Uint8Array(item.buffer);
+
+  return new Response(body, {
     status: 200,
     headers: {
       "content-type": item.mimeType,
