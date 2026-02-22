@@ -1,9 +1,9 @@
 [tools]
 node = "24.12.0"
 
-[tasks.setup]
-alias = "su"
-description = "Setup Electron app"
+[tasks.lib]
+alias = "l"
+description = "Install dependencies for all workspaces"
 run = "npm install"
 
 [tasks.cli]
