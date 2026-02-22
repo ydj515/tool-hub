@@ -1,0 +1,17 @@
+[tools]
+node = "24.12.0"
+
+[tasks.setup]
+alias = "s"
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.dev]
+alias = "d"
+description = "Run the application"
+run = "npm run dev"
+
+[tasks.build]
+alias = "b"
+description = "Build the application"
+run = "npm run build"
