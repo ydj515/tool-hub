@@ -2,7 +2,7 @@
 
 Next.js(App Router) 기반 더미 파일 생성기입니다. `PDF / DOCX / XLSX`를 포함해 다양한 포맷을 목표 용량으로 생성하고 다운로드합니다.
 
-[웹페이지링크](https://dummy-file-generator.vercel.app/)
+[웹페이지링크](https://tool-hubdummy-file-generator.vercel.app/)
 
 ![Preview](./docs/image.png)
 
