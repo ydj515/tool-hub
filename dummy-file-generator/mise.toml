@@ -1,6 +1,10 @@
 [tools]
 node = "24.12.0"
 
+[tasks.default]
+description = "Default task (runs dev)"
+depends = ["dev"]
+
 [tasks.setup]
 alias = "s"
 description = "Install dependencies"
