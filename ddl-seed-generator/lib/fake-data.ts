@@ -23,8 +23,8 @@ export function generateFakeData(analysis: AnalysisResult, options: GenerationOp
 
   for (const generatedTable of generatedTables) {
     for (const foreignKey of generatedTable.table.foreignKeys) {
-      const parentRows = rowsByTable.get(foreignKey.refTable.toLowerCase());
-      const parentTable = tableByName.get(foreignKey.refTable.toLowerCase());
+      const parentRows = findByTableRef(rowsByTable, foreignKey.refTable);
+      const parentTable = findByTableRef(tableByName, foreignKey.refTable);
 
       if (!parentRows || parentRows.length === 0 || !parentTable) {
         continue;
@@ -372,6 +372,19 @@ function shouldUseNull(column: ColumnSchema, rowIndex: number): boolean {
     return false;
   }
   return rowIndex > 5 && rowIndex % 13 === 0;
+}
+
+function findByTableRef<T>(map: Map<string, T>, refTable: string): T | undefined {
+  const exact = map.get(refTable.toLowerCase());
+  if (exact !== undefined) return exact;
+  const unqualified = refTable.split(".").pop()?.toLowerCase();
+  if (!unqualified) return undefined;
+  for (const [key, value] of map) {
+    if (key === unqualified || key.split(".").pop() === unqualified) {
+      return value;
+    }
+  }
+  return undefined;
 }
 
 function findFirstPrimaryKey(table: TableSchema): string {

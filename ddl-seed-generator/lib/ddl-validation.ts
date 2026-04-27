@@ -1,3 +1,4 @@
+import { normalizeIdentifier, extractParenBody } from "@/lib/ddl-utils";
 import type { DdlSyntaxIssue, DdlValidationResult, Dialect } from "@/lib/types";
 
 interface StatementRange {
@@ -35,8 +36,17 @@ interface SemanticModel {
   foreignKeys: SemanticForeignKey[];
 }
 
-const CREATE_TABLE_PATTERN =
-  /create\s+(?:temporary\s+|temp\s+)?table\s+(?:if\s+not\s+exists\s+)?((?:"[^"]+"|`[^`]+`|\[[^\]]+\]|[\w.])+)\s*\(([\s\S]*)\)\s*(?:[\s\S]*)$/i;
+const CREATE_TABLE_HEADER_PATTERN =
+  /create\s+(?:temporary\s+|temp\s+)?table\s+(?:if\s+not\s+exists\s+)?((?:"[^"]+"|`[^`]+`|\[[^\]]+\]|[\w.])+)\s*\(/i;
+
+function matchCreateTable(statement: string): { tableName: string; body: string } | null {
+  const m = statement.match(CREATE_TABLE_HEADER_PATTERN);
+  if (!m || m.index === undefined) return null;
+  const openIdx = m.index + m[0].length - 1;
+  const body = extractParenBody(statement, openIdx);
+  if (body === null) return null;
+  return { tableName: m[1], body };
+}
 
 export function validateDdl(input: string, dialect: Dialect): DdlValidationResult {
   const trimmed = input.trim();
@@ -64,22 +74,30 @@ export function validateDdl(input: string, dialect: Dialect): DdlValidationResul
     const statementStart = statement.start + statement.text.search(/\S/);
     const position = positionAt(input, statementStart);
 
-    if (/^alter\s+table\b/i.test(normalized)) {
+    // 주석을 제거한 텍스트로 구문 종류를 분류하여 주석이 앞에 오는 경우를 처리
+    const classificationText = normalized
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/--[^\n]*/g, "")
+      .trimStart();
+
+    if (/^alter\s+table\b/i.test(classificationText)) {
       issues.push(...validateAlterTableFk(input, statementStart, normalized, dialect));
       continue;
     }
 
-    if (!/^create\s+/i.test(normalized)) {
-      issues.push({
-        severity: "error",
-        ...position,
-        message: "지원하지 않는 SQL 문입니다.",
-        hint: "CREATE TABLE 또는 ALTER TABLE ... ADD FOREIGN KEY 문을 입력해 주세요.",
-      });
+    if (!/^create\s+/i.test(classificationText)) {
+      if (classificationText.trim()) {
+        issues.push({
+          severity: "error",
+          ...position,
+          message: "지원하지 않는 SQL 문입니다.",
+          hint: "CREATE TABLE 또는 ALTER TABLE ... ADD FOREIGN KEY 문을 입력해 주세요.",
+        });
+      }
       continue;
     }
 
-    if (!/^create\s+(?:temporary\s+|temp\s+)?table\b/i.test(normalized)) {
+    if (!/^create\s+(?:temporary\s+|temp\s+)?table\b/i.test(classificationText)) {
       issues.push({
         severity: "error",
         ...position,
@@ -89,8 +107,8 @@ export function validateDdl(input: string, dialect: Dialect): DdlValidationResul
       continue;
     }
 
-    const match = normalized.match(CREATE_TABLE_PATTERN);
-    if (!match) {
+    const ctMatch = matchCreateTable(normalized);
+    if (!ctMatch) {
       issues.push({
         severity: "error",
         ...position,
@@ -101,11 +119,11 @@ export function validateDdl(input: string, dialect: Dialect): DdlValidationResul
     }
 
     createTableCount += 1;
-    const tableNameIssue = validateIdentifierToken(input, statementStart + normalized.indexOf(match[1]), match[1], dialect, "테이블 이름");
+    const tableNameIssue = validateIdentifierToken(input, statementStart + normalized.indexOf(ctMatch.tableName), ctMatch.tableName, dialect, "테이블 이름");
     if (tableNameIssue) {
       issues.push(tableNameIssue);
     }
-    issues.push(...validateCreateTableBody(input, statement, match[1], match[2], dialect));
+    issues.push(...validateCreateTableBody(input, statement, ctMatch.tableName, ctMatch.body, dialect));
   }
 
   issues.push(...validateSemanticReferences(input, splitResult.statements, dialect));
@@ -699,13 +717,13 @@ function collectSemanticModel(statements: StatementRange[]): SemanticModel {
       continue;
     }
 
-    const match = normalized.match(CREATE_TABLE_PATTERN);
-    if (!match) {
+    const ctMatch = matchCreateTable(normalized);
+    if (!ctMatch) {
       continue;
     }
 
-    const tableName = normalizeIdentifier(match[1]);
-    const body = match[2];
+    const tableName = normalizeIdentifier(ctMatch.tableName);
+    const body = ctMatch.body;
     const bodyStartInStatement = statement.text.indexOf(body);
     if (bodyStartInStatement < 0) {
       continue;
@@ -1227,10 +1245,3 @@ function identifierHint(dialect: Dialect): string {
   return "PostgreSQL 모드에서는 unquoted identifier는 영문/숫자/_/$만 사용하고, 특수 문자나 한글은 \"name\"처럼 double quote로 감싸세요.";
 }
 
-function normalizeIdentifier(identifier: string): string {
-  return identifier
-    .trim()
-    .split(".")
-    .map((part) => part.trim().replace(/^["`\[]|["`\]]$/g, ""))
-    .join(".");
-}

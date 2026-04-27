@@ -1,3 +1,4 @@
+import { normalizeIdentifier, extractParenBody } from "@/lib/ddl-utils";
 import type {
   ColumnKind,
   ColumnReference,
@@ -83,16 +84,19 @@ export function parseDdl(input: string): ParseResult {
 }
 
 function parseCreateTable(statement: string, warnings: string[]): TableSchema | null {
-  const match = statement.match(
-    /create\s+(?:temporary\s+|temp\s+)?table\s+(?:if\s+not\s+exists\s+)?((?:"[^"]+"|`[^`]+`|\[[^\]]+\]|[\w.])+)\s*\(([\s\S]*)\)\s*(?:[\s\S]*)$/i,
+  const headerMatch = statement.match(
+    /create\s+(?:temporary\s+|temp\s+)?table\s+(?:if\s+not\s+exists\s+)?((?:"[^"]+"|`[^`]+`|\[[^\]]+\]|[\w.])+)\s*\(/i,
   );
 
-  if (!match) {
+  if (!headerMatch || headerMatch.index === undefined) {
     return null;
   }
 
-  const tableName = normalizeIdentifier(match[1]);
-  const body = match[2].trim();
+  const tableName = normalizeIdentifier(headerMatch[1]);
+  const openParenIndex = headerMatch.index + headerMatch[0].length - 1;
+  const rawBody = extractParenBody(statement, openParenIndex);
+  if (rawBody === null) return null;
+  const body = rawBody.trim();
   const items = splitTopLevel(body, ",");
   const columns: ColumnSchema[] = [];
   const foreignKeys: ForeignKey[] = [];
@@ -252,7 +256,70 @@ function parseInlineReference(input: string): ColumnReference | undefined {
 }
 
 function stripComments(input: string): string {
-  return input.replace(/\/\*[\s\S]*?\*\//g, "").replace(/--.*$/gm, "");
+  let output = "";
+  let quote: "'" | '"' | "`" | null = null;
+  let bracketQuote = false;
+  let i = 0;
+
+  while (i < input.length) {
+    const char = input[i];
+    const next = input[i + 1];
+
+    if (quote !== null) {
+      output += char;
+      if (char === quote && next === quote) {
+        output += next;
+        i += 2;
+      } else if (char === quote) {
+        quote = null;
+        i++;
+      } else {
+        i++;
+      }
+      continue;
+    }
+
+    if (bracketQuote) {
+      output += char;
+      if (char === "]") bracketQuote = false;
+      i++;
+      continue;
+    }
+
+    if (char === "-" && next === "-") {
+      i += 2;
+      while (i < input.length && input[i] !== "\n") i++;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      i += 2;
+      while (i < input.length) {
+        if (input[i] === "*" && input[i + 1] === "/") { i += 2; break; }
+        i++;
+      }
+      continue;
+    }
+
+    if (char === "'" || char === '"' || char === "`") {
+      quote = char;
+      output += char;
+      i++;
+      continue;
+    }
+
+    if (char === "[") {
+      bracketQuote = true;
+      output += char;
+      i++;
+      continue;
+    }
+
+    output += char;
+    i++;
+  }
+
+  return output;
 }
 
 function splitSqlStatements(input: string): string[] {
@@ -450,8 +517,49 @@ function parseTypeShape(rawType: string): Partial<Pick<ColumnSchema, "length" | 
 }
 
 function parseDefaultValue(input: string): string | undefined {
-  const match = input.match(/\bdefault\s+((?:'[^']*')|(?:"[^"]*")|[^,\s]+)/i);
-  return match?.[1];
+  const defaultMatch = input.match(/\bdefault\s+/i);
+  if (!defaultMatch || defaultMatch.index === undefined) return undefined;
+
+  const rest = input.slice(defaultMatch.index + defaultMatch[0].length);
+  if (!rest) return undefined;
+
+  const first = rest[0];
+
+  if (first === "'") {
+    let i = 1;
+    while (i < rest.length) {
+      if (rest[i] === "'" && rest[i + 1] === "'") { i += 2; continue; }
+      if (rest[i] === "'") return rest.slice(0, i + 1);
+      i++;
+    }
+    return rest;
+  }
+
+  if (first === '"') {
+    let i = 1;
+    while (i < rest.length) {
+      if (rest[i] === '"' && rest[i + 1] === '"') { i += 2; continue; }
+      if (rest[i] === '"') return rest.slice(0, i + 1);
+      i++;
+    }
+    return rest;
+  }
+
+  let depth = 0;
+  for (let i = 0; i < rest.length; i++) {
+    const c = rest[i];
+    if (c === "(") { depth++; continue; }
+    if (c === ")") {
+      if (depth === 0) return rest.slice(0, i).trim() || undefined;
+      depth--;
+      continue;
+    }
+    if (depth === 0 && (c === "," || /\s/.test(c))) {
+      return rest.slice(0, i).trim() || undefined;
+    }
+  }
+
+  return rest.trim() || undefined;
 }
 
 function parseEnumValues(rawType: string): string[] | undefined {
@@ -487,14 +595,6 @@ function parseColumnList(input: string): string[] {
 
 function parseIdentifierList(input: string): string[] {
   return splitTopLevel(input, ",").map((part) => normalizeIdentifier(part.trim())).filter(Boolean);
-}
-
-function normalizeIdentifier(identifier: string): string {
-  return identifier
-    .trim()
-    .split(".")
-    .map((part) => part.trim().replace(/^["`\[]|["`\]]$/g, ""))
-    .join(".");
 }
 
 function sameIdentifier(left: string, right: string): boolean {
