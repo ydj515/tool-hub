@@ -216,7 +216,10 @@ function renderValue(value: SqlValue, column: ColumnSchema, dialect: Dialect): s
     return `X'${hex}'`;
   }
 
-  return `'${value.replace(/'/g, "''")}'`;
+  const escaped = dialect === "mysql"
+    ? value.replace(/\\/g, "\\\\").replace(/'/g, "''")
+    : value.replace(/'/g, "''");
+  return `'${escaped}'`;
 }
 
 function quoteIdentifier(identifier: string, dialect: Dialect): string {

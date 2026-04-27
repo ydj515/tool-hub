@@ -575,9 +575,7 @@ function parseEnumValues(rawType: string): string[] | undefined {
 
 function parseCheckInValues(input: string, columnName: string): string[] | undefined {
   const escapedName = columnName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match =
-    input.match(new RegExp(`\\b${escapedName}\\b\\s+in\\s*\\(([^)]+)\\)`, "i")) ??
-    input.match(/\bin\s*\(([^)]+)\)/i);
+  const match = input.match(new RegExp(`\\b${escapedName}\\b\\s+in\\s*\\(([^)]+)\\)`, "i"));
 
   if (!match) {
     return undefined;

@@ -245,14 +245,14 @@ function realisticValue(column: ColumnSchema, tableName: string, rowIndex: numbe
   if (name.includes("phone") || name.includes("mobile") || name.includes("tel")) {
     return fitString(f.phone.number({ style: "national" }), column.length ?? 32);
   }
-  if (name === "name" || name.endsWith("_name") || name.includes("full_name")) {
-    return fitString(f.person.fullName(), column.length ?? 80);
-  }
   if (name.includes("first_name")) {
     return fitString(f.person.firstName(), column.length ?? 40);
   }
   if (name.includes("last_name")) {
     return fitString(f.person.lastName(), column.length ?? 40);
+  }
+  if (name === "name" || name.endsWith("_name") || name.includes("full_name")) {
+    return fitString(f.person.fullName(), column.length ?? 80);
   }
   if (name.includes("username") || name.includes("login")) {
     return fitString(f.internet.username(), column.length ?? 40);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { loader, useMonaco, type OnMount } from "@monaco-editor/react";
 import * as monacoLib from "monaco-editor";
 import type { editor, IDisposable, languages } from "monaco-editor";
@@ -59,6 +59,7 @@ export default function MonacoDdlEditor({
 }: Props) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const [editorMounted, setEditorMounted] = useState(false);
   const completionDisposable = useRef<IDisposable | null>(null);
   const tableNamesRef = useRef<string[]>(tableNames);
   const columnNamesRef = useRef<string[]>(columnNames);
@@ -70,12 +71,13 @@ export default function MonacoDdlEditor({
 
   const handleMount: OnMount = (editorInstance) => {
     editorRef.current = editorInstance;
+    setEditorMounted(true);
     onEditorMount(editorInstance);
   };
 
-  // Sync validation markers
+  // editorMounted를 의존성에 추가해 초기 마운트 직후에도 마커가 설정되도록 합니다.
   useEffect(() => {
-    if (!monaco || !editorRef.current) {
+    if (!monaco || !editorMounted || !editorRef.current) {
       return;
     }
     const model = editorRef.current.getModel();
@@ -96,7 +98,7 @@ export default function MonacoDdlEditor({
     }));
 
     monaco.editor.setModelMarkers(model, "ddl-validation", markers);
-  }, [monaco, issues]);
+  }, [monaco, editorMounted, issues]);
 
   // Register autocomplete provider once per monaco instance
   useEffect(() => {

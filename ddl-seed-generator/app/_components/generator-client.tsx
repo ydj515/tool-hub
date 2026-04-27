@@ -423,12 +423,14 @@ export default function GeneratorClient() {
   }
 
   async function copySql() {
-    if (!activeSql) {
-      return;
+    if (!activeSql) return;
+    try {
+      await navigator.clipboard.writeText(activeSql);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setError("클립보드 복사에 실패했습니다. 직접 선택 후 복사해 주세요.");
     }
-    await navigator.clipboard.writeText(activeSql);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
   }
 
   return (
