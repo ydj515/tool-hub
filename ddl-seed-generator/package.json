@@ -1,0 +1,29 @@
+{
+  "name": "ddl-seed-generator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@monaco-editor/react": "^4.7.0",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.11.0",
+    "next": "15.2.8",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.3",
+    "@types/react-dom": "^19.0.2",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "15.2.8",
+    "typescript": "^5.7.2"
+  }
+}
