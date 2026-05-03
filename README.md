@@ -6,3 +6,4 @@
 - sign-maker : canvas에 서명을 그리면 배경없는 이미지로 다운로드 할 수 있는 도구입니다.
 - dummy-file-generator : 원하는 용량의 더미 파일을 생성하는 도구입니다.
 - ddl-seed-generator : DDL을 입력하면 FK 순서에 맞는 seed SQL과 rollback SQL을 생성하는 도구입니다.
+- config-diff-viewer : YAML/JSON/properties/.env 설정 파일을 비교하고, 누락 키·위험 설정·민감정보를 탐지하는 도구입니다.
