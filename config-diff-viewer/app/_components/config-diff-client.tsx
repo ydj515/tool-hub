@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeftRight,
@@ -14,10 +14,12 @@ import MonacoDiffEditor from "./monaco-diff-editor";
 import ResultPanel from "./result-panel";
 import AnalysisOptionsBar from "./analysis-options";
 import RulesDrawer from "./rules-drawer";
+import { useDebouncedParser } from "./use-debounced-parser";
 import { parseConfigFile, detectFormat } from "@/lib/parser";
 import { computeDiff } from "@/lib/differ";
 import { detectSecrets } from "@/lib/detector";
 import { validateConfig } from "@/lib/validator";
+import { detectDuplicateKeys } from "@/lib/duplicate-detector";
 import type { AnalysisOptions, ConfigFormat, ValidationReport } from "@/lib/types";
 
 const SAMPLE_A = `spring:
@@ -108,6 +110,7 @@ const FORMAT_LABELS: Record<ConfigFormat, string> = {
 const DEFAULT_OPTIONS: AnalysisOptions = {
   enableSecretDetection: true,
   enableDangerousConfigDetection: true,
+  enableDuplicateKeyDetection: true,
 };
 
 function buildReport(
@@ -126,6 +129,8 @@ function buildReport(
     ...(options.enableSecretDetection ? detectSecrets(fileB, envB) : []),
     ...(options.enableDangerousConfigDetection ? validateConfig(fileA, envA) : []),
     ...(options.enableDangerousConfigDetection ? validateConfig(fileB, envB) : []),
+    ...(options.enableDuplicateKeyDetection ? detectDuplicateKeys(fileA, envA) : []),
+    ...(options.enableDuplicateKeyDetection ? detectDuplicateKeys(fileB, envB) : []),
   ];
 
   const matched    = diffResults.filter((d) => d.status === "UNCHANGED").length;
@@ -170,9 +175,9 @@ export default function ConfigDiffClient() {
   const [envA, setEnvA]           = useState("dev");
   const [envB, setEnvB]           = useState("prod");
 
-  // Parse errors
-  const [parseErrorA, setParseErrorA] = useState("");
-  const [parseErrorB, setParseErrorB] = useState("");
+  // 실시간 파스 오류 감지 (debounce 400ms)
+  const parseErrorA = useDebouncedParser(contentA, filenameA, formatA);
+  const parseErrorB = useDebouncedParser(contentB, filenameB, formatB);
 
   // Analysis
   const [options, setOptions]                     = useState<AnalysisOptions>(DEFAULT_OPTIONS);
@@ -181,66 +186,44 @@ export default function ConfigDiffClient() {
   const [isComparing, setIsComparing]             = useState(false);
   const [rulesOpen, setRulesOpen]                 = useState(false);
 
-  // 실시간 파스 오류 감지 (debounce 400ms)
-  useEffect(() => {
-    if (!contentA.trim()) { setParseErrorA(""); return; }
-    const id = setTimeout(() => {
-      try {
-        const parsed = parseConfigFile(contentA, filenameA, formatA);
-        setParseErrorA(
-          parsed.parseErrors.length > 0
-            ? `Line ${parsed.parseErrors[0].line}: ${parsed.parseErrors[0].message}`
-            : "",
-        );
-      } catch {
-        setParseErrorA("파싱 오류: 포맷을 확인하세요.");
-      }
-    }, 400);
-    return () => clearTimeout(id);
-  }, [contentA, formatA, filenameA]);
-
-  useEffect(() => {
-    if (!contentB.trim()) { setParseErrorB(""); return; }
-    const id = setTimeout(() => {
-      try {
-        const parsed = parseConfigFile(contentB, filenameB, formatB);
-        setParseErrorB(
-          parsed.parseErrors.length > 0
-            ? `Line ${parsed.parseErrors[0].line}: ${parsed.parseErrors[0].message}`
-            : "",
-        );
-      } catch {
-        setParseErrorB("파싱 오류: 포맷을 확인하세요.");
-      }
-    }, 400);
-    return () => clearTimeout(id);
-  }, [contentB, formatB, filenameB]);
-
   // File upload refs
   const inputARef = useRef<HTMLInputElement>(null);
   const inputBRef = useRef<HTMLInputElement>(null);
 
-  // 마지막 비교 이후 내용이 변경되었는지 감지
+  // 마지막 비교 이후 내용·포맷이 변경되었는지 감지
   const isDirty = compareSnapshot !== null && (
-    contentA !== compareSnapshot.contentA || contentB !== compareSnapshot.contentB
+    contentA !== compareSnapshot.contentA ||
+    contentB !== compareSnapshot.contentB ||
+    formatA  !== compareSnapshot.formatA  ||
+    formatB  !== compareSnapshot.formatB
   );
 
   function handleCompare() {
-    // 파스 오류가 있으면 비교 중단
-    if (parseErrorA || parseErrorB) return;
+    // 디바운스 상태를 믿지 않고 동기적으로 재검증
+    const tmpA = parseConfigFile(contentA, filenameA, formatA);
+    const tmpB = parseConfigFile(contentB, filenameB, formatB);
+    const errA = tmpA.parseErrors.length > 0
+      ? `Line ${tmpA.parseErrors[0].line}: ${tmpA.parseErrors[0].message}` : "";
+    const errB = tmpB.parseErrors.length > 0
+      ? `Line ${tmpB.parseErrors[0].line}: ${tmpB.parseErrors[0].message}` : "";
+    if (errA || errB) return;
 
+    // React 18 배치로 인해 setIsComparing(true) 직후 페인트가 안 됨 →
+    // setTimeout으로 한 프레임 양보해 스피너가 실제로 보이도록 함
     setIsComparing(true);
-    try {
-      const newReport = buildReport(
-        contentA, filenameA, formatA, envA,
-        contentB, filenameB, formatB, envB,
-        options,
-      );
-      setReport(newReport);
-      setCompareSnapshot({ contentA, contentB, formatA, formatB });
-    } finally {
-      setIsComparing(false);
-    }
+    setTimeout(() => {
+      try {
+        const newReport = buildReport(
+          contentA, filenameA, formatA, envA,
+          contentB, filenameB, formatB, envB,
+          options,
+        );
+        setReport(newReport);
+        setCompareSnapshot({ contentA, contentB, formatA, formatB });
+      } finally {
+        setIsComparing(false);
+      }
+    }, 0);
   }
 
   function handleReset() {
@@ -252,8 +235,6 @@ export default function ConfigDiffClient() {
     setFormatB("yaml");
     setEnvA("dev");
     setEnvB("prod");
-    setParseErrorA("");
-    setParseErrorB("");
     setReport(null);
     setCompareSnapshot(null);
   }
@@ -426,7 +407,7 @@ export default function ConfigDiffClient() {
 
         {/* Result panel */}
         {report ? (
-          <ResultPanel report={report} options={options} />
+          <ResultPanel report={report} options={options} key={report.id} />
         ) : (
           <div className="resultCard">
             <div className="emptyState">

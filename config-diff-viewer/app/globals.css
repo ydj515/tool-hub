@@ -639,6 +639,45 @@ h1 {
   opacity: 0.8;
 }
 
+/* ── Toggle tooltip ── */
+.optionToggle[data-tooltip] {
+  position: relative;
+}
+.optionToggle[data-tooltip]::before,
+.optionToggle[data-tooltip]::after {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+}
+/* 말풍선 본문 */
+.optionToggle[data-tooltip]::after {
+  content: attr(data-tooltip);
+  bottom: calc(100% + 9px);
+  background: var(--code);
+  color: #f0f4f2;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+/* 화살표 */
+.optionToggle[data-tooltip]::before {
+  content: "";
+  bottom: calc(100% + 4px);
+  border: 5px solid transparent;
+  border-top-color: var(--code);
+}
+.optionToggle[data-tooltip]:hover::before,
+.optionToggle[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
 .toggleDot {
   width: 8px;
   height: 8px;

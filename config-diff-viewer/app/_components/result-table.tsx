@@ -3,7 +3,7 @@
 import IssueBadge from "./issue-badge";
 import type { DiffResult, ValidationIssue, ValidationReport } from "@/lib/types";
 
-type TabType = "diff" | "missing" | "secrets" | "warnings";
+type TabType = "diff" | "missing" | "secrets" | "warnings" | "duplicates";
 
 function ValueCell({
   cv,
@@ -187,6 +187,45 @@ function MissingTable({
   );
 }
 
+function DuplicateTable({ issues }: { issues: ValidationIssue[] }) {
+  if (issues.length === 0) {
+    return (
+      <div className="emptyState">
+        <p>중복 키가 없습니다.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="tableWrapper">
+      <table className="issueTable">
+        <thead>
+          <tr>
+            <th style={{ width: 90 }}>Severity</th>
+            <th>Key</th>
+            <th>파일</th>
+            <th>내용</th>
+            <th>제안</th>
+          </tr>
+        </thead>
+        <tbody>
+          {issues.map((issue) => (
+            <tr key={issue.id}>
+              <td><IssueBadge severity={issue.severity} /></td>
+              <td><span className="keyPath">{issue.key ?? "—"}</span></td>
+              <td><span className="valuePill">{issue.file}</span></td>
+              <td style={{ maxWidth: 260 }}>{issue.message}</td>
+              <td style={{ maxWidth: 220 }}>
+                <span className="suggestionText">{issue.suggestion ?? "—"}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 interface Props {
   report: ValidationReport;
   tab: TabType;
@@ -195,32 +234,21 @@ interface Props {
 export default function ResultTable({ report, tab }: Props) {
   const { diffResults, issues, fileA, fileB } = report;
 
-  const changedDiff = diffResults.filter(
-    (d) => d.status === "CHANGED" || d.status === "TYPE_CHANGED",
-  );
-  const secrets = issues.filter((i) => i.category === "SECRET");
-  const warnings = issues.filter((i) => i.category === "DANGEROUS_CONFIG");
+  const changedDiff  = diffResults.filter((d) => d.status === "CHANGED" || d.status === "TYPE_CHANGED");
+  const secrets      = issues.filter((i) => i.category === "SECRET");
+  const warnings     = issues.filter((i) => i.category === "DANGEROUS_CONFIG");
+  const duplicates   = issues.filter((i) => i.category === "DUPLICATE_KEY");
 
   switch (tab) {
     case "diff":
-      return (
-        <DiffTable
-          rows={changedDiff}
-          filenameA={fileA.filename}
-          filenameB={fileB.filename}
-        />
-      );
+      return <DiffTable rows={changedDiff} filenameA={fileA.filename} filenameB={fileB.filename} />;
     case "missing":
-      return (
-        <MissingTable
-          diffResults={diffResults}
-          filenameA={fileA.filename}
-          filenameB={fileB.filename}
-        />
-      );
+      return <MissingTable diffResults={diffResults} filenameA={fileA.filename} filenameB={fileB.filename} />;
     case "secrets":
       return <IssueTable issues={secrets} />;
     case "warnings":
       return <IssueTable issues={warnings} />;
+    case "duplicates":
+      return <DuplicateTable issues={duplicates} />;
   }
 }

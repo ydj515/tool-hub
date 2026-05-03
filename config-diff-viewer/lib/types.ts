@@ -3,6 +3,7 @@ export type ConfigFormat = "yaml" | "json" | "properties" | "env";
 export interface AnalysisOptions {
   enableSecretDetection: boolean;
   enableDangerousConfigDetection: boolean;
+  enableDuplicateKeyDetection: boolean;
 }
 export type Severity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 export type IssueCategory =

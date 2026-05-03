@@ -10,7 +10,15 @@ export function detectFormat(filename: string, content: string): ConfigFormat {
   if (lower.startsWith(".env") || ext === "env") return "env";
   const trimmed = content.trim();
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "json";
-  if (!trimmed.includes(":") && trimmed.includes("=")) return "env";
+  // 전체 문자열로 ":" 포함 여부를 판단하면 URL 값(postgres://host:5432) 때문에
+  // false negative가 발생하므로 줄 단위로 KEY=VALUE 패턴을 확인한다
+  const meaningfulLines = trimmed.split("\n").filter((l) => {
+    const t = l.trim();
+    return t && !t.startsWith("#");
+  });
+  const looksLikeEnv = meaningfulLines.length > 0 &&
+    meaningfulLines.every((l) => /^[A-Z_][A-Z0-9_]*\s*=/.test(l.trim()));
+  if (looksLikeEnv) return "env";
   return "yaml";
 }
 
@@ -46,37 +54,58 @@ function maskValue(raw: string): string {
   return raw.slice(0, 4) + "*".repeat(Math.min(raw.length - 4, 8));
 }
 
+function flattenValue(
+  fullKey: string,
+  v: unknown,
+  result: Record<string, ConfigValue>,
+): void {
+  if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+    Object.assign(result, flattenObject(v as Record<string, unknown>, fullKey));
+    return;
+  }
+  if (Array.isArray(v)) {
+    v.forEach((item, idx) => {
+      flattenValue(`${fullKey}[${idx}]`, item, result);
+    });
+    return;
+  }
+  const rawValue = v === null || v === undefined ? "null" : String(v);
+  const placeholder = isPlaceholder(v);
+  const sensitive = isSensitiveKey(fullKey);
+  const cv: ConfigValue = {
+    key: fullKey,
+    value: v,
+    valueType: getValueType(v),
+    rawValue,
+    isPlaceholder: placeholder,
+    isSensitiveCandidate: sensitive,
+  };
+  if (sensitive && !placeholder && rawValue !== "null" && rawValue !== "") {
+    cv.maskedValue = maskValue(rawValue);
+  }
+  result[fullKey] = cv;
+}
+
 function flattenObject(
   obj: Record<string, unknown>,
   prefix = "",
 ): Record<string, ConfigValue> {
   const result: Record<string, ConfigValue> = {};
   for (const [k, v] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${k}` : k;
-    if (v !== null && typeof v === "object" && !Array.isArray(v)) {
-      Object.assign(result, flattenObject(v as Record<string, unknown>, fullKey));
-    } else {
-      const rawValue = v === null || v === undefined ? "null" : String(v);
-      const placeholder = isPlaceholder(v);
-      const sensitive = isSensitiveKey(fullKey);
-      const cv: ConfigValue = {
-        key: fullKey,
-        value: v,
-        valueType: getValueType(v),
-        rawValue,
-        isPlaceholder: placeholder,
-        isSensitiveCandidate: sensitive,
-      };
-      if (sensitive && !placeholder && rawValue !== "null" && rawValue !== "") {
-        cv.maskedValue = maskValue(rawValue);
-      }
-      result[fullKey] = cv;
-    }
+    flattenValue(prefix ? `${prefix}.${k}` : k, v, result);
   }
   return result;
 }
 
 function parseYaml(content: string): { parsed: Record<string, unknown>; errors: ParseError[] } {
+  // billion-laughs 방어: 크기 제한 + alias 개수 제한 (SEC-006)
+  if (content.length > 500_000) {
+    return { parsed: {}, errors: [{ line: 1, message: "YAML 콘텐츠가 너무 큽니다 (최대 500 KB)." }] };
+  }
+  const aliasCount = (content.match(/\*[A-Za-z_]\w*/g) ?? []).length;
+  if (aliasCount > 100) {
+    return { parsed: {}, errors: [{ line: 1, message: "YAML alias 수가 너무 많습니다 (최대 100개)." }] };
+  }
   try {
     const result = yaml.load(content, { schema: yaml.DEFAULT_SCHEMA });
     if (result === null || result === undefined) return { parsed: {}, errors: [] };
@@ -146,6 +175,11 @@ function parseProperties(content: string): { parsed: Record<string, unknown>; er
     }
   }
 
+  // 파일 끝에서 continuation이 끊겨도 누적된 값을 저장
+  if (pendingKey) {
+    result[pendingKey] = pendingVal;
+  }
+
   return { parsed: result, errors };
 }
 
@@ -199,7 +233,7 @@ export function parseConfigFile(
   }
 
   return {
-    id: Math.random().toString(36).slice(2),
+    id: crypto.randomUUID(),
     filename,
     format: fmt,
     rawContent: content,

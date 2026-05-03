@@ -20,7 +20,10 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         <span className="optionsLabel">분석 범위</span>
 
         {/* 기본 비교 — always on */}
-        <div className="optionToggle on locked" title="기본 키 비교는 항상 활성화됩니다.">
+        <div
+          className="optionToggle on locked"
+          data-tooltip="두 파일의 키를 비교하여 값 불일치와 누락 키를 찾습니다."
+        >
           <span className="toggleDot" />
           키 비교
           <span className="toggleStatusBadge on">항상</span>
@@ -30,6 +33,8 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         <button
           className={`optionToggle ${options.enableSecretDetection ? "on" : "off"}`}
           onClick={() => toggle("enableSecretDetection")}
+          aria-pressed={options.enableSecretDetection}
+          data-tooltip="password, secret, token 등 민감한 키·값 패턴을 탐지합니다."
         >
           <span className="toggleDot" />
           민감정보 탐지
@@ -42,11 +47,27 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         <button
           className={`optionToggle ${options.enableDangerousConfigDetection ? "on" : "off"}`}
           onClick={() => toggle("enableDangerousConfigDetection")}
+          aria-pressed={options.enableDangerousConfigDetection}
+          data-tooltip="Spring Boot, Kubernetes, Docker Compose의 위험한 설정을 검사합니다."
         >
           <span className="toggleDot" />
           위험 설정 탐지
           <span className={`toggleStatusBadge ${options.enableDangerousConfigDetection ? "on" : "off"}`}>
             {options.enableDangerousConfigDetection ? "ON" : "OFF"}
+          </span>
+        </button>
+
+        {/* Duplicate key detection */}
+        <button
+          className={`optionToggle ${options.enableDuplicateKeyDetection ? "on" : "off"}`}
+          onClick={() => toggle("enableDuplicateKeyDetection")}
+          aria-pressed={options.enableDuplicateKeyDetection}
+          data-tooltip="같은 파일 내에서 동일한 키가 두 번 이상 정의된 경우를 찾습니다."
+        >
+          <span className="toggleDot" />
+          중복 키 탐지
+          <span className={`toggleStatusBadge ${options.enableDuplicateKeyDetection ? "on" : "off"}`}>
+            {options.enableDuplicateKeyDetection ? "ON" : "OFF"}
           </span>
         </button>
 

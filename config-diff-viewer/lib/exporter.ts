@@ -137,6 +137,13 @@ export function generateTextSummary(report: ValidationReport): string {
     lines.push("");
   }
 
+  const missingInA = diffResults.filter((d) => d.status === "ADDED");
+  if (missingInA.length > 0) {
+    lines.push("[A 파일 누락 키]");
+    for (const d of missingInA) lines.push(`  - ${d.key}`);
+    lines.push("");
+  }
+
   const changed = diffResults.filter((d) => d.status === "CHANGED" || d.status === "TYPE_CHANGED");
   if (changed.length > 0) {
     lines.push("[값 불일치]");

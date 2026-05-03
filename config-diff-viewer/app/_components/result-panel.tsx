@@ -7,7 +7,7 @@ import ResultTable from "./result-table";
 import type { AnalysisOptions, ValidationReport } from "@/lib/types";
 import { generateJson, generateMarkdown, generateTextSummary } from "@/lib/exporter";
 
-type TabType = "diff" | "missing" | "secrets" | "warnings";
+type TabType = "diff" | "missing" | "secrets" | "warnings" | "duplicates";
 
 function downloadBlob(content: string, filename: string, mime: string) {
   const blob = new Blob([content], { type: mime });
@@ -33,8 +33,9 @@ export default function ResultPanel({ report, options }: Props) {
   const missingCount =
     diffResults.filter((d) => d.status === "REMOVED").length +
     diffResults.filter((d) => d.status === "ADDED").length;
-  const secretCount  = issues.filter((i) => i.category === "SECRET").length;
-  const warningCount = issues.filter((i) => i.category === "DANGEROUS_CONFIG").length;
+  const secretCount    = issues.filter((i) => i.category === "SECRET").length;
+  const warningCount   = issues.filter((i) => i.category === "DANGEROUS_CONFIG").length;
+  const duplicateCount = issues.filter((i) => i.category === "DUPLICATE_KEY").length;
 
   const firstTab: TabType =
     changedCount > 0 ? "diff"
@@ -59,10 +60,13 @@ export default function ResultPanel({ report, options }: Props) {
   }, [dropOpen]);
 
   function handleCopy() {
-    void navigator.clipboard.writeText(generateTextSummary(report));
-    setCopied(true);
+    navigator.clipboard.writeText(generateTextSummary(report)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // clipboard API 미지원 환경(non-HTTPS 등) 에서는 조용히 무시
+    });
     setDropOpen(false);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   function handleMarkdown() {
@@ -76,10 +80,11 @@ export default function ResultPanel({ report, options }: Props) {
   }
 
   const tabs: { id: TabType; label: string; count: number; enabled: boolean }[] = [
-    { id: "diff",     label: "값 불일치",  count: changedCount,  enabled: true },
-    { id: "missing",  label: "누락 키",    count: missingCount,  enabled: true },
-    { id: "secrets",  label: "민감정보",   count: secretCount,   enabled: options.enableSecretDetection },
-    { id: "warnings", label: "위험 설정",  count: warningCount,  enabled: options.enableDangerousConfigDetection },
+    { id: "diff",       label: "값 불일치",  count: changedCount,   enabled: true },
+    { id: "missing",    label: "누락 키",    count: missingCount,   enabled: true },
+    { id: "secrets",    label: "민감정보",   count: secretCount,    enabled: options.enableSecretDetection },
+    { id: "warnings",   label: "위험 설정",  count: warningCount,   enabled: options.enableDangerousConfigDetection },
+    { id: "duplicates", label: "중복 키",    count: duplicateCount, enabled: options.enableDuplicateKeyDetection },
   ];
 
   const criticalHigh = summary.critical + summary.high;

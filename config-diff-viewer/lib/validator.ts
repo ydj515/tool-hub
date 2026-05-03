@@ -172,7 +172,14 @@ const K8S_RULES: Rule[] = [
     message: "resources.limits가 설정되지 않아 컨테이너가 무제한 리소스를 사용할 수 있습니다.",
     conditionDesc: "resources.limits 키가 존재하지 않음",
     suggestion: "resources.limits.cpu 및 resources.limits.memory를 명시하세요.",
-    check: (f) => !Object.keys(f).some((k) => k.includes("resources.limits")),
+    check: (f) => {
+      const keys = Object.keys(f);
+      const isK8s = keys.some((k) =>
+        k === "kind" || k === "apiVersion" || k.startsWith("spec.") ||
+        k.includes("containers") || k.includes("resources"),
+      );
+      return isK8s && !keys.some((k) => k.includes("resources.limits"));
+    },
     affectedKey: () => undefined,
   },
 ];
