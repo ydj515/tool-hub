@@ -1,0 +1,41 @@
+[tools]
+node = "24.12.0"
+
+[tasks.default]
+description = "Default task (runs dev)"
+depends = ["dev"]
+
+[tasks.setup]
+alias = "s"
+description = "Install dependencies"
+depends = ["install"]
+
+[tasks.install]
+alias = "i"
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.dev]
+alias = "d"
+description = "Run the application"
+run = "npm run dev"
+
+[tasks.start]
+alias = "st"
+description = "Start the application"
+run = "npm run start"
+
+[tasks.build]
+alias = "b"
+description = "Build the application"
+run = "npm run build"
+
+[tasks.lint]
+alias = "l"
+description = "Run lint checks"
+run = "npm run lint"
+
+[tasks.typecheck]
+alias = "t"
+description = "Run TypeScript type checks"
+run = "npm run typecheck"
