@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeftRight,
   FileSearch,
   Loader2,
+  Moon,
   RotateCcw,
+  Sun,
   Upload,
 } from "lucide-react";
 
@@ -163,6 +165,24 @@ interface CompareSnapshot {
 }
 
 export default function ConfigDiffClient() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    const initial = saved === "light" || saved === "dark" ? saved : "light";
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+    setMounted(true);
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  }
+
   // Controlled textarea content
   const [contentA, setContentA] = useState(SAMPLE_A);
   const [contentB, setContentB] = useState(SAMPLE_B);
@@ -286,6 +306,9 @@ export default function ConfigDiffClient() {
           >
             {isComparing ? <Loader2 size={15} className="spinning" /> : <ArrowLeftRight size={15} />}
             비교
+          </button>
+          <button className="themeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
+            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
           </button>
         </div>
       </header>
