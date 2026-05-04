@@ -166,12 +166,14 @@ interface CompareSnapshot {
 
 export default function ConfigDiffClient() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
-    const initial = saved ?? "light";
+    const saved = localStorage.getItem("theme");
+    const initial = saved === "light" || saved === "dark" ? saved : "light";
     setTheme(initial);
     document.documentElement.setAttribute("data-theme", initial);
+    setMounted(true);
   }, []);
 
   function toggleTheme() {
@@ -306,7 +308,7 @@ export default function ConfigDiffClient() {
             비교
           </button>
           <button className="themeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
           </button>
         </div>
       </header>
