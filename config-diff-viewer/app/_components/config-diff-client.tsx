@@ -169,7 +169,9 @@ export default function ConfigDiffClient() {
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") as "light" | "dark" | null;
-    setTheme(saved ?? "light");
+    const initial = saved ?? "light";
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
   }, []);
 
   function toggleTheme() {

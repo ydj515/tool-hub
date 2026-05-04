@@ -173,7 +173,7 @@ h1 {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  border: 1px solid var(--line) !important;
+  border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
   display: grid;
@@ -325,7 +325,7 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.statusBadge.passed { background: #dcfce7; color: #166534; }
+.statusBadge.passed { background: rgba(39, 116, 95, 0.1); color: var(--green); }
 .statusBadge.failed { background: rgba(180,35,54,0.1); color: var(--danger); }
 
 /* ── Result panel ── */
