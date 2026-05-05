@@ -14,9 +14,9 @@
     "@tailwindcss/postcss": "^4.2.4",
     "js-yaml": "^4.1.0",
     "lucide-react": "^1.14.0",
-    "next": "15.2.8",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
@@ -26,7 +26,11 @@
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
     "eslint": "^9.39.1",
-    "eslint-config-next": "15.2.8",
+    "eslint-config-next": "^16.2.4",
     "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "dompurify": "^3.4.2",
+    "postcss": "^8.5.14"
   }
 }
