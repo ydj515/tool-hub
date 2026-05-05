@@ -20,6 +20,11 @@ alias = "d"
 description = "Run the application"
 run = "npm run dev"
 
+[tasks.test]
+alias = "te"
+description = "Run tests"
+run = "npm run test"
+
 [tasks.start]
 alias = "st"
 description = "Start the application"

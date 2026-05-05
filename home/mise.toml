@@ -20,6 +20,21 @@ alias = "d"
 description = "Run the application"
 run = "npm run dev"
 
+[tasks.test]
+alias = "te"
+description = "Run tests"
+run = "npm run test"
+
+[tasks.lint]
+alias = "l"
+description = "Run lint checks"
+run = "npm run lint"
+
+[tasks.typecheck]
+alias = "tc"
+description = "Run TypeScript type checks"
+run = "npm run typecheck"
+
 [tasks.build]
 alias = "b"
 description = "Build the application"

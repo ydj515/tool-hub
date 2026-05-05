@@ -118,6 +118,22 @@ const DEFAULT_OPTIONS: AnalysisOptions = {
   enableDuplicateKeyDetection: true,
 };
 
+function resolveInitialTheme(): "light" | "dark" {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  try {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") initial = saved;
+  } catch {
+    /* localStorage unavailable */
+  }
+
+  return initial;
+}
+
 function buildReport(
   contentA: string, filenameA: string, formatA: ConfigFormat, envA: string,
   contentB: string, filenameB: string, formatB: ConfigFormat, envB: string,
@@ -168,18 +184,16 @@ interface CompareSnapshot {
 }
 
 export default function ConfigDiffClient() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(resolveInitialTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark") initial = saved;
-    } catch { /* localStorage unavailable */ }
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-    setMounted(true);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setMounted(true));
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   function toggleTheme() {

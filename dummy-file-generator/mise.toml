@@ -8,12 +8,37 @@ depends = ["dev"]
 [tasks.setup]
 alias = "s"
 description = "Install dependencies"
+depends = ["install"]
+
+[tasks.install]
+alias = "i"
+description = "Install dependencies"
 run = "npm install"
 
 [tasks.dev]
 alias = "d"
 description = "Run the application"
 run = "npm run dev"
+
+[tasks.start]
+alias = "st"
+description = "Start the application"
+run = "npm run start"
+
+[tasks.test]
+alias = "te"
+description = "Run tests"
+run = "npm run test"
+
+[tasks.lint]
+alias = "l"
+description = "Run lint checks"
+run = "npm run lint"
+
+[tasks.typecheck]
+alias = "tc"
+description = "Run TypeScript type checks"
+run = "npm run typecheck"
 
 [tasks.build]
 alias = "b"

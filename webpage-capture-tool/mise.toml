@@ -5,10 +5,15 @@ node = "24.12.0"
 description = "Default task (runs start)"
 depends = ["start"]
 
+[tasks.install]
+alias = "i"
+description = "Install dependencies for all workspaces"
+run = "npm install"
+
 [tasks.lib]
 alias = "l"
 description = "Install dependencies for all workspaces"
-run = "npm install"
+depends = ["install"]
 
 [tasks.cli]
 alias = "c"
@@ -29,6 +34,16 @@ run = "npm run setup --workspace @webpage-capture/electron-app"
 alias = "sb"
 description = "Setup bundle for Electron app"
 run = "npm run setup:bundle --workspace @webpage-capture/electron-app"
+
+[tasks.test]
+alias = "te"
+description = "Run tests"
+run = "npm run test"
+
+[tasks.lint]
+alias = "li"
+description = "Run lint checks"
+run = "npm run lint"
 
 [tasks.build-mac]
 alias = "bm"

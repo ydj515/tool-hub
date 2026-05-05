@@ -19,11 +19,10 @@ export function useDebouncedParser(
   const [parseError, setParseError] = useState("");
 
   useEffect(() => {
-    if (!content.trim()) {
-      setParseError("");
-      return;
-    }
     const id = setTimeout(() => {
+      if (!content.trim()) {
+        return;
+      }
       try {
         const parsed = parseConfigFile(content, filename, format);
         setParseError(
@@ -38,5 +37,5 @@ export function useDebouncedParser(
     return () => clearTimeout(id);
   }, [content, filename, format, delay]);
 
-  return parseError;
+  return content.trim() ? parseError : "";
 }

@@ -107,6 +107,22 @@ function FormatIcon({ type }: { type: FileType }) {
   );
 }
 
+function resolveInitialTheme(): "light" | "dark" {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  try {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") initial = saved;
+  } catch {
+    /* localStorage unavailable */
+  }
+
+  return initial;
+}
+
 export default function GeneratorClient() {
   const [loading, setLoading] = useState(false);
   const [targetSize, setTargetSize] = useState("1");
@@ -114,18 +130,16 @@ export default function GeneratorClient() {
   const [zipStructure, setZipStructure] = useState<ZipStructure>("flat");
   const [zipExtensionProfile, setZipExtensionProfile] = useState<ZipExtensionProfile>("mixed");
   const [error, setError] = useState<string | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(resolveInitialTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark") initial = saved;
-    } catch { /* localStorage unavailable */ }
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-    setMounted(true);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setMounted(true));
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   function toggleTheme() {

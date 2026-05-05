@@ -7,27 +7,7 @@ import SignaturePad from "./components/SignaturePad";
 import type { SignaturePadRef } from "./components/SignaturePad";
 import ImageUploader from "./components/ImageUploader";
 import type { ImageUploaderRef } from "./components/ImageUploader";
-
-function resolveInitialTheme(): "light" | "dark" {
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-
-  try {
-    const saved = localStorage.getItem("theme");
-    if (saved === "light" || saved === "dark") {
-      initial = saved;
-    }
-  } catch {
-    /* localStorage unavailable */
-  }
-
-  return initial;
-}
+import { resolveInitialTheme } from "./theme";
 
 /**
  * 서명 그리기와 이미지 추출 워크플로를 한 화면에서 전환한다.
