@@ -105,7 +105,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         className="w-full rounded-lg overflow-hidden relative flex items-center justify-center transition-all"
         style={{
           height: "400px",
-          background: isDragging ? "var(--surface-3)" : "var(--surface-2)",
+          background: hasImage ? "#ffffff" : (isDragging ? "var(--surface-3)" : "var(--surface-2)"),
           border: isDragging ? "2px dashed var(--green)" : "1px solid var(--line)",
           cursor: !hasImage ? "pointer" : "default",
         }}

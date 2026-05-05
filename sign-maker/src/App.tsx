@@ -38,8 +38,7 @@ function App() {
     <div className="min-h-screen p-4 md:p-5">
       {/* Top bar */}
       <header
-        className="flex items-center gap-3 max-w-[1400px] mx-auto mb-4 px-4 py-3.5 rounded-lg"
-        style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
+        className="flex items-center gap-3 max-w-[1400px] mx-auto mb-4 px-4 py-3.5 rounded-lg bg-surface border border-line"
       >
         <div
           className="w-10 h-10 rounded-lg grid place-items-center shrink-0"
@@ -103,7 +102,7 @@ function App() {
       </header>
 
       {/* Workspace */}
-      <div className="max-w-[1400px] mx-auto grid gap-4" style={{ gridTemplateColumns: "1fr 320px" }}>
+      <div className="max-w-[1400px] mx-auto grid gap-4 grid-cols-1 md:grid-cols-[1fr_320px]">
 
         {/* Canvas panel */}
         <section
@@ -216,14 +215,6 @@ function App() {
         </aside>
       </div>
 
-      {/* Responsive: stack on mobile */}
-      <style>{`
-        @media (max-width: 768px) {
-          .max-w-\\[1400px\\] > div {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
