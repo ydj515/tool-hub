@@ -8,6 +8,23 @@ import type { editor, IDisposable, languages } from "monaco-editor";
 import type { Dialect, DdlSyntaxIssue } from "@/lib/types";
 
 // 로컬 번들을 직접 사용해 CDN 요청 및 worker URL 404를 방지합니다.
+// MonacoEnvironment.getWorker를 설정하지 않으면 워커 생성 실패 경고가 발생합니다.
+if (typeof window !== 'undefined') {
+  window.MonacoEnvironment = {
+    getWorker(_moduleId: string, label: string) {
+      if (label === 'editorWorkerService') {
+        return new Worker(
+          new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url)
+        );
+      }
+      // SQL은 별도 언어 워커 없음 — editor worker로 fallback
+      return new Worker(
+        new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url)
+      );
+    },
+  };
+}
+
 loader.config({ monaco: monacoLib });
 
 const SQL_KEYWORDS = [
