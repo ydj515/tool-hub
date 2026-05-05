@@ -1,3 +1,6 @@
+/**
+ * 더미 파일 생성 폼과 다운로드 UX를 담당하는 클라이언트 컴포넌트다.
+ */
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";

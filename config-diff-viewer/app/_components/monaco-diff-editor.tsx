@@ -1,3 +1,6 @@
+/**
+ * 원본과 대상 설정 파일을 나란히 보여주는 Monaco diff 래퍼다.
+ */
 "use client";
 
 import { DiffEditor, loader } from "@monaco-editor/react";

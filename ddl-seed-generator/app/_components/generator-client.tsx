@@ -1,3 +1,6 @@
+/**
+ * DDL 입력, 검증, SQL 생성 UX를 담당하는 메인 클라이언트 컴포넌트다.
+ */
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";

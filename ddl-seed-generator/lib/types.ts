@@ -1,3 +1,6 @@
+/**
+ * DDL 파싱, 분석, SQL 생성 과정에서 공유하는 타입을 정의한다.
+ */
 export type Dialect = "postgresql" | "mysql" | "h2";
 
 export type SqlValue = string | number | boolean | null;

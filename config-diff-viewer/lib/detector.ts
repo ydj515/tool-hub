@@ -1,3 +1,6 @@
+/**
+ * 설정 값에서 민감정보 패턴을 탐지하는 규칙을 제공한다.
+ */
 import type { ConfigFile, Severity, ValidationIssue } from "./types";
 
 // ── Metadata (for UI display) ─────────────────────────────────────────────────
@@ -111,6 +114,14 @@ const VALUE_RULES: ValueRule[] = [
 
 // ── Detection ─────────────────────────────────────────────────────────────────
 
+/**
+ * 설정 파일의 평탄화된 키-값 쌍에서 민감정보를 탐지한다.
+ * 키 이름 패턴(password, token 등)과 값 패턴(AWS Key, JWT, Base64 등) 두 가지 규칙을 적용하며,
+ * 환경 변수 placeholder(${VAR})는 제외된다. 동일 키에 대한 이슈는 중복 제거된다.
+ * @param file - 검사할 설정 파일 (flattened 필드 필요)
+ * @param environment - 이슈에 기록할 환경 레이블 (예: "prod")
+ * @returns 탐지된 민감정보 ValidationIssue[]
+ */
 export function detectSecrets(file: ConfigFile, environment?: string): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 

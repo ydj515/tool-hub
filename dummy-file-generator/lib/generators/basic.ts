@@ -1,3 +1,6 @@
+/**
+ * TXT, CSV, JSON, BIN, ZIP 더미 파일 생성 로직을 담고 있다.
+ */
 import JSZip from "jszip";
 
 import { GenerateMode, ZipExtensionProfile, ZipStructure } from "@/lib/types";
@@ -38,6 +41,9 @@ function csvEscape(value: string): string {
   return value;
 }
 
+/**
+ * 목표 크기에 맞는 텍스트 더미 파일을 생성한다.
+ */
 export function generateTxt(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
   const header = `Dummy text file\nseed: ${seed}\ncreated: ${seedToISOString(seed)}\n---\n`;
   const headerBytes = Buffer.byteLength(header, "utf-8");
@@ -73,6 +79,9 @@ export function generateTxt(targetBytes: number, mode: GenerateMode, seed: strin
   return { buffer: buf, modeApplied: buf.length === targetBytes ? "exact" : "at_least" };
 }
 
+/**
+ * 목표 크기에 맞는 CSV 더미 파일을 생성한다.
+ */
 export function generateCsv(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
   const header = "id,name,value\n";
   const headerBytes = Buffer.byteLength(header, "utf-8");
@@ -140,6 +149,9 @@ export function generateCsv(targetBytes: number, mode: GenerateMode, seed: strin
   return { buffer: buf, modeApplied: buf.length === targetBytes ? "exact" : "at_least" };
 }
 
+/**
+ * 목표 크기에 맞는 JSON 더미 파일을 생성한다.
+ */
 export function generateJson(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
   const createdAt = seedToISOString(seed);
   // 사용자 입력 seed의 특수 문자를 JSON 문자열로 안전하게 이스케이프
@@ -219,6 +231,9 @@ export function generateJson(targetBytes: number, mode: GenerateMode, seed: stri
   return { buffer: buf, modeApplied: buf.length === targetBytes ? "exact" : "at_least" };
 }
 
+/**
+ * 지정한 길이의 바이너리 더미 파일을 생성한다.
+ */
 export function generateBin(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
   const bytes = randomBytes(targetBytes, seed);
   if (mode === "exact") {
@@ -291,6 +306,9 @@ function buildZip(
   return zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
 }
 
+/**
+ * 압축 오버헤드를 보정하면서 목표 크기의 ZIP 더미 파일을 생성한다.
+ */
 export async function generateZip(
   targetBytes: number,
   mode: GenerateMode,

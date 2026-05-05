@@ -1,3 +1,6 @@
+/**
+ * DOCX와 XLSX를 위한 최소 OOXML ZIP 패키지를 생성한다.
+ */
 import JSZip from "jszip";
 
 import { GenerateMode } from "@/lib/types";
@@ -48,6 +51,9 @@ async function generateSizedZip(
   return { buffer: output, modeApplied, fallbackReason };
 }
 
+/**
+ * 목표 크기에 맞는 DOCX 더미 파일을 생성한다.
+ */
 export async function generateDocx(targetBytes: number, mode: GenerateMode, seed: string): Promise<GeneratorResult> {
   return generateSizedZip(
     (zip) => {
@@ -85,6 +91,9 @@ export async function generateDocx(targetBytes: number, mode: GenerateMode, seed
   );
 }
 
+/**
+ * 목표 크기에 맞는 XLSX 더미 파일을 생성한다.
+ */
 export async function generateXlsx(targetBytes: number, mode: GenerateMode, seed: string): Promise<GeneratorResult> {
   return generateSizedZip(
     (zip) => {

@@ -1,3 +1,6 @@
+/**
+ * Electron 렌더러에서 폼 입력, 실행 상태, 실패 URL 재실행 UX를 관리한다.
+ */
 ["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
   window.addEventListener(evt, (e) => {
     e.preventDefault();

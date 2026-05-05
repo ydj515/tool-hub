@@ -1,3 +1,6 @@
+/**
+ * 생성된 행 데이터를 INSERT와 ROLLBACK SQL 문자열로 렌더링한다.
+ */
 import type {
   AnalysisResult,
   ColumnSchema,
@@ -13,6 +16,15 @@ const INSERT_CHUNK_SIZE = 100;
 const ROLLBACK_IN_CHUNK_SIZE = 300;
 const ROLLBACK_PREDICATE_CHUNK_SIZE = 40;
 
+/**
+ * 생성된 테이블 데이터를 방언에 맞는 INSERT SQL과 ROLLBACK SQL 문자열로 렌더링한다.
+ * 순환 FK가 있으면 방언별 FK 완화 구문(preamble/postamble)을 자동으로 포함한다.
+ * INSERT는 100행 단위, ROLLBACK은 300행(IN 절) 또는 40행(predicate) 단위로 청크 처리된다.
+ * @param generatedTables - 테이블별 행 데이터 배열
+ * @param analysis - 삽입 순서 및 순환 그룹 정보가 담긴 스키마 분석 결과
+ * @param options - 방언, 행 수, 시드 정보
+ * @returns insertSql, rollbackSql, summary 객체
+ */
 export function renderSql(
   generatedTables: GeneratedTable[],
   analysis: AnalysisResult,

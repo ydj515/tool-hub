@@ -1,3 +1,6 @@
+/**
+ * 엑셀, CSV, TXT 입력 파일에서 캡처 대상 행을 읽어온다.
+ */
 const fs = require("fs");
 const path = require("path");
 const xlsx = require("xlsx");
@@ -151,6 +154,9 @@ function readRowsFromFile(filePath, { sheetName, columns, csvEncoding }) {
   throw new Error(`지원하지 않는 파일 확장자입니다: ${ext}`);
 }
 
+/**
+ * 여러 입력 파일에서 캡처 대상 행을 읽어 하나의 배열로 합친다.
+ */
 function loadRowsFromFiles(filePaths, opts) {
   const { columns, sheetName, csvEncoding } = opts;
   const allRows = [];
@@ -164,6 +170,9 @@ function loadRowsFromFiles(filePaths, opts) {
   return allRows;
 }
 
+/**
+ * URL 기준으로 중복 행을 제거해 첫 번째 항목만 유지한다.
+ */
 function dedupeByUrl(rows, urlKey) {
   const uniqueByUrl = new Map();
 

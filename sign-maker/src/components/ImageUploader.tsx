@@ -1,3 +1,6 @@
+/**
+ * 이미지 업로드 후 배경을 제거해 서명만 추출하는 컴포넌트다.
+ */
 import React, {
   useRef,
   useState,
@@ -16,6 +19,9 @@ interface ImageUploaderProps {
   threshold: number;
 }
 
+/**
+ * 업로드한 이미지에서 밝기 임계값을 기준으로 배경을 제거한다.
+ */
 const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
   ({ threshold }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);

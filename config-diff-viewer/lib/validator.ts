@@ -1,3 +1,6 @@
+/**
+ * 프레임워크별 위험 설정 규칙을 적용해 검증 이슈를 생성한다.
+ */
 import type { Severity, ValidationIssue } from "./types";
 
 export type RuleCategory = "spring-boot" | "kubernetes" | "docker-compose";
@@ -228,6 +231,14 @@ export const ALL_RULE_DEFINITIONS: RuleDefinition[] = [
   suggestion,
 }));
 
+/**
+ * 설정 파일에 위험 설정 규칙을 적용해 ValidationIssue 배열을 반환한다.
+ * prod/production 환경에서는 Spring Boot 규칙이 추가로 활성화된다.
+ * Kubernetes 및 Docker Compose 규칙은 환경에 관계없이 항상 평가된다.
+ * @param file - 검사할 파일 (filename, environment, flattened 필드 필요)
+ * @param environment - 환경 레이블 ("prod" | "production" 이면 Spring Boot 규칙 적용)
+ * @returns 매칭된 규칙에 대한 ValidationIssue[]
+ */
 export function validateConfig(
   file: { filename: string; environment?: string; flattened: Record<string, { rawValue: string }> },
   environment?: string,

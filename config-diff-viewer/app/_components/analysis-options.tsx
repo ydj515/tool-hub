@@ -1,3 +1,6 @@
+/**
+ * 비교 옵션과 규칙 보기 액션을 제어하는 툴바다.
+ */
 "use client";
 
 import { BookOpen } from "lucide-react";

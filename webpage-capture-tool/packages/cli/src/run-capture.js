@@ -1,3 +1,6 @@
+/**
+ * CLI 옵션 해석부터 행 필터링, 스크린샷 실행까지 전체 흐름을 조율한다.
+ */
 const {
   parseCliOptions,
   loadRowsFromFiles,
@@ -67,6 +70,9 @@ function filterRowsByUrl(rows, urlKey, onlyUrls = []) {
   });
 }
 
+/**
+ * 입력 로딩, 중복 제거, URL 필터링, 스크린샷 실행을 순서대로 수행한다.
+ */
 async function runCapture(opts) {
   if (opts.help) {
     logHelp();
@@ -121,6 +127,9 @@ async function runCapture(opts) {
   }
 }
 
+/**
+ * argv를 옵션으로 변환한 뒤 캡처 실행 흐름을 시작한다.
+ */
 async function runCli(argv) {
   const opts = parseCliOptions(argv);
   await runCapture(opts);

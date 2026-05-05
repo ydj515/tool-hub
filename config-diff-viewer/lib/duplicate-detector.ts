@@ -1,3 +1,6 @@
+/**
+ * 포맷별 규칙으로 동일 파일 내 중복 키를 탐지한다.
+ */
 import type { ConfigFile, ValidationIssue } from "./types";
 
 function makeIssue(file: string, env: string, key: string): ValidationIssue {
@@ -141,6 +144,13 @@ function detectEnvDuplicates(content: string): string[] {
 }
 
 // ── public API ────────────────────────────────────────────────────────────────
+/**
+ * 설정 파일에서 중복 정의된 키를 탐지해 ValidationIssue 배열로 반환한다.
+ * 포맷별 전용 파서(YAML indent-stack, JSON 상태 머신, properties/env 선형 스캔)를 사용한다.
+ * @param file - 검사할 설정 파일 (format 및 rawContent 필드 필요)
+ * @param env - 이슈에 기록할 환경 레이블 (예: "prod", "dev")
+ * @returns 중복 키에 대한 ValidationIssue[]
+ */
 export function detectDuplicateKeys(file: ConfigFile, env: string): ValidationIssue[] {
   let keys: string[];
   switch (file.format) {

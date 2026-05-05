@@ -1,3 +1,6 @@
+/**
+ * Tool Hub 홈 화면에 노출할 도구 메타데이터 목록을 정의한다.
+ */
 export type ToolStatus = 'live' | 'coming-soon';
 
 export interface Tool {

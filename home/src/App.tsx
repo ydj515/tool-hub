@@ -1,3 +1,6 @@
+/**
+ * Tool Hub 홈 화면의 필터링, 테마 전환, 카드 목록 렌더링을 담당한다.
+ */
 import { useState } from 'react';
 import ToolCard from './components/ToolCard';
 import { tools } from './data/tools';
@@ -39,6 +42,9 @@ const GITHUB_REPO = 'https://github.com/ydj515/tool-hub';
 const liveCount = tools.filter((t) => t.status === 'live').length;
 const allTags = [...new Set(tools.flatMap((t) => t.tags))];
 
+/**
+ * Tool Hub 홈 화면의 태그 필터링과 카드 목록을 렌더링한다.
+ */
 export default function App() {
   const { theme, toggle } = useTheme();
   const [activeTag, setActiveTag] = useState<string | null>(null);

@@ -1,3 +1,6 @@
+/**
+ * 검증 리포트를 Markdown, JSON, 텍스트 형식으로 직렬화한다.
+ */
 import type { DiffResult, ValidationIssue, ValidationReport } from "./types";
 
 function displayValue(dr: DiffResult, side: "a" | "b"): string {
@@ -7,6 +10,13 @@ function displayValue(dr: DiffResult, side: "a" | "b"): string {
   return cv.rawValue;
 }
 
+/**
+ * ValidationReport를 Markdown 형식의 문자열로 직렬화한다.
+ * 요약 테이블, 누락 키, 값 불일치, 위험 설정, 민감정보 섹션을 포함한다.
+ * 민감 값은 maskedValue로 대체된다.
+ * @param report - 변환할 검증 결과 리포트
+ * @returns Markdown 텍스트
+ */
 export function generateMarkdown(report: ValidationReport): string {
   const { summary, fileA, fileB, diffResults, issues } = report;
   const lines: string[] = [];
@@ -108,6 +118,12 @@ export function generateMarkdown(report: ValidationReport): string {
   return lines.join("\n");
 }
 
+/**
+ * ValidationReport를 JSON 문자열로 직렬화한다.
+ * 파일의 rawContent와 parsed 필드는 용량 절감을 위해 제외된다.
+ * @param report - 변환할 검증 결과 리포트
+ * @returns 들여쓰기가 적용된 JSON 문자열
+ */
 export function generateJson(report: ValidationReport): string {
   return JSON.stringify(
     {
@@ -120,6 +136,12 @@ export function generateJson(report: ValidationReport): string {
   );
 }
 
+/**
+ * ValidationReport를 사람이 읽기 좋은 일반 텍스트 요약으로 변환한다.
+ * CLI 출력이나 로그 기록 목적에 적합하다.
+ * @param report - 변환할 검증 결과 리포트
+ * @returns 줄 단위 일반 텍스트
+ */
 export function generateTextSummary(report: ValidationReport): string {
   const { summary, fileA, fileB, diffResults, issues } = report;
   const lines: string[] = [];

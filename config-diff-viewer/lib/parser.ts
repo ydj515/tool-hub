@@ -1,6 +1,16 @@
+/**
+ * 설정 파일을 포맷별로 파싱하고 평탄화된 키-값 구조로 변환한다.
+ */
 import * as yaml from "js-yaml";
 import type { ConfigFile, ConfigFormat, ConfigValue, ParseError } from "./types";
 
+/**
+ * 파일 이름과 내용을 바탕으로 설정 파일 포맷을 자동 감지한다.
+ * 확장자 → 내용 시작 문자 → 줄 단위 KEY=VALUE 패턴 순으로 판별한다.
+ * @param filename - 확장자를 포함한 파일 이름
+ * @param content - 설정 파일의 원본 텍스트
+ * @returns 감지된 ConfigFormat ("yaml" | "json" | "properties" | "env")
+ */
 export function detectFormat(filename: string, content: string): ConfigFormat {
   const lower = filename.toLowerCase();
   const ext = lower.split(".").pop() ?? "";
@@ -208,6 +218,15 @@ function parseEnv(content: string): { parsed: Record<string, unknown>; errors: P
   return { parsed: result, errors };
 }
 
+/**
+ * 설정 파일 텍스트를 파싱해 ConfigFile 객체로 변환한다.
+ * 포맷이 지정되지 않으면 detectFormat으로 자동 감지한다.
+ * 파싱된 객체는 점 표기법으로 평탄화(flatten)되며, 민감 키는 마스킹된다.
+ * @param content - 파일 원본 텍스트
+ * @param filename - 파일 이름 (포맷 감지 및 UUID 부여에 사용)
+ * @param format - 명시적으로 지정할 포맷 (생략 시 자동 감지)
+ * @returns 파싱 결과와 오류 목록을 포함한 ConfigFile
+ */
 export function parseConfigFile(
   content: string,
   filename: string,

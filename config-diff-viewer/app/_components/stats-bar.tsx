@@ -1,3 +1,6 @@
+/**
+ * 비교 결과 요약 수치를 상단 바 형태로 보여준다.
+ */
 "use client";
 
 import type { ValidationReport } from "@/lib/types";

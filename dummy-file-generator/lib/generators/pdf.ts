@@ -1,3 +1,6 @@
+/**
+ * 목표 바이트 수에 맞춘 최소 PDF 바이너리를 생성한다.
+ */
 import { GenerateMode } from "@/lib/types";
 import { randomBytes } from "@/lib/prng";
 import { GeneratorResult } from "@/lib/generators/common";
@@ -49,6 +52,9 @@ function buildPdf(payload: Buffer): Buffer {
   return Buffer.concat([body, Buffer.from(xref.join(""), "ascii"), Buffer.from(trailer, "ascii")]);
 }
 
+/**
+ * 최소 구조의 PDF 문서를 생성하고 필요 시 페이로드 크기를 보정한다.
+ */
 export function generatePdf(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
   let payloadSize = Math.max(0, targetBytes - 512);
   let best = buildPdf(randomBytes(payloadSize, `${seed}:pdf:init`));

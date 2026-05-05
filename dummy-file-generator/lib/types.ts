@@ -1,3 +1,6 @@
+/**
+ * 더미 파일 생성기 전반에서 사용하는 타입과 상수를 정의한다.
+ */
 export const FILE_TYPES = ["pdf", "docx", "xlsx", "zip", "txt", "csv", "json", "bin"] as const;
 export type FileType = (typeof FILE_TYPES)[number];
 

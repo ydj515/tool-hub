@@ -1,3 +1,6 @@
+/**
+ * 검증 리포트의 요약과 내보내기 액션을 보여준다.
+ */
 "use client";
 
 import { useEffect, useRef, useState } from "react";

@@ -1,3 +1,6 @@
+/**
+ * diff 결과와 검증 이슈를 표 형식으로 렌더링한다.
+ */
 "use client";
 
 import IssueBadge from "./issue-badge";

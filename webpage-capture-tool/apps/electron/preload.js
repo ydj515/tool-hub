@@ -1,3 +1,6 @@
+/**
+ * 렌더러가 사용할 IPC 브리지를 안전하게 노출한다.
+ */
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("captureApi", {

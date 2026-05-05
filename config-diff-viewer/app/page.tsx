@@ -1,3 +1,6 @@
+/**
+ * Config Diff Viewer 메인 페이지를 렌더링한다.
+ */
 "use client";
 
 import dynamic from "next/dynamic";

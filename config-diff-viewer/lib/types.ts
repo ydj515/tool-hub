@@ -1,3 +1,6 @@
+/**
+ * 설정 비교와 검증에 필요한 공용 타입을 정의한다.
+ */
 export type ConfigFormat = "yaml" | "json" | "properties" | "env";
 
 export interface AnalysisOptions {

@@ -1,3 +1,6 @@
+/**
+ * seed 기반 결정론적 난수와 바이트 시퀀스를 생성한다.
+ */
 import crypto from "node:crypto";
 
 function hashSeed(seed: string): number {
@@ -5,6 +8,9 @@ function hashSeed(seed: string): number {
   return hash.readUInt32LE(0);
 }
 
+/**
+ * 같은 seed에 대해 항상 같은 난수 순서를 만드는 생성기를 반환한다.
+ */
 export function createRng(seed: string) {
   let state = hashSeed(seed) || 0x6d2b79f5;
   return () => {
@@ -16,6 +22,9 @@ export function createRng(seed: string) {
   };
 }
 
+/**
+ * 결정론적 난수 생성기를 이용해 지정 길이의 바이트 버퍼를 만든다.
+ */
 export function randomBytes(length: number, seed: string): Buffer {
   const next = createRng(seed);
   const out = Buffer.alloc(length);

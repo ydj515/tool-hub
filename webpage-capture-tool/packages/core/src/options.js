@@ -1,3 +1,6 @@
+/**
+ * CLI 인자를 내부 옵션 객체로 해석하는 파서를 제공한다.
+ */
 const path = require("path");
 
 const SUPPORTED_CSV_ENCODINGS = ["utf8", "utf-8", "cp949", "euc-kr", "euckr"];
@@ -70,6 +73,9 @@ function resolveCsvEncoding(rawValue) {
   return { encoding: undefined, warning };
 }
 
+/**
+ * CLI 인자를 기본값과 함께 정규화된 옵션 객체로 변환한다.
+ */
 function parseCliOptions(argv) {
   const raw = parseArgPairs(argv);
   const fileArg = raw.file || raw.files;

@@ -12,6 +12,7 @@
     "start": "npm run start --workspace @webpage-capture/electron-app",
     "setup": "npm run setup --workspace @webpage-capture/electron-app",
     "setup:bundle": "npm run setup:bundle --workspace @webpage-capture/electron-app",
+    "lint": "node --check apps/electron/main.js && node --check apps/electron/preload.js && node --check apps/electron/renderer/renderer.js && node --check packages/cli/bin/screenshot.js && node --check packages/cli/src/run-capture.js && node --check packages/core/index.js && node --check packages/core/src/data-loader.js && node --check packages/core/src/options.js && node --check packages/core/src/screenshot-runner.js",
     "build:mac": "npm run build:mac --workspace @webpage-capture/electron-app",
     "build:win": "npm run build:win --workspace @webpage-capture/electron-app"
   },

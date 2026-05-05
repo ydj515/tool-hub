@@ -1,7 +1,13 @@
+/**
+ * 홈 화면의 다크 모드 상태를 동기화하는 커스텀 훅이다.
+ */
 import { useState, useEffect } from 'react';
 
 type Theme = 'dark' | 'light';
 
+/**
+ * 홈 화면의 테마 상태를 DOM과 localStorage에 동기화한다.
+ */
 export function useTheme(): { theme: Theme; toggle: () => void } {
   const [theme, setTheme] = useState<Theme>(() => {
     // 인라인 스크립트가 이미 DOM에 적용한 값을 읽어 FOUC 없이 초기 상태를 동기화

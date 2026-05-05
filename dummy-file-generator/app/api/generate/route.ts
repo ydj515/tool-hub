@@ -1,3 +1,6 @@
+/**
+ * 더미 파일 생성 요청을 검증하고 결과 메타데이터를 반환하는 API 라우트다.
+ */
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -23,6 +26,9 @@ const schema = z.object({
 
 export const runtime = "nodejs";
 
+/**
+ * 요청 헤더에서 레이트 리밋 식별용 클라이언트 키를 추출한다.
+ */
 function getClientKey(req: NextRequest) {
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
@@ -31,6 +37,9 @@ function getClientKey(req: NextRequest) {
   return "unknown";
 }
 
+/**
+ * 입력을 검증하고 더미 파일을 생성한 뒤 다운로드 메타데이터를 반환한다.
+ */
 export async function POST(req: NextRequest) {
   try {
     const rate = checkRateLimit(getClientKey(req));

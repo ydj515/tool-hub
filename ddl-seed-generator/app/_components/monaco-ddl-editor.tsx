@@ -1,3 +1,6 @@
+/**
+ * DDL 입력용 Monaco 에디터 래퍼 컴포넌트다.
+ */
 "use client";
 
 import { useEffect, useRef, useState } from "react";

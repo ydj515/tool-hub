@@ -1,3 +1,6 @@
+/**
+ * CREATE TABLE과 ALTER TABLE 구문을 파싱해 내부 스키마 모델로 변환한다.
+ */
 import { normalizeIdentifier, extractParenBody } from "@/lib/ddl-utils";
 import type {
   ColumnKind,
@@ -25,6 +28,13 @@ const CONSTRAINT_KEYWORDS = [
   "on",
 ];
 
+/**
+ * DDL 문자열을 파싱해 테이블 스키마 목록과 경고 메시지를 반환한다.
+ * CREATE TABLE과 ALTER TABLE ... ADD FOREIGN KEY 구문을 지원한다.
+ * ALTER TABLE FK는 파싱 후 해당 테이블의 foreignKeys에 병합된다.
+ * @param input - 파싱할 DDL 전체 텍스트
+ * @returns 파싱된 TableSchema 목록과 경고 문자열 배열
+ */
 export function parseDdl(input: string): ParseResult {
   const warnings: string[] = [];
   const statements = splitSqlStatements(stripComments(input));

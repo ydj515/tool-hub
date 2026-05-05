@@ -1,3 +1,6 @@
+/**
+ * 이슈 심각도를 색상 배지로 표현하는 보조 컴포넌트다.
+ */
 "use client";
 
 import type { Severity } from "@/lib/types";

@@ -1,3 +1,6 @@
+/**
+ * 도구 카드의 시각 표현과 링크 동작을 담당한다.
+ */
 import { useState } from 'react';
 import type { Tool } from '../data/tools';
 
@@ -23,6 +26,9 @@ interface ToolCardProps {
   tool: Tool;
 }
 
+/**
+ * 개별 도구의 상태, 설명, 외부 링크를 카드 형태로 렌더링한다.
+ */
 export default function ToolCard({ tool }: ToolCardProps) {
   const { name, longDescription, tags, url, github, gradient, accentColor, status } = tool;
   const isLive = status === 'live';

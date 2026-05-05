@@ -1,3 +1,6 @@
+/**
+ * DDL Seed Generator 전역 레이아웃과 메타데이터를 정의한다.
+ */
 import type { Metadata } from "next";
 import "./globals.css";
 

@@ -1,3 +1,6 @@
+/**
+ * 메모리 기반 고정 윈도우 레이트 리미터를 제공한다.
+ */
 type Bucket = {
   count: number;
   resetAt: number;
@@ -7,6 +10,9 @@ const WINDOW_MS = 60 * 1000;
 const LIMIT_PER_WINDOW = 20;
 const buckets = new Map<string, Bucket>();
 
+/**
+ * 키별 요청 횟수를 고정 윈도우 방식으로 검사한다.
+ */
 export function checkRateLimit(key: string): { ok: boolean; remaining: number; retryAfterMs: number } {
   const now = Date.now();
   const current = buckets.get(key);

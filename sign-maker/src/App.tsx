@@ -1,3 +1,6 @@
+/**
+ * 서명 그리기와 이미지 추출 워크플로를 묶는 메인 화면 컴포넌트다.
+ */
 import { useState, useRef, useEffect } from "react";
 import { PenTool, Image as ImageIcon, Moon, Sun, Pencil } from "lucide-react";
 import SignaturePad from "./components/SignaturePad";
@@ -5,33 +8,50 @@ import type { SignaturePadRef } from "./components/SignaturePad";
 import ImageUploader from "./components/ImageUploader";
 import type { ImageUploaderRef } from "./components/ImageUploader";
 
+function resolveInitialTheme(): "light" | "dark" {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+
+  try {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") {
+      initial = saved;
+    }
+  } catch {
+    /* localStorage unavailable */
+  }
+
+  return initial;
+}
+
+/**
+ * 서명 그리기와 이미지 추출 워크플로를 한 화면에서 전환한다.
+ */
 function App() {
   const [activeTab, setActiveTab] = useState<"draw" | "upload">("draw");
   const [threshold, setThreshold] = useState<number>(200);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">(resolveInitialTheme);
 
   const signaturePadRef = useRef<SignaturePadRef>(null);
   const imageUploaderRef = useRef<ImageUploaderRef>(null);
 
   useEffect(() => {
-    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
     try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark") initial = saved;
-    } catch { /* localStorage unavailable */ }
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-    setMounted(true);
-  }, []);
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* localStorage unavailable */
+    }
+  }, [theme]);
 
   function toggleTheme() {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch { /* localStorage unavailable */ }
   }
 
   return (
@@ -97,7 +117,7 @@ function App() {
             color: "var(--muted)",
           }}
         >
-          {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
 

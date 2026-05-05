@@ -1,3 +1,6 @@
+/**
+ * 파일 업로드, 비교 실행, 결과 상태를 관리하는 메인 클라이언트 컴포넌트다.
+ */
 "use client";
 
 import { useEffect, useRef, useState } from "react";

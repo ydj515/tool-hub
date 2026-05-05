@@ -1,3 +1,6 @@
+/**
+ * Playwright를 사용해 대상 URL 목록의 전체 페이지 스크린샷을 저장한다.
+ */
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
@@ -19,6 +22,9 @@ function buildBaseName(index, row, columns) {
     .slice(0, 150);
 }
 
+/**
+ * 대상 URL 목록을 순회하며 전체 페이지 스크린샷을 저장하고 실패 목록을 수집한다.
+ */
 async function takeScreenshots(rows, options) {
   const { columns, outDir, waitMs, headless, viewport } = options;
   const { urlKey } = columns;

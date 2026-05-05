@@ -1,3 +1,6 @@
+/**
+ * 탐지 규칙과 위험 설정 목록을 설명하는 사이드 패널이다.
+ */
 "use client";
 
 import { useState } from "react";

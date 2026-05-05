@@ -1,3 +1,6 @@
+/**
+ * 더미 파일 생성기 전역 메타데이터와 레이아웃을 정의한다.
+ */
 import type { Metadata } from "next";
 import "./globals.css";
 

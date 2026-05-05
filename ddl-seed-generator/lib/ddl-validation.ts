@@ -1,3 +1,6 @@
+/**
+ * 입력 DDL의 문법과 참조 무결성을 점검하는 검증 로직을 제공한다.
+ */
 import { normalizeIdentifier, extractParenBody } from "@/lib/ddl-utils";
 import type { DdlSyntaxIssue, DdlValidationResult, Dialect } from "@/lib/types";
 
@@ -48,6 +51,14 @@ function matchCreateTable(statement: string): { tableName: string; body: string 
   return { tableName: m[1], body };
 }
 
+/**
+ * DDL 텍스트에 대해 구문 및 시맨틱 검증을 수행한다.
+ * 지원 구문(CREATE TABLE, ALTER TABLE ADD FK) 여부, 식별자 문법, 컬럼/제약 정의,
+ * FK 참조 대상 존재 여부 및 컬럼 수 일치를 방언에 맞게 검사한다.
+ * @param input - 검증할 DDL 전체 텍스트
+ * @param dialect - SQL 방언 ("postgresql" | "mysql" | "h2")
+ * @returns 이슈 목록과 오류 존재 여부가 담긴 DdlValidationResult
+ */
 export function validateDdl(input: string, dialect: Dialect): DdlValidationResult {
   const trimmed = input.trim();
   if (!trimmed) {

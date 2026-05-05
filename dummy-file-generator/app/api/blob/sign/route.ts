@@ -1,3 +1,6 @@
+/**
+ * 대용량 다운로드를 위한 서명 URL 발급을 담당하는 API 라우트다.
+ */
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -10,6 +13,9 @@ const schema = z.object({
 
 export const runtime = "nodejs";
 
+/**
+ * 클라이언트 업로드를 위한 서명 URL 요청을 검증해 전달한다.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

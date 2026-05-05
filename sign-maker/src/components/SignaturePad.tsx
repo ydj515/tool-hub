@@ -1,3 +1,6 @@
+/**
+ * 자유 그리기 기반 서명 캔버스와 다운로드 기능을 제공한다.
+ */
 import React, {
   useRef,
   useState,
@@ -21,6 +24,16 @@ export interface SignaturePadRef {
   download: () => void;
 }
 
+const BEAUTIFY_OPTIONS = {
+  size: 6,
+  thinning: 0.5,
+  smoothing: 0.5,
+  streamline: 0.5,
+  easing: (t: number) => t,
+  start: { taper: 0, easing: (t: number) => t, cap: true },
+  end: { taper: 50, easing: (t: number) => t, cap: true },
+};
+
 const getSvgPathFromStroke = (stroke: number[][]) => {
   if (!stroke.length) return "";
   const d = stroke.reduce(
@@ -35,6 +48,9 @@ const getSvgPathFromStroke = (stroke: number[][]) => {
   return d.join(" ");
 };
 
+/**
+ * 사용자의 포인터 입력을 받아 서명 스트로크를 그리고 PNG 다운로드를 지원한다.
+ */
 const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +63,7 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       clear: () => {
         setStrokes([]);
         setCurrentStroke(null);
+        setCountdown(0);
       },
       download: () => {
         if (!canvasRef.current) return;
@@ -58,30 +75,6 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       },
     }));
 
-    useEffect(() => {
-      const handleResize = () => {
-        if (!canvasRef.current || !containerRef.current) return;
-        const canvas = canvasRef.current;
-        const container = containerRef.current;
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        drawAll();
-      };
-      window.addEventListener("resize", handleResize);
-      handleResize();
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const beautifyOptions = {
-      size: 6,
-      thinning: 0.5,
-      smoothing: 0.5,
-      streamline: 0.5,
-      easing: (t: number) => t,
-      start: { taper: 0, easing: (t: number) => t, cap: true },
-      end: { taper: 50, easing: (t: number) => t, cap: true },
-    };
-
     const drawAll = useCallback(() => {
       if (!canvasRef.current) return;
       const ctx = canvasRef.current.getContext("2d");
@@ -91,7 +84,7 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       allStrokes.forEach((stroke) => {
         if (stroke.points.length === 0) return;
         if (stroke.isBeautified) {
-          const strokePoints = getStroke(stroke.points, beautifyOptions);
+          const strokePoints = getStroke(stroke.points, BEAUTIFY_OPTIONS);
           const pathData = getSvgPathFromStroke(strokePoints);
           const path = new Path2D(pathData);
           ctx.fillStyle = "#1d2522";
@@ -111,31 +104,45 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       });
     }, [strokes, currentStroke]);
 
+    useEffect(() => {
+      const handleResize = () => {
+        if (!canvasRef.current || !containerRef.current) return;
+        const canvas = canvasRef.current;
+        const container = containerRef.current;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        drawAll();
+      };
+      window.addEventListener("resize", handleResize);
+      handleResize();
+      return () => window.removeEventListener("resize", handleResize);
+    }, [drawAll]);
+
     useEffect(() => { drawAll(); }, [drawAll]);
 
     useEffect(() => {
-      const hasUnbeautified = strokes.some((s) => !s.isBeautified);
-      if (!isDrawing && hasUnbeautified) {
-        setCountdown(3);
-        const id = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(id);
-              setStrokes((ps) => ps.map((s) => ({ ...s, isBeautified: true })));
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-        return () => clearInterval(id);
-      } else {
-        setCountdown(0);
+      if (isDrawing || countdown <= 0) {
+        return;
       }
-    }, [isDrawing, strokes]);
+
+      const id = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(id);
+            setStrokes((existing) => existing.map((stroke) => ({ ...stroke, isBeautified: true })));
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(id);
+    }, [isDrawing, countdown]);
 
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
       (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
       setIsDrawing(true);
+      setCountdown(0);
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
       const x = e.clientX - rect.left;
@@ -159,6 +166,7 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       if (currentStroke) {
         setStrokes((prev) => [...prev, currentStroke]);
         setCurrentStroke(null);
+        setCountdown(3);
       }
     };
 
@@ -182,7 +190,8 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
         />
         {countdown > 0 && (
           <div
-            className="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-full text-xs font-bold pointer-events-none animate-pulse"
+            key={countdown}
+            className="beautify-countdown-badge absolute bottom-2.5 right-2.5 px-2 py-1 rounded-full text-xs font-bold pointer-events-none"
             style={{ background: "var(--green)", color: "#f8fff9" }}
           >
             Beautifying in {countdown}…

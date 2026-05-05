@@ -1,5 +1,17 @@
+/**
+ * 테이블 외래 키 그래프를 분석해 삽입 순서와 순환 정보를 계산한다.
+ */
 import type { AnalysisResult, CycleGroup, TableSchema } from "@/lib/types";
 
+/**
+ * 테이블 목록의 FK 관계를 분석해 삽입 순서와 순환 FK 그룹을 결정한다.
+ * Tarjan's SCC 알고리즘으로 순환 그룹을 식별하고, 압축 그래프에 위상 정렬을 적용해
+ * FK 의존성을 준수하는 삽입 순서를 반환한다.
+ * nullable 자기 참조 FK는 순환으로 취급하지 않는다.
+ * @param tables - 파싱된 TableSchema 목록
+ * @param parseWarnings - 파서가 전달한 기존 경고 목록 (순환 경고가 추가될 수 있음)
+ * @returns 삽입 순서, 순환 그룹, 경고가 포함된 AnalysisResult
+ */
 export function analyzeSchema(tables: TableSchema[], parseWarnings: string[]): AnalysisResult {
   const warnings = [...parseWarnings];
   const byName = new Map(tables.map((table) => [table.name.toLowerCase(), table]));

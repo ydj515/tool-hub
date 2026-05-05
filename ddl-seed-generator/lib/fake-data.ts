@@ -1,3 +1,6 @@
+/**
+ * DDL 분석 결과를 바탕으로 테이블별 샘플 행 데이터를 생성한다.
+ */
 import { fakerKO, fakerEN } from "@faker-js/faker";
 import type { Faker } from "@faker-js/faker";
 
@@ -7,6 +10,9 @@ const STATUS_VALUES = ["active", "pending", "disabled", "archived"];
 const ROLE_VALUES = ["admin", "manager", "member", "viewer"];
 const CATEGORY_VALUES = ["standard", "premium", "trial", "internal"];
 
+/**
+ * 스키마 분석 결과를 기준으로 FK 관계를 만족하는 샘플 행 데이터를 생성한다.
+ */
 export function generateFakeData(analysis: AnalysisResult, options: GenerationOptions): GeneratedTable[] {
   const f: Faker = options.locale === "ko" ? fakerKO : fakerEN;
   f.seed(options.seed);

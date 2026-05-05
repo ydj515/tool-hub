@@ -1,3 +1,6 @@
+/**
+ * Electron 메인 프로세스에서 창 생성과 CLI 프로세스 실행을 담당한다.
+ */
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
