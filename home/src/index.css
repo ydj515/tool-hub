@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  25%  { transform: translate(55px, -38px) scale(1.06); }
+  50%  { transform: translate(-28px, 48px) scale(0.94); }
+  75%  { transform: translate(18px, -52px) scale(1.03); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(-48px, 32px) scale(1.05); }
+  66%  { transform: translate(38px, -20px) scale(0.96); }
+}
+
+.orb-a { animation: orb-drift-a 20s ease-in-out infinite; will-change: transform; }
+.orb-b { animation: orb-drift-b 26s ease-in-out infinite; will-change: transform; }
+.orb-c { animation: orb-drift-a 32s ease-in-out infinite reverse; will-change: transform; }
