@@ -17,9 +17,29 @@ const LOREM_LINES = [
   "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.",
 ];
 
+// 루프마다 Buffer 재생성을 피하기 위해 모듈 로드 시점에 미리 캐싱
+const LOREM_BUFFERS = LOREM_LINES.map((line) => Buffer.from(line + "\n", "utf-8"));
+const LOREM_BUFFER_LENGTHS = LOREM_BUFFERS.map((buf) => buf.length);
+
+// seed → 결정론적 ISO 타임스탬프 (같은 seed는 항상 같은 날짜를 반환)
+function seedToISOString(seed: string): string {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash * 31) + seed.charCodeAt(i)) >>> 0;
+  }
+  return new Date(hash * 1000).toISOString();
+}
+
+// CSV 필드 이스케이프: 쉼표·줄바꿈·큰따옴표가 포함된 경우 RFC 4180에 따라 감싸고 내부 따옴표 이중화
+function csvEscape(value: string): string {
+  if (value.includes(",") || value.includes("\n") || value.includes('"')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 export function generateTxt(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
-  const now = new Date().toISOString();
-  const header = `Dummy text file\nseed: ${seed}\ncreated: ${now}\n---\n`;
+  const header = `Dummy text file\nseed: ${seed}\ncreated: ${seedToISOString(seed)}\n---\n`;
   const headerBytes = Buffer.byteLength(header, "utf-8");
 
   if (headerBytes >= targetBytes) {
@@ -31,20 +51,20 @@ export function generateTxt(targetBytes: number, mode: GenerateMode, seed: strin
   let lineIdx = 0;
 
   while (used < targetBytes) {
-    const line = LOREM_LINES[lineIdx % LOREM_LINES.length];
-    const normalLine = line + "\n";
-    const normalLineBytes = Buffer.byteLength(normalLine, "utf-8");
+    const bufIdx = lineIdx % LOREM_BUFFERS.length;
+    const lineBuf = LOREM_BUFFERS[bufIdx];
+    const normalLineBytes = LOREM_BUFFER_LENGTHS[bufIdx];
     const remaining = targetBytes - used;
 
     if (remaining >= normalLineBytes) {
-      parts.push(Buffer.from(normalLine, "utf-8"));
+      parts.push(lineBuf);
       used += normalLineBytes;
       lineIdx++;
       continue;
     }
 
-    // 남은 공간에 현재 줄을 바이트 단위로 잘라서 채운다
-    parts.push(Buffer.from(normalLine, "utf-8").subarray(0, remaining));
+    // 남은 공간을 바이트 단위로 잘라서 채운다 (LOREM_LINES는 ASCII만 포함하므로 멀티바이트 경계 문제 없음)
+    parts.push(lineBuf.subarray(0, remaining));
     used += remaining;
     break;
   }
@@ -69,7 +89,8 @@ export function generateCsv(targetBytes: number, mode: GenerateMode, seed: strin
     const prefix = `${idx},dummy_${idx},`;
     const suffix = "\n";
     const fixedRowBytes = Buffer.byteLength(prefix + suffix, "utf-8");
-    const normalRow = `${prefix}${seed}${suffix}`;
+    const escapedSeed = csvEscape(seed);
+    const normalRow = `${prefix}${escapedSeed}${suffix}`;
     const normalRowBytes = Buffer.byteLength(normalRow, "utf-8");
     const remaining = targetBytes - used;
 
@@ -120,17 +141,17 @@ export function generateCsv(targetBytes: number, mode: GenerateMode, seed: strin
 }
 
 export function generateJson(targetBytes: number, mode: GenerateMode, seed: string): GeneratorResult {
-  const now = new Date().toISOString();
+  const createdAt = seedToISOString(seed);
   // 사용자 입력 seed의 특수 문자를 JSON 문자열로 안전하게 이스케이프
   const seedEscaped = JSON.stringify(seed).slice(1, -1);
 
-  const header = `{\n  "seed": ${JSON.stringify(seed)},\n  "createdAt": ${JSON.stringify(now)},\n  "items": [\n`;
+  const header = `{\n  "seed": ${JSON.stringify(seed)},\n  "createdAt": ${JSON.stringify(createdAt)},\n  "items": [\n`;
   const footer = `\n  ]\n}`;
   const headerBytes = Buffer.byteLength(header, "utf-8");
   const footerBytes = Buffer.byteLength(footer, "utf-8");
 
   if (headerBytes + footerBytes >= targetBytes) {
-    const base = `{\n  "seed": ${JSON.stringify(seed)},\n  "createdAt": ${JSON.stringify(now)},\n  "items": []\n}`;
+    const base = `{\n  "seed": ${JSON.stringify(seed)},\n  "createdAt": ${JSON.stringify(createdAt)},\n  "items": []\n}`;
     return { buffer: Buffer.from(base, "utf-8"), modeApplied: "at_least" };
   }
 
