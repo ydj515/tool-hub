@@ -12,34 +12,22 @@ import {
   type ZipStructure,
 } from "@/lib/types";
 
-type Theme = "light" | "dark";
-
-function DownloadIcon() {
+function BrandIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 4v10" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-      <path
-        d="m8 11 4 4 4-4"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path d="M5 18h14" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M6 3.5h9l3 3V20.5H6z" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15 3.5v3h3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 10.5h6M9 14h6M9 17.5h3.5" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
 
-function SunIcon() {
+function DownloadIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2" />
-      <path
-        d="M12 2.5v2.3M12 19.2v2.3M21.5 12h-2.3M4.8 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        fill="none"
-      />
+      <path d="M12 4v10" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="m8 11 4 4 4-4" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 18h14" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -47,7 +35,20 @@ function SunIcon() {
 function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20.7 14.6A8.7 8.7 0 1 1 9.4 3.3a7 7 0 1 0 11.3 11.3z" />
+      <path d="M20.7 14.6A8.7 8.7 0 1 1 9.4 3.3a7 7 0 1 0 11.3 11.3z" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" strokeWidth="1.8" />
+      <path
+        d="M12 2.5v2.3M12 19.2v2.3M21.5 12h-2.3M4.8 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -62,7 +63,6 @@ function FormatIcon({ type }: { type: FileType }) {
       </svg>
     );
   }
-
   if (type === "docx" || type === "txt") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -71,7 +71,6 @@ function FormatIcon({ type }: { type: FileType }) {
       </svg>
     );
   }
-
   if (type === "xlsx" || type === "csv") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -80,7 +79,6 @@ function FormatIcon({ type }: { type: FileType }) {
       </svg>
     );
   }
-
   if (type === "zip") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -89,7 +87,6 @@ function FormatIcon({ type }: { type: FileType }) {
       </svg>
     );
   }
-
   if (type === "json") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -99,7 +96,6 @@ function FormatIcon({ type }: { type: FileType }) {
       </svg>
     );
   }
-
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="5.5" y="5.5" width="13" height="13" rx="2" fill="none" strokeWidth="1.8" />
@@ -114,33 +110,39 @@ export default function GeneratorClient() {
   const [type, setType] = useState<FileType>("pdf");
   const [zipStructure, setZipStructure] = useState<ZipStructure>("flat");
   const [zipExtensionProfile, setZipExtensionProfile] = useState<ZipExtensionProfile>("mixed");
-  const [theme, setTheme] = useState<Theme>("light");
   const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") initial = saved;
+    } catch { /* localStorage unavailable */ }
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+    setMounted(true);
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch { /* localStorage unavailable */ }
+  }
 
   const canSubmit = useMemo(() => {
     const num = Number(targetSize);
     return Number.isFinite(num) && num > 0;
   }, [targetSize]);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem("theme") as Theme | null;
-    const initial: Theme = saved === "dark" ? "dark" : "light";
-    setTheme(initial);
-    document.documentElement.dataset.theme = initial;
-  }, []);
-
-  function onToggleTheme() {
-    const next: Theme = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    document.documentElement.dataset.theme = next;
-    window.localStorage.setItem("theme", next);
-  }
-
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -154,14 +156,9 @@ export default function GeneratorClient() {
           zipExtensionProfile,
         }),
       });
-
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error ?? "생성 요청 실패");
-      }
-
+      if (!response.ok) throw new Error(data?.error ?? "생성 요청 실패");
       const nextResult = data as GenerateOutput;
-
       const link = document.createElement("a");
       link.href = nextResult.downloadUrl;
       link.download = nextResult.fileName;
@@ -177,23 +174,18 @@ export default function GeneratorClient() {
 
   return (
     <main className="container">
-      <button
-        className="globalThemeBtn"
-        type="button"
-        onClick={onToggleTheme}
-        aria-label="테마 전환"
-        aria-pressed={theme === "dark"}
-      >
-        {theme === "light" ? <MoonIcon /> : <SunIcon />}
+      <button className="globalThemeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
+        {mounted ? (theme === "dark" ? <SunIcon /> : <MoonIcon />) : <span style={{ display: "block", width: 16, height: 16 }} />}
       </button>
 
       <section className="card">
-        <header className="hero">
-          <div className="heroLeft">
-            <div>
-              <h1>Dummy File Generator</h1>
-              <p>테스트 업로드용 더미 파일을 생성합니다.</p>
-            </div>
+        <header className="topbar">
+          <div className="brandIcon">
+            <BrandIcon />
+          </div>
+          <div>
+            <h1>Dummy File Generator</h1>
+            <p>테스트 업로드용 더미 파일을 생성합니다.</p>
           </div>
         </header>
 
@@ -205,10 +197,7 @@ export default function GeneratorClient() {
                 key={item}
                 type="button"
                 className={`typeBtn ${type === item ? "active" : ""}`}
-                onClick={() => {
-                  setType(item);
-                  setError(null);
-                }}
+                onClick={() => { setType(item); setError(null); }}
               >
                 <FormatIcon type={item} />
                 <span>{item.toUpperCase()}</span>
@@ -216,33 +205,24 @@ export default function GeneratorClient() {
             ))}
           </div>
 
-          <label className="fieldLabel" htmlFor="targetSize">
-            Target Size (MiB)
-          </label>
-
           {type === "zip" ? (
             <>
-              <label className="fieldLabel zipLabel" htmlFor="zipStructure">
-                ZIP Structure
-              </label>
+              <label className="fieldLabel zipLabel" htmlFor="zipStructure">ZIP Structure</label>
               <div className="zipStructureGrid" role="tablist" aria-label="ZIP 구조 선택">
                 {ZIP_STRUCTURES.map((item) => (
                   <button
                     key={item}
                     type="button"
                     className={`zipStructureBtn ${zipStructure === item ? "active" : ""}`}
-                  onClick={() => setZipStructure(item)}
-                >
-                  {item === "flat" ? "Flat" : "Hierarchy"}
-                </button>
-              ))}
-            </div>
-
-              {zipStructure === "hierarchy" ? (
+                    onClick={() => setZipStructure(item)}
+                  >
+                    {item === "flat" ? "Flat" : "Hierarchy"}
+                  </button>
+                ))}
+              </div>
+              {zipStructure === "hierarchy" && (
                 <>
-                  <label className="fieldLabel zipLabel" htmlFor="zipExtensionProfile">
-                    Extension Profile
-                  </label>
+                  <label className="fieldLabel zipLabel" htmlFor="zipExtensionProfile">Extension Profile</label>
                   <div className="zipStructureGrid" role="tablist" aria-label="확장자 조합 선택">
                     {ZIP_EXTENSION_PROFILES.map((item) => (
                       <button
@@ -256,28 +236,22 @@ export default function GeneratorClient() {
                     ))}
                   </div>
                 </>
-              ) : null}
+              )}
             </>
           ) : null}
 
+          <label className="fieldLabel" htmlFor="targetSize">Target Size (MiB)</label>
           <input
             id="targetSize"
             className="sizeInput"
             value={targetSize}
-            onChange={(e) => {
-              setTargetSize(e.target.value);
-              setError(null);
-            }}
+            onChange={(e) => { setTargetSize(e.target.value); setError(null); }}
             inputMode="decimal"
             placeholder="1"
           />
           <p className="hint">1 MiB = 1,048,576 Bytes. 최대 100MiB 정책.</p>
 
-          <button
-            className="generateBtn"
-            type="submit"
-            disabled={!canSubmit || loading}
-          >
+          <button className="generateBtn" type="submit" disabled={!canSubmit || loading}>
             <DownloadIcon />
             <span>{loading ? "생성 중..." : "Generate File"}</span>
           </button>
