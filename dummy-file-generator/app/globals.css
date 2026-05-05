@@ -111,7 +111,7 @@ h1, p { margin: 0; }
 .brandIcon svg {
   width: 20px;
   height: 20px;
-  stroke: currentColor;
+  stroke: currentcolor;
   fill: none;
 }
 
@@ -151,7 +151,7 @@ h1 {
 .globalThemeBtn svg {
   width: 16px;
   height: 16px;
-  stroke: currentColor;
+  stroke: currentcolor;
   fill: none;
 }
 
@@ -200,8 +200,8 @@ h1 {
 .typeBtn svg {
   width: 15px;
   height: 15px;
-  stroke: currentColor;
-  fill: currentColor;
+  stroke: currentcolor;
+  fill: currentcolor;
 }
 
 .typeBtn span { line-height: 1; }
@@ -293,7 +293,7 @@ h1 {
 
 .generateBtn:disabled { opacity: 0.48; cursor: not-allowed; }
 
-.generateBtn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; }
+.generateBtn svg { width: 17px; height: 17px; stroke: currentcolor; fill: none; }
 
 .error {
   margin-top: 12px;

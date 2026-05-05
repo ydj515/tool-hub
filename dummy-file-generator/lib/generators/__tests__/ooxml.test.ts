@@ -40,7 +40,9 @@ describe("generateDocx", () => {
   it("word/document.xml이 유효한 XML 구조를 갖는다", async () => {
     const result = await generateDocx(8192, "at_least", SEED);
     const zip = await JSZip.loadAsync(result.buffer);
-    const docXml = await zip.file("word/document.xml")!.async("string");
+    const docEntry = zip.file("word/document.xml");
+    expect(docEntry, "ZIP 내에 word/document.xml 이 존재하지 않음").not.toBeNull();
+    const docXml = await docEntry!.async("string");
     expect(docXml).toContain('xmlns:w=');
     expect(docXml).toContain("<w:body>");
     expect(docXml).toContain(SEED);
@@ -85,7 +87,9 @@ describe("generateXlsx", () => {
   it("sheet1.xml이 유효한 OOXML 스프레드시트 구조를 갖는다", async () => {
     const result = await generateXlsx(8192, "at_least", SEED);
     const zip = await JSZip.loadAsync(result.buffer);
-    const sheetXml = await zip.file("xl/worksheets/sheet1.xml")!.async("string");
+    const sheetEntry = zip.file("xl/worksheets/sheet1.xml");
+    expect(sheetEntry, "ZIP 내에 xl/worksheets/sheet1.xml 이 존재하지 않음").not.toBeNull();
+    const sheetXml = await sheetEntry!.async("string");
     expect(sheetXml).toContain("<worksheet");
     expect(sheetXml).toContain("<sheetData>");
     expect(sheetXml).toContain(SEED);

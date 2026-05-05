@@ -136,7 +136,7 @@ export default function GeneratorClient() {
 
   const canSubmit = useMemo(() => {
     const num = Number(targetSize);
-    return Number.isFinite(num) && num > 0;
+    return Number.isFinite(num) && num > 0 && num <= 100;
   }, [targetSize]);
 
   async function onSubmit(event: FormEvent) {
