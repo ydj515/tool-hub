@@ -74,3 +74,27 @@ body {
 /* Slider thumb color */
 input[type="range"] { accent-color: var(--green); }
 input[type="checkbox"] { accent-color: var(--green); }
+
+@keyframes beautify-countdown-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.96);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  55% {
+    opacity: 0.92;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+}
+
+.beautify-countdown-badge {
+  transform-origin: center;
+  animation: beautify-countdown-pulse 1000ms ease-out 1;
+}
