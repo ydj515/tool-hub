@@ -4,6 +4,23 @@ import { DiffEditor, loader } from "@monaco-editor/react";
 import * as monacoLib from "monaco-editor";
 import type { ConfigFormat } from "@/lib/types";
 
+// MonacoEnvironment.getWorker를 설정하지 않으면 워커 생성 실패 경고가 발생합니다.
+if (typeof window !== 'undefined') {
+  window.MonacoEnvironment = {
+    getWorker(_moduleId: string, label: string) {
+      if (label === 'json') {
+        return new Worker(
+          new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url)
+        );
+      }
+      // yaml/ini는 별도 언어 워커 없음 — editor worker로 fallback
+      return new Worker(
+        new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url)
+      );
+    },
+  };
+}
+
 loader.config({ monaco: monacoLib });
 
 function toMonacoLang(format: ConfigFormat): string {
