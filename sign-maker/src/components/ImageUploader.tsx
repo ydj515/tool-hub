@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useEffect,
 } from "react";
+import { Upload } from "lucide-react";
 
 export interface ImageUploaderRef {
   reset: () => void;
@@ -20,10 +21,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(
-      null,
-    );
+    const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
     const [hasImage, setHasImage] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -31,14 +29,10 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       reset: () => {
         setOriginalImage(null);
         setHasImage(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext("2d");
-        if (canvas && ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       },
       download: () => {
         if (!canvasRef.current || !hasImage) return;
@@ -53,220 +47,105 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
     const processImage = (img: HTMLImageElement, currentThreshold: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) return;
-
-      // First, resize canvas to match the container, but maintain image aspect ratio
       const container = containerRef.current;
       if (container) {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
       }
-
-      // Clear background
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Calculate scaling to fit image nicely centrally in the canvas
-      const scale = Math.min(
-        (canvas.width - 40) / img.width,
-        (canvas.height - 40) / img.height,
-      );
+      const scale = Math.min((canvas.width - 40) / img.width, (canvas.height - 40) / img.height);
       const drawWidth = img.width * scale;
       const drawHeight = img.height * scale;
       const x = (canvas.width - drawWidth) / 2;
       const y = (canvas.height - drawHeight) / 2;
-
-      // Draw original image
       ctx.drawImage(img, x, y, drawWidth, drawHeight);
-
-      // Extract pixel data and remove background based on threshold
       const imageData = ctx.getImageData(x, y, drawWidth, drawHeight);
       const data = imageData.data;
-
       for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        // Calculate perceptive luminance or simple average
-        // Using simple average as it works well for black/white paper scans
-        const avg = (r + g + b) / 3;
-
-        // If the pixel is brighter than the threshold, it's considered background
+        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
         if (avg >= currentThreshold) {
-          data[i + 3] = 0; // Set Alpha to 0 (transparent)
+          data[i + 3] = 0;
         } else {
-          // Optional: enhance the remaining ink to be strictly black
-          // Or leave it as original dark ink color.
-          // Setting it to strict black for better signature contrast:
-          data[i] = 15;
-          data[i + 1] = 23;
-          data[i + 2] = 42;
+          data[i] = 29; data[i + 1] = 37; data[i + 2] = 34;
         }
       }
-
-      // Put modified pixels back to the exact same area
       ctx.putImageData(imageData, x, y);
     };
 
-    // Process whenever threshold or image changes
     useEffect(() => {
-      if (originalImage) {
-        processImage(originalImage, threshold);
-      }
+      if (originalImage) processImage(originalImage, threshold);
     }, [originalImage, threshold]);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      handleFileSelected(file);
-    };
 
     const handleFileSelected = (file: File) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
-        img.onload = () => {
-          setOriginalImage(img);
-          setHasImage(true);
-        };
-        if (typeof event.target?.result === "string") {
-          img.src = event.target.result;
-        }
+        img.onload = () => { setOriginalImage(img); setHasImage(true); };
+        if (typeof event.target?.result === "string") img.src = event.target.result;
       };
       reader.readAsDataURL(file);
-    };
-
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragging(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragging(false);
     };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       setIsDragging(false);
       const file = e.dataTransfer.files?.[0];
-      if (file && file.type.startsWith("image/")) {
-        handleFileSelected(file);
-      }
-    };
-
-    const triggerFileInput = () => {
-      fileInputRef.current?.click();
+      if (file && file.type.startsWith("image/")) handleFileSelected(file);
     };
 
     return (
       <div
         ref={containerRef}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
         onDrop={handleDrop}
-        onClick={!hasImage ? triggerFileInput : undefined}
+        onClick={!hasImage ? () => fileInputRef.current?.click() : undefined}
+        className="w-full rounded-lg overflow-hidden relative flex items-center justify-center transition-all"
         style={{
-          width: "100%",
           height: "400px",
-          backgroundColor: isDragging ? "#cbd5e1" : "#e2e8f0",
-          borderRadius: "8px",
-          overflow: "hidden",
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: isDragging
-            ? "inset 0 0 0 4px #3b82f6"
-            : "inset 0 2px 4px rgba(0,0,0,0.05)",
+          background: isDragging ? "var(--surface-3)" : "var(--surface-2)",
+          border: isDragging ? "2px dashed var(--green)" : "1px solid var(--line)",
           cursor: !hasImage ? "pointer" : "default",
-          transition: "all 0.2s ease",
         }}
       >
         {!hasImage && (
-          <div
-            style={{
-              position: "absolute",
-              textAlign: "center",
-              pointerEvents: "none",
-            }}
-          >
+          <div className="absolute flex flex-col items-center gap-2 text-center pointer-events-none">
             <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                background: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1rem auto",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              }}
+              className="w-12 h-12 rounded-full grid place-items-center"
+              style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#64748b"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+              <Upload size={20} style={{ color: "var(--muted)" }} />
             </div>
-            <p
-              style={{
-                color: "#334155",
-                fontWeight: "500",
-                marginBottom: "0.25rem",
-              }}
-            >
-              Click to upload or drag and drop
+            <p className="text-sm font-bold" style={{ color: "var(--text)" }}>
+              클릭하거나 드래그하여 업로드
             </p>
-            <p
-              style={{
-                color: "var(--text-muted)",
-                fontSize: "0.85rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              PNG, JPG, JPEG (Max. 5MB)
-            </p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>PNG, JPG, JPEG (최대 5MB)</p>
             <button
-              className="btn btn-secondary"
-              onClick={(e) => {
-                e.stopPropagation();
-                triggerFileInput();
+              className="mt-1 px-4 h-9 rounded-lg text-xs font-bold pointer-events-auto transition-colors"
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--line)",
+                color: "var(--text)",
               }}
-              style={{ pointerEvents: "auto" }}
+              onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
             >
-              Select Image
+              파일 선택
             </button>
           </div>
         )}
         <input
           type="file"
           ref={fileInputRef}
-          onChange={handleFileChange}
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelected(f); }}
           accept="image/png, image/jpeg, image/jpg"
-          style={{ display: "none" }}
+          className="hidden"
         />
         <canvas
           ref={canvasRef}
-          style={{
-            display: "block",
-            width: "100%",
-            height: "100%",
-            opacity: hasImage ? 1 : 0,
-          }}
+          className="block w-full h-full"
+          style={{ opacity: hasImage ? 1 : 0 }}
         />
       </div>
     );
