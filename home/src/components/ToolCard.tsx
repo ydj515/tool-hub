@@ -28,23 +28,9 @@ export default function ToolCard({ tool }: ToolCardProps) {
   const isLive = status === 'live';
   const [hovered, setHovered] = useState(false);
 
-  function handleCardClick() {
-    if (isLive && url) window.open(url, '_blank', 'noopener,noreferrer');
-  }
-
-  function handleCardKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-    if (isLive && url && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-  }
-
   return (
     <article
-      onClick={handleCardClick}
-      onKeyDown={handleCardKeyDown}
-      tabIndex={isLive ? 0 : undefined}
-      className={`relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-[#0f0f1c] border border-black/[0.08] dark:border-white/[0.07] outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${isLive ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-[#0f0f1c] border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
       style={{
         transition: 'transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease, opacity 0.3s ease, filter 0.3s ease',
         transform: isLive && hovered ? 'translateY(-5px)' : 'translateY(0)',
@@ -59,9 +45,9 @@ export default function ToolCard({ tool }: ToolCardProps) {
       onMouseEnter={() => isLive && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* accent 링 오버레이 */}
+      {/* accent 링 오버레이 — pointer-events-none이므로 상호작용에 영향 없음 */}
       <div
-        className="absolute inset-0 rounded-2xl pointer-events-none"
+        className="absolute inset-0 rounded-2xl pointer-events-none z-[3]"
         style={{
           boxShadow: `inset 0 0 0 1px ${accentColor}30`,
           opacity: hovered ? 1 : 0,
@@ -71,10 +57,11 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
       {/* 그라디언트 배너 */}
       <div className="h-[148px] relative shrink-0" style={{ background: gradient }}>
+        {/* z-auto: stretched link(z-1)이 위에서 클릭 영역을 담당 */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/5 to-black/40" />
 
-        {/* 상태 뱃지 */}
-        <div className="absolute top-3.5 right-3.5 z-10">
+        {/* 상태 뱃지 — z-[1]: 그라디언트 위, stretched link와 동일 레벨(DOM 순서상 ::after가 위) */}
+        <div className="absolute top-3.5 right-3.5 z-[1]">
           <span
             className={`text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-full backdrop-blur-sm ${
               isLive ? 'bg-white/22 text-white' : 'bg-black/28 text-white/58'
@@ -85,7 +72,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
         </div>
 
         {/* 도구 이름 */}
-        <div className="absolute bottom-3.5 left-4 right-4 z-10">
+        <div className="absolute bottom-3.5 left-4 right-4 z-[1]">
           <h3 className="text-[17px] font-bold text-white leading-snug tracking-[-0.01em] drop-shadow-sm">
             {name}
           </h3>
@@ -115,20 +102,25 @@ export default function ToolCard({ tool }: ToolCardProps) {
           ))}
         </div>
 
-        {/* 액션 버튼 — relative z-10으로 카드 onClick 위에 위치 */}
-        <div className="relative z-10 flex gap-2 mt-auto pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+        {/* 액션 버튼 */}
+        <div className="flex gap-2 mt-auto pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
           {isLive && url ? (
+            /*
+             * Stretched Link 패턴:
+             * ::after(z-1)가 article 전체를 덮어 카드 어디서나 클릭 가능하게 함.
+             * article에 onClick/tabIndex를 두지 않으므로 스크린 리더 이중 포커스 없음.
+             * GitHub 링크(z-2)는 ::after 위에 위치해 독립적으로 클릭 가능.
+             */
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70"
+              className="relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-indigo-500 focus-visible:outline-offset-2"
               style={{
                 background: `${accentColor}1a`,
                 border: `1px solid ${accentColor}38`,
                 color: accentColor,
               }}
-              onClick={(e) => e.stopPropagation()}
             >
               <ExternalLinkIcon />
               Visit Site
@@ -138,13 +130,13 @@ export default function ToolCard({ tool }: ToolCardProps) {
               Coming Soon
             </span>
           )}
+          {/* relative z-[2]: stretched link(z-1) 위에 위치하여 독립 클릭 보장 */}
           <a
             href={github}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-9 rounded-lg text-gray-500 dark:text-white/42 bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:text-gray-800 dark:hover:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.08] hover:border-gray-200 dark:hover:border-white/[0.14] transition-all"
+            className="relative z-[2] flex items-center justify-center w-9 rounded-lg text-gray-500 dark:text-white/42 bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:text-gray-800 dark:hover:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.08] hover:border-gray-200 dark:hover:border-white/[0.14] transition-all"
             aria-label={`${name} GitHub 저장소`}
-            onClick={(e) => e.stopPropagation()}
           >
             <GitHubIcon />
           </a>
