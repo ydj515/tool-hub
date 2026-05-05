@@ -201,8 +201,11 @@ export default function GeneratorClient() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    const initial = saved === "light" || saved === "dark" ? saved : "light";
+    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") initial = saved;
+    } catch { /* localStorage unavailable */ }
     setTheme(initial);
     document.documentElement.setAttribute("data-theme", initial);
     setMounted(true);
@@ -212,7 +215,9 @@ export default function GeneratorClient() {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch { /* localStorage unavailable */ }
   }
 
   const [ddl, setDdl] = useState(SAMPLE_DDL_BASIC);

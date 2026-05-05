@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* ── Design tokens ── */
 :root {
@@ -95,7 +95,12 @@ button { border: 0; }
   border-radius: 8px;
 }
 
-.brandBlock { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
 
 .brandIcon {
   width: 42px;
