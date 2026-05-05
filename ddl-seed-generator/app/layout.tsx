@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,14 +6,17 @@ export const metadata: Metadata = {
   description: "DDL을 분석해 DB별 seed SQL과 rollback SQL을 생성합니다.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body>{children}</body>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

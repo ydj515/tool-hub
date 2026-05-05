@@ -12,8 +12,10 @@ import {
   FileArchive,
   FileCode2,
   Loader2,
+  Moon,
   Network,
   Sparkles,
+  Sun,
 } from "lucide-react";
 
 import { generateSeedSql } from "@/lib/generator";
@@ -195,6 +197,29 @@ const DIALECT_LABELS: Record<Dialect, string> = {
 };
 
 export default function GeneratorClient() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    let initial: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") initial = saved;
+    } catch { /* localStorage unavailable */ }
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+    setMounted(true);
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch { /* localStorage unavailable */ }
+  }
+
   const [ddl, setDdl] = useState(SAMPLE_DDL_BASIC);
   const [inputDialect, setInputDialect] = useState<Dialect>("postgresql");
   const [dialect, setDialect] = useState<Dialect>("postgresql");
@@ -465,6 +490,9 @@ export default function GeneratorClient() {
           <button className="primaryBtn" type="button" disabled={!canAttemptGenerate} onClick={onGenerate}>
             <Sparkles size={17} />
             Generate
+          </button>
+          <button className="themeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
+            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
           </button>
         </div>
       </section>
