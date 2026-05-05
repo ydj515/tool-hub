@@ -21,8 +21,6 @@ export interface SignaturePadRef {
   download: () => void;
 }
 
-interface SignaturePadProps {}
-
 const getSvgPathFromStroke = (stroke: number[][]) => {
   if (!stroke.length) return "";
   const d = stroke.reduce(
@@ -37,8 +35,7 @@ const getSvgPathFromStroke = (stroke: number[][]) => {
   return d.join(" ");
 };
 
-const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
-  (_props, ref) => {
+const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [strokes, setStrokes] = useState<Stroke[]>([]);
@@ -46,7 +43,6 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
     const [isDrawing, setIsDrawing] = useState(false);
     const [countdown, setCountdown] = useState<number>(0);
 
-    // Expose clear and download functions to parent
     useImperativeHandle(ref, () => ({
       clear: () => {
         setStrokes([]);
@@ -62,21 +58,17 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
       },
     }));
 
-    // Resize canvas to fit container
     useEffect(() => {
       const handleResize = () => {
         if (!canvasRef.current || !containerRef.current) return;
         const canvas = canvasRef.current;
         const container = containerRef.current;
-
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
-        drawAll(); // Redraw immediately on resize
+        drawAll();
       };
-
       window.addEventListener("resize", handleResize);
-      handleResize(); // Initial size
-
+      handleResize();
       return () => window.removeEventListener("resize", handleResize);
     }, []);
 
@@ -94,65 +86,48 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
       if (!canvasRef.current) return;
       const ctx = canvasRef.current.getContext("2d");
       if (!ctx) return;
-
-      // Clear canvas
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
       const allStrokes = currentStroke ? [...strokes, currentStroke] : strokes;
-
       allStrokes.forEach((stroke) => {
         if (stroke.points.length === 0) return;
-
         if (stroke.isBeautified) {
-          // Draw beautified path using perfect-freehand
           const strokePoints = getStroke(stroke.points, beautifyOptions);
           const pathData = getSvgPathFromStroke(strokePoints);
           const path = new Path2D(pathData);
-          ctx.fillStyle = "#0f172a"; // Ink color
+          ctx.fillStyle = "#1d2522";
           ctx.fill(path);
         } else {
-          // Draw raw jagged path
-          ctx.strokeStyle = "#0f172a";
+          ctx.strokeStyle = "#1d2522";
           ctx.lineWidth = 1.5;
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
           stroke.points.forEach((point, i) => {
-            if (i === 0) {
-              ctx.moveTo(point[0], point[1]);
-            } else {
-              ctx.lineTo(point[0], point[1]);
-            }
+            if (i === 0) ctx.moveTo(point[0], point[1]);
+            else ctx.lineTo(point[0], point[1]);
           });
           ctx.stroke();
         }
       });
     }, [strokes, currentStroke]);
 
-    useEffect(() => {
-      drawAll();
-    }, [drawAll]);
+    useEffect(() => { drawAll(); }, [drawAll]);
 
-    // 3-second Beautify Timer with Countdown
     useEffect(() => {
       const hasUnbeautified = strokes.some((s) => !s.isBeautified);
-
       if (!isDrawing && hasUnbeautified) {
         setCountdown(3);
-        const intervalId = setInterval(() => {
+        const id = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
-              clearInterval(intervalId);
-              setStrokes((prevStrokes) =>
-                prevStrokes.map((s) => ({ ...s, isBeautified: true })),
-              );
+              clearInterval(id);
+              setStrokes((ps) => ps.map((s) => ({ ...s, isBeautified: true })));
               return 0;
             }
             return prev - 1;
           });
         }, 1000);
-
-        return () => clearInterval(intervalId);
+        return () => clearInterval(id);
       } else {
         setCountdown(0);
       }
@@ -163,38 +138,23 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
       setIsDrawing(true);
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const pressure = e.pressure !== 0 ? e.pressure : 0.5;
-
-      const newStroke: Stroke = {
-        id: Date.now().toString(),
-        points: [[x, y, pressure]],
-        isBeautified: false,
-      };
-      setCurrentStroke(newStroke);
+      setCurrentStroke({ id: Date.now().toString(), points: [[x, y, pressure]], isBeautified: false });
     };
 
     const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
       if (!isDrawing || !currentStroke) return;
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const pressure = e.pressure !== 0 ? e.pressure : 0.5;
-
-      setCurrentStroke((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          points: [...prev.points, [x, y, pressure]],
-        };
-      });
+      setCurrentStroke((prev) => prev ? { ...prev, points: [...prev.points, [x, y, pressure]] } : prev);
     };
 
-    const handlePointerUp = (_e: React.PointerEvent<HTMLCanvasElement>) => {
+    const handlePointerUp = () => {
       setIsDrawing(false);
       if (currentStroke) {
         setStrokes((prev) => [...prev, currentStroke]);
@@ -205,14 +165,11 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
     return (
       <div
         ref={containerRef}
+        className="w-full rounded-lg overflow-hidden relative"
         style={{
-          width: "100%",
           height: "400px",
-          backgroundColor: "#f8fafc", // Light canvas surface
-          borderRadius: "8px",
-          overflow: "hidden",
-          position: "relative",
-          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)",
+          background: "#ffffff",
+          border: "1px solid var(--line)",
         }}
       >
         <canvas
@@ -220,40 +177,17 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          style={{
-            touchAction: "none",
-            display: "block",
-            width: "100%",
-            height: "100%",
-            cursor: "crosshair",
-          }}
+          className="block w-full h-full cursor-crosshair"
+          style={{ touchAction: "none" }}
         />
-
-        {/* Visual cue for processing */}
         {countdown > 0 && (
           <div
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              right: "10px",
-              background: "rgba(59, 130, 246, 0.9)",
-              color: "white",
-              padding: "4px 8px",
-              borderRadius: "12px",
-              fontSize: "0.75rem",
-              pointerEvents: "none",
-              animation: "pulse 1s infinite ease-in-out",
-            }}
+            className="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-full text-xs font-bold pointer-events-none animate-pulse"
+            style={{ background: "var(--green)", color: "#f8fff9" }}
           >
-            Beautifying in {countdown}...
+            Beautifying in {countdown}…
           </div>
         )}
-        <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
-        }
-      `}</style>
       </div>
     );
   },
