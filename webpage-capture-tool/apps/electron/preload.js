@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld("captureApi", {
   run: (args) => ipcRenderer.invoke("run-cli", args),
   cancel: () => ipcRenderer.invoke("cancel-cli"),
   // Electron 32+에서 File.path가 제거됨 — webUtils.getPathForFile로 대체
-  getFilePath: webUtils.getPathForFile,
+  getFilePath: (file) => webUtils.getPathForFile(file),
   onLog: (callback) => {
     const handler = (_event, payload) => callback(payload);
     ipcRenderer.on("cli-log", handler);

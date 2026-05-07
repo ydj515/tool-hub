@@ -22,6 +22,12 @@ function buildBaseName(index, row, columns) {
     .slice(0, 150);
 }
 
+async function waitForRender(page, waitMs) {
+  if (waitMs > 0) {
+    await page.waitForTimeout(waitMs);
+  }
+}
+
 /**
  * 대상 URL 목록을 순회하며 전체 페이지 스크린샷을 저장하고 실패 목록을 수집한다.
  */
@@ -55,10 +61,8 @@ async function takeScreenshots(rows, options) {
       console.log(`[${i + 1}/${rows.length}] ${url}`);
       try {
         await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
-        // page.waitForTimeout는 deprecated — 사용자 지정 렌더링 대기를 setTimeout Promise로 대체
-        if (waitMs > 0) {
-          await new Promise((resolve) => setTimeout(resolve, waitMs));
-        }
+        // Playwright 페이지 수명주기와 연동되는 대기로 추가 렌더링 시간을 준다.
+        await waitForRender(page, waitMs);
 
         await page.screenshot({ path: filePath, fullPage: true });
         saved++;
@@ -79,5 +83,6 @@ async function takeScreenshots(rows, options) {
 }
 
 module.exports = {
-  takeScreenshots
+  takeScreenshots,
+  waitForRender
 };
