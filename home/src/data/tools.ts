@@ -65,6 +65,18 @@ export const tools: Tool[] = [
     status: 'live',
   },
   {
+    id: 'shortcut-cheatsheet',
+    name: 'Shortcut Cheatsheet',
+    longDescription:
+      '자주 쓰는 키보드 단축키를 빠르게 찾아볼 수 있는 치트시트입니다. 브라우저에서 필요한 조합을 바로 확인할 수 있습니다.',
+    tags: ['Shortcut', 'Keyboard', 'Reference'],
+    url: 'https://shortcut-cheatsheet.vercel.app/',
+    github: 'https://github.com/ydj515/shortcut-cheatsheet',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+    accentColor: '#06b6d4',
+    status: 'live',
+  },
+  {
     id: 'webpage-capture-tool',
     name: 'Webpage Capture',
     longDescription:
