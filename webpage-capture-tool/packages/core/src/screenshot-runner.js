@@ -55,7 +55,10 @@ async function takeScreenshots(rows, options) {
       console.log(`[${i + 1}/${rows.length}] ${url}`);
       try {
         await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
-        await page.waitForTimeout(waitMs);
+        // page.waitForTimeout는 deprecated — 사용자 지정 렌더링 대기를 setTimeout Promise로 대체
+        if (waitMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+        }
 
         await page.screenshot({ path: filePath, fullPage: true });
         saved++;
