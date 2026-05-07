@@ -261,8 +261,9 @@ function handleDropFiles(fileList) {
 
   const paths = files
     .map((file) => {
-      console.log("[renderer] file:", file.name, file.path);
-      return file.path; // Electron에서 제공하는 절대 경로
+      const filePath = window.captureApi.getFilePath(file);
+      console.log("[renderer] file:", file.name, filePath);
+      return filePath;
     })
     .filter((p) => {
       if (!p) return false;
