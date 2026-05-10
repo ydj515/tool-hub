@@ -14,13 +14,12 @@ const { processImage } = require("@webpage-capture/core");
 const { exportMarkdown } = require("@webpage-capture/core");
 const { exportWordAssets } = require("@webpage-capture/core");
 const { exportPptAssets } = require("@webpage-capture/core");
+const { ImageFileHistory } = require("./ipc-utils");
 
 let mainWindow;
 let currentChild = null;
 
-// 이미지 편집 파일 히스토리 (경로별 Buffer 스택)
-const imageFileUndoStacks = new Map(); // filePath → Buffer[]
-const imageFileRedoStacks = new Map(); // filePath → Buffer[]
+const imageHistory = new ImageFileHistory();
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -256,58 +255,22 @@ ipcMain.handle("image:process", async (_event, { inputPath, outputPath, rules })
 
 // 편집 적용 전 현재 파일을 undo 버퍼에 저장
 ipcMain.handle("image:snapshot-for-undo", (_event, filePath) => {
-  try {
-    if (!fs.existsSync(filePath)) return { error: "파일 없음" };
-    const buf = fs.readFileSync(filePath);
-    if (!imageFileUndoStacks.has(filePath)) imageFileUndoStacks.set(filePath, []);
-    imageFileUndoStacks.get(filePath).push(buf);
-    // 새 액션이 생기면 redo 스택 무효화
-    imageFileRedoStacks.set(filePath, []);
-    return { ok: true };
-  } catch (e) {
-    return { error: e.message };
-  }
+  return imageHistory.snapshot(filePath);
 });
 
 // 파일을 이전 상태로 복원
 ipcMain.handle("image:undo-file", (_event, filePath) => {
-  try {
-    const undoStack = imageFileUndoStacks.get(filePath) || [];
-    if (undoStack.length === 0) return { ok: false };
-    const prevBuf = undoStack.pop();
-    if (!imageFileRedoStacks.has(filePath)) imageFileRedoStacks.set(filePath, []);
-    if (fs.existsSync(filePath)) {
-      imageFileRedoStacks.get(filePath).push(fs.readFileSync(filePath));
-    }
-    fs.writeFileSync(filePath, prevBuf);
-    return { ok: true };
-  } catch (e) {
-    return { error: e.message };
-  }
+  return imageHistory.undo(filePath);
 });
 
 // 파일을 다음 상태로 복원
 ipcMain.handle("image:redo-file", (_event, filePath) => {
-  try {
-    const redoStack = imageFileRedoStacks.get(filePath) || [];
-    if (redoStack.length === 0) return { ok: false };
-    const nextBuf = redoStack.pop();
-    if (!imageFileUndoStacks.has(filePath)) imageFileUndoStacks.set(filePath, []);
-    if (fs.existsSync(filePath)) {
-      imageFileUndoStacks.get(filePath).push(fs.readFileSync(filePath));
-    }
-    fs.writeFileSync(filePath, nextBuf);
-    return { ok: true };
-  } catch (e) {
-    return { error: e.message };
-  }
+  return imageHistory.redo(filePath);
 });
 
 // 이미지 전환 시 파일 히스토리 초기화
 ipcMain.handle("image:clear-file-history", (_event, filePath) => {
-  imageFileUndoStacks.delete(filePath);
-  imageFileRedoStacks.delete(filePath);
-  return { ok: true };
+  return imageHistory.clear(filePath);
 });
 
 // 편집된 이미지를 PNG로 다른 경로에 저장

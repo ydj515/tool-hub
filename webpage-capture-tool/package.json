@@ -15,6 +15,7 @@
     "lint": "node --check apps/electron/main.js && node --check apps/electron/preload.js && node --check apps/electron/renderer/renderer.js && node --check packages/cli/bin/screenshot.js && node --check packages/cli/src/run-capture.js && node --check packages/core/index.js && node --check packages/core/src/data-loader.js && node --check packages/core/src/options.js && node --check packages/core/src/screenshot-runner.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "build:mac": "npm run build:mac --workspace @webpage-capture/electron-app",
     "build:win": "npm run build:win --workspace @webpage-capture/electron-app"
   },
