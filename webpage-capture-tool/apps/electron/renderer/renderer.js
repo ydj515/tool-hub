@@ -1,333 +1,276 @@
 /**
- * Electron 렌더러에서 폼 입력, 실행 상태, 실패 URL 재실행 UX를 관리한다.
+ * 워크벤치 메인 컨트롤러.
+ * 화면 전환, 실행 흐름, 로그 표시, IPC 이벤트 수신을 담당한다.
  */
-["dragenter", "dragover", "dragleave", "drop"].forEach((evt) => {
-  window.addEventListener(evt, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
 
-    if (evt === "dragover" && e.dataTransfer) {
-      e.dataTransfer.dropEffect = "copy";
-    }
-  });
-  document.addEventListener(evt, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  });
+// ============================================================
+// 초기화
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  initProjectScreen();
+  initCaptureScreen();
+  initDomScreen();
+  initImageScreen();
+  initBatchScreen();
+  initExportScreen();
+
+  bindTopbarButtons();
+  bindLogTabs();
+  bindNavigation();
+  switchScreen("project");
 });
 
-const filesInput = document.getElementById("files");
-const outDirInput = document.getElementById("outDir");
-const sheetInput = document.getElementById("sheet");
-const csvEncodingInput = document.getElementById("csvEncoding");
-const colIdInput = document.getElementById("colId");
-const colSubjectInput = document.getElementById("colSubject");
-const colUrlInput = document.getElementById("colUrl");
-const waitInput = document.getElementById("wait");
-const dedupeInput = document.getElementById("dedupe");
-const headlessInput = document.getElementById("headless");
-const logsEl = document.getElementById("logs");
-const statusEl = document.getElementById("status");
-const failedListEl = document.getElementById("failed-urls");
-const failedCountEl = document.getElementById("failed-count");
-const copyFailedBtn = document.getElementById("copy-failed");
-const rerunFailedBtn = document.getElementById("rerun-failed");
-const runBtn = document.getElementById("run");
-const cancelBtn = document.getElementById("cancel");
-const dropzone = document.getElementById("dropzone");
+// ============================================================
+// 화면 전환
+// ============================================================
+function switchScreen(screenId) {
+  // 모든 screen 숨기기
+  document.querySelectorAll(".screen").forEach((el) => el.classList.add("hidden"));
+  document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".panel-content").forEach((el) => el.classList.add("hidden"));
 
-let isRunning = false;
-let failedUrls = [];
-let lastArgs = null;
+  // 대상 screen 표시
+  const screenEl = document.getElementById(`screen-${screenId}`);
+  if (screenEl) screenEl.classList.remove("hidden");
 
-function setRunning(next) {
-  isRunning = next;
-  runBtn.disabled = next;
-  cancelBtn.disabled = !next;
-  statusEl.textContent = next ? "실행 중..." : "대기 중";
-  rerunFailedBtn.disabled = next || failedUrls.length === 0;
+  const navEl = document.querySelector(`.nav-item[data-screen="${screenId}"]`);
+  if (navEl) navEl.classList.add("active");
+
+  const panelEl = document.getElementById(`panel-${screenId}`);
+  if (panelEl) panelEl.classList.remove("hidden");
+
+  AppState.currentScreen = screenId;
+
+  // 화면별 진입 후 처리
+  if (screenId === "capture") syncCaptureFormFromState();
+  if (screenId === "image") renderThumbStrip();
+  if (screenId === "batch") renderCaptureResultList();
+  if (screenId === "export") updateExportPreview();
+  if (screenId === "dom") renderDomRuleList();
 }
 
-function appendLog(prefix, message) {
-  const text = `[${prefix}] ${message}`.trim();
-  logsEl.textContent += `${text}\n`;
-  logsEl.scrollTop = logsEl.scrollHeight;
+function bindNavigation() {
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("click", () => switchScreen(item.dataset.screen));
+  });
 }
 
-function buildArgs() {
-  const files = (filesInput.value || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+// ============================================================
+// 상단 바 버튼
+// ============================================================
+function bindTopbarButtons() {
+  const btnRun = document.getElementById("btn-run");
+  const btnCancel = document.getElementById("btn-cancel");
+  const btnSave = document.getElementById("btn-save-project");
 
-  if (files.length === 0) {
-    throw new Error("파일을 선택하거나 경로를 입력해주세요.");
+  if (btnRun) btnRun.addEventListener("click", handleRun);
+  if (btnCancel) btnCancel.addEventListener("click", handleCancel);
+  if (btnSave) btnSave.addEventListener("click", saveCurrentProject);
+}
+
+function setRunning(flag) {
+  AppState.isRunning = flag;
+  const btnRun = document.getElementById("btn-run");
+  const btnCancel = document.getElementById("btn-cancel");
+  const badge = document.getElementById("status-badge");
+
+  if (btnRun) btnRun.disabled = flag;
+  if (btnCancel) btnCancel.disabled = !flag;
+  if (badge) {
+    badge.textContent = flag ? "실행 중..." : "Ready";
+    badge.className = `status-badge${flag ? " running" : ""}`;
   }
-
-  const args = ["--files", files.join(",")];
-
-  if (sheetInput.value) args.push("--sheet", sheetInput.value.trim());
-  if (csvEncodingInput.value)
-    args.push("--csvEncoding", csvEncodingInput.value.trim());
-  if (colIdInput.value) args.push("--id", colIdInput.value.trim());
-  if (colSubjectInput.value)
-    args.push("--subject", colSubjectInput.value.trim());
-  if (colUrlInput.value) args.push("--url", colUrlInput.value.trim());
-  if (outDirInput.value) args.push("--out", outDirInput.value.trim());
-  if (waitInput.value) args.push("--wait", waitInput.value.trim());
-
-  if (!dedupeInput.checked) args.push("--dedupe", "false");
-  if (!headlessInput.checked) args.push("--headless", "false");
-
-  return args;
 }
 
-function resetFailedList() {
-  failedUrls = [];
-  renderFailedList();
-}
+async function handleRun() {
+  if (AppState.isRunning) return;
 
-function renderFailedList() {
-  failedCountEl.textContent = `${failedUrls.length}개`;
-  failedListEl.textContent = failedUrls.join("\n");
-  copyFailedBtn.disabled = failedUrls.length === 0;
-  rerunFailedBtn.disabled = isRunning || failedUrls.length === 0;
-}
-
-function addFailedUrl(url) {
-  const clean = (url || "").trim();
-  if (!clean || failedUrls.includes(clean)) return;
-  failedUrls.push(clean);
-  renderFailedList();
-}
-
-function parseStructuredLogLine(line) {
-  if (!line) return false;
   try {
-    const obj = JSON.parse(line);
-    if (obj && obj.type === "error" && obj.url) {
-      addFailedUrl(obj.url);
-      return true;
+    const args = buildCaptureArgs();
+    // DOM 규칙을 직렬화해서 인자에 포함
+    if (AppState.project.domRules && AppState.project.domRules.length > 0) {
+      args.push("--domRules", JSON.stringify(AppState.project.domRules));
     }
-    if (
-      obj &&
-      obj.type === "failed-summary" &&
-      Array.isArray(obj.failed) &&
-      obj.failed.length > 0
-    ) {
-      obj.failed
-        .map((f) => f && f.url)
-        .filter(Boolean)
-        .forEach(addFailedUrl);
-      return true;
-    }
-  } catch (e) {
-    // not JSON, ignore
-  }
-  return false;
-}
 
-function parseLegacyFailedLine(line) {
-  if (!line) return;
-  const summary = line.match(/FAILED_URLS:\s*(.+)/);
-  if (summary && summary[1]) {
-    summary[1]
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .forEach(addFailedUrl);
-    return;
-  }
-
-  const m = line.match(/-> failed:\s*([^\s]+)/i);
-  if (m && m[1]) {
-    addFailedUrl(m[1]);
-  }
-}
-
-function handleLogMessage(message) {
-  if (!message) return;
-  message
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .forEach((line) => {
-      if (parseStructuredLogLine(line)) return;
-      parseLegacyFailedLine(line);
-    });
-}
-
-function stripOnlyUrls(args) {
-  const next = [];
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === "--onlyUrls") {
-      i++;
-      continue;
-    }
-    next.push(arg);
-  }
-  return next;
-}
-
-document.getElementById("pick-out").addEventListener("click", async () => {
-  const dir = await window.captureApi.selectOutDir();
-  if (dir) {
-    outDirInput.value = dir;
-  }
-});
-
-runBtn.addEventListener("click", async () => {
-  try {
-    const args = buildArgs();
-    lastArgs = args;
     setRunning(true);
-    logsEl.textContent = "";
-    resetFailedList();
-    appendLog("app", `실행 명령: webpage-capture ${args.join(" ")}`);
-    const res = await window.captureApi.run(args);
+    clearLog("all");
+    AppState.captureResults = [];
+    AppState.failedUrls = [];
+    updateFailedBadge();
+
+    appendLog("app", `실행 시작: ${args.slice(0, 4).join(" ")} ...`);
+
+    const res = await window.workbenchApi.runCapture(args);
     if (res && res.error) {
       appendLog("error", res.error);
       setRunning(false);
     }
   } catch (e) {
-    appendLog("error", e.message || e);
+    appendLog("error", e.message || String(e));
+    setRunning(false);
   }
-});
+}
 
-cancelBtn.addEventListener("click", async () => {
-  await window.captureApi.cancel();
-});
+async function handleCancel() {
+  await window.workbenchApi.cancelCapture();
+}
 
-window.captureApi.onLog((payload) => {
+// ============================================================
+// IPC 이벤트 수신
+// ============================================================
+window.workbenchApi.onLog((payload) => {
   const { type, message } = payload;
   appendLog(type, message);
-  handleLogMessage(message);
+
+  // 캡처 완료 결과 파싱
+  if (message) {
+    message.split(/\r?\n/).forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+
+      // 구조화된 JSON 로그 처리
+      try {
+        const obj = JSON.parse(trimmed);
+
+        if (obj.type === "error" && obj.url) {
+          AppState.failedUrls.push(obj.url);
+          updateFailedBadge();
+          appendLog("failed", `${obj.url}\n  오류: ${obj.message}`);
+        }
+
+        if (obj.type === "failed-summary" && Array.isArray(obj.failed)) {
+          obj.failed.forEach((f) => {
+            if (f && f.url && !AppState.failedUrls.includes(f.url)) {
+              AppState.failedUrls.push(f.url);
+            }
+          });
+          updateFailedBadge();
+        }
+
+        if (obj.type === "capture-result") {
+          AppState.captureResults.push(obj.result);
+        }
+      } catch (e) {
+        // 비 JSON 줄 — 레거시 형식 처리
+        const m = trimmed.match(/-> saved: (.+\.png)/i);
+        if (m && m[1]) {
+          const filePath = m[1].trim();
+          // 파일명에서 baseName 추출
+          const parts = filePath.split(/[\\/]/);
+          const baseName = parts[parts.length - 1].replace(/\.png$/i, "");
+
+          // URL을 마지막 appendLog에서 추출 시도 (간이 처리)
+          const existingIdx = AppState.captureResults.findIndex((r) => r.filePath === filePath);
+          if (existingIdx === -1) {
+            AppState.captureResults.push({ filePath, baseName, status: "ok", url: "" });
+          }
+        }
+      }
+    });
+  }
+
+  // 실행 종료 감지
   if (message && message.includes("종료")) {
     setRunning(false);
+    if (AppState.captureResults.length > 0) {
+      renderCaptureResultList();
+      renderThumbStrip();
+    }
+    appendLog("app", `캡처 완료: 성공 ${AppState.captureResults.filter((r) => r.status === "ok").length}개 / 실패 ${AppState.failedUrls.length}개`);
   }
 });
 
-copyFailedBtn.addEventListener("click", async () => {
-  if (!failedUrls.length) return;
+// ============================================================
+// 로그 관련
+// ============================================================
+function bindLogTabs() {
+  document.querySelectorAll(".log-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".log-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      const target = tab.dataset.log;
+      document.querySelectorAll(".log-content").forEach((el) => el.classList.add("hidden"));
+      const logEl = document.getElementById(`log-${target}`);
+      if (logEl) logEl.classList.remove("hidden");
+    });
+  });
+
+  document.getElementById("btn-clear-log").addEventListener("click", () => {
+    ["all", "failed", "export"].forEach(clearLog);
+  });
+
+  document.getElementById("btn-copy-failed").addEventListener("click", async () => {
+    if (!AppState.failedUrls.length) return;
+    try {
+      await navigator.clipboard.writeText(AppState.failedUrls.join("\n"));
+      appendLog("app", "실패 URL을 클립보드에 복사했습니다.");
+    } catch (e) {
+      appendLog("error", e.message || "클립보드 복사 실패");
+    }
+  });
+
+  document.getElementById("btn-rerun-failed").addEventListener("click", rerunFailed);
+}
+
+function appendLog(type, message) {
+  if (!message) return;
+  const text = `[${type}] ${message}`.trim();
+  const allEl = document.getElementById("log-all");
+  if (allEl) {
+    allEl.textContent += `${text}\n`;
+    allEl.scrollTop = allEl.scrollHeight;
+  }
+
+  if (type === "export") {
+    const exportEl = document.getElementById("log-export");
+    if (exportEl) {
+      exportEl.textContent += `${text}\n`;
+      exportEl.scrollTop = exportEl.scrollHeight;
+    }
+  }
+}
+
+function clearLog(target) {
+  const el = document.getElementById(`log-${target}`);
+  if (el) el.textContent = "";
+}
+
+function updateFailedBadge() {
+  const badge = document.getElementById("failed-count-badge");
+  const btnCopy = document.getElementById("btn-copy-failed");
+  const btnRerun = document.getElementById("btn-rerun-failed");
+  const count = AppState.failedUrls.length;
+
+  if (badge) badge.textContent = count;
+  if (btnCopy) btnCopy.disabled = count === 0;
+  if (btnRerun) btnRerun.disabled = count === 0 || AppState.isRunning;
+}
+
+async function rerunFailed() {
+  if (!AppState.failedUrls.length || AppState.isRunning) return;
   try {
-    await navigator.clipboard.writeText(failedUrls.join("\n"));
-    appendLog("app", "실패 URL을 클립보드에 복사했습니다.");
-  } catch (e) {
-    appendLog("error", e.message || "클립보드 복사 실패");
-  }
-});
+    const args = buildCaptureArgs();
+    args.push("--onlyUrls", AppState.failedUrls.join(","));
+    if (AppState.project.domRules && AppState.project.domRules.length > 0) {
+      args.push("--domRules", JSON.stringify(AppState.project.domRules));
+    }
 
-rerunFailedBtn.addEventListener("click", async () => {
-  if (!failedUrls.length) {
-    appendLog("app", "재실행할 실패 URL이 없습니다.");
-    return;
-  }
-  if (!lastArgs) {
-    appendLog("app", "먼저 전체 실행을 한번 진행해주세요.");
-    return;
-  }
-
-  const baseArgs = stripOnlyUrls(lastArgs);
-  const retryArgs = [...baseArgs, "--onlyUrls", failedUrls.join(",")];
-
-  try {
     setRunning(true);
-    logsEl.textContent = "";
-    resetFailedList();
-    appendLog(
-      "app",
-      `실패 URL ${failedUrls.length}개만 재실행: ${failedUrls.join(", ")}`
-    );
-    const res = await window.captureApi.run(retryArgs);
+    clearLog("all");
+    appendLog("app", `실패 URL ${AppState.failedUrls.length}개 재실행`);
+    AppState.failedUrls = [];
+    updateFailedBadge();
+
+    const res = await window.workbenchApi.runCapture(args);
     if (res && res.error) {
       appendLog("error", res.error);
       setRunning(false);
     }
   } catch (e) {
-    appendLog("error", e.message || e);
+    appendLog("error", e.message || String(e));
     setRunning(false);
-  }
-});
-
-setRunning(false);
-renderFailedList();
-
-function handleDropFiles(fileList) {
-  const allowed = [".xlsx", ".xls", ".csv", ".txt"];
-
-  const files = Array.from(fileList || []);
-  console.log("[renderer] drop files:", files.length, files);
-
-  const paths = files
-    .map((file) => {
-      const filePath = window.captureApi.getFilePath(file);
-      console.log("[renderer] file:", file.name, filePath);
-      return filePath;
-    })
-    .filter((p) => {
-      if (!p) return false;
-      const lower = p.toLowerCase();
-      return allowed.some((ext) => lower.endsWith(ext));
-    });
-
-  console.log("[renderer] paths:", paths);
-
-  if (paths.length > 0) {
-    const merged = [
-      ...new Set(
-        [
-          ...(filesInput.value
-            ? filesInput.value.split(",").map((s) => s.trim())
-            : []),
-          ...paths
-        ].filter(Boolean)
-      )
-    ];
-    filesInput.value = merged.join(", ");
   }
 }
 
-// dropzone 위로 올라왔을 때
-["dragenter", "dragover"].forEach((evt) => {
-  dropzone.addEventListener(evt, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.add("dragover");
-  });
-});
-
-// dropzone 밖으로 나가거나 실제 드롭 됐을 때
-["dragleave", "drop"].forEach((evt) => {
-  dropzone.addEventListener(evt, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.remove("dragover");
-  });
-});
-
-// 실제 드롭 처리
-dropzone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  dropzone.classList.remove("dragover");
-  handleDropFiles(e.dataTransfer.files);
-});
-
-// 클릭 시 파일 선택
-dropzone.addEventListener("click", async () => {
-  const files = await window.captureApi.selectFiles();
-  if (files && files.length > 0) {
-    const merged = [
-      ...new Set(
-        [
-          ...(filesInput.value
-            ? filesInput.value.split(",").map((s) => s.trim())
-            : []),
-          ...files
-        ].filter(Boolean)
-      )
-    ];
-    filesInput.value = merged.join(", ");
-  }
-});
+// appendLog를 전역으로 노출 (다른 screen 파일에서 사용)
+window.appendLog = appendLog;

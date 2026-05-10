@@ -2,6 +2,7 @@
  * CLI 인자를 내부 옵션 객체로 해석하는 파서를 제공한다.
  */
 const path = require("path");
+const { VIEWPORT_PRESETS } = require("./export-profile");
 
 const SUPPORTED_CSV_ENCODINGS = ["utf8", "utf-8", "cp949", "euc-kr", "euckr"];
 
@@ -16,6 +17,8 @@ const DEFAULTS = {
   headless: true,
   dedupe: true,
   viewport: { width: 1280, height: 720 },
+  viewportPreset: "custom",
+  captureScope: "fullPage",
   outDir: path.join(process.cwd(), "screenshots")
 };
 
@@ -79,28 +82,38 @@ function resolveCsvEncoding(rawValue) {
 function parseCliOptions(argv) {
   const raw = parseArgPairs(argv);
   const fileArg = raw.file || raw.files;
+  const singleUrl = raw.singleUrl || (!fileArg ? raw.url : null);
 
   if (raw.help) {
     return { help: true };
   }
 
-  if (!fileArg) {
-    throw new Error("사용법: webpage-capture --file datalist.xlsx[,more.csv,...] [--옵션들...]");
+  // singleUrl 또는 fileArg 중 하나 필요
+  if (!fileArg && !singleUrl) {
+    throw new Error("사용법: webpage-capture --file datalist.xlsx[,...] [--옵션들...] 또는 --singleUrl https://...");
   }
 
-  const filePaths = fileArg
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  let filePaths = [];
+  let sources = [];
 
-  if (filePaths.length === 0) {
-    throw new Error("file 인자가 비어있습니다.");
+  if (singleUrl && !fileArg) {
+    // 단일 URL 모드: sources 배열로 통일
+    sources = [{ type: "url", url: singleUrl.trim() }];
+  } else {
+    filePaths = fileArg
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (filePaths.length === 0) {
+      throw new Error("file 인자가 비어있습니다.");
+    }
+    sources = filePaths.map((fp) => ({ type: "file", path: fp }));
   }
 
   const columns = {
     id: raw.id || DEFAULTS.columns.id,
     subjectKey: raw.subject || DEFAULTS.columns.subjectKey,
-    urlKey: raw.url || DEFAULTS.columns.urlKey
+    urlKey: raw.colUrl || raw.colurl || raw.url || DEFAULTS.columns.urlKey
   };
 
   const waitMs = raw.wait
@@ -111,8 +124,20 @@ function parseCliOptions(argv) {
     resolveCsvEncoding(raw.csvEncoding);
   const onlyUrls = parseCsvList(raw.onlyUrls || raw.onlyurls);
 
+  // 뷰포트 프리셋 처리
+  const viewportPreset = raw.viewportPreset || DEFAULTS.viewportPreset;
+  const presetViewport = VIEWPORT_PRESETS[viewportPreset] || VIEWPORT_PRESETS.custom;
+  const viewport = raw.viewportWidth
+    ? { width: parseInt(raw.viewportWidth, 10), height: parseInt(raw.viewportHeight || presetViewport.height, 10) }
+    : { width: presetViewport.width, height: presetViewport.height };
+
+  const captureScope = raw.captureScope || DEFAULTS.captureScope;
+  const captureSelector = raw.captureSelector || null;
+
   return {
     filePaths,
+    sources,
+    singleUrl: singleUrl ? singleUrl.trim() : null,
     columns,
     sheetName: raw.sheet || DEFAULTS.sheetName,
     csvEncoding,
@@ -121,7 +146,12 @@ function parseCliOptions(argv) {
     outDir: path.resolve(outDir),
     headless: toBoolean(raw.headless, DEFAULTS.headless),
     dedupe: toBoolean(raw.dedupe, DEFAULTS.dedupe),
-    viewport: DEFAULTS.viewport,
+    viewport,
+    viewportPreset,
+    captureScope,
+    captureSelector,
+    domRules: [],
+    editRules: [],
     onlyUrls
   };
 }
