@@ -43,6 +43,8 @@ npm run build:win         # Windows nsis
 
 앱은 `@webpage-capture/cli`를 실행해 stdout/stderr를 실시간 스트리밍하며, 브라우저 경로가 없으면 Playwright 캐시/번들 순으로 탐색합니다.
 
+- 사용 설명서: [docs/manual-capture-workbench-user-guide.md](./docs/manual-capture-workbench-user-guide.md)
+
 ## 작업 메모
 
 - 의존성 추가/삭제시 항상 루트에서
