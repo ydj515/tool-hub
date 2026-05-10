@@ -127,6 +127,15 @@
                 <button class="btn-preset" data-preset="markdown">Markdown (1280x800)</button>
                 <button class="btn-preset" data-preset="custom">사용자 정의</button>
               </div>
+              <div class="mt-8">
+                <label class="form-label">비율 옵션</label>
+                <div class="aspect-buttons">
+                  <button class="btn-aspect active" data-aspect="free">자유 비율</button>
+                  <button class="btn-aspect" data-aspect="16:9">16:9</button>
+                  <button class="btn-aspect" data-aspect="4:3">4:3</button>
+                  <button class="btn-aspect" data-aspect="original">원본 유지</button>
+                </div>
+              </div>
               <div class="row mt-8 hidden" id="custom-viewport-group">
                 <div class="form-group">
                   <label class="form-label">너비 (px)</label>
@@ -293,11 +302,11 @@
                 </label>
                 <label class="checkbox-label">
                   <input type="checkbox" id="ch-word" />
-                  Word Assets
+                  Word (.docx)
                 </label>
                 <label class="checkbox-label">
                   <input type="checkbox" id="ch-ppt" />
-                  PPT Assets
+                  PPT (.pptx)
                 </label>
               </div>
             </div>
@@ -337,6 +346,7 @@
           <h3>캡처 상태</h3>
           <div class="panel-info">
             <div class="info-row"><span>뷰포트</span><span id="info-viewport">1440x1024</span></div>
+            <div class="info-row"><span>비율</span><span id="info-aspect">free</span></div>
             <div class="info-row"><span>범위</span><span id="info-scope">fullPage</span></div>
             <div class="info-row"><span>대기</span><span id="info-wait">2000ms</span></div>
           </div>
@@ -374,6 +384,17 @@
             <div class="form-group">
               <label class="form-label">박스 색상</label>
               <input type="color" id="box-color" value="#000000" />
+            </div>
+          </div>
+          <div id="tool-props-crop" class="tool-props hidden">
+            <div class="form-group">
+              <label class="form-label">크롭 비율</label>
+              <div class="aspect-buttons">
+                <button class="btn-crop-aspect active" data-crop-aspect="free">자유 비율</button>
+                <button class="btn-crop-aspect" data-crop-aspect="16:9">16:9</button>
+                <button class="btn-crop-aspect" data-crop-aspect="4:3">4:3</button>
+                <button class="btn-crop-aspect" data-crop-aspect="original">원본 유지</button>
+              </div>
             </div>
           </div>
           <div id="tool-props-resize" class="tool-props hidden">
@@ -414,7 +435,14 @@
             <div class="info-row"><span>Word 해상도</span><span>1440px</span></div>
             <div class="info-row"><span>PPT 해상도</span><span>1920px</span></div>
           </div>
-          <button class="btn secondary full mt-8" id="btn-open-export-folder">폴더 열기</button>
+          <div class="export-action-stack mt-8">
+            <button class="btn secondary full" id="btn-open-export-folder">폴더 열기</button>
+            <button class="btn secondary full" id="btn-open-word-export" disabled>Word 열기</button>
+            <button class="btn secondary full" id="btn-open-ppt-export" disabled>PPT 열기</button>
+          </div>
+          <div class="export-result-card mt-8" id="export-result-card">
+            <p class="empty-hint">최근 내보내기 결과가 없습니다.</p>
+          </div>
         </div>
       </aside>
     </div>
@@ -431,6 +459,7 @@
         </div>
         <div class="log-actions">
           <button class="btn secondary small" id="btn-copy-failed" disabled>실패 URL 복사</button>
+          <button class="btn secondary small" id="btn-copy-failed-selectors" disabled>실패 selector 복사</button>
           <button class="btn secondary small" id="btn-rerun-failed" disabled>실패 항목 재실행</button>
           <button class="btn secondary small" id="btn-clear-log">로그 지우기</button>
         </div>

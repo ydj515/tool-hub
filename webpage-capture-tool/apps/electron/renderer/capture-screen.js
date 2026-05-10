@@ -2,6 +2,45 @@
  * 캡처 화면 초기화와 이벤트 바인딩을 담당한다.
  */
 
+const CAPTURE_ASPECTS = {
+  free: null,
+  "16:9": 16 / 9,
+  "4:3": 4 / 3
+};
+
+function getCaptureAspectRatio() {
+  const preset = AppState.project.capturePreset;
+  if (preset.aspectMode === "original") {
+    return preset.aspectRatioValue || (preset.viewport.width / Math.max(1, preset.viewport.height));
+  }
+  return CAPTURE_ASPECTS[preset.aspectMode] || null;
+}
+
+function syncCaptureAspectByWidth() {
+  const ratio = getCaptureAspectRatio();
+  if (!ratio) return;
+  AppState.project.capturePreset.viewport.height = Math.max(
+    240,
+    Math.round(AppState.project.capturePreset.viewport.width / ratio)
+  );
+}
+
+function syncCaptureAspectByHeight() {
+  const ratio = getCaptureAspectRatio();
+  if (!ratio) return;
+  AppState.project.capturePreset.viewport.width = Math.max(
+    320,
+    Math.round(AppState.project.capturePreset.viewport.height * ratio)
+  );
+}
+
+function updateCaptureAspectButtons() {
+  const mode = AppState.project.capturePreset.aspectMode || "free";
+  document.querySelectorAll(".btn-aspect").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.aspect === mode);
+  });
+}
+
 function initCaptureScreen() {
   const srcSingle = document.getElementById("src-single");
   const srcFile = document.getElementById("src-file");
@@ -39,9 +78,30 @@ function initCaptureScreen() {
       AppState.project.capturePreset.viewportPreset = preset;
       const vp = getViewportByPreset(preset);
       AppState.project.capturePreset.viewport = { width: vp.width, height: vp.height };
+      if (AppState.project.capturePreset.aspectMode === "original") {
+        AppState.project.capturePreset.aspectRatioValue = vp.width / vp.height;
+      } else {
+        syncCaptureAspectByWidth();
+      }
       document.getElementById("custom-viewport-group").classList.toggle("hidden", preset !== "custom");
       document.getElementById("viewport-width").value = vp.width;
-      document.getElementById("viewport-height").value = vp.height;
+      document.getElementById("viewport-height").value = AppState.project.capturePreset.viewport.height;
+      updateCapturePanel();
+    });
+  });
+
+  document.querySelectorAll(".btn-aspect").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.dataset.aspect;
+      AppState.project.capturePreset.aspectMode = mode;
+      if (mode === "original") {
+        const { width, height } = AppState.project.capturePreset.viewport;
+        AppState.project.capturePreset.aspectRatioValue = width / Math.max(1, height);
+      }
+      syncCaptureAspectByWidth();
+      document.getElementById("viewport-width").value = AppState.project.capturePreset.viewport.width;
+      document.getElementById("viewport-height").value = AppState.project.capturePreset.viewport.height;
+      updateCaptureAspectButtons();
       updateCapturePanel();
     });
   });
@@ -49,10 +109,14 @@ function initCaptureScreen() {
   // 사용자 정의 뷰포트
   document.getElementById("viewport-width").addEventListener("input", (e) => {
     AppState.project.capturePreset.viewport.width = parseInt(e.target.value, 10) || 1280;
+    syncCaptureAspectByWidth();
+    document.getElementById("viewport-height").value = AppState.project.capturePreset.viewport.height;
     updateCapturePanel();
   });
   document.getElementById("viewport-height").addEventListener("input", (e) => {
     AppState.project.capturePreset.viewport.height = parseInt(e.target.value, 10) || 800;
+    syncCaptureAspectByHeight();
+    document.getElementById("viewport-width").value = AppState.project.capturePreset.viewport.width;
     updateCapturePanel();
   });
 
@@ -133,13 +197,15 @@ function initCaptureScreen() {
 }
 
 function updateCapturePanel() {
-  const { viewport, captureScope, waitMs } = AppState.project.capturePreset;
+  const { viewport, captureScope, waitMs, aspectMode } = AppState.project.capturePreset;
   const vEl = document.getElementById("info-viewport");
   const sEl = document.getElementById("info-scope");
   const wEl = document.getElementById("info-wait");
+  const aEl = document.getElementById("info-aspect");
   if (vEl) vEl.textContent = `${viewport.width}x${viewport.height}`;
   if (sEl) sEl.textContent = captureScope;
   if (wEl) wEl.textContent = `${waitMs}ms`;
+  if (aEl) aEl.textContent = aspectMode;
 }
 
 /** 캡처 화면 진입 시 상태를 폼에 반영 */
@@ -151,6 +217,9 @@ function syncCaptureFormFromState() {
   const headlessInput = document.getElementById("headless");
   const dedupeInput = document.getElementById("dedupe");
   const outDirInput = document.getElementById("out-dir");
+  const sheetInput = document.getElementById("sheet");
+  const colUrlInput = document.getElementById("col-url");
+  const selectorInput = document.getElementById("capture-selector");
 
   if (singleUrlInput) singleUrlInput.value = preset.singleUrl || "";
   if (filePathsInput) filePathsInput.value = (preset.filePaths || []).join(", ");
@@ -158,6 +227,9 @@ function syncCaptureFormFromState() {
   if (headlessInput) headlessInput.checked = preset.headless;
   if (dedupeInput) dedupeInput.checked = preset.dedupe;
   if (outDirInput) outDirInput.value = preset.outDir || "";
+  if (sheetInput) sheetInput.value = preset.sheet || "";
+  if (colUrlInput) colUrlInput.value = preset.colUrl || "";
+  if (selectorInput) selectorInput.value = preset.captureSelector || "";
 
   document.querySelectorAll(".btn-preset").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.preset === preset.viewportPreset);
@@ -165,6 +237,7 @@ function syncCaptureFormFromState() {
   document.getElementById("custom-viewport-group").classList.toggle("hidden", preset.viewportPreset !== "custom");
   document.getElementById("viewport-width").value = preset.viewport.width;
   document.getElementById("viewport-height").value = preset.viewport.height;
+  updateCaptureAspectButtons();
 
   const scopeRadio = document.querySelector(`[name='capture-scope'][value='${preset.captureScope}']`);
   if (scopeRadio) scopeRadio.checked = true;

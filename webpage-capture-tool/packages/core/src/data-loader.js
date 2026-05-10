@@ -132,23 +132,36 @@ function readRowsFromTxt(filePath, columns) {
   });
 }
 
-function readRowsFromFile(filePath, { sheetName, columns, csvEncoding }) {
-  const ext = path.extname(filePath).toLowerCase();
-
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`파일을 찾을 수 없습니다: ${filePath}`);
+function resolveReadablePath(filePath) {
+  if (fs.existsSync(filePath)) {
+    return filePath;
   }
 
+  if (!path.isAbsolute(filePath)) {
+    const invocationCwd = process.env.INIT_CWD || process.cwd();
+    const fallbackPath = path.resolve(invocationCwd, filePath);
+    if (fs.existsSync(fallbackPath)) {
+      return fallbackPath;
+    }
+  }
+
+  throw new Error(`파일을 찾을 수 없습니다: ${filePath}`);
+}
+
+function readRowsFromFile(filePath, { sheetName, columns, csvEncoding }) {
+  const readablePath = resolveReadablePath(filePath);
+  const ext = path.extname(readablePath).toLowerCase();
+
   if ([".xlsx", ".xls"].includes(ext)) {
-    return readRowsFromExcel(filePath, sheetName, columns);
+    return readRowsFromExcel(readablePath, sheetName, columns);
   }
 
   if (ext === ".csv") {
-    return readRowsFromCsv(filePath, csvEncoding, sheetName, columns);
+    return readRowsFromCsv(readablePath, csvEncoding, sheetName, columns);
   }
 
   if (ext === ".txt") {
-    return readRowsFromTxt(filePath, columns);
+    return readRowsFromTxt(readablePath, columns);
   }
 
   throw new Error(`지원하지 않는 파일 확장자입니다: ${ext}`);
@@ -190,5 +203,6 @@ function dedupeByUrl(rows, urlKey) {
 
 module.exports = {
   loadRowsFromFiles,
-  dedupeByUrl
+  dedupeByUrl,
+  resolveReadablePath
 };

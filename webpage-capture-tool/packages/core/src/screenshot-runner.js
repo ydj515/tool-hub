@@ -24,6 +24,12 @@ function buildBaseName(index, row, columns) {
     .slice(0, 150);
 }
 
+function makeStageError(stage, error) {
+  const next = new Error(error && error.message ? error.message : String(error));
+  next.stage = stage;
+  return next;
+}
+
 async function waitForRender(page, waitMs) {
   if (waitMs > 0) {
     await page.waitForTimeout(waitMs);
@@ -55,8 +61,12 @@ async function captureUrl(page, opts) {
   const { url, baseName, outDir, waitMs, captureScope, captureSelector, domRules } = opts;
   const filePath = path.join(outDir, `${baseName}.png`);
 
-  await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
-  await waitForRender(page, waitMs);
+  try {
+    await page.goto(url, { waitUntil: "networkidle", timeout: 60000 });
+    await waitForRender(page, waitMs);
+  } catch (e) {
+    throw makeStageError("navigation", e);
+  }
 
   // DOM 규칙 적용
   const domResults = [];
@@ -69,19 +79,23 @@ async function captureUrl(page, opts) {
   }
 
   // 캡처 범위에 따라 스크린샷
-  if (captureScope === "selector" && captureSelector) {
-    const el = await page.$(captureSelector);
-    if (el) {
-      await el.screenshot({ path: filePath });
+  try {
+    if (captureScope === "selector" && captureSelector) {
+      const el = await page.$(captureSelector);
+      if (el) {
+        await el.screenshot({ path: filePath });
+      } else {
+        // selector를 찾지 못하면 fullPage로 폴백
+        console.log(JSON.stringify({ type: "dom-rule-warn", url, selector: captureSelector, message: "캡처 selector를 찾지 못했습니다. fullPage로 전환합니다." }));
+        await page.screenshot({ path: filePath, fullPage: true });
+      }
+    } else if (captureScope === "viewport") {
+      await page.screenshot({ path: filePath, fullPage: false });
     } else {
-      // selector를 찾지 못하면 fullPage로 폴백
-      console.log(JSON.stringify({ type: "dom-rule-warn", url, selector: captureSelector, message: "캡처 selector를 찾지 못했습니다. fullPage로 전환합니다." }));
       await page.screenshot({ path: filePath, fullPage: true });
     }
-  } else if (captureScope === "viewport") {
-    await page.screenshot({ path: filePath, fullPage: false });
-  } else {
-    await page.screenshot({ path: filePath, fullPage: true });
+  } catch (e) {
+    throw makeStageError("capture", e);
   }
 
   return { filePath, domResults };
@@ -140,20 +154,33 @@ async function takeScreenshots(rows, options) {
 
         saved++;
         console.log(` -> saved: ${filePath}`);
-        results.push({
+        const result = {
           index: i + 1,
           url,
           baseName,
           filePath,
           domResults,
+          appliedDomRuleIds: domResults.filter((r) => r.status === "ok").map((r) => r.ruleId),
           status: "ok"
-        });
+        };
+        results.push(result);
+        console.log(JSON.stringify({ type: "capture-result", result }));
       } catch (e) {
         const errorMsg = e && e.message ? e.message : `${e}`;
+        const category = e && e.stage ? e.stage : "unknown";
         failed.push({ url, error: errorMsg });
-        console.log(JSON.stringify({ type: "error", url, message: errorMsg }));
+        const result = {
+          index: i + 1,
+          url,
+          baseName,
+          status: "failed",
+          error: errorMsg,
+          errorCategory: category
+        };
+        console.log(JSON.stringify({ type: "error", category, url, message: errorMsg }));
+        console.log(JSON.stringify({ type: "capture-result", result }));
         console.error(` -> failed: ${url}`, errorMsg);
-        results.push({ index: i + 1, url, baseName, status: "failed", error: errorMsg });
+        results.push(result);
       }
     }
 
@@ -201,11 +228,24 @@ async function takeSingleScreenshot(url, options) {
     });
 
     console.log(` -> saved: ${filePath}`);
-    return { saved: 1, total: 1, failed: [], results: [{ index: 1, url, baseName, filePath, domResults, status: "ok" }] };
+    const result = {
+      index: 1,
+      url,
+      baseName,
+      filePath,
+      domResults,
+      appliedDomRuleIds: domResults.filter((r) => r.status === "ok").map((r) => r.ruleId),
+      status: "ok"
+    };
+    console.log(JSON.stringify({ type: "capture-result", result }));
+    return { saved: 1, total: 1, failed: [], results: [result] };
   } catch (e) {
     const errorMsg = e && e.message ? e.message : `${e}`;
-    console.log(JSON.stringify({ type: "error", url, message: errorMsg }));
-    return { saved: 0, total: 1, failed: [{ url, error: errorMsg }], results: [{ index: 1, url, baseName, status: "failed", error: errorMsg }] };
+    const category = e && e.stage ? e.stage : "unknown";
+    const result = { index: 1, url, baseName, status: "failed", error: errorMsg, errorCategory: category };
+    console.log(JSON.stringify({ type: "error", category, url, message: errorMsg }));
+    console.log(JSON.stringify({ type: "capture-result", result }));
+    return { saved: 0, total: 1, failed: [{ url, error: errorMsg }], results: [result] };
   } finally {
     await browser.close();
   }

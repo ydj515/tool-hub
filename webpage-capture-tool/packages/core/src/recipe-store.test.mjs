@@ -34,11 +34,13 @@ describe("createEmptyProject", () => {
     expect(project).toHaveProperty("domRules");
     expect(project).toHaveProperty("editRules");
     expect(project).toHaveProperty("exportProfiles");
+    expect(project).toHaveProperty("captureResults");
     expect(project).toHaveProperty("capturePreset");
     expect(Array.isArray(project.sources)).toBe(true);
     expect(Array.isArray(project.domRules)).toBe(true);
     expect(Array.isArray(project.editRules)).toBe(true);
     expect(Array.isArray(project.exportProfiles)).toBe(true);
+    expect(Array.isArray(project.captureResults)).toBe(true);
   });
 
   it("name 파라미터 전달 시 name에 반영된다", () => {
@@ -58,6 +60,7 @@ describe("saveProject / loadProject", () => {
     const project = createEmptyProject("저장 테스트");
     project.domRules = [{ id: "d1", type: "hide", selector: ".ad", enabled: true }];
     project.editRules = [{ id: "e1", type: "blur", x: 0, y: 0, width: 100, height: 100 }];
+    project.captureResults = [{ filePath: "/tmp/example.png", status: "ok", appliedRules: [] }];
 
     saveProject(filePath, project);
     const loaded = loadProject(filePath);
@@ -67,6 +70,8 @@ describe("saveProject / loadProject", () => {
     expect(loaded.domRules[0].id).toBe("d1");
     expect(loaded.editRules).toHaveLength(1);
     expect(loaded.editRules[0].id).toBe("e1");
+    expect(loaded.captureResults).toHaveLength(1);
+    expect(loaded.captureResults[0].filePath).toBe("/tmp/example.png");
   });
 
   it("존재하지 않는 파일 load → throws (메시지에 경로 포함)", () => {

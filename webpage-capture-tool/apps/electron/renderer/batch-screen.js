@@ -55,14 +55,15 @@ function initBatchScreen() {
           });
         }
         if (Array.isArray(incoming.editRules)) {
-          incoming.editRules.forEach((r) => {
-            if (!AppState.project.editRules.find((x) => x.id === r.id)) {
-              AppState.project.editRules.push(r);
-            }
-          });
+          AppState.project.editRules = incoming.editRules.map((r) => ({ ...r }));
+        }
+        if (Array.isArray(incoming.exportProfiles) && incoming.exportProfiles.length > 0) {
+          AppState.project.exportProfiles = incoming.exportProfiles;
+          applyProjectExportProfiles(incoming.exportProfiles);
         }
         renderDomRuleList();
         renderRecipeSummary();
+        updateExportPreview();
         appendLog("app", `레시피 불러오기 완료: ${incoming.name || "레시피"}`);
       }
     });
@@ -89,11 +90,18 @@ async function applyBatchRules() {
     const result = AppState.captureResults[idx];
     if (!result || !result.filePath) continue;
     try {
+      const recipeRules = rules.map((rule) => {
+        const next = { ...rule };
+        delete next.sourceIndex;
+        return next;
+      });
+
       await window.workbenchApi.processImage({
         inputPath: result.filePath,
         outputPath: result.filePath,
-        rules: rules.filter((r) => r.type !== "crop" && r.type !== "resize")
+        rules: recipeRules
       });
+      result.appliedRules = recipeRules;
       appendLog("app", `[${idx + 1}] 배치 적용 완료: ${result.baseName}`);
     } catch (e) {
       appendLog("error", `[${idx + 1}] 배치 적용 실패: ${e.message || e}`);
@@ -114,12 +122,17 @@ function renderCaptureResultList() {
   AppState.captureResults.forEach((result, idx) => {
     const item = document.createElement("div");
     item.className = `result-item${result.status === "failed" ? " failed" : ""}`;
+    const categoryLabel = result.errorCategory === "navigation"
+      ? "네비게이션 실패"
+      : result.errorCategory === "capture"
+        ? "캡처 실패"
+        : "실패";
 
     item.innerHTML = `
       <input type="checkbox" class="result-check" data-idx="${idx}" />
       <span class="result-status ${result.status === "ok" ? "ok" : "failed"}">${result.status === "ok" ? "OK" : "!"}</span>
       <span class="result-name" title="${result.url || ""}">${result.baseName || result.url || `항목 ${idx + 1}`}</span>
-      ${result.status === "failed" ? `<span class="hint" style="color:var(--danger);font-size:11px;">${result.error || "실패"}</span>` : ""}
+      ${result.status === "failed" ? `<span class="hint" style="color:var(--danger);font-size:11px;">${categoryLabel}: ${result.error || "실패"}</span>` : ""}
     `;
 
     container.appendChild(item);

@@ -45,7 +45,10 @@ function switchScreen(screenId) {
   if (screenId === "capture") syncCaptureFormFromState();
   if (screenId === "image") renderThumbStrip();
   if (screenId === "batch") renderCaptureResultList();
-  if (screenId === "export") updateExportPreview();
+  if (screenId === "export") {
+    syncExportFormFromState();
+    updateExportPreview();
+  }
   if (screenId === "dom") renderDomRuleList();
 }
 
@@ -94,8 +97,10 @@ async function handleRun() {
 
     setRunning(true);
     clearLog("all");
+    clearLog("failed");
     AppState.captureResults = [];
     AppState.failedUrls = [];
+    AppState.failedSelectors = [];
     updateFailedBadge();
 
     appendLog("app", `실행 시작: ${args.slice(0, 4).join(" ")} ...`);
@@ -133,9 +138,16 @@ window.workbenchApi.onLog((payload) => {
         const obj = JSON.parse(trimmed);
 
         if (obj.type === "error" && obj.url) {
-          AppState.failedUrls.push(obj.url);
+          if (obj.url && !AppState.failedUrls.includes(obj.url)) {
+            AppState.failedUrls.push(obj.url);
+          }
           updateFailedBadge();
-          appendLog("failed", `${obj.url}\n  오류: ${obj.message}`);
+          const label = obj.category === "navigation"
+            ? "네비게이션 실패"
+            : obj.category === "capture"
+              ? "캡처 실패"
+              : "실행 실패";
+          appendLog("failed", `[${label}] ${obj.url}\n  오류: ${obj.message}`);
         }
 
         if (obj.type === "failed-summary" && Array.isArray(obj.failed)) {
@@ -147,8 +159,26 @@ window.workbenchApi.onLog((payload) => {
           updateFailedBadge();
         }
 
+        if (obj.type === "dom-rule-warn") {
+          if (obj.selector && !AppState.failedSelectors.includes(obj.selector)) {
+            AppState.failedSelectors.push(obj.selector);
+          }
+          updateFailedBadge();
+          appendLog("failed", `[DOM 규칙 경고] ${obj.url || "(url 없음)"}\n  selector: ${obj.selector || "(없음)"}\n  메시지: ${obj.message || ""}`);
+        }
+
         if (obj.type === "capture-result") {
-          AppState.captureResults.push(obj.result);
+          const result = obj.result || {};
+          const existingIdx = AppState.captureResults.findIndex((r) => {
+            if (result.filePath && r.filePath) return r.filePath === result.filePath;
+            return result.url && r.url === result.url;
+          });
+
+          if (existingIdx >= 0) {
+            AppState.captureResults[existingIdx] = result;
+          } else {
+            AppState.captureResults.push(result);
+          }
         }
       } catch (e) {
         // 비 JSON 줄 — 레거시 형식 처리
@@ -209,6 +239,16 @@ function bindLogTabs() {
     }
   });
 
+  document.getElementById("btn-copy-failed-selectors").addEventListener("click", async () => {
+    if (!AppState.failedSelectors.length) return;
+    try {
+      await navigator.clipboard.writeText(AppState.failedSelectors.join("\n"));
+      appendLog("app", "실패 selector를 클립보드에 복사했습니다.");
+    } catch (e) {
+      appendLog("error", e.message || "클립보드 복사 실패");
+    }
+  });
+
   document.getElementById("btn-rerun-failed").addEventListener("click", rerunFailed);
 }
 
@@ -228,6 +268,14 @@ function appendLog(type, message) {
       exportEl.scrollTop = exportEl.scrollHeight;
     }
   }
+
+  if (type === "failed") {
+    const failedEl = document.getElementById("log-failed");
+    if (failedEl) {
+      failedEl.textContent += `${text}\n`;
+      failedEl.scrollTop = failedEl.scrollHeight;
+    }
+  }
 }
 
 function clearLog(target) {
@@ -238,12 +286,16 @@ function clearLog(target) {
 function updateFailedBadge() {
   const badge = document.getElementById("failed-count-badge");
   const btnCopy = document.getElementById("btn-copy-failed");
+  const btnCopySelectors = document.getElementById("btn-copy-failed-selectors");
   const btnRerun = document.getElementById("btn-rerun-failed");
-  const count = AppState.failedUrls.length;
+  const urlCount = AppState.failedUrls.length;
+  const selectorCount = AppState.failedSelectors.length;
+  const count = urlCount + selectorCount;
 
   if (badge) badge.textContent = count;
-  if (btnCopy) btnCopy.disabled = count === 0;
-  if (btnRerun) btnRerun.disabled = count === 0 || AppState.isRunning;
+  if (btnCopy) btnCopy.disabled = urlCount === 0;
+  if (btnCopySelectors) btnCopySelectors.disabled = selectorCount === 0;
+  if (btnRerun) btnRerun.disabled = urlCount === 0 || AppState.isRunning;
 }
 
 async function rerunFailed() {
@@ -257,8 +309,10 @@ async function rerunFailed() {
 
     setRunning(true);
     clearLog("all");
+    clearLog("failed");
     appendLog("app", `실패 URL ${AppState.failedUrls.length}개 재실행`);
     AppState.failedUrls = [];
+    AppState.failedSelectors = [];
     updateFailedBadge();
 
     const res = await window.workbenchApi.runCapture(args);

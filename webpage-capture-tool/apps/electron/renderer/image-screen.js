@@ -14,6 +14,11 @@
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 5.0;
 const ZOOM_STEP = 0.15;
+const CROP_ASPECTS = {
+  free: null,
+  "16:9": 16 / 9,
+  "4:3": 4 / 3
+};
 
 let canvas, ctx, displayScale;
 let isDragging = false;
@@ -77,6 +82,13 @@ function initImageScreen() {
   const btnApply = document.getElementById("btn-apply-edit");
   if (btnApply) btnApply.addEventListener("click", applyImageEdits);
 
+  document.querySelectorAll(".btn-crop-aspect").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      AppState.imageEdit.cropAspectMode = btn.dataset.cropAspect;
+      updateCropAspectButtons();
+    });
+  });
+
   // PNG 저장 (다른 이름으로 저장)
   const btnSaveImageAs = document.getElementById("btn-save-image-as");
   if (btnSaveImageAs) btnSaveImageAs.addEventListener("click", saveImageAs);
@@ -128,6 +140,8 @@ function initImageScreen() {
       applyZoom(pivot);
     }, { passive: false });
   }
+
+  updateCropAspectButtons();
 }
 
 // ============================================================
@@ -231,6 +245,22 @@ function updateToolProps() {
   if (targetEl) targetEl.classList.remove("hidden");
 }
 
+function updateCropAspectButtons() {
+  const mode = AppState.imageEdit.cropAspectMode || "free";
+  document.querySelectorAll(".btn-crop-aspect").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.cropAspect === mode);
+  });
+}
+
+function getCropAspectRatio() {
+  const mode = AppState.imageEdit.cropAspectMode || "free";
+  if (mode === "original") {
+    if (!currentImageEl || !currentImageEl.naturalWidth || !currentImageEl.naturalHeight) return null;
+    return currentImageEl.naturalWidth / currentImageEl.naturalHeight;
+  }
+  return CROP_ASPECTS[mode] || null;
+}
+
 // ============================================================
 // 줌
 // ============================================================
@@ -322,8 +352,31 @@ function onCanvasMouseMove(e) {
 
   if (!isDragging || !ctx) return;
   const rect = canvas.getBoundingClientRect();
-  const currentX = e.clientX - rect.left;
-  const currentY = e.clientY - rect.top;
+  let currentX = e.clientX - rect.left;
+  let currentY = e.clientY - rect.top;
+
+  if (AppState.imageEdit.currentTool === "crop") {
+    const ratio = getCropAspectRatio();
+    if (ratio) {
+      const dx = currentX - dragStartX;
+      const dy = currentY - dragStartY;
+      const signX = dx >= 0 ? 1 : -1;
+      const signY = dy >= 0 ? 1 : -1;
+      let absDx = Math.abs(dx);
+      let absDy = Math.abs(dy);
+
+      if (absDy === 0) {
+        absDy = Math.max(1, Math.round(absDx / ratio));
+      } else if (absDx / ratio > absDy) {
+        absDy = Math.max(1, Math.round(absDx / ratio));
+      } else {
+        absDx = Math.max(1, Math.round(absDy * ratio));
+      }
+
+      currentX = dragStartX + signX * absDx;
+      currentY = dragStartY + signY * absDy;
+    }
+  }
 
   const x = Math.min(dragStartX, currentX);
   const y = Math.min(dragStartY, currentY);
@@ -507,10 +560,13 @@ async function applyImageEdits() {
     return;
   }
 
-  const rules = [...AppState.imageEdit.pendingRules];
+  const rules = AppState.imageEdit.pendingRules.map((rule) => ({ ...rule }));
 
   const resizeWidth = parseInt(document.getElementById("resize-width").value, 10);
   if (AppState.imageEdit.currentTool === "resize" && resizeWidth) {
+    for (let i = rules.length - 1; i >= 0; i--) {
+      if (rules[i].type === "resize") rules.splice(i, 1);
+    }
     rules.push({ id: generateRuleId(), type: "resize", width: resizeWidth });
   }
 
@@ -539,14 +595,14 @@ async function applyImageEdits() {
       undoStack.push({ rules: prevRules, fileOp: true });
       redoStack = [];
 
-      AppState.project.editRules = [
-        ...AppState.project.editRules.filter((r) => r.sourceIndex !== idx),
-        ...rules.map((r) => ({ ...r, sourceIndex: idx }))
-      ];
+      const reusableRules = rules.map((rule) => ({ ...rule }));
+      AppState.project.editRules = reusableRules;
+      result.appliedRules = reusableRules;
       AppState.imageEdit.pendingRules = [];
       loadImageIntoCanvas(result.filePath, false); // 히스토리 유지
       appendLog("app", `이미지 편집 완료: ${res.width}x${res.height}`);
       updateHistoryButtons();
+      renderRecipeSummary();
     }
   } catch (e) {
     appendLog("error", e.message || String(e));

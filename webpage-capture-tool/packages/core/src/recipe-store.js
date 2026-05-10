@@ -31,7 +31,8 @@ function createEmptyProject(name = "새 프로젝트") {
     },
     domRules: [],
     editRules: [],
-    exportProfiles: []
+    exportProfiles: [],
+    captureResults: []
   };
 }
 
@@ -62,7 +63,8 @@ function migrateProject(data) {
     ),
     domRules: Array.isArray(data.domRules) ? data.domRules : [],
     editRules: Array.isArray(data.editRules) ? data.editRules : [],
-    exportProfiles: Array.isArray(data.exportProfiles) ? data.exportProfiles : []
+    exportProfiles: Array.isArray(data.exportProfiles) ? data.exportProfiles : [],
+    captureResults: Array.isArray(data.captureResults) ? data.captureResults : []
   };
 }
 

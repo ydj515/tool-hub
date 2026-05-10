@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld("workbenchApi", {
   selectProjectFile: () => ipcRenderer.invoke("file:select-project"),
   selectRecipeFile: () => ipcRenderer.invoke("file:select-recipe"),
   openFolder: (dirPath) => ipcRenderer.invoke("file:open-folder", dirPath),
+  openPath: (targetPath) => ipcRenderer.invoke("file:open-path", targetPath),
 
   // Electron 32+에서 File.path가 제거됨 — webUtils.getPathForFile로 대체
   getFilePath: (file) => webUtils.getPathForFile(file),

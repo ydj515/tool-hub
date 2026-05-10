@@ -2,6 +2,61 @@
  * 프로젝트 홈 화면과 모달 처리를 담당한다.
  */
 
+const RECENT_PROJECTS_KEY = "mcw-recent-projects-v1";
+
+function loadRecentProjectsFromStorage() {
+  try {
+    const raw = localStorage.getItem(RECENT_PROJECTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_e) {
+    return [];
+  }
+}
+
+function saveRecentProjectsToStorage() {
+  try {
+    localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(AppState.recentProjects || []));
+  } catch (_e) {
+    // localStorage 저장 실패는 치명적이지 않으므로 조용히 무시한다.
+  }
+}
+
+function pushRecentProject(item) {
+  if (!item || !item.filePath) return;
+
+  const next = [
+    item,
+    ...(AppState.recentProjects || []).filter((x) => x.filePath !== item.filePath)
+  ].slice(0, 8);
+
+  AppState.recentProjects = next;
+  saveRecentProjectsToStorage();
+  renderRecentProjects();
+}
+
+function createDefaultCapturePreset(viewportPreset = "word", outDir = "") {
+  const vp = getViewportByPreset(viewportPreset);
+  return {
+    viewportPreset,
+    viewport: { width: vp.width, height: vp.height },
+    aspectMode: "free",
+    aspectRatioValue: null,
+    captureScope: "fullPage",
+    captureSelector: null,
+    waitMs: 2000,
+    headless: true,
+    dedupe: true,
+    sourceType: "single",
+    singleUrl: "",
+    filePaths: [],
+    sheet: "",
+    colUrl: "",
+    outDir
+  };
+}
+
 function initProjectScreen() {
   const btnNewProject = document.getElementById("btn-new-project");
   const btnOpenProject = document.getElementById("btn-open-project");
@@ -25,6 +80,11 @@ function initProjectScreen() {
         appendLog("error", res.error);
       } else if (res) {
         applyProjectToState(res, filePath);
+        pushRecentProject({
+          name: res.name || "프로젝트",
+          filePath,
+          updatedAt: new Date().toISOString()
+        });
         appendLog("app", `프로젝트 열기: ${res.name}`);
       }
     });
@@ -48,15 +108,20 @@ function initProjectScreen() {
     AppState.project.id = null;
     AppState.project.name = name;
     AppState.project.filePath = null;
-    AppState.project.capturePreset.viewportPreset = viewportPreset;
-    const vp = getViewportByPreset(viewportPreset);
-    AppState.project.capturePreset.viewport = { width: vp.width, height: vp.height };
-    if (outDir) AppState.project.capturePreset.outDir = outDir;
+    AppState.project.capturePreset = createDefaultCapturePreset(viewportPreset, outDir);
     AppState.project.domRules = [];
     AppState.project.editRules = [];
     AppState.project.exportProfiles = [];
     AppState.project.sources = [];
     AppState.captureResults = [];
+    AppState.failedUrls = [];
+    AppState.failedSelectors = [];
+
+    AppState.exportConfig.channels = { markdown: true, word: false, ppt: false };
+    AppState.exportConfig.outputDir = outDir || "";
+    AppState.exportConfig.namingPattern = "{index}_{safeTitle}";
+    AppState.exportResults = { outputDir: "", markdownPath: "", wordPath: "", pptPath: "", exportedAt: "" };
+    syncProjectExportProfiles();
 
     document.getElementById("modal-new-project").classList.add("hidden");
     document.getElementById("project-name").textContent = name;
@@ -78,6 +143,10 @@ function initProjectScreen() {
     const includeDom = document.getElementById("recipe-include-dom").checked;
     const includeEdit = document.getElementById("recipe-include-edit").checked;
     const includeExport = document.getElementById("recipe-include-export").checked;
+
+    if (includeExport) {
+      syncProjectExportProfiles();
+    }
 
     const recipe = {
       name,
@@ -108,14 +177,21 @@ function initProjectScreen() {
     if (dir) document.getElementById("modal-project-out").value = dir;
   });
 
+  AppState.recentProjects = loadRecentProjectsFromStorage();
   renderRecentProjects();
 }
 
 async function saveCurrentProject() {
+  syncProjectExportProfiles();
   const project = buildProjectPayload();
   const filePath = await window.workbenchApi.saveProject(project, AppState.project.filePath);
   if (filePath) {
     AppState.project.filePath = filePath;
+    pushRecentProject({
+      name: project.name || "프로젝트",
+      filePath,
+      updatedAt: new Date().toISOString()
+    });
     appendLog("app", `프로젝트 저장 완료: ${filePath}`);
   }
 }
@@ -142,19 +218,30 @@ function applyProjectToState(data, filePath) {
   AppState.project.exportProfiles = data.exportProfiles || [];
   AppState.project.sources = data.sources || [];
 
-  if (data.capturePreset) {
-    Object.assign(AppState.project.capturePreset, data.capturePreset);
-  }
+  const loadedCapturePreset = data.capturePreset || {};
+  AppState.project.capturePreset = Object.assign(
+    createDefaultCapturePreset(
+      loadedCapturePreset.viewportPreset || "word",
+      loadedCapturePreset.outDir || ""
+    ),
+    loadedCapturePreset
+  );
 
   AppState.captureResults = data.captureResults || [];
+  AppState.failedUrls = [];
+  AppState.failedSelectors = [];
+  AppState.exportResults = { outputDir: "", markdownPath: "", wordPath: "", pptPath: "", exportedAt: "" };
 
   document.getElementById("project-name").textContent = AppState.project.name;
   document.getElementById("project-name-input").value = AppState.project.name;
 
+  applyProjectExportProfiles(AppState.project.exportProfiles);
   renderDomRuleList();
   renderCaptureResultList();
   renderThumbStrip();
   syncCaptureFormFromState();
+  updateFailedBadge();
+  updateExportPreview();
 }
 
 function renderRecentProjects() {
@@ -177,7 +264,14 @@ function renderRecentProjects() {
     `;
     card.addEventListener("click", async () => {
       const res = await window.workbenchApi.loadProject(item.filePath);
-      if (res && !res.error) applyProjectToState(res, item.filePath);
+      if (res && !res.error) {
+        applyProjectToState(res, item.filePath);
+        pushRecentProject({
+          name: res.name || item.name || "프로젝트",
+          filePath: item.filePath,
+          updatedAt: new Date().toISOString()
+        });
+      }
     });
     container.appendChild(card);
   });

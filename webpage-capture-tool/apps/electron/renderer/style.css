@@ -322,6 +322,23 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
   color: var(--accent);
   font-weight: 600;
 }
+.aspect-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.btn-aspect, .btn-crop-aspect {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #f9fafb;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.btn-aspect.active, .btn-crop-aspect.active {
+  border-color: var(--accent);
+  background: rgba(37,99,235,.08);
+  color: var(--accent);
+  font-weight: 600;
+}
 
 /* ============================================================
    Dropzone
@@ -520,6 +537,34 @@ kbd {
   max-height: 200px;
   overflow-y: auto;
   white-space: pre-wrap;
+}
+.export-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.export-result-card {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.export-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.export-result-row span:first-child {
+  color: var(--muted);
+  min-width: 72px;
+}
+.export-result-row span:last-child {
+  text-align: right;
+  word-break: break-all;
 }
 
 /* ============================================================

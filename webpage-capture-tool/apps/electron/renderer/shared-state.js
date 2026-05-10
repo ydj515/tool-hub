@@ -27,6 +27,8 @@ const AppState = {
     capturePreset: {
       viewportPreset: "word",
       viewport: { width: 1440, height: 1024 },
+      aspectMode: "free",
+      aspectRatioValue: null,
       captureScope: "fullPage",
       captureSelector: null,
       waitMs: 2000,
@@ -47,11 +49,13 @@ const AppState = {
   // 캡처 결과
   captureResults: [],
   failedUrls: [],
+  failedSelectors: [],
 
   // 이미지 편집 상태
   imageEdit: {
     currentIndex: -1,
     currentTool: "blur",
+    cropAspectMode: "free",
     pendingRules: [],
     isDrawing: false,
     startX: 0,
@@ -64,6 +68,14 @@ const AppState = {
     channels: { markdown: true, word: false, ppt: false },
     outputDir: "",
     namingPattern: "{index}_{safeTitle}"
+  },
+
+  exportResults: {
+    outputDir: "",
+    markdownPath: "",
+    wordPath: "",
+    pptPath: "",
+    exportedAt: ""
   },
 
   // 최근 프로젝트 목록

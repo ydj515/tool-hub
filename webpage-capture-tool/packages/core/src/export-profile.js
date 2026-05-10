@@ -19,14 +19,14 @@ const BUILTIN_PROFILES = {
     preset: "word-default",
     imageWidth: 1440,
     namingPattern: "{index}_{safeTitle}",
-    outputSubDir: "word-assets"
+    outputSubDir: "word-export"
   },
   ppt: {
     channel: "ppt",
     preset: "ppt-16-9",
     imageWidth: 1920,
     namingPattern: "{index}_{safeTitle}",
-    outputSubDir: "ppt-assets"
+    outputSubDir: "ppt-export"
   }
 };
 

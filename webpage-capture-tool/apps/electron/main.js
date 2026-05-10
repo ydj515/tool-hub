@@ -11,6 +11,7 @@ const os = require("os");
 const { spawn } = require("child_process");
 const { saveProject, loadProject, saveRecipe, loadRecipe } = require("@webpage-capture/core");
 const { processImage } = require("@webpage-capture/core");
+const { BUILTIN_PROFILES } = require("@webpage-capture/core");
 const { exportMarkdown } = require("@webpage-capture/core");
 const { exportWordAssets } = require("@webpage-capture/core");
 const { exportPptAssets } = require("@webpage-capture/core");
@@ -167,8 +168,16 @@ ipcMain.handle("file:select-recipe", async () => {
 
 ipcMain.handle("file:open-folder", async (_event, dirPath) => {
   if (dirPath && fs.existsSync(dirPath)) {
-    shell.openPath(dirPath);
+    return shell.openPath(dirPath);
   }
+  return "path-not-found";
+});
+
+ipcMain.handle("file:open-path", async (_event, targetPath) => {
+  if (targetPath && fs.existsSync(targetPath)) {
+    return shell.openPath(targetPath);
+  }
+  return "path-not-found";
 });
 
 // ============================================================
@@ -298,15 +307,15 @@ ipcMain.handle("export:run", async (_event, { items, outputDir, channels, naming
     const results = {};
 
     if (channels.markdown) {
-      const mdDir = path.join(outputDir, "markdown-export");
+      const mdDir = path.join(outputDir, BUILTIN_PROFILES.markdown.outputSubDir);
       results.markdown = await exportMarkdown(items, mdDir, profileOverride);
     }
     if (channels.word) {
-      const wordDir = path.join(outputDir, "word-assets");
+      const wordDir = path.join(outputDir, BUILTIN_PROFILES.word.outputSubDir);
       results.word = await exportWordAssets(items, wordDir, profileOverride);
     }
     if (channels.ppt) {
-      const pptDir = path.join(outputDir, "ppt-assets");
+      const pptDir = path.join(outputDir, BUILTIN_PROFILES.ppt.outputSubDir);
       results.ppt = await exportPptAssets(items, pptDir, profileOverride);
     }
 
