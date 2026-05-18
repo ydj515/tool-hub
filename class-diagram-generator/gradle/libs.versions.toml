@@ -1,0 +1,44 @@
+[versions]
+kotlin = "2.0.21"
+springBoot = "3.3.5"
+springDepMgmt = "1.1.6"
+javaparser = "3.26.2"
+poi = "5.3.0"
+bootstrap = "5.3.3"
+bootstrapIcons = "1.11.3"
+webjarsLocator = "1.0.0"
+kotest = "5.9.1"
+kotestSpring = "1.3.0"
+mockk = "1.13.13"
+springMockk = "4.0.2"
+detekt = "1.23.7"
+spotless = "6.25.0"
+ktlint = "1.3.1"
+
+[libraries]
+spring-boot-starter-web      = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-test     = { module = "org.springframework.boot:spring-boot-starter-test" }
+jackson-module-kotlin        = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+kotlin-reflect               = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+javaparser-core              = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
+poi                          = { module = "org.apache.poi:poi", version.ref = "poi" }
+poi-ooxml                    = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
+bootstrap                    = { module = "org.webjars.npm:bootstrap", version.ref = "bootstrap" }
+bootstrap-icons              = { module = "org.webjars.npm:bootstrap-icons", version.ref = "bootstrapIcons" }
+webjars-locator-lite         = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocator" }
+kotest-runner-junit5         = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions-core       = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-extensions-spring     = { module = "io.kotest.extensions:kotest-extensions-spring", version.ref = "kotestSpring" }
+mockk                        = { module = "io.mockk:mockk", version.ref = "mockk" }
+springmockk                  = { module = "com.ninja-squad:springmockk", version.ref = "springMockk" }
+
+[plugins]
+kotlin-jvm       = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring    = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spring-boot      = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dep-mgmt  = { id = "io.spring.dependency-management", version.ref = "springDepMgmt" }
+detekt           = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+spotless         = { id = "com.diffplug.spotless", version.ref = "spotless" }
