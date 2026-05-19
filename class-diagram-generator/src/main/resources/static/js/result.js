@@ -5,20 +5,24 @@ const resultLabels = window.__resultLabels ?? {
     loadError: 'Failed to load result',
 };
 
-function td(text) {
-    const cell = document.createElement('td');
-    cell.textContent = text;
-    return cell;
+const formatIcons = {
+    docx: 'bi-file-earmark-word',
+    xlsx: 'bi-file-earmark-spreadsheet',
+    md: 'bi-markdown',
+};
+
+function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
 }
 
-function downloadCell(url) {
-    const cell = document.createElement('td');
-    const a = document.createElement('a');
-    a.className = 'btn btn-sm btn-primary btn-with-icon';
-    a.href = url;
-    a.innerHTML = `<i class="bi bi-download"></i><span>${resultLabels.download}</span>`;
-    cell.appendChild(a);
-    return cell;
+function icon(name) {
+    const i = document.createElement('i');
+    i.className = `bi ${name}`;
+    i.setAttribute('aria-hidden', 'true');
+    return i;
 }
 
 function formatDate(value) {
@@ -27,28 +31,46 @@ function formatDate(value) {
     return Number.isNaN(date.getTime()) ? value : date.toLocaleString(resultLocale);
 }
 
+function buildArtifactCard(a) {
+    const card = el('article', 'artifact-card');
+    card.setAttribute('role', 'listitem');
+
+    const fmt = (a.format ?? '').toLowerCase();
+    const iconName = formatIcons[fmt] ?? 'bi-file-earmark';
+
+    const header = el('div', 'artifact-card__header');
+    const chip = el('span', `artifact-format artifact-format--${fmt}`);
+    chip.append(icon(iconName), el('span', null, a.format ?? ''));
+    header.append(chip, el('span', 'artifact-size', a.sizeLabel ?? String(a.sizeBytes ?? '')));
+
+    const footer = el('div', 'artifact-card__footer');
+    const link = el('a', 'btn btn-sm btn-primary btn-with-icon');
+    link.href = a.downloadUrl;
+    link.append(icon('bi-download'), el('span', null, resultLabels.download));
+    footer.appendChild(link);
+
+    card.append(
+        header,
+        el('div', 'artifact-module', a.module ?? ''),
+        el('div', 'artifact-filename', a.filename ?? ''),
+        footer,
+    );
+    return card;
+}
+
 async function load() {
     const res = await fetch(`/api/v1/jobs/${jobId}/result`);
     if (!res.ok) {
-        const banner = document.createElement('div');
-        banner.className = 'alert alert-danger';
-        banner.textContent = resultLabels.loadError;
+        const banner = el('div', 'alert alert-danger', resultLabels.loadError);
         document.body.prepend(banner);
         return;
     }
     const data = await res.json();
     document.getElementById('expiresAt').textContent = formatDate(data.expiresAt);
     document.getElementById('artifactCount').textContent = String(data.artifacts.length);
-    const tbody = document.getElementById('artifacts');
-    data.artifacts.forEach(a => {
-        const tr = document.createElement('tr');
-        tr.appendChild(td(a.module));
-        tr.appendChild(td(a.format));
-        tr.appendChild(td(a.filename));
-        tr.appendChild(td(a.sizeLabel ?? String(a.sizeBytes)));
-        tr.appendChild(downloadCell(a.downloadUrl));
-        tbody.appendChild(tr);
-    });
+    const grid = document.getElementById('artifacts');
+    grid.replaceChildren();
+    data.artifacts.forEach((a) => grid.appendChild(buildArtifactCard(a)));
     document.getElementById('bundleBtn').setAttribute('href', data.bundleUrl);
 }
 

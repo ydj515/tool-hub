@@ -5,13 +5,41 @@ const warnings = document.getElementById('warnings');
 const progressPercent = document.getElementById('progressPercent');
 const progressStageLabels = window.__progressStageLabels ?? {};
 
+const stageToStep = {
+    EXTRACTING: 'intake',
+    DETECTING_MODULES: 'intake',
+    PARSING: 'analysis',
+    CLASSIFYING: 'analysis',
+    ASSIGNING_IDS: 'analysis',
+    EXTRACTING_RELATIONS: 'diagrams',
+    RENDERING_DIAGRAMS: 'diagrams',
+    RENDERING_DOCX: 'rendering',
+    RENDERING_XLSX: 'rendering',
+    RENDERING_MD: 'rendering',
+    PACKAGING: 'packaging',
+};
+const stepOrder = ['intake', 'analysis', 'diagrams', 'rendering', 'packaging'];
+
+function applyTimeline(stageKey) {
+    const currentStep = stageToStep[stageKey];
+    if (!currentStep) return;
+    const activeIdx = stepOrder.indexOf(currentStep);
+    document.querySelectorAll('.timeline__step').forEach((el) => {
+        const idx = stepOrder.indexOf(el.dataset.step);
+        el.classList.toggle('is-done', idx < activeIdx);
+        el.classList.toggle('is-active', idx === activeIdx);
+    });
+}
+
 const es = new EventSource(`/api/v1/jobs/${jobId}/events`);
 
 function applyProgress(payload) {
-    if (payload.stage) stage.textContent = progressStageLabels[payload.stage] ?? payload.stage.replaceAll('_', ' ');
+    if (payload.stage) {
+        stage.textContent = progressStageLabels[payload.stage] ?? payload.stage.replaceAll('_', ' ');
+        applyTimeline(payload.stage);
+    }
     if (payload.percent !== undefined) {
         bar.style.width = payload.percent + '%';
-        bar.textContent = payload.percent + '%';
         progressPercent.textContent = payload.percent + '%';
     }
 }

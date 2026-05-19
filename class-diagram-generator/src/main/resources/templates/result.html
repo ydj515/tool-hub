@@ -34,20 +34,10 @@
         </div>
     </section>
     <section class="surface-card mt-4">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle artifact-table mb-0">
-                <thead>
-                    <tr>
-                        <th th:text="#{page.result.module}">Module</th>
-                        <th th:text="#{page.result.format}">Format</th>
-                        <th th:text="#{page.result.filename}">Filename</th>
-                        <th th:text="#{page.result.size}">Size</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="artifacts"></tbody>
-            </table>
-        </div>
+        <div
+            class="visually-hidden"
+            th:text="|#{page.result.module} · #{page.result.format} · #{page.result.filename} · #{page.result.size}|"></div>
+        <div id="artifacts" class="artifact-grid" role="list"></div>
     </section>
 </main>
 <script th:inline="javascript">

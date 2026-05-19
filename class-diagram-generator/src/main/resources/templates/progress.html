@@ -5,6 +5,7 @@
     <title th:text="#{page.progress.title}">Progress</title>
     <link rel="icon" href="/favicon.ico" th:href="@{/favicon.ico}">
     <link rel="stylesheet" href="/webjars/bootstrap/dist/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
     <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -16,22 +17,37 @@
 <main class="container page-shell">
     <section class="hero-card hero-card-compact">
         <h1 class="page-title" th:text="#{page.progress.title}"></h1>
-        <div class="meta-grid">
-            <div class="meta-card">
-                <span class="meta-label" th:text="#{page.progress.stage}"></span>
-                <strong id="stage" class="meta-value">-</strong>
-            </div>
-            <div class="meta-card">
-                <span class="meta-label" th:text="#{page.progress.percent}">Progress</span>
-                <strong id="progressPercent" class="meta-value">0%</strong>
-            </div>
+        <div class="percent-hero mt-4">
+            <strong id="progressPercent" class="percent-hero__value">0%</strong>
+            <span id="stage" class="percent-hero__stage" th:text="#{page.progress.stage}">-</span>
+        </div>
+        <div class="progress progress-lg mt-3">
+            <div id="bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
         </div>
     </section>
     <section class="surface-card mt-4">
-        <div class="progress progress-lg">
-            <div id="bar" class="progress-bar progress-bar-striped progress-bar-animated"
-                 role="progressbar" style="width: 0%">0%</div>
-        </div>
+        <ol class="timeline" id="timeline" aria-label="pipeline timeline">
+            <li class="timeline__step" data-step="intake">
+                <span class="timeline__dot"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span>
+                <span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span>
+            </li>
+            <li class="timeline__step" data-step="analysis">
+                <span class="timeline__dot"><i class="bi bi-braces" aria-hidden="true"></i></span>
+                <span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span>
+            </li>
+            <li class="timeline__step" data-step="diagrams">
+                <span class="timeline__dot"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                <span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span>
+            </li>
+            <li class="timeline__step" data-step="rendering">
+                <span class="timeline__dot"><i class="bi bi-file-earmark-richtext" aria-hidden="true"></i></span>
+                <span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span>
+            </li>
+            <li class="timeline__step" data-step="packaging">
+                <span class="timeline__dot"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                <span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span>
+            </li>
+        </ol>
         <div id="warnings" class="warning-stack mt-4"></div>
     </section>
 </main>
