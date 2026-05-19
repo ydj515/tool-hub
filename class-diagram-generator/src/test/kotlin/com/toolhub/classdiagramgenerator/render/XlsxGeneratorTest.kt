@@ -10,7 +10,9 @@ import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.domain.Program
 import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -73,4 +75,29 @@ class XlsxGeneratorTest :
                 wb.getSheetAt(2).sheetName shouldBe "Class Design"
             }
         }
+
+        "xlsx adds layerDiagrams sheet and embeds class diagram pictures when index has paths" {
+            val tmp = kotlin.io.path.createTempFile(prefix = "layer", suffix = ".png")
+            tmp.toFile().writeBytes(minimalPngBytes() + byteArrayOf(0x00))
+            val classTmp = kotlin.io.path.createTempFile(prefix = "class", suffix = ".png")
+            classTmp.toFile().writeBytes(minimalPngBytes() + byteArrayOf(0x01))
+            val idx =
+                com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex(
+                    layerDiagrams =
+                        mapOf("core" to mapOf(com.toolhub.classdiagramgenerator.domain.Layer.SERVICE to tmp)),
+                    classDiagrams = mapOf("core" to mapOf("CLS-0001" to classTmp)),
+                    specs = emptyMap(),
+                )
+            val out = ByteArrayOutputStream()
+            gen.render(program, program.modules[0], idx, out)
+            XSSFWorkbook(ByteArrayInputStream(out.toByteArray())).use { wb ->
+                wb.getSheet("계층 다이어그램") shouldNotBe null
+                wb.allPictures.size shouldBeGreaterThanOrEqual 2
+            }
+        }
     })
+
+private fun minimalPngBytes(): ByteArray =
+    XlsxGeneratorTest::class.java.classLoader
+        .getResourceAsStream("fixtures/diagram/minimal.png")!!
+        .readBytes()

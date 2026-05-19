@@ -1,23 +1,30 @@
 package com.toolhub.classdiagramgenerator.render
 
 import com.toolhub.classdiagramgenerator.domain.LabelDictionary
+import com.toolhub.classdiagramgenerator.domain.Layer
 import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OutputLabels
 import com.toolhub.classdiagramgenerator.domain.Program
 import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
+import org.apache.poi.ss.usermodel.ClientAnchor
+import org.apache.poi.ss.usermodel.Drawing
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.stereotype.Component
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 
 @Component
+@Suppress("TooManyFunctions")
 class XlsxGenerator : DocumentGenerator {
     override val format = "xlsx"
 
@@ -33,7 +40,8 @@ class XlsxGenerator : DocumentGenerator {
             val body = bodyStyle(wb)
             renderCover(wb.createSheet(labels["sheet.cover"]), program, module, labels, body)
             renderClassList(wb.createSheet(labels["sheet.classList"]), module, labels, header, body)
-            renderClassDesign(wb.createSheet(labels["sheet.classDesign"]), module, labels, header, body)
+            renderLayerDiagramsSheet(wb, module, diagrams, labels, header)
+            renderClassDesign(wb.createSheet(labels["sheet.classDesign"]), module, diagrams, labels, header, body)
             wb.write(out)
         }
     }
@@ -103,20 +111,64 @@ class XlsxGenerator : DocumentGenerator {
         repeat(headers.size) { sheet.setColumnWidth(it, COL_WIDTH_DATA) }
     }
 
+    private fun renderLayerDiagramsSheet(
+        wb: XSSFWorkbook,
+        module: Module,
+        diagrams: DiagramArtifactIndex,
+        labels: LabelDictionary,
+        header: CellStyle,
+    ) {
+        val map = diagrams.layerDiagrams[module.name] ?: return
+        if (map.values.filterNotNull().isEmpty()) return
+        val sheet = wb.createSheet(labels["sheet.layerDiagrams"])
+        val drawing: Drawing<*> = sheet.createDrawingPatriarch()
+        var row = 0
+        Layer.entries.forEach { layer ->
+            val path = map[layer] ?: return@forEach
+            writeRow(sheet, row, listOf(labels["layer.${layer.name.lowercase()}"]), header)
+            row += 1
+            row = embedImage(wb, drawing, path, anchorCol = 0, anchorRow = row) + ROW_PAD
+        }
+    }
+
     private fun renderClassDesign(
         sheet: Sheet,
         module: Module,
+        diagrams: DiagramArtifactIndex,
         labels: LabelDictionary,
         header: CellStyle,
         body: CellStyle,
     ) {
+        val wb = sheet.workbook as XSSFWorkbook
+        val drawing: Drawing<*> = sheet.createDrawingPatriarch()
         var row = 0
         module.classes.forEach { c ->
             row = writeClassBlock(sheet, row, c, labels, header, body)
-            row++ // spacer
+            val path = diagrams.classDiagrams[module.name]?.get(c.id)
+            row =
+                if (path != null) {
+                    embedImage(wb, drawing, path, anchorCol = 0, anchorRow = row + 1) + ROW_PAD
+                } else {
+                    row + 1
+                }
         }
         sheet.createFreezePane(0, 1)
         repeat(MAX_HEADER_COLS) { sheet.setColumnWidth(it, COL_WIDTH_DATA) }
+    }
+
+    private fun embedImage(
+        wb: XSSFWorkbook,
+        drawing: Drawing<*>,
+        path: Path,
+        anchorCol: Int,
+        anchorRow: Int,
+    ): Int {
+        val bytes = Files.readAllBytes(path)
+        val pictureIdx = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG)
+        val anchor: ClientAnchor = XSSFClientAnchor(0, 0, 0, 0, anchorCol, anchorRow, anchorCol, anchorRow)
+        val picture = drawing.createPicture(anchor, pictureIdx)
+        picture.resize(PIC_SCALE)
+        return picture.preferredSize.row2
     }
 
     private fun writeClassBlock(
@@ -194,5 +246,7 @@ class XlsxGenerator : DocumentGenerator {
         private const val COL_WIDTH_VALUE = 12000
         private const val COL_WIDTH_DATA = 6000
         private const val MAX_HEADER_COLS = 4
+        private const val ROW_PAD = 2
+        private const val PIC_SCALE = 0.5
     }
 }
