@@ -1,0 +1,20 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="modal">
+    <div class="modal fade" id="languageModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" th:text="#{language.modal.title}"></h5></div>
+                <div class="modal-body text-center">
+                    <a class="btn btn-primary me-2" href="/?lang=ko" th:text="#{language.modal.ko}"></a>
+                    <a class="btn btn-primary" href="/?lang=en" th:text="#{language.modal.en}"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        (function () {
+            if (!document.cookie.includes('LOCALE=')) {
+                new bootstrap.Modal(document.getElementById('languageModal')).show();
+            }
+        })();
+    </script>
+</div>

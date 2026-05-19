@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{page.upload.title}">Class Diagram Generator</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<nav class="navbar navbar-light bg-light border-bottom">
+    <div class="container">
+        <a class="navbar-brand" href="/">class-diagram-generator</a>
+        <div>
+            <a class="btn btn-sm btn-outline-secondary" href="?lang=ko">KO</a>
+            <a class="btn btn-sm btn-outline-secondary" href="?lang=en">EN</a>
+        </div>
+    </div>
+</nav>
+<main class="container py-4">
+    <h1 th:text="#{page.upload.title}"></h1>
+    <form id="uploadForm" class="row g-3 mt-3" enctype="multipart/form-data">
+        <div class="col-md-6">
+            <label class="form-label" th:text="#{page.upload.programName}"></label>
+            <input class="form-control" name="programName" required pattern="^[A-Za-z0-9_-]+$" maxlength="64">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" th:text="#{page.upload.version}"></label>
+            <input class="form-control" name="version" required pattern="^[A-Za-z0-9._-]+$" maxlength="32" value="v1.0">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" th:text="#{page.upload.language}"></label>
+            <select class="form-select" name="language">
+                <option value="ko" th:selected="${#locale.language == 'ko'}">한국어</option>
+                <option value="en" th:selected="${#locale.language == 'en'}">English</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label" th:text="#{page.upload.formats}"></label>
+            <div>
+                <label class="me-3"><input type="checkbox" name="formats" value="docx" checked> docx</label>
+                <label class="me-3"><input type="checkbox" name="formats" value="xlsx" checked> xlsx</label>
+                <label class="me-3"><input type="checkbox" name="formats" value="md" checked> md</label>
+            </div>
+        </div>
+        <div class="col-12">
+            <label class="form-label" th:text="#{page.upload.file}"></label>
+            <input type="file" class="form-control" name="file" accept=".zip" required>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary" th:text="#{page.upload.submit}"></button>
+        </div>
+    </form>
+</main>
+<div th:replace="~{fragments/language-modal :: modal}"></div>
+<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/upload.js"></script>
+</body>
+</html>
