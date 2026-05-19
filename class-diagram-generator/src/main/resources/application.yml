@@ -11,8 +11,8 @@ spring:
     name: class-diagram-generator
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 110MB
+      max-file-size: 500MB
+      max-request-size: 510MB
   messages:
     basename: messages
     encoding: UTF-8
