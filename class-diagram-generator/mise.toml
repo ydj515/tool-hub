@@ -1,6 +1,6 @@
 [tools]
 java = "21.0.2"
-gradle = "8.10.2"
+gradle = "8.14.4"
 
 # 사용법:
 #   mise run            -> default task (check)
