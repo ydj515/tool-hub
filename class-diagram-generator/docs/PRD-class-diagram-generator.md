@@ -709,7 +709,7 @@ app:
 |---|---|---|
 | **NEXT-01** | Git repo 입력 지원 | `repoUrl + ref` 입력 받아 서버측 shallow clone → 기존 파이프라인 재사용. 인증(토큰), private repo, LFS 처리, 작업 디렉터리 격리, 네트워크 제한 정책 검토 필요. |
 | **NEXT-02** | Kotlin(.kt) 소스 클래스 설계서화 | Kotlin compiler embeddable API 또는 detekt-parsing(PSI) 기반. 데이터 클래스/오브젝트/sealed 처리 규칙 정의 필요. |
-| **NEXT-03** | 클래스 다이어그램 이미지 첨부 | PlantUML 또는 Mermaid 렌더링 → 본문에 삽입. 다이어그램 범위(클래스 내부 vs 모듈 전체) 의사결정 필요. |
+| **NEXT-03** | ~~클래스 다이어그램 이미지 첨부~~ (완료 2026-05-19) | PlantUML(서버 사이드 PNG, Smetana 레이아웃) + Mermaid(md). 본문에 계층/클래스 다이어그램 임베드. 구현 스펙: `docs/superpowers/specs/2026-05-19-class-diagram-embed-design.md` |
 | **NEXT-04** | LLM 기반 설명 보강 | Javadoc 없는 항목에 한해 코드 시그니처 기반 한국어 설명 생성. 비용/지연/외부 API 의존 검토 필요. |
 | **NEXT-05** | 인증/멀티테넌시 | API 키 or OAuth2 Resource Server. 사용자별 job/산출물 격리. |
 | **NEXT-06** | 비-Java JVM 언어(Groovy 등) | 필요성 확인 후 결정. |
@@ -747,6 +747,12 @@ MVP가 다음을 만족해야 "완료"로 본다.
 - [ ] `language=ko` 요청은 한국어 라벨로, `language=en` 요청은 영어 라벨로 산출물(docx/xlsx/md)이 생성된다.
 - [ ] 영어 모드 산출물에서 모듈명·패키지명·클래스명·필드명·메서드명 등 **식별자는 그대로**(번역되지 않음) 출력된다.
 - [ ] 누락된 i18n 키가 없다(테스트로 web 메시지 번들 + 산출물 라벨 사전의 키 집합 일치 검증).
+- [ ] `includeDiagrams=true` (기본) 업로드 시 docx 본문에 계층 다이어그램과 클래스 다이어그램 PNG가 임베드된다.
+- [ ] `includeDiagrams=true` 업로드 시 xlsx의 `classDesign` 시트와 `layerDiagrams` 시트에 PNG가 임베드된다.
+- [ ] `includeDiagrams=true` 업로드 시 md 산출물에 ` ```mermaid` 코드 블록이 클래스/계층 자리에 삽입된다.
+- [ ] `includeDiagrams=false` 업로드 시 산출물 3종에 다이어그램 흔적이 전혀 없다(PNG 0건, mermaid 펜스 0건).
+- [ ] `java.lang.Object`는 어떤 다이어그램에도 노드로 등장하지 않는다.
+- [ ] 모듈 외부 상속/구현 대상은 점선 박스(docx/xlsx) 또는 `stroke-dasharray`(md/Mermaid)로 표시된다.
 
 ---
 
@@ -770,3 +776,4 @@ MVP가 다음을 만족해야 "완료"로 본다.
 | 2026-05-19 | 0.2 | 산출물 파일명 ASCII 한정, programName/version 입력 검증을 영문/숫자로 조정, 웹 UI(Thymeleaf + Bootstrap 5) 섹션 5.8 신설, 기술 스택·디렉터리 구조·아키텍처 다이어그램·수용 기준 갱신, 한글 파일명 지원 NEXT-09로 분리 | ydj515 |
 | 2026-05-19 | 0.3 | 웹 UI 다국어(한/영) 정식 지원으로 격상(5.8.5 재작성·`messages_en.properties` 추가·기술 스택에 LocaleResolver 명시), 데이터 저장소(DB/S3)·사용자 이력 NEXT-10 신설(NEXT-08과 단계 분리), 산출물 검색 NEXT-11·본문 다국어 NEXT-12 추가, 수용 기준에 i18n 항목 추가 | ydj515 |
 | 2026-05-19 | 0.4 | **산출물 본문 다국어를 MVP로 포함**. API에 `language` 필수 파라미터 추가, 5.6.5 산출물 라벨 사전 신설, `Program` 도메인에 `language`/`OutputLanguage` 추가, 웹 UI 첫 진입 언어 선택 모달 도입, 10.2/10.3을 라벨 키 표현으로 일관화, NEXT-12를 추가 언어 지원(JA/ZH 등)으로 재정의, 수용 기준 갱신 | ydj515 |
+| 2026-05-19 | 0.5 | NEXT-03 완료: 산출물 본문에 PlantUML PNG + Mermaid 코드 블록 임베드, `includeDiagrams` API 파라미터 추가, 수용 기준 6개 추가 | ydj515 |
