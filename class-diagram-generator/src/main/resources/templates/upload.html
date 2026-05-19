@@ -90,15 +90,27 @@
                     required
                     data-upload-input
                     th:attr="data-invalid-type-message=#{page.upload.dropzone.invalid}">
-                <span class="file-dropzone__body">
+                <span class="file-dropzone__body" data-dropzone-default>
                     <i class="bi bi-cloud-arrow-up file-dropzone__icon" aria-hidden="true"></i>
                     <span class="file-dropzone__title" th:text="#{page.upload.dropzone.title}"></span>
                     <span class="file-dropzone__hint" th:text="#{page.upload.dropzone.hint}"></span>
-                    <span
-                        class="file-dropzone__filename"
-                        data-upload-filename
-                        th:attr="data-empty-label=#{page.upload.dropzone.empty}"
-                        th:text="#{page.upload.dropzone.empty}"></span>
+                </span>
+                <span class="file-dropzone__success" data-dropzone-selected>
+                    <i class="bi bi-check-circle-fill file-dropzone__success-icon" aria-hidden="true"></i>
+                    <span class="file-dropzone__title" th:text="#{page.upload.dropzone.selected}"></span>
+                    <span class="file-dropzone__meta">
+                        <span
+                            class="file-dropzone__filename-strong"
+                            data-upload-filename
+                            th:attr="data-empty-label=#{page.upload.dropzone.empty}"></span>
+                        <span class="file-dropzone__dot" aria-hidden="true">·</span>
+                        <span class="file-dropzone__size" data-upload-size></span>
+                    </span>
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm file-dropzone__change"
+                        data-upload-change
+                        th:text="#{page.upload.dropzone.change}"></button>
                 </span>
             </label>
         </div>

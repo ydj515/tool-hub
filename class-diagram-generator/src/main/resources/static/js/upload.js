@@ -4,14 +4,31 @@ if (form) {
     const fileInput = form.querySelector('[data-upload-input]');
     const dropzone = form.querySelector('[data-upload-dropzone]');
     const filename = form.querySelector('[data-upload-filename]');
+    const sizeEl = form.querySelector('[data-upload-size]');
+    const changeBtn = form.querySelector('[data-upload-change]');
     const emptyLabel = filename?.dataset.emptyLabel ?? '';
     const invalidTypeMessage = fileInput?.dataset.invalidTypeMessage ?? '';
 
     const isZipFile = (file) => file && file.name.toLowerCase().endsWith('.zip');
 
+    const formatBytes = (bytes) => {
+        if (bytes < 1024) return `${bytes} B`;
+        const kb = bytes / 1024;
+        if (kb < 1024) return `${kb.toFixed(1)} KB`;
+        const mb = kb / 1024;
+        if (mb < 1024) return `${mb.toFixed(2)} MB`;
+        return `${(mb / 1024).toFixed(2)} GB`;
+    };
+
     const updateFilename = (file) => {
-        if (!filename) return;
-        filename.textContent = file ? file.name : emptyLabel;
+        if (filename) filename.textContent = file ? file.name : emptyLabel;
+        if (sizeEl) sizeEl.textContent = file ? formatBytes(file.size) : '';
+        if (!dropzone) return;
+        if (file && isZipFile(file)) {
+            dropzone.classList.add('is-selected');
+        } else {
+            dropzone.classList.remove('is-selected');
+        }
     };
 
     const syncValidity = (file) => {
@@ -37,6 +54,12 @@ if (form) {
         const file = fileInput.files?.[0];
         syncValidity(file);
         updateFilename(file);
+    });
+
+    changeBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        fileInput?.click();
     });
 
     dropzone?.addEventListener('keydown', (event) => {

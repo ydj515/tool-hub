@@ -154,15 +154,61 @@ body {
     font-size: 0.95rem;
 }
 
-.file-dropzone__filename {
-    margin-top: 0.35rem;
-    padding: 0.35rem 0.7rem;
-    border-radius: 999px;
-    background: rgba(13, 110, 253, 0.08);
-    color: #0d6efd;
-    font-size: 0.875rem;
+.file-dropzone__success {
+    display: none;
+    justify-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.file-dropzone__success-icon {
+    font-size: 2rem;
+    color: #198754;
+    line-height: 1;
+}
+
+.file-dropzone__meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    color: var(--app-text-muted);
+}
+
+.file-dropzone__filename-strong {
     font-weight: 700;
+    color: #0d6efd;
     word-break: break-all;
+}
+
+.file-dropzone__dot {
+    color: rgba(0, 0, 0, 0.35);
+}
+
+.file-dropzone__size {
+    font-variant-numeric: tabular-nums;
+}
+
+.file-dropzone__change {
+    margin-top: 0.25rem;
+}
+
+.file-dropzone.is-selected {
+    border-style: solid;
+    border-color: rgba(25, 135, 84, 0.55);
+    background:
+        linear-gradient(180deg, rgba(240, 253, 244, 0.95) 0%, rgba(230, 250, 240, 0.98) 100%);
+    box-shadow: 0 14px 34px rgba(25, 135, 84, 0.1);
+}
+
+.file-dropzone.is-selected [data-dropzone-default] {
+    display: none;
+}
+
+.file-dropzone.is-selected [data-dropzone-selected] {
+    display: grid;
 }
 
 .meta-grid {
