@@ -91,6 +91,7 @@ if (form) {
         fd.append('language', form.language.value);
         const formats = Array.from(form.querySelectorAll('input[name=formats]:checked')).map((input) => input.value).join(',');
         fd.append('formats', formats);
+        fd.append('includeDiagrams', form.includeDiagrams?.checked ? 'true' : 'false');
 
         const res = await fetch('/api/v1/jobs', { method: 'POST', body: fd });
         if (!res.ok) {

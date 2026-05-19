@@ -44,6 +44,22 @@ class JobControllerTest(
                 }
         }
 
+        "POST /api/v1/jobs accepts explicit includeDiagrams=false" {
+            val zipBytes = buildSimpleZip()
+            mockMvc
+                .multipart("/api/v1/jobs") {
+                    file(MockMultipartFile("file", "src.zip", "application/zip", zipBytes))
+                    param("programName", "demo")
+                    param("version", "v1.0")
+                    param("language", "ko")
+                    param("formats", "docx,xlsx,md")
+                    param("includeDiagrams", "false")
+                }.andExpect {
+                    status { isAccepted() }
+                    jsonPath("$.jobId") { exists() }
+                }
+        }
+
         "rejects invalid programName" {
             val zipBytes = buildSimpleZip()
             mockMvc

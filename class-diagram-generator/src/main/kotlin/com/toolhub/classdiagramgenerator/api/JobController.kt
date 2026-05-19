@@ -53,6 +53,7 @@ class JobController(
         version: String,
         @RequestParam("language") @Pattern(regexp = "^(ko|en)$") language: String,
         @RequestParam(name = "formats", defaultValue = "docx,xlsx,md") formats: String,
+        @RequestParam(name = "includeDiagrams", defaultValue = "true") includeDiagrams: Boolean,
     ): ResponseEntity<JobCreatedResponse> {
         require(file.size >= MIN_ZIP_SIZE) { "Empty file" }
         val magic = file.inputStream.use { it.readNBytes(MIN_ZIP_SIZE) }
@@ -65,7 +66,7 @@ class JobController(
                 version = version,
                 language = OutputLanguage.parse(language),
                 formats = parsedFormats,
-                includeDiagrams = true,
+                includeDiagrams = includeDiagrams,
                 file = file,
             )
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(
