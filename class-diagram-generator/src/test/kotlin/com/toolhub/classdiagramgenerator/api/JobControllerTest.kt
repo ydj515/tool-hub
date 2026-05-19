@@ -70,6 +70,7 @@ class JobControllerTest(
                     version = "v1.0",
                     language = OutputLanguage.KO,
                     formats = listOf("md"),
+                    includeDiagrams = false,
                     status = JobStatus.DONE,
                     workDir = workDir,
                     expiresAt = Instant.parse("2026-05-19T06:00:00Z"),

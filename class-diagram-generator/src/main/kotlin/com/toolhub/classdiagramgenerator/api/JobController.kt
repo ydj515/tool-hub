@@ -65,6 +65,7 @@ class JobController(
                 version = version,
                 language = OutputLanguage.parse(language),
                 formats = parsedFormats,
+                includeDiagrams = true,
                 file = file,
             )
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(

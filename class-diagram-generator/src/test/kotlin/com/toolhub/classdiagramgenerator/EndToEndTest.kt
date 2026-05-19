@@ -28,6 +28,7 @@ class EndToEndTest(
                     version = "v1.0",
                     language = OutputLanguage.EN,
                     formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
                     file = MockMultipartFile("file", "m.zip", "application/zip", bytes),
                 )
             waitForCompletion(rec.id, store)

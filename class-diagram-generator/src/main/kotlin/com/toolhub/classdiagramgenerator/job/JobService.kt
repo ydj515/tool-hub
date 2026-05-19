@@ -21,6 +21,7 @@ class JobService(
         version: String,
         language: OutputLanguage,
         formats: List<String>,
+        includeDiagrams: Boolean,
         file: MultipartFile,
     ): JobRecord {
         require(formats.isNotEmpty()) { "formats must not be empty" }
@@ -35,6 +36,7 @@ class JobService(
                 version = version,
                 language = language,
                 formats = formats,
+                includeDiagrams = includeDiagrams,
                 status = JobStatus.PENDING,
                 workDir = workDir,
             )

@@ -8,6 +8,7 @@ import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OperationInfo
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.domain.Program
+import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.kotest.matchers.string.shouldContain
@@ -50,7 +51,7 @@ class DocxGeneratorTest :
 
         "docx contains korean labels in cover and tables" {
             val out = ByteArrayOutputStream()
-            gen.render(program, program.modules[0], out)
+            gen.render(program, program.modules[0], DiagramArtifactIndex.EMPTY, out)
             XWPFDocument(ByteArrayInputStream(out.toByteArray())).use { doc ->
                 val text =
                     doc.paragraphs.joinToString("\n") { it.text } +

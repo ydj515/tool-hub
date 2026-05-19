@@ -24,6 +24,7 @@ data class JobRecord(
     val version: String,
     val language: OutputLanguage,
     val formats: List<String>,
+    val includeDiagrams: Boolean,
     var status: JobStatus,
     val workDir: Path,
     var expiresAt: Instant? = null,

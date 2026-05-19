@@ -18,6 +18,7 @@ class JobStoreTest :
                     version = "v1",
                     language = OutputLanguage.KO,
                     formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = false,
                     status = JobStatus.PENDING,
                     workDir = Files.createTempDirectory("job-"),
                 )

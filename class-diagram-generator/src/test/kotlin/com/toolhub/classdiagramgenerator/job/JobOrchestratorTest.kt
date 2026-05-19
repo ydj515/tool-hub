@@ -23,7 +23,7 @@ class JobOrchestratorTest(
         "happy path produces 3 artifacts for single module ko" {
             val bytes = buildJavaZip()
             val file = MockMultipartFile("file", "x.zip", "application/zip", bytes)
-            val rec = service.submit("demo", "v1.0", OutputLanguage.KO, listOf("docx", "xlsx", "md"), file)
+            val rec = service.submit("demo", "v1.0", OutputLanguage.KO, listOf("docx", "xlsx", "md"), true, file)
             waitForCompletion(rec.id, store)
             val final = store.get(rec.id)!!
             final.status shouldBe JobStatus.DONE
@@ -34,7 +34,7 @@ class JobOrchestratorTest(
             val bytes = buildJavaZip(StandardCharsets.UTF_16BE)
             val file = MockMultipartFile("file", "x.zip", "application/zip", bytes)
 
-            val rec = service.submit("demo", "v1.0", OutputLanguage.KO, listOf("docx", "xlsx", "md"), file)
+            val rec = service.submit("demo", "v1.0", OutputLanguage.KO, listOf("docx", "xlsx", "md"), true, file)
 
             waitForCompletion(rec.id, store)
             val final = store.get(rec.id)!!

@@ -8,6 +8,7 @@ import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OperationInfo
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.domain.Program
+import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -49,7 +50,7 @@ class XlsxGeneratorTest :
 
         "produces 3 sheets with localized names (ko)" {
             val out = ByteArrayOutputStream()
-            gen.render(program, program.modules[0], out)
+            gen.render(program, program.modules[0], DiagramArtifactIndex.EMPTY, out)
             XSSFWorkbook(ByteArrayInputStream(out.toByteArray())).use { wb ->
                 wb.numberOfSheets shouldBe 3
                 wb.getSheetAt(0).sheetName shouldBe "표지"
@@ -65,7 +66,7 @@ class XlsxGeneratorTest :
 
         "english sheet names" {
             val out = ByteArrayOutputStream()
-            gen.render(program.copy(language = OutputLanguage.EN), program.modules[0], out)
+            gen.render(program.copy(language = OutputLanguage.EN), program.modules[0], DiagramArtifactIndex.EMPTY, out)
             XSSFWorkbook(ByteArrayInputStream(out.toByteArray())).use { wb ->
                 wb.getSheetAt(0).sheetName shouldBe "Cover"
                 wb.getSheetAt(1).sheetName shouldBe "Class List"

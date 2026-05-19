@@ -4,6 +4,7 @@ import com.toolhub.classdiagramgenerator.domain.LabelDictionary
 import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OutputLabels
 import com.toolhub.classdiagramgenerator.domain.Program
+import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
@@ -23,6 +24,7 @@ class XlsxGenerator : DocumentGenerator {
     override fun render(
         program: Program,
         module: Module,
+        diagrams: DiagramArtifactIndex,
         out: OutputStream,
     ) {
         val labels = OutputLabels.of(program.language)

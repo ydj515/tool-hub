@@ -23,6 +23,8 @@ class OutputStorage(
 
     fun outputDir(jobId: UUID): Path = jobDir(jobId).resolve("output")
 
+    fun diagramsDir(jobId: UUID): Path = jobDir(jobId).resolve("diagrams")
+
     fun cleanup(jobId: UUID) {
         val dir = jobDir(jobId)
         if (dir.exists()) deleteRecursively(dir)

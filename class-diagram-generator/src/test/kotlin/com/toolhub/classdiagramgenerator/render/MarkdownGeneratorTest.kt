@@ -8,6 +8,7 @@ import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OperationInfo
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.domain.Program
+import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
 import java.io.ByteArrayOutputStream
@@ -47,7 +48,7 @@ class MarkdownGeneratorTest :
 
         "ko renders korean labels" {
             val out = ByteArrayOutputStream()
-            gen.render(program, program.modules[0], out)
+            gen.render(program, program.modules[0], DiagramArtifactIndex.EMPTY, out)
             val text = out.toString(Charsets.UTF_8)
             text shouldContain "# 클래스 설계서(demo)"
             text shouldContain "| 클래스 ID | 클래스명 | 계층 | 설명 |"
@@ -56,7 +57,7 @@ class MarkdownGeneratorTest :
 
         "en renders english labels" {
             val out = ByteArrayOutputStream()
-            gen.render(program.copy(language = OutputLanguage.EN), program.modules[0], out)
+            gen.render(program.copy(language = OutputLanguage.EN), program.modules[0], DiagramArtifactIndex.EMPTY, out)
             val text = out.toString(Charsets.UTF_8)
             text shouldContain "# Class Design(demo)"
             text shouldContain "| Class ID | Class Name | Layer | Description |"
