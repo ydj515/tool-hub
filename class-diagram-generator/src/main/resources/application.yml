@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: class-diagram-generator
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+app:
+  workdir: ${java.io.tmpdir}/class-diagram-generator
+  job:
+    max-concurrent: 4
+    ttl-minutes: 60
+    cleaner-interval-minutes: 10
+  upload:
+    max-file-size-mb: 100
+  analysis:
+    max-classes-per-module: 5000
