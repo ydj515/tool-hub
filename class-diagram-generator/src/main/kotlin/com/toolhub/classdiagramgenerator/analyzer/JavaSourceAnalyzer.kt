@@ -1,6 +1,9 @@
 package com.toolhub.classdiagramgenerator.analyzer
 
-import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.JavaParser
+import com.github.javaparser.ParseProblemException
+import com.github.javaparser.ParserConfiguration
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.TypeDeclaration
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers
@@ -31,12 +34,23 @@ data class ParsedType(
 
 @Component
 class JavaSourceAnalyzer {
+    // record 등 최신 Java 문법을 안정적으로 지원하도록 툴체인과 같은 언어 레벨로 고정한다.
+    private val parser =
+        JavaParser(
+            ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21),
+        )
+
     fun parseFile(path: Path): List<ParsedType> {
-        val unit = StaticJavaParser.parse(path)
+        val unit = parseCompilationUnit(path)
         val pkg = unit.packageDeclaration.map { it.nameAsString }.orElse("")
         val result = mutableListOf<ParsedType>()
         unit.types.forEach { collect(it, pkg, result) }
         return result
+    }
+
+    private fun parseCompilationUnit(path: Path): CompilationUnit {
+        val result = parser.parse(path)
+        return result.result.orElseThrow { ParseProblemException(result.problems) }
     }
 
     private fun collect(
