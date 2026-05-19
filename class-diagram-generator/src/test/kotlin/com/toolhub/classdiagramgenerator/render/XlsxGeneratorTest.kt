@@ -13,10 +13,12 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.ZonedDateTime
+import java.util.zip.ZipInputStream
 
 class XlsxGeneratorTest :
     StringSpec({
@@ -94,6 +96,14 @@ class XlsxGeneratorTest :
                 wb.getSheet("계층 다이어그램") shouldNotBe null
                 wb.allPictures.size shouldBeGreaterThanOrEqual 2
             }
+
+            val layerDrawingXml = unzipEntry(out.toByteArray(), "xl/drawings/drawing1.xml")
+            val classDrawingXml = unzipEntry(out.toByteArray(), "xl/drawings/drawing2.xml")
+            val classSheetXml = unzipEntry(out.toByteArray(), "xl/worksheets/sheet4.xml")
+
+            layerDrawingXml.contains("cx=\"0\" cy=\"0\"") shouldBe false
+            classDrawingXml.contains("cx=\"0\" cy=\"0\"") shouldBe false
+            classSheetXml shouldContain "<mergeCells"
         }
     })
 
@@ -101,3 +111,14 @@ private fun minimalPngBytes(): ByteArray =
     XlsxGeneratorTest::class.java.classLoader
         .getResourceAsStream("fixtures/diagram/minimal.png")!!
         .readBytes()
+
+private fun unzipEntry(
+    archiveBytes: ByteArray,
+    entryName: String,
+): String =
+    ZipInputStream(ByteArrayInputStream(archiveBytes)).use { zip ->
+        generateSequence { zip.nextEntry }
+            .firstOrNull { it.name == entryName }
+            ?.let { zip.readBytes().toString(Charsets.UTF_8) }
+            ?: error("Missing zip entry: $entryName")
+    }

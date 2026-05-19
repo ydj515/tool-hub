@@ -26,10 +26,15 @@ class DiagramSpecBuilder {
             if (members.isEmpty()) return@mapNotNull null
             val memberIds = members.map { it.id }.toSet()
             val relations = module.relations.filter { it.sourceClassId in memberIds }
+            val internalTargets =
+                relations
+                    .filter { !it.target.external }
+                    .mapNotNull { findInternalTarget(it.target, byId) }
+                    .map { nodeForInternal(it) }
             val externalNodes = relations.filter { it.target.external }.map { it.target }.distinctBy { it.fqn ?: it.simpleName }
             val internalNodes = members.map { nodeForInternal(it) }
             val externals = externalNodes.map { nodeForExternal(it) }
-            val nodes = internalNodes + externals
+            val nodes = (internalNodes + internalTargets + externals).distinctBy { it.id }
             val edges = relations.map { edgeFor(it, byId) }
             DiagramSpec(
                 scope = DiagramScope.LAYER,
@@ -54,7 +59,7 @@ class DiagramSpecBuilder {
                     if (ref.external) {
                         nodeForExternal(ref)
                     } else {
-                        val matched = byId.values.firstOrNull { it.name == ref.simpleName }
+                        val matched = findInternalTarget(ref, byId)
                         if (matched != null) nodeForInternal(matched) else nodeForExternal(ref)
                     }
                 }
@@ -69,6 +74,13 @@ class DiagramSpecBuilder {
                 classId = ci.id,
             )
         }
+
+    private fun findInternalTarget(
+        ref: TypeRef,
+        byId: Map<String, ClassInfo>,
+    ): ClassInfo? =
+        byId.values.firstOrNull { "${it.packagePath}.${it.name}" == ref.fqn }
+            ?: byId.values.firstOrNull { it.name == ref.simpleName }
 
     private fun nodeForInternal(ci: ClassInfo): DiagramNode =
         DiagramNode(
@@ -103,7 +115,7 @@ class DiagramSpecBuilder {
             if (rel.target.external) {
                 "EXT_${sha1Hex(rel.target.fqn ?: rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
             } else {
-                val matched = byId.values.firstOrNull { it.name == rel.target.simpleName }
+                val matched = findInternalTarget(rel.target, byId)
                 matched?.id?.replace('-', '_')
                     ?: "EXT_${sha1Hex(rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
             }

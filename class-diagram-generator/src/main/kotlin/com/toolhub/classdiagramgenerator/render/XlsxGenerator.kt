@@ -40,7 +40,7 @@ class XlsxGenerator : DocumentGenerator {
             val body = bodyStyle(wb)
             renderCover(wb.createSheet(labels["sheet.cover"]), program, module, labels, body)
             renderClassList(wb.createSheet(labels["sheet.classList"]), module, labels, header, body)
-            renderLayerDiagramsSheet(wb, module, diagrams, labels, header)
+            renderLayerDiagramsSheet(wb, module, diagrams, labels, header, body)
             renderClassDesign(wb.createSheet(labels["sheet.classDesign"]), module, diagrams, labels, header, body)
             wb.write(out)
         }
@@ -108,7 +108,7 @@ class XlsxGenerator : DocumentGenerator {
         }
         sheet.setAutoFilter(CellRangeAddress(0, module.classes.size, 0, headers.size - 1))
         sheet.createFreezePane(0, 1)
-        repeat(headers.size) { sheet.setColumnWidth(it, COL_WIDTH_DATA) }
+        CLASS_LIST_COLUMN_WIDTHS.forEachIndexed { index, width -> sheet.setColumnWidth(index, width) }
     }
 
     private fun renderLayerDiagramsSheet(
@@ -117,17 +117,20 @@ class XlsxGenerator : DocumentGenerator {
         diagrams: DiagramArtifactIndex,
         labels: LabelDictionary,
         header: CellStyle,
+        body: CellStyle,
     ) {
         val map = diagrams.layerDiagrams[module.name] ?: return
         if (map.values.filterNotNull().isEmpty()) return
         val sheet = wb.createSheet(labels["sheet.layerDiagrams"])
+        applyColumnWidths(sheet, DIAGRAM_SHEET_COLUMN_WIDTHS)
         val drawing: Drawing<*> = sheet.createDrawingPatriarch()
+        val drawingContext = DrawingContext(wb, drawing)
         var row = 0
         Layer.entries.forEach { layer ->
             val path = map[layer] ?: return@forEach
-            writeRow(sheet, row, listOf(labels["layer.${layer.name.lowercase()}"]), header)
+            writeMergedRow(sheet, row, labels["layer.${layer.name.lowercase()}"], header)
             row += 1
-            row = embedImage(wb, drawing, path, anchorCol = 0, anchorRow = row) + ROW_PAD
+            row = writeDiagramRow(sheet, row, drawingContext, path, body) + ROW_PAD
         }
     }
 
@@ -140,20 +143,20 @@ class XlsxGenerator : DocumentGenerator {
         body: CellStyle,
     ) {
         val wb = sheet.workbook as XSSFWorkbook
-        val drawing: Drawing<*> = sheet.createDrawingPatriarch()
+        val context =
+            ClassDesignRenderContext(
+                labels = labels,
+                header = header,
+                body = body,
+                drawing = DrawingContext(wb, sheet.createDrawingPatriarch()),
+            )
+        applyColumnWidths(sheet, CLASS_DESIGN_COLUMN_WIDTHS)
         var row = 0
         module.classes.forEach { c ->
-            row = writeClassBlock(sheet, row, c, labels, header, body)
             val path = diagrams.classDiagrams[module.name]?.get(c.id)
-            row =
-                if (path != null) {
-                    embedImage(wb, drawing, path, anchorCol = 0, anchorRow = row + 1) + ROW_PAD
-                } else {
-                    row + 1
-                }
+            row = writeClassBlock(sheet, row, c, path, context) + CLASS_BLOCK_SPACING_ROWS
         }
         sheet.createFreezePane(0, 1)
-        repeat(MAX_HEADER_COLS) { sheet.setColumnWidth(it, COL_WIDTH_DATA) }
     }
 
     private fun embedImage(
@@ -166,47 +169,87 @@ class XlsxGenerator : DocumentGenerator {
         val bytes = Files.readAllBytes(path)
         val pictureIdx = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG)
         val anchor: ClientAnchor = XSSFClientAnchor(0, 0, 0, 0, anchorCol, anchorRow, anchorCol, anchorRow)
+        anchor.anchorType = ClientAnchor.AnchorType.MOVE_DONT_RESIZE
         val picture = drawing.createPicture(anchor, pictureIdx)
+        picture.resize()
         picture.resize(PIC_SCALE)
-        return picture.preferredSize.row2
+        return picture.preferredSize.row2 + 1
     }
 
     private fun writeClassBlock(
         sheet: Sheet,
         startRow: Int,
         c: com.toolhub.classdiagramgenerator.domain.ClassInfo,
-        labels: LabelDictionary,
-        header: CellStyle,
-        body: CellStyle,
+        classDiagramPath: Path?,
+        context: ClassDesignRenderContext,
     ): Int {
         var row = startRow
-        writeRow(sheet, row++, listOf(labels["col.classId"], labels["col.className"], labels["col.description"]), header)
-        writeRow(sheet, row++, listOf(c.id, c.name, c.description), body)
+        writeRow(
+            sheet,
+            row,
+            listOf(
+                context.labels["col.classId"],
+                context.labels["col.className"],
+                context.labels["col.description"],
+                "",
+            ),
+            context.header,
+        )
+        mergeCells(sheet, row++, 2, CLASS_DESIGN_LAST_COLUMN)
+
+        writeRow(sheet, row, listOf(c.id, c.name, c.description, ""), context.body)
+        mergeCells(sheet, row++, 2, CLASS_DESIGN_LAST_COLUMN)
+
+        writeMergedRow(sheet, row++, context.labels["doc.title.classDiagram"], context.header)
+        row = writeDiagramRow(sheet, row, context.drawing, classDiagramPath, context.body)
+
         writeRow(
             sheet,
             row++,
             listOf(
-                labels["col.attributeName"],
-                labels["col.type"],
-                labels["col.accessModifier"],
-                labels["col.description"],
+                context.labels["col.attributeName"],
+                context.labels["col.type"],
+                context.labels["col.accessModifier"],
+                context.labels["col.description"],
             ),
-            header,
+            context.header,
         )
         c.attributes.forEach { a ->
             writeRow(
                 sheet,
                 row++,
-                listOf(a.name, a.type, labels["access.${a.accessModifier.name.lowercase()}"], a.description),
-                body,
+                listOf(a.name, a.type, context.labels["access.${a.accessModifier.name.lowercase()}"], a.description),
+                context.body,
             )
         }
-        writeRow(sheet, row++, listOf(labels["col.operationName"], labels["col.description"]), header)
+        writeRow(
+            sheet,
+            row,
+            listOf(context.labels["col.operationName"], context.labels["col.description"], "", ""),
+            context.header,
+        )
+        mergeCells(sheet, row++, 1, CLASS_DESIGN_LAST_COLUMN)
         c.operations.forEach { o ->
-            writeRow(sheet, row++, listOf(o.name, o.description), body)
+            writeRow(sheet, row, listOf(o.name, o.description, "", ""), context.body)
+            mergeCells(sheet, row++, 1, CLASS_DESIGN_LAST_COLUMN)
         }
         return row
     }
+
+    private fun writeDiagramRow(
+        sheet: Sheet,
+        rowIdx: Int,
+        drawingContext: DrawingContext,
+        path: Path?,
+        body: CellStyle,
+    ): Int =
+        if (path == null) {
+            writeMergedRow(sheet, rowIdx, "-", body)
+            rowIdx + 1
+        } else {
+            writeMergedRow(sheet, rowIdx, "", body)
+            embedImage(drawingContext.workbook, drawingContext.drawing, path, anchorCol = 0, anchorRow = rowIdx)
+        }
 
     private fun writeRow(
         sheet: Sheet,
@@ -220,6 +263,35 @@ class XlsxGenerator : DocumentGenerator {
                 setCellValue(v)
                 cellStyle = style
             }
+        }
+    }
+
+    private fun writeMergedRow(
+        sheet: Sheet,
+        rowIdx: Int,
+        value: String,
+        style: CellStyle,
+    ) {
+        writeRow(sheet, rowIdx, listOf(value, "", "", ""), style)
+        mergeCells(sheet, rowIdx, 0, CLASS_DESIGN_LAST_COLUMN)
+    }
+
+    private fun mergeCells(
+        sheet: Sheet,
+        rowIdx: Int,
+        fromCol: Int,
+        toCol: Int,
+    ) {
+        if (toCol <= fromCol) return
+        sheet.addMergedRegion(CellRangeAddress(rowIdx, rowIdx, fromCol, toCol))
+    }
+
+    private fun applyColumnWidths(
+        sheet: Sheet,
+        widths: IntArray,
+    ) {
+        widths.forEachIndexed { index, width ->
+            sheet.setColumnWidth(index, width)
         }
     }
 
@@ -244,9 +316,24 @@ class XlsxGenerator : DocumentGenerator {
     companion object {
         private const val COL_WIDTH_LABEL = 6000
         private const val COL_WIDTH_VALUE = 12000
-        private const val COL_WIDTH_DATA = 6000
-        private const val MAX_HEADER_COLS = 4
         private const val ROW_PAD = 2
         private const val PIC_SCALE = 0.5
+        private const val CLASS_DESIGN_LAST_COLUMN = 3
+        private const val CLASS_BLOCK_SPACING_ROWS = 3
+        private val CLASS_LIST_COLUMN_WIDTHS = intArrayOf(4_500, 6_000, 4_500, 8_000, 14_000)
+        private val DIAGRAM_SHEET_COLUMN_WIDTHS = intArrayOf(7_000, 7_000, 7_000, 7_000)
+        private val CLASS_DESIGN_COLUMN_WIDTHS = intArrayOf(4_500, 5_000, 4_500, 14_000)
     }
+
+    private data class DrawingContext(
+        val workbook: XSSFWorkbook,
+        val drawing: Drawing<*>,
+    )
+
+    private data class ClassDesignRenderContext(
+        val labels: LabelDictionary,
+        val header: CellStyle,
+        val body: CellStyle,
+        val drawing: DrawingContext,
+    )
 }

@@ -12,6 +12,7 @@ import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import com.toolhub.classdiagramgenerator.render.diagram.MermaidRenderer
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import java.io.ByteArrayOutputStream
 import java.time.ZonedDateTime
 
@@ -95,5 +96,8 @@ class MarkdownGeneratorTest :
             text shouldContain "```mermaid"
             text shouldContain "classDiagram"
             text shouldContain "CLS-0001"
+            text shouldContain "class UserService"
+            text shouldContain "<<Service>> UserService"
+            text shouldNotContain "[\""
         }
     })

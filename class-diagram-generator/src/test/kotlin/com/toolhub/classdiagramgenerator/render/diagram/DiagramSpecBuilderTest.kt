@@ -39,6 +39,26 @@ class DiagramSpecBuilderTest :
             layerCtrl.nodes.single { it.external }.external shouldBe true
         }
 
+        "layer diagram includes internal targets from other layers" {
+            val module =
+                Module(
+                    name = "core",
+                    classes =
+                        listOf(
+                            cls("CLS-0001", "UserController", Layer.CONTROLLER),
+                            cls("CLS-0009", "BaseHandler", Layer.ETC),
+                        ),
+                    relations =
+                        listOf(
+                            Relation("CLS-0001", TypeRef("BaseHandler", "com.demo.common.BaseHandler", false), RelationKind.EXTENDS),
+                        ),
+                )
+            val layerCtrl = builder.build(module).single { it.scope == DiagramScope.LAYER && it.key == "layer-controller" }
+            layerCtrl.nodes.map { it.id } shouldContain "CLS_0009"
+            layerCtrl.nodes.single { it.id == "CLS_0009" }.external shouldBe false
+            layerCtrl.edges.single().toId shouldBe "CLS_0009"
+        }
+
         "class diagram contains the class plus direct parents only" {
             val module =
                 Module(

@@ -11,3 +11,5 @@ bin/
 
 # 로컬 디버깅용 입력 ZIP (회귀 검증에 쓰는 큰 zip은 커밋 금지)
 test.zip
+sample-projects
+.ai
