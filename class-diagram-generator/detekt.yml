@@ -10,3 +10,6 @@ style:
 complexity:
   LongMethod:
     threshold: 80
+performance:
+  SpreadOperator:
+    active: false
