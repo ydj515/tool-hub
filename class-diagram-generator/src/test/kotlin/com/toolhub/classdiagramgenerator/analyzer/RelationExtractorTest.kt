@@ -1,6 +1,5 @@
 package com.toolhub.classdiagramgenerator.analyzer
 
-import com.toolhub.classdiagramgenerator.domain.AccessModifier
 import com.toolhub.classdiagramgenerator.domain.AttributeInfo
 import com.toolhub.classdiagramgenerator.domain.ClassInfo
 import com.toolhub.classdiagramgenerator.domain.Layer
@@ -111,18 +110,23 @@ class RelationExtractorTest :
                     classInfo("CLS-0003", "Helper", "com.demo.b"),
                 )
             val result = ex.extract(parsed, classes)
-            result.relations.single().target.external shouldBe true
+            result.relations
+                .single()
+                .target.external shouldBe true
             result.warnings.map { it.code } shouldContain "AMBIGUOUS_TYPE_REF"
         }
     })
 
-private fun classInfo(id: String, name: String, pkg: String) =
-    ClassInfo(
-        id = id,
-        name = name,
-        layer = Layer.SERVICE,
-        description = "",
-        packagePath = pkg,
-        attributes = emptyList<AttributeInfo>(),
-        operations = emptyList(),
-    )
+private fun classInfo(
+    id: String,
+    name: String,
+    pkg: String,
+) = ClassInfo(
+    id = id,
+    name = name,
+    layer = Layer.SERVICE,
+    description = "",
+    packagePath = pkg,
+    attributes = emptyList<AttributeInfo>(),
+    operations = emptyList(),
+)

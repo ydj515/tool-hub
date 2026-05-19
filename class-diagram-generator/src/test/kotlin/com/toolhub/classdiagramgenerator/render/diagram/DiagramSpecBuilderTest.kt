@@ -67,13 +67,16 @@ class DiagramSpecBuilderTest :
         }
     })
 
-private fun cls(id: String, name: String, layer: Layer) =
-    ClassInfo(
-        id = id,
-        name = name,
-        layer = layer,
-        description = "",
-        packagePath = "com.demo",
-        attributes = emptyList<AttributeInfo>(),
-        operations = emptyList(),
-    )
+private fun cls(
+    id: String,
+    name: String,
+    layer: Layer,
+) = ClassInfo(
+    id = id,
+    name = name,
+    layer = layer,
+    description = "",
+    packagePath = "com.demo",
+    attributes = emptyList<AttributeInfo>(),
+    operations = emptyList(),
+)

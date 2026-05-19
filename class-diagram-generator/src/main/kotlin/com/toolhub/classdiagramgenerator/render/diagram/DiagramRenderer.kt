@@ -35,25 +35,44 @@ class DiagramRenderer(
         val specOut = mutableMapOf<String, MutableMap<String, DiagramSpec>>()
 
         program.modules.forEach { module ->
-            val specs = specBuilder.build(module)
-            if (specs.isEmpty()) return@forEach
-            val moduleDir = outputDir.resolve(module.name).also { Files.createDirectories(it) }
-            val layerMap = layerOut.getOrPut(module.name) { mutableMapOf() }
-            val classMap = classOut.getOrPut(module.name) { mutableMapOf() }
-            val specMap = specOut.getOrPut(module.name) { mutableMapOf() }
-
-            renderSpecsParallel(specs, moduleDir, module.name, parallelism, onWarning).forEach { (spec, path) ->
-                specMap[spec.key] = spec
-                when (spec.scope) {
-                    DiagramScope.LAYER -> if (spec.layer != null) layerMap[spec.layer] = path
-                    DiagramScope.CLASS -> if (spec.classId != null) classMap[spec.classId] = path
-                }
-            }
+            val renderedModule = renderModule(module, outputDir, parallelism, onWarning) ?: return@forEach
+            layerOut[module.name] = renderedModule.layerDiagrams.toMutableMap()
+            classOut[module.name] = renderedModule.classDiagrams.toMutableMap()
+            specOut[module.name] = renderedModule.specs.toMutableMap()
         }
         return DiagramArtifactIndex(
             layerDiagrams = layerOut.mapValues { it.value.toMap() },
             classDiagrams = classOut.mapValues { it.value.toMap() },
             specs = specOut.mapValues { it.value.toMap() },
+        )
+    }
+
+    private fun renderModule(
+        module: Module,
+        outputDir: Path,
+        parallelism: Int,
+        onWarning: (Warning) -> Unit,
+    ): RenderedModule? {
+        val specs = specBuilder.build(module)
+        if (specs.isEmpty()) return null
+
+        val moduleDir = outputDir.resolve(module.name).also { Files.createDirectories(it) }
+        val layerMap = mutableMapOf<Layer, Path?>()
+        val classMap = mutableMapOf<String, Path?>()
+        val specMap = mutableMapOf<String, DiagramSpec>()
+
+        renderSpecsParallel(specs, moduleDir, module.name, parallelism, onWarning).forEach { (spec, path) ->
+            specMap[spec.key] = spec
+            when (spec.scope) {
+                DiagramScope.LAYER -> spec.layer?.let { layerMap[it] = path }
+                DiagramScope.CLASS -> spec.classId?.let { classMap[it] = path }
+            }
+        }
+
+        return RenderedModule(
+            layerDiagrams = layerMap,
+            classDiagrams = classMap,
+            specs = specMap,
         )
     }
 
@@ -99,4 +118,10 @@ class DiagramRenderer(
             )
             null
         }
+
+    private data class RenderedModule(
+        val layerDiagrams: Map<Layer, Path?>,
+        val classDiagrams: Map<String, Path?>,
+        val specs: Map<String, DiagramSpec>,
+    )
 }

@@ -12,9 +12,19 @@
 <nav class="navbar navbar-expand navbar-light border-bottom app-navbar">
     <div class="container">
         <a class="navbar-brand" href="/">class-diagram-generator</a>
-        <div>
-            <a class="btn btn-sm btn-outline-secondary rounded-pill" href="?lang=ko">KO</a>
-            <a class="btn btn-sm btn-outline-secondary rounded-pill" href="?lang=en">EN</a>
+        <div class="lang-toggle" role="group" aria-label="Locale selector">
+            <a
+                href="?lang=ko"
+                class="lang-toggle__option"
+                data-lang-option="ko"
+                th:attr="data-active=${#locale.language == 'ko'}"
+                th:classappend="${#locale.language == 'ko'} ? ' is-active' : ''">KO</a>
+            <a
+                href="?lang=en"
+                class="lang-toggle__option"
+                data-lang-option="en"
+                th:attr="data-active=${#locale.language == 'en'}"
+                th:classappend="${#locale.language == 'en'} ? ' is-active' : ''">EN</a>
         </div>
     </div>
 </nav>
@@ -24,20 +34,15 @@
         <div>
             <h1 class="page-title" th:text="#{page.upload.title}"></h1>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <span class="feature-pill">docx</span>
-            <span class="feature-pill">xlsx</span>
-            <span class="feature-pill">md</span>
-        </div>
     </div>
     <form id="uploadForm" class="row g-4" enctype="multipart/form-data">
         <div class="col-md-6">
             <label class="form-label" th:text="#{page.upload.programName}"></label>
-            <input class="form-control" name="programName" required pattern="^[A-Za-z0-9_-]+$" maxlength="64">
+            <input class="form-control" name="programName" required pattern="^[A-Za-z0-9_\-]+$" maxlength="64">
         </div>
         <div class="col-md-3">
             <label class="form-label" th:text="#{page.upload.version}"></label>
-            <input class="form-control" name="version" required pattern="^[A-Za-z0-9._-]+$" maxlength="32" value="v1.0">
+            <input class="form-control" name="version" required pattern="^[A-Za-z0-9._\-]+$" maxlength="32" value="v1.0">
         </div>
         <div class="col-md-3">
             <label class="form-label" th:text="#{page.upload.language}"></label>
@@ -64,8 +69,32 @@
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label" th:text="#{page.upload.file}"></label>
-            <input type="file" class="form-control" name="file" accept=".zip" required>
+            <label class="form-label" for="fileInput" th:text="#{page.upload.file}"></label>
+            <label
+                class="file-dropzone"
+                for="fileInput"
+                data-upload-dropzone
+                tabindex="0">
+                <input
+                    id="fileInput"
+                    type="file"
+                    class="visually-hidden"
+                    name="file"
+                    accept=".zip"
+                    required
+                    data-upload-input
+                    th:attr="data-invalid-type-message=#{page.upload.dropzone.invalid}">
+                <span class="file-dropzone__body">
+                    <i class="bi bi-cloud-arrow-up file-dropzone__icon" aria-hidden="true"></i>
+                    <span class="file-dropzone__title" th:text="#{page.upload.dropzone.title}"></span>
+                    <span class="file-dropzone__hint" th:text="#{page.upload.dropzone.hint}"></span>
+                    <span
+                        class="file-dropzone__filename"
+                        data-upload-filename
+                        th:attr="data-empty-label=#{page.upload.dropzone.empty}"
+                        th:text="#{page.upload.dropzone.empty}"></span>
+                </span>
+            </label>
         </div>
         <div class="col-12">
             <button type="submit" class="btn btn-primary px-4" th:text="#{page.upload.submit}"></button>

@@ -55,22 +55,27 @@ class RelationExtractor {
                 TypeRef(simpleName, "${match.packagePath}.${match.name}", external = false)
             }
             candidates.size > 1 -> {
-                warnings += Warning(
-                    code = "AMBIGUOUS_TYPE_REF",
-                    message = "Multiple internal candidates for $simpleName from ${owner.packagePath}.${owner.name}",
-                    context = mapOf(
-                        "owner" to "${owner.packagePath}.${owner.name}",
-                        "simpleName" to simpleName,
-                        "candidates" to candidates.map { "${it.packagePath}.${it.name}" },
-                    ),
-                )
+                warnings +=
+                    Warning(
+                        code = "AMBIGUOUS_TYPE_REF",
+                        message = "Multiple internal candidates for $simpleName from ${owner.packagePath}.${owner.name}",
+                        context =
+                            mapOf(
+                                "owner" to "${owner.packagePath}.${owner.name}",
+                                "simpleName" to simpleName,
+                                "candidates" to candidates.map { "${it.packagePath}.${it.name}" },
+                            ),
+                    )
                 externalRef(simpleName, owner)
             }
             else -> externalRef(simpleName, owner)
         }
     }
 
-    private fun externalRef(simpleName: String, owner: ParsedType): TypeRef {
+    private fun externalRef(
+        simpleName: String,
+        owner: ParsedType,
+    ): TypeRef {
         val importMatch = owner.imports.firstOrNull { it.substringAfterLast('.') == simpleName }
         return TypeRef(simpleName, importMatch, external = true)
     }

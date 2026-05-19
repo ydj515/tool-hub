@@ -140,8 +140,9 @@ class JavaSourceAnalyzer {
     }
 
     private fun parentNames(type: TypeDeclaration<*>): Pair<List<String>, List<String>> {
-        val td = type as? com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-            ?: return emptyList<String>() to emptyList()
+        val td =
+            type as? com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+                ?: return emptyList<String>() to emptyList()
         val ext = td.extendedTypes.map { it.nameAsString }
         val impl = td.implementedTypes.map { it.nameAsString }
         return ext to impl

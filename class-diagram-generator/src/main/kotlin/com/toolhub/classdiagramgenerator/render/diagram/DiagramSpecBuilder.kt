@@ -74,7 +74,10 @@ class DiagramSpecBuilder {
         DiagramNode(
             id = ci.id.replace('-', '_'),
             classId = ci.id,
-            stereotype = ci.layer.name.lowercase().replaceFirstChar { it.titlecase() },
+            stereotype =
+                ci.layer.name
+                    .lowercase()
+                    .replaceFirstChar { it.titlecase() },
             displayName = ci.name,
             external = false,
         )
@@ -96,13 +99,14 @@ class DiagramSpecBuilder {
         byId: Map<String, ClassInfo>,
     ): DiagramEdge {
         val from = rel.sourceClassId.replace('-', '_')
-        val to = if (rel.target.external) {
-            "EXT_${sha1Hex(rel.target.fqn ?: rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
-        } else {
-            val matched = byId.values.firstOrNull { it.name == rel.target.simpleName }
-            matched?.id?.replace('-', '_')
-                ?: "EXT_${sha1Hex(rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
-        }
+        val to =
+            if (rel.target.external) {
+                "EXT_${sha1Hex(rel.target.fqn ?: rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
+            } else {
+                val matched = byId.values.firstOrNull { it.name == rel.target.simpleName }
+                matched?.id?.replace('-', '_')
+                    ?: "EXT_${sha1Hex(rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
+            }
         return DiagramEdge(fromId = from, toId = to, kind = rel.kind)
     }
 

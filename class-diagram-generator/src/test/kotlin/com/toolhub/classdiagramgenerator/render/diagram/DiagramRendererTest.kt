@@ -43,7 +43,9 @@ class DiagramRendererTest :
 
 private fun defaultProps(): AppProperties =
     AppProperties(
-        workdir = java.nio.file.Paths.get(System.getProperty("java.io.tmpdir")),
+        workdir =
+            java.nio.file.Paths
+                .get(System.getProperty("java.io.tmpdir")),
         job = AppProperties.Job(),
         upload = AppProperties.Upload(),
         analysis = AppProperties.Analysis(),

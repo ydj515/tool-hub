@@ -2,6 +2,7 @@ package com.toolhub.classdiagramgenerator.web
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
+import org.hamcrest.Matchers.not
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
@@ -27,6 +28,29 @@ class ViewControllerTest(
                 content { string(org.hamcrest.Matchers.containsString("bootstrap-icons.css")) }
                 content { string(org.hamcrest.Matchers.containsString("bootstrap.bundle.min.js")) }
                 content { string(org.hamcrest.Matchers.containsString("window.addEventListener('load'")) }
+            }
+        }
+
+        "GET / renders escaped input patterns for browser validation" {
+            mockMvc.get("/").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("pattern=\"^[A-Za-z0-9_\\-]+$\"")) }
+                content { string(org.hamcrest.Matchers.containsString("pattern=\"^[A-Za-z0-9._\\-]+$\"")) }
+            }
+        }
+
+        "GET / renders segmented locale toggle and drag drop upload zone" {
+            mockMvc.get("/?lang=en").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("lang-toggle")) }
+                content { string(org.hamcrest.Matchers.containsString("data-lang-option=\"ko\"")) }
+                content { string(org.hamcrest.Matchers.containsString("data-lang-option=\"en\"")) }
+                content { string(org.hamcrest.Matchers.containsString("data-active=\"false\">KO</a>")) }
+                content { string(org.hamcrest.Matchers.containsString("data-active=\"true\">EN</a>")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-dropzone")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-input")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-filename")) }
+                content { string(not(org.hamcrest.Matchers.containsString("feature-pill"))) }
             }
         }
 
