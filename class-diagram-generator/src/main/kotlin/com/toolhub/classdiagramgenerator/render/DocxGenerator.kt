@@ -6,14 +6,20 @@ import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OutputLabels
 import com.toolhub.classdiagramgenerator.domain.Program
 import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
+import org.apache.poi.util.Units
+import org.apache.poi.xwpf.usermodel.Document
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import org.springframework.stereotype.Component
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.format.DateTimeFormatter
+import javax.imageio.ImageIO
 
 @Component
+@Suppress("TooManyFunctions")
 class DocxGenerator : DocumentGenerator {
     override val format = "docx"
 
@@ -29,9 +35,74 @@ class DocxGenerator : DocumentGenerator {
         val labels = OutputLabels.of(program.language)
         XWPFDocument().use { doc ->
             renderCover(doc, program, module, labels)
+            renderLayerDiagrams(doc, module, diagrams, labels)
             renderClassList(doc, module, labels)
-            renderClassDesign(doc, module, labels)
+            renderClassDesign(doc, module, diagrams, labels)
             doc.write(out)
+        }
+    }
+
+    private fun renderLayerDiagrams(
+        doc: XWPFDocument,
+        module: Module,
+        diagrams: DiagramArtifactIndex,
+        labels: LabelDictionary,
+    ) {
+        val map = diagrams.layerDiagrams[module.name] ?: return
+        if (map.values.filterNotNull().isEmpty()) return
+        heading(doc, labels["doc.title.layerDiagrams"])
+        com.toolhub.classdiagramgenerator.domain.Layer.entries.forEach { layer ->
+            val path = map[layer] ?: return@forEach
+            subHeading(doc, labels["layer.${layer.name.lowercase()}"])
+            insertImage(doc, path)
+        }
+        doc.createParagraph().createRun().addBreak()
+    }
+
+    private fun renderClassDiagram(
+        doc: XWPFDocument,
+        module: Module,
+        classId: String,
+        diagrams: DiagramArtifactIndex,
+    ) {
+        val path = diagrams.classDiagrams[module.name]?.get(classId) ?: return
+        insertImage(doc, path)
+    }
+
+    private fun insertImage(
+        doc: XWPFDocument,
+        path: Path,
+    ) {
+        val bytes = Files.readAllBytes(path)
+        val image = ImageIO.read(java.io.ByteArrayInputStream(bytes))
+        val maxWidthEmu = MAX_WIDTH_EMU
+        val pxToEmu = Units.EMU_PER_PIXEL.toLong()
+        val origWidth = image.width.toLong() * pxToEmu
+        val origHeight = image.height.toLong() * pxToEmu
+        val (w, h) =
+            if (origWidth > maxWidthEmu) {
+                val ratio = maxWidthEmu.toDouble() / origWidth
+                maxWidthEmu to (origHeight * ratio).toLong()
+            } else {
+                origWidth to origHeight
+            }
+        val para = doc.createParagraph()
+        val run = para.createRun()
+        java.io.ByteArrayInputStream(bytes).use { input ->
+            run.addPicture(input, Document.PICTURE_TYPE_PNG, path.fileName.toString(), w.toInt(), h.toInt())
+        }
+    }
+
+    private fun subHeading(
+        doc: XWPFDocument,
+        text: String,
+    ) {
+        val p = doc.createParagraph()
+        p.createRun().apply {
+            fontFamily = font
+            isBold = true
+            fontSize = SUBHEADING_FONT_SIZE
+            setText(text)
         }
     }
 
@@ -97,11 +168,13 @@ class DocxGenerator : DocumentGenerator {
     private fun renderClassDesign(
         doc: XWPFDocument,
         module: Module,
+        diagrams: DiagramArtifactIndex,
         labels: LabelDictionary,
     ) {
         heading(doc, labels["doc.title.classDesign"])
         module.classes.forEach { c ->
             renderClassHeader(doc, c, labels)
+            renderClassDiagram(doc, module, c.id, diagrams)
             renderAttributesTable(doc, c, labels)
             renderOperationsTable(doc, c, labels)
             doc.createParagraph().createRun().addBreak()
@@ -195,6 +268,8 @@ class DocxGenerator : DocumentGenerator {
     companion object {
         private const val TITLE_FONT_SIZE = 24
         private const val HEADING_FONT_SIZE = 16
+        private const val SUBHEADING_FONT_SIZE = 12
         private const val BODY_FONT_SIZE = 10
+        private const val MAX_WIDTH_EMU = 5_715_000L
     }
 }

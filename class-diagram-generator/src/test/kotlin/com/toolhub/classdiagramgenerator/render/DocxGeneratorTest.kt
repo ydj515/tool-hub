@@ -11,6 +11,7 @@ import com.toolhub.classdiagramgenerator.domain.Program
 import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import java.io.ByteArrayInputStream
@@ -64,4 +65,28 @@ class DocxGeneratorTest :
                 doc.tables shouldHaveAtLeastSize 3
             }
         }
+
+        "docx embeds layer diagram PNGs and class diagram PNGs when index has paths" {
+            val tmp = kotlin.io.path.createTempFile(prefix = "layer-controller", suffix = ".png")
+            tmp.toFile().writeBytes(minimalPng() + byteArrayOf(0x00))
+            val classTmp = kotlin.io.path.createTempFile(prefix = "class-CLS-0001", suffix = ".png")
+            classTmp.toFile().writeBytes(minimalPng() + byteArrayOf(0x01))
+            val idx =
+                com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex(
+                    layerDiagrams = mapOf("core" to mapOf(com.toolhub.classdiagramgenerator.domain.Layer.CONTROLLER to tmp)),
+                    classDiagrams = mapOf("core" to mapOf("CLS-0001" to classTmp)),
+                    specs = emptyMap(),
+                )
+            val out = ByteArrayOutputStream()
+            gen.render(program, program.modules[0], idx, out)
+            XWPFDocument(ByteArrayInputStream(out.toByteArray())).use { doc ->
+                doc.allPictures.size shouldBe 2
+            }
+        }
     })
+
+private fun minimalPng(): ByteArray {
+    val resource = DocxGeneratorTest::class.java.classLoader.getResourceAsStream("fixtures/diagram/minimal.png")
+    require(resource != null) { "Place a minimal valid PNG at src/test/resources/fixtures/diagram/minimal.png" }
+    return resource.readBytes()
+}
