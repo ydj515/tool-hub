@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
+import java.util.Locale
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -83,6 +84,7 @@ class JobController(
     @GetMapping("/{id}/result")
     fun result(
         @PathVariable id: UUID,
+        locale: Locale,
     ): JobResultResponse {
         val rec = jobStore.get(id) ?: throw NoSuchElementException("Job not found: $id")
         val artifacts =
@@ -93,6 +95,7 @@ class JobController(
                     format = a.format,
                     filename = a.filename,
                     sizeBytes = a.sizeBytes,
+                    sizeLabel = ArtifactSizeFormatter.format(a.sizeBytes, locale),
                     downloadUrl = "/api/v1/jobs/$id/artifacts/$idx",
                 )
             }

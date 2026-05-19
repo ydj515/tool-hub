@@ -1,13 +1,22 @@
 package com.toolhub.classdiagramgenerator.api
 
+import com.toolhub.classdiagramgenerator.domain.OutputLanguage
+import com.toolhub.classdiagramgenerator.job.ArtifactRecord
+import com.toolhub.classdiagramgenerator.job.JobRecord
+import com.toolhub.classdiagramgenerator.job.JobStatus
+import com.toolhub.classdiagramgenerator.job.JobStore
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.multipart
 import java.io.ByteArrayOutputStream
+import java.nio.file.Files
+import java.time.Instant
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -15,6 +24,7 @@ import java.util.zip.ZipOutputStream
 @AutoConfigureMockMvc
 class JobControllerTest(
     private val mockMvc: MockMvc,
+    private val jobStore: JobStore,
 ) : StringSpec({
         extensions(SpringExtension)
 
@@ -45,6 +55,42 @@ class JobControllerTest(
                 }.andExpect {
                     status { isBadRequest() }
                 }
+        }
+
+        "GET /api/v1/jobs/{id}/result includes human readable size label" {
+            val jobId = UUID.randomUUID()
+            val workDir = Files.createTempDirectory("job-controller-test")
+            val artifactPath = workDir.resolve("artifact.txt")
+            Files.write(artifactPath, ByteArray(1536) { 'a'.code.toByte() })
+
+            jobStore.create(
+                JobRecord(
+                    id = jobId,
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("md"),
+                    status = JobStatus.DONE,
+                    workDir = workDir,
+                    expiresAt = Instant.parse("2026-05-19T06:00:00Z"),
+                    artifacts =
+                        mutableListOf(
+                            ArtifactRecord(
+                                module = "demo",
+                                format = "md",
+                                filename = "artifact.txt",
+                                path = artifactPath,
+                                sizeBytes = 1536,
+                            ),
+                        ),
+                ),
+            )
+
+            mockMvc.get("/api/v1/jobs/$jobId/result").andExpect {
+                status { isOk() }
+                jsonPath("$.artifacts[0].sizeBytes") { value(1536) }
+                jsonPath("$.artifacts[0].sizeLabel") { value("1.5 KB") }
+            }
         }
     })
 

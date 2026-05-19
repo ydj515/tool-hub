@@ -1,4 +1,9 @@
 const jobId = window.__jobId;
+const resultLocale = window.__resultLocale ?? undefined;
+const resultLabels = window.__resultLabels ?? {
+    download: 'Download',
+    loadError: 'Failed to load result',
+};
 
 function td(text) {
     const cell = document.createElement('td');
@@ -9,11 +14,17 @@ function td(text) {
 function downloadCell(url) {
     const cell = document.createElement('td');
     const a = document.createElement('a');
-    a.className = 'btn btn-sm btn-primary';
+    a.className = 'btn btn-sm btn-primary btn-with-icon';
     a.href = url;
-    a.textContent = 'Download';
+    a.innerHTML = `<i class="bi bi-download"></i><span>${resultLabels.download}</span>`;
     cell.appendChild(a);
     return cell;
+}
+
+function formatDate(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString(resultLocale);
 }
 
 async function load() {
@@ -21,19 +32,20 @@ async function load() {
     if (!res.ok) {
         const banner = document.createElement('div');
         banner.className = 'alert alert-danger';
-        banner.textContent = 'Failed to load result';
+        banner.textContent = resultLabels.loadError;
         document.body.prepend(banner);
         return;
     }
     const data = await res.json();
-    document.getElementById('expiresAt').textContent = data.expiresAt || '-';
+    document.getElementById('expiresAt').textContent = formatDate(data.expiresAt);
+    document.getElementById('artifactCount').textContent = String(data.artifacts.length);
     const tbody = document.getElementById('artifacts');
     data.artifacts.forEach(a => {
         const tr = document.createElement('tr');
         tr.appendChild(td(a.module));
         tr.appendChild(td(a.format));
         tr.appendChild(td(a.filename));
-        tr.appendChild(td(String(a.sizeBytes)));
+        tr.appendChild(td(a.sizeLabel ?? String(a.sizeBytes)));
         tr.appendChild(downloadCell(a.downloadUrl));
         tbody.appendChild(tr);
     });

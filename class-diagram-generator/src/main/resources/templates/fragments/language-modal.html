@@ -11,10 +11,10 @@
         </div>
     </div>
     <script th:inline="javascript">
-        (function () {
+        window.addEventListener('load', function () {
             if (!document.cookie.includes('LOCALE=')) {
                 new bootstrap.Modal(document.getElementById('languageModal')).show();
             }
-        })();
+        });
     </script>
 </div>

@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.commons.compress)
     implementation(libs.bootstrap)
     implementation(libs.bootstrap.icons)
-    implementation(libs.webjars.locator.lite)
+    implementation(libs.webjars.locator.core)
 
     testImplementation(libs.spring.boot.starter.test) {
         exclude(module = "mockito-core")

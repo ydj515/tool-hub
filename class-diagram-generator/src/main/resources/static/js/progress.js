@@ -2,14 +2,17 @@ const jobId = window.__jobId;
 const stage = document.getElementById('stage');
 const bar = document.getElementById('bar');
 const warnings = document.getElementById('warnings');
+const progressPercent = document.getElementById('progressPercent');
+const progressStageLabels = window.__progressStageLabels ?? {};
 
 const es = new EventSource(`/api/v1/jobs/${jobId}/events`);
 
 function applyProgress(payload) {
-    if (payload.stage) stage.textContent = payload.stage;
+    if (payload.stage) stage.textContent = progressStageLabels[payload.stage] ?? payload.stage.replaceAll('_', ' ');
     if (payload.percent !== undefined) {
         bar.style.width = payload.percent + '%';
         bar.textContent = payload.percent + '%';
+        progressPercent.textContent = payload.percent + '%';
     }
 }
 

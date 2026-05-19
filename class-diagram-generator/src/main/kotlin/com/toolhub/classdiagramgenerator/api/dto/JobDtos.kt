@@ -16,6 +16,7 @@ data class ArtifactSummary(
     val format: String,
     val filename: String,
     val sizeBytes: Long,
+    val sizeLabel: String,
     val downloadUrl: String,
 )
 
