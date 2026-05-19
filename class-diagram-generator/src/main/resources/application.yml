@@ -34,3 +34,7 @@ app:
     max-file-size-mb: 100
   analysis:
     max-classes-per-module: 5000
+  diagrams:
+    enabled-default: true
+    parallelism: 0
+    max-bytes-per-png: 5242880

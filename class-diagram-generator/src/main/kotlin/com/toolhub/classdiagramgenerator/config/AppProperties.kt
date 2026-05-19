@@ -11,6 +11,7 @@ data class AppProperties(
     val job: Job,
     val upload: Upload,
     val analysis: Analysis,
+    val diagrams: Diagrams = Diagrams(),
 ) {
     data class Job(
         val maxConcurrent: Int = 4,
@@ -24,6 +25,12 @@ data class AppProperties(
 
     data class Analysis(
         val maxClassesPerModule: Int = 5000,
+    )
+
+    data class Diagrams(
+        val enabledDefault: Boolean = true,
+        val parallelism: Int = 0,
+        val maxBytesPerPng: Long = 5_242_880L,
     )
 }
 

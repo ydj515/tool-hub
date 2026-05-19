@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.bootstrap)
     implementation(libs.bootstrap.icons)
     implementation(libs.webjars.locator.core)
+    implementation(libs.plantuml)
 
     testImplementation(libs.spring.boot.starter.test) {
         exclude(module = "mockito-core")

@@ -43,6 +43,11 @@ object OutputLabels {
                 "sheet.classDesign" to "클래스 설계서",
                 "toc.title" to "목차",
                 "toc.refreshHint" to "목차는 F9 또는 우클릭 → 필드 업데이트로 갱신하세요.",
+                "doc.title.layerDiagrams" to "계층 다이어그램",
+                "doc.title.classDiagram" to "클래스 다이어그램",
+                "sheet.layerDiagrams" to "계층 다이어그램",
+                "diagram.legend.external" to "외부 타입",
+                "warning.diagramFailed" to "다이어그램 렌더링 실패",
             ),
         )
 
@@ -80,6 +85,11 @@ object OutputLabels {
                 "sheet.classDesign" to "Class Design",
                 "toc.title" to "Table of Contents",
                 "toc.refreshHint" to "Press F9 or right-click → Update Field to refresh.",
+                "doc.title.layerDiagrams" to "Layer Diagrams",
+                "doc.title.classDiagram" to "Class Diagram",
+                "sheet.layerDiagrams" to "Layer Diagrams",
+                "diagram.legend.external" to "External Type",
+                "warning.diagramFailed" to "Diagram rendering failed",
             ),
         )
 
