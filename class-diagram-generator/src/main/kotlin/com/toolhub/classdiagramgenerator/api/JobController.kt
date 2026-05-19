@@ -53,6 +53,9 @@ class JobController(
         @RequestParam("language") @Pattern(regexp = "^(ko|en)$") language: String,
         @RequestParam(name = "formats", defaultValue = "docx,xlsx,md") formats: String,
     ): ResponseEntity<JobCreatedResponse> {
+        require(file.size >= MIN_ZIP_SIZE) { "Empty file" }
+        val magic = file.inputStream.use { it.readNBytes(MIN_ZIP_SIZE) }
+        require(magic[0] == ZIP_MAGIC_BYTE_0 && magic[1] == ZIP_MAGIC_BYTE_1) { "Not a ZIP file" }
         val parsedFormats = formats.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
         require(parsedFormats.all { it in SUPPORTED_FORMATS }) { "Unsupported format" }
         val rec =
@@ -139,6 +142,9 @@ class JobController(
     companion object {
         private const val PROGRAM_NAME_MAX = 64
         private const val VERSION_MAX = 32
+        private const val MIN_ZIP_SIZE = 4
+        private const val ZIP_MAGIC_BYTE_0: Byte = 0x50
+        private const val ZIP_MAGIC_BYTE_1: Byte = 0x4B
         private val SUPPORTED_FORMATS = listOf("docx", "xlsx", "md")
     }
 }
