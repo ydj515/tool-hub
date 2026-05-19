@@ -1,17 +1,21 @@
 package com.toolhub.classdiagramgenerator.render
 
 import com.toolhub.classdiagramgenerator.domain.LabelDictionary
+import com.toolhub.classdiagramgenerator.domain.Layer
 import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OutputLabels
 import com.toolhub.classdiagramgenerator.domain.Program
 import com.toolhub.classdiagramgenerator.render.diagram.DiagramArtifactIndex
+import com.toolhub.classdiagramgenerator.render.diagram.MermaidRenderer
 import org.springframework.stereotype.Component
 import java.io.OutputStream
 import java.io.PrintWriter
 import java.time.format.DateTimeFormatter
 
 @Component
-class MarkdownGenerator : DocumentGenerator {
+class MarkdownGenerator(
+    private val mermaid: MermaidRenderer,
+) : DocumentGenerator {
     override val format = "md"
 
     override fun render(
@@ -23,9 +27,31 @@ class MarkdownGenerator : DocumentGenerator {
         val labels = OutputLabels.of(program.language)
         PrintWriter(out.writer(Charsets.UTF_8)).use { w ->
             renderCover(w, program, module, labels)
+            renderLayerDiagrams(w, module, diagrams, labels)
             renderClassList(w, module, labels)
-            renderClassDesign(w, module, labels)
+            renderClassDesign(w, module, diagrams, labels)
             w.flush()
+        }
+    }
+
+    private fun renderLayerDiagrams(
+        w: PrintWriter,
+        module: Module,
+        diagrams: DiagramArtifactIndex,
+        labels: LabelDictionary,
+    ) {
+        val specs = diagrams.specs[module.name] ?: return
+        val layerSpecs = Layer.entries.mapNotNull { l -> specs["layer-${l.name.lowercase()}"]?.let { l to it } }
+        if (layerSpecs.isEmpty()) return
+        w.println("## ${labels["doc.title.layerDiagrams"]}")
+        w.println()
+        layerSpecs.forEach { (layer, spec) ->
+            w.println("### ${labels["layer.${layer.name.lowercase()}"]}")
+            w.println()
+            w.println("```mermaid")
+            w.println(mermaid.render(spec))
+            w.println("```")
+            w.println()
         }
     }
 
@@ -70,10 +96,12 @@ class MarkdownGenerator : DocumentGenerator {
     private fun renderClassDesign(
         w: PrintWriter,
         module: Module,
+        diagrams: DiagramArtifactIndex,
         labels: LabelDictionary,
     ) {
         w.println("## ${labels["doc.title.classDesign"]}")
         w.println()
+        val specs = diagrams.specs[module.name] ?: emptyMap()
         module.classes.forEachIndexed { idx, c ->
             if (idx > 0) {
                 w.println("---")
@@ -81,6 +109,12 @@ class MarkdownGenerator : DocumentGenerator {
             }
             w.println("### ${c.id} ${c.name}")
             w.println()
+            specs["class-${c.id}"]?.let { spec ->
+                w.println("```mermaid")
+                w.println(mermaid.render(spec))
+                w.println("```")
+                w.println()
+            }
             renderHeaderRow(w, c, labels)
             renderAttributesTable(w, c, labels)
             renderOperationsTable(w, c, labels)
