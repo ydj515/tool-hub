@@ -5,3 +5,6 @@ build/
 out/
 .mise.local.toml
 .DS_Store
+*.log
+bin/
+.kotlin/
