@@ -10,6 +10,9 @@ style:
 complexity:
   LongMethod:
     threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
 performance:
   SpreadOperator:
     active: false
