@@ -96,6 +96,13 @@
                     <span class="file-dropzone__hint" th:text="#{page.upload.dropzone.hint}"></span>
                 </span>
                 <span class="file-dropzone__success" data-dropzone-selected>
+                    <button
+                        type="button"
+                        class="file-dropzone__remove"
+                        data-upload-remove
+                        th:attr="aria-label=#{page.upload.dropzone.remove}, title=#{page.upload.dropzone.remove}">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
                     <i class="bi bi-check-circle-fill file-dropzone__success-icon" aria-hidden="true"></i>
                     <span class="file-dropzone__title" th:text="#{page.upload.dropzone.selected}"></span>
                     <span class="file-dropzone__meta">

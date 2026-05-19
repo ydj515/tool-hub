@@ -6,6 +6,7 @@ if (form) {
     const filename = form.querySelector('[data-upload-filename]');
     const sizeEl = form.querySelector('[data-upload-size]');
     const changeBtn = form.querySelector('[data-upload-change]');
+    const removeBtn = form.querySelector('[data-upload-remove]');
     const emptyLabel = filename?.dataset.emptyLabel ?? '';
     const invalidTypeMessage = fileInput?.dataset.invalidTypeMessage ?? '';
 
@@ -60,6 +61,15 @@ if (form) {
         event.preventDefault();
         event.stopPropagation();
         fileInput?.click();
+    });
+
+    removeBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!fileInput) return;
+        fileInput.value = '';
+        syncValidity(undefined);
+        updateFilename(undefined);
     });
 
     dropzone?.addEventListener('keydown', (event) => {
