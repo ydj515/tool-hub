@@ -4,8 +4,12 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import org.apache.commons.compress.archivers.zip.Zip64Mode
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.exists
@@ -49,6 +53,16 @@ class ZipExtractorTest :
             javas shouldContain "B.java"
             javas.size shouldBe 2
         }
+
+        // Regression: macOS Finder / 일부 도구가 만든 ZIP은 STORED 엔트리에 data descriptor가
+        // 붙어 있어 JDK ZipInputStream이 "only DEFLATED entries can have EXT descriptor"로 거부함.
+        // commons-compress 기반 구현은 allowStoredEntriesWithDataDescriptor=true로 풀어야 함.
+        "extracts STORED entries with data descriptor" {
+            val zipBytes = buildZipWithStoredDataDescriptor("S.java" to "class S {}")
+            val target = Files.createTempDirectory("ext-")
+            extractor.extract(zipBytes.inputStream(), target)
+            target.resolve("S.java").readText() shouldBe "class S {}"
+        }
     })
 
 private fun buildZip(vararg entries: Pair<String, String>): ByteArray {
@@ -58,6 +72,26 @@ private fun buildZip(vararg entries: Pair<String, String>): ByteArray {
             zos.putNextEntry(ZipEntry(name))
             zos.write(content.toByteArray())
             zos.closeEntry()
+        }
+    }
+    return out.toByteArray()
+}
+
+private fun buildZipWithStoredDataDescriptor(vararg entries: Pair<String, String>): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipArchiveOutputStream(out).use { zos ->
+        // Zip64 Always 모드 + STORED 메서드 조합은 data descriptor를 동반함
+        zos.setUseZip64(Zip64Mode.Always)
+        entries.forEach { (name, content) ->
+            val bytes = content.toByteArray()
+            val entry = ZipArchiveEntry(name)
+            entry.method = ZipArchiveEntry.STORED
+            entry.size = bytes.size.toLong()
+            entry.compressedSize = bytes.size.toLong()
+            entry.crc = CRC32().apply { update(bytes) }.value
+            zos.putArchiveEntry(entry)
+            zos.write(bytes)
+            zos.closeArchiveEntry()
         }
     }
     return out.toByteArray()

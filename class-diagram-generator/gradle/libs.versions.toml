@@ -4,6 +4,7 @@ springBoot = "3.3.5"
 springDepMgmt = "1.1.6"
 javaparser = "3.26.2"
 poi = "5.3.0"
+commonsCompress = "1.27.1"
 bootstrap = "5.3.3"
 bootstrapIcons = "1.11.3"
 webjarsLocator = "1.0.0"
@@ -26,6 +27,7 @@ kotlin-reflect               = { module = "org.jetbrains.kotlin:kotlin-reflect" 
 javaparser-core              = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
 poi                          = { module = "org.apache.poi:poi", version.ref = "poi" }
 poi-ooxml                    = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
+commons-compress             = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 bootstrap                    = { module = "org.webjars.npm:bootstrap", version.ref = "bootstrap" }
 bootstrap-icons              = { module = "org.webjars.npm:bootstrap-icons", version.ref = "bootstrapIcons" }
 webjars-locator-lite         = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocator" }

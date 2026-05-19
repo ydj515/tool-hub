@@ -1,10 +1,11 @@
 package com.toolhub.classdiagramgenerator.input
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.springframework.stereotype.Component
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.zip.ZipInputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
@@ -22,17 +23,21 @@ class ZipExtractor {
     ) {
         target.createDirectories()
         val normalizedTarget = target.toAbsolutePath().normalize()
-        ZipInputStream(input).use { zis ->
-            generateSequence { zis.nextEntry }.forEach { entry ->
+        ZipArchiveInputStream(
+            input,
+            Charsets.UTF_8.name(),
+            true,
+            true,
+        ).use { zis ->
+            generateSequence { zis.nextEntry as? ZipArchiveEntry }.forEach { entry ->
                 writeEntry(zis, entry, normalizedTarget)
-                zis.closeEntry()
             }
         }
     }
 
     private fun writeEntry(
-        zis: ZipInputStream,
-        entry: java.util.zip.ZipEntry,
+        zis: ZipArchiveInputStream,
+        entry: ZipArchiveEntry,
         normalizedTarget: Path,
     ) {
         val resolved = normalizedTarget.resolve(entry.name).normalize()

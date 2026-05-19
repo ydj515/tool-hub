@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.javaparser.core)
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
+    implementation(libs.commons.compress)
     implementation(libs.bootstrap)
     implementation(libs.bootstrap.icons)
     implementation(libs.webjars.locator.lite)
