@@ -15,6 +15,9 @@ import {
   type ZipStructure,
 } from "@/lib/types";
 
+/**
+ * 브랜드 문서 아이콘을 렌더링한다.
+ */
 function BrandIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -25,6 +28,9 @@ function BrandIcon() {
   );
 }
 
+/**
+ * 생성 버튼에서 사용하는 다운로드 아이콘을 렌더링한다.
+ */
 function DownloadIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -35,6 +41,9 @@ function DownloadIcon() {
   );
 }
 
+/**
+ * 라이트 모드에서 표시할 달 아이콘을 렌더링한다.
+ */
 function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -43,6 +52,9 @@ function MoonIcon() {
   );
 }
 
+/**
+ * 다크 모드에서 표시할 해 아이콘을 렌더링한다.
+ */
 function SunIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -56,6 +68,9 @@ function SunIcon() {
   );
 }
 
+/**
+ * 선택된 파일 포맷에 맞는 아이콘을 반환한다.
+ */
 function FormatIcon({ type }: { type: FileType }) {
   if (type === "pdf") {
     return (
@@ -107,6 +122,9 @@ function FormatIcon({ type }: { type: FileType }) {
   );
 }
 
+/**
+ * 저장된 선호값 또는 시스템 설정을 기반으로 초기 테마를 계산한다.
+ */
 function resolveInitialTheme(): "light" | "dark" {
   if (typeof window === "undefined") {
     return "light";
@@ -123,6 +141,9 @@ function resolveInitialTheme(): "light" | "dark" {
   return initial;
 }
 
+/**
+ * 더미 파일 생성 폼과 다운로드 UX를 담당하는 클라이언트 컴포넌트다.
+ */
 export default function GeneratorClient() {
   const [loading, setLoading] = useState(false);
   const [targetSize, setTargetSize] = useState("1");
@@ -142,6 +163,9 @@ export default function GeneratorClient() {
     return () => window.cancelAnimationFrame(id);
   }, []);
 
+  /**
+   * 현재 테마를 반전하고 로컬 스토리지에 저장한다.
+   */
   function toggleTheme() {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
@@ -156,6 +180,9 @@ export default function GeneratorClient() {
     return Number.isFinite(num) && num > 0 && num <= 100;
   }, [targetSize]);
 
+  /**
+   * 파일 생성 요청을 보낸 뒤 응답받은 다운로드 URL로 저장을 시작한다.
+   */
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -190,7 +217,7 @@ export default function GeneratorClient() {
   }
 
   return (
-    <main className="container">
+    <main className="pageShell">
       <button className="globalThemeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환" aria-pressed={mounted && theme === "dark"}>
         {mounted ? (theme === "dark" ? <SunIcon /> : <MoonIcon />) : <span style={{ display: "block", width: 16, height: 16 }} />}
       </button>
