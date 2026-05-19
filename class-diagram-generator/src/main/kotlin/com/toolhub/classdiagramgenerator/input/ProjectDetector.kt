@@ -69,9 +69,19 @@ class ProjectDetector {
         val preferred = dir.resolve("src/main/java")
         val base = if (preferred.exists()) preferred else dir
         return Files.walk(base).use { stream ->
-            stream.filter { !it.isDirectory() && it.extension == "java" }.toList()
+            stream.filter { path -> isJavaSourceCandidate(path) }.toList()
         }
     }
+
+    private fun isJavaSourceCandidate(path: Path): Boolean =
+        !path.isDirectory() &&
+            path.extension == "java" &&
+            !isMacOsMetadata(path)
+
+    private fun isMacOsMetadata(path: Path): Boolean =
+        path.any { part -> part.toString() == "__MACOSX" } ||
+            path.name == ".DS_Store" ||
+            path.name.startsWith("._")
 
     private val includeRegex = Regex("""include\s*[(\s'"]+([^'")]+)[\s'")]+""")
 

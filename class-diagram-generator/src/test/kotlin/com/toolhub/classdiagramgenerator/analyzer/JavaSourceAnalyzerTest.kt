@@ -24,7 +24,7 @@ class JavaSourceAnalyzerTest :
                 }
                 """.trimIndent()
             val path = Files.createTempFile("UserService", ".java").also { it.writeText(src) }
-            val parsed = analyzer.parseFile(path).single()
+            val parsed = analyzer.parseFile(path).types.single()
             parsed.name shouldBe "UserService"
             parsed.packagePath shouldBe "com.demo.service"
             parsed.description shouldBe "사용자 서비스."
@@ -41,7 +41,7 @@ class JavaSourceAnalyzerTest :
         "empty javadoc yields empty description" {
             val src = "package x; public class Bare { public Bare() {} }"
             val path = Files.createTempFile("Bare", ".java").also { it.writeText(src) }
-            val parsed = analyzer.parseFile(path).single()
+            val parsed = analyzer.parseFile(path).types.single()
             parsed.description shouldBe ""
         }
 
@@ -54,7 +54,7 @@ class JavaSourceAnalyzerTest :
                 }
                 """.trimIndent()
             val path = Files.createTempFile("Outer", ".java").also { it.writeText(src) }
-            val parsed = analyzer.parseFile(path).map { it.name }
+            val parsed = analyzer.parseFile(path).types.map { it.name }
             parsed shouldBe listOf("Outer", "Inner")
         }
 
@@ -66,7 +66,7 @@ class JavaSourceAnalyzerTest :
                 public record UserSummary(String name, int age) {}
                 """.trimIndent()
             val path = Files.createTempFile("UserSummary", ".java").also { it.writeText(src) }
-            val parsed = analyzer.parseFile(path).single()
+            val parsed = analyzer.parseFile(path).types.single()
 
             parsed.name shouldBe "UserSummary"
             parsed.packagePath shouldBe "com.demo.model"
@@ -82,9 +82,11 @@ class JavaSourceAnalyzerTest :
             val path = Files.createTempFile("LegacyService", ".java")
             Files.write(path, src.toByteArray(StandardCharsets.UTF_16BE))
 
-            val parsed = analyzer.parseFile(path).single()
+            val parsed = analyzer.parseFile(path)
 
-            parsed.name shouldBe "LegacyService"
-            parsed.packagePath shouldBe "com.demo.legacy"
+            parsed.types.single().name shouldBe "LegacyService"
+            parsed.types.single().packagePath shouldBe "com.demo.legacy"
+            parsed.warnings.single().code shouldBe "SOURCE_ENCODING_FALLBACK"
+            parsed.warnings.single().context["charset"] shouldBe "UTF-16BE"
         }
     })

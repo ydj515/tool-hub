@@ -10,6 +10,7 @@ import com.toolhub.classdiagramgenerator.domain.ClassInfo
 import com.toolhub.classdiagramgenerator.domain.Module
 import com.toolhub.classdiagramgenerator.domain.OperationInfo
 import com.toolhub.classdiagramgenerator.domain.Program
+import com.toolhub.classdiagramgenerator.domain.Warning
 import com.toolhub.classdiagramgenerator.input.ModuleDescriptor
 import com.toolhub.classdiagramgenerator.input.ProjectDetector
 import com.toolhub.classdiagramgenerator.input.ZipExtractor
@@ -71,7 +72,7 @@ class JobOrchestrator(
         val modules = projectDetector.detect(inputDir, fallbackName = record.programName)
 
         stage(record, Stage.PARSING, PCT_PARSE)
-        val parsedModules = parseAll(modules)
+        val parsedModules = parseAll(record, modules)
 
         stage(record, Stage.CLASSIFYING, PCT_CLASSIFY)
         val classifiedModules = parsedModules.map { (md, types) -> classifyModule(md, types) }
@@ -86,6 +87,7 @@ class JobOrchestrator(
                 language = record.language,
                 generatedAt = ZonedDateTime.now(),
                 modules = finalModules,
+                warnings = record.warnings.toList(),
             )
 
         renderAll(record, program)
@@ -104,9 +106,17 @@ class JobOrchestrator(
         bus.complete(record.id)
     }
 
-    private fun parseAll(modules: List<ModuleDescriptor>): List<Pair<ModuleDescriptor, List<ParsedType>>> =
+    private fun parseAll(
+        record: JobRecord,
+        modules: List<ModuleDescriptor>,
+    ): List<Pair<ModuleDescriptor, List<ParsedType>>> =
         modules.map { md ->
-            val types = md.sourceFiles.flatMap { analyzer.parseFile(it) }
+            val types =
+                md.sourceFiles.flatMap { path ->
+                    val parsed = analyzer.parseFile(path)
+                    parsed.warnings.forEach { warning -> addWarning(record, warning) }
+                    parsed.types
+                }
             require(types.size <= props.analysis.maxClassesPerModule) {
                 "Module ${md.name} exceeds ${props.analysis.maxClassesPerModule} classes"
             }
@@ -199,6 +209,14 @@ class JobOrchestrator(
         percent: Int,
     ) {
         bus.publish(record.id, "stage", mapOf("stage" to stage.name, "percent" to percent))
+    }
+
+    private fun addWarning(
+        record: JobRecord,
+        warning: Warning,
+    ) {
+        record.warnings += warning
+        bus.publish(record.id, "warning", warning)
     }
 
     private fun handleFailure(

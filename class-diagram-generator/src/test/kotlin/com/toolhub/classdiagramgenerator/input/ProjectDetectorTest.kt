@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import kotlin.io.path.createDirectories
+import kotlin.io.path.name
 import kotlin.io.path.writeText
 
 class ProjectDetectorTest :
@@ -63,5 +64,20 @@ class ProjectDetectorTest :
             modules shouldHaveSize 1
             modules[0].name shouldBe "fb"
             modules[0].sourceFiles shouldHaveSize 1
+        }
+
+        "fallback scan ignores macOS metadata files" {
+            val root = Files.createTempDirectory("proj-")
+            root.resolve(".DS_Store").writeText("metadata")
+            root.resolve("Loose.java").writeText("class Loose {}")
+
+            val metadataDir = root.resolve("__MACOSX/src/main/java")
+            metadataDir.createDirectories()
+            metadataDir.resolve("._Loose.java").writeText("not a java source")
+
+            val modules = detector.detect(root, fallbackName = "fb")
+
+            modules shouldHaveSize 1
+            modules[0].sourceFiles.map { it.name } shouldBe listOf("Loose.java")
         }
     })
