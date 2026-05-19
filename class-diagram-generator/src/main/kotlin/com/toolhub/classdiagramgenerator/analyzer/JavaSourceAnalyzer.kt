@@ -34,6 +34,9 @@ data class ParsedType(
     val description: String,
     val attributes: List<ParsedAttribute>,
     val operations: List<ParsedOperation>,
+    val extendsNames: List<String> = emptyList(),
+    val implementsNames: List<String> = emptyList(),
+    val imports: List<String> = emptyList(),
 )
 
 data class ParsedSource(
@@ -53,8 +56,9 @@ class JavaSourceAnalyzer {
         val parsed = parseCompilationUnit(path)
         val unit = parsed.unit
         val pkg = unit.packageDeclaration.map { it.nameAsString }.orElse("")
+        val imports = unit.imports.map { it.nameAsString }
         val result = mutableListOf<ParsedType>()
-        unit.types.forEach { collect(it, pkg, result) }
+        unit.types.forEach { collect(it, pkg, imports, result) }
         return ParsedSource(types = result, warnings = parsed.warnings)
     }
 
@@ -92,15 +96,17 @@ class JavaSourceAnalyzer {
     private fun collect(
         type: TypeDeclaration<*>,
         pkg: String,
+        imports: List<String>,
         out: MutableList<ParsedType>,
     ) {
-        out.add(parseType(type, pkg))
-        type.members.filterIsInstance<TypeDeclaration<*>>().forEach { collect(it, pkg, out) }
+        out.add(parseType(type, pkg, imports))
+        type.members.filterIsInstance<TypeDeclaration<*>>().forEach { collect(it, pkg, imports, out) }
     }
 
     private fun parseType(
         type: TypeDeclaration<*>,
         pkg: String,
+        imports: List<String>,
     ): ParsedType {
         val attributes =
             type.fields.flatMap { field ->
@@ -120,13 +126,25 @@ class JavaSourceAnalyzer {
                     description = firstSentence(m.javadoc.orElse(null)),
                 )
             }
+        val (extendsNames, implementsNames) = parentNames(type)
         return ParsedType(
             name = type.nameAsString,
             packagePath = pkg,
             description = firstSentence(type.javadoc.orElse(null)),
             attributes = attributes,
             operations = operations,
+            extendsNames = extendsNames,
+            implementsNames = implementsNames,
+            imports = imports,
         )
+    }
+
+    private fun parentNames(type: TypeDeclaration<*>): Pair<List<String>, List<String>> {
+        val td = type as? com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+            ?: return emptyList<String>() to emptyList()
+        val ext = td.extendedTypes.map { it.nameAsString }
+        val impl = td.implementedTypes.map { it.nameAsString }
+        return ext to impl
     }
 
     private fun accessOf(node: NodeWithModifiers<*>): AccessModifier =

@@ -89,4 +89,44 @@ class JavaSourceAnalyzerTest :
             parsed.warnings.single().code shouldBe "SOURCE_ENCODING_FALLBACK"
             parsed.warnings.single().context["charset"] shouldBe "UTF-16BE"
         }
+
+        "extracts extends names" {
+            val tmp = kotlin.io.path.createTempFile(suffix = ".java")
+            tmp.toFile().writeText(
+                """
+                package com.demo;
+                import com.demo.base.BaseService;
+                public class UserService extends BaseService {}
+                """.trimIndent(),
+            )
+            val parsed = JavaSourceAnalyzer().parseFile(tmp)
+            parsed.types[0].extendsNames shouldBe listOf("BaseService")
+        }
+
+        "extracts implements names" {
+            val tmp = kotlin.io.path.createTempFile(suffix = ".java")
+            tmp.toFile().writeText(
+                """
+                package com.demo;
+                import java.io.Serializable;
+                public class User implements Serializable, Cloneable {}
+                """.trimIndent(),
+            )
+            val parsed = JavaSourceAnalyzer().parseFile(tmp)
+            parsed.types[0].implementsNames shouldBe listOf("Serializable", "Cloneable")
+        }
+
+        "extracts import statements" {
+            val tmp = kotlin.io.path.createTempFile(suffix = ".java")
+            tmp.toFile().writeText(
+                """
+                package com.demo;
+                import com.demo.base.BaseService;
+                import java.util.List;
+                public class Svc {}
+                """.trimIndent(),
+            )
+            val parsed = JavaSourceAnalyzer().parseFile(tmp)
+            parsed.types[0].imports shouldBe listOf("com.demo.base.BaseService", "java.util.List")
+        }
     })
