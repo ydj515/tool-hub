@@ -51,6 +51,7 @@ data class ClassInfo(
 data class Module(
     val name: String,
     val classes: List<ClassInfo>,
+    val relations: List<Relation> = emptyList(),
 )
 
 data class Program(
