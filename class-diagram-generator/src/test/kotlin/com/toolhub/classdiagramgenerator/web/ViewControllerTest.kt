@@ -81,6 +81,16 @@ class ViewControllerTest(
             mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001").andExpect { status { isOk() } }
         }
 
+        "GET /jobs/{id} renders progress hero, status card, and timeline shell" {
+            mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("data-progress-hero")) }
+                content { string(org.hamcrest.Matchers.containsString("data-progress-status")) }
+                content { string(org.hamcrest.Matchers.containsString("data-progress-timeline")) }
+                content { string(org.hamcrest.Matchers.containsString("data-progress-note")) }
+            }
+        }
+
         "GET /jobs/{id}/result renders localized labels for result page" {
             mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001/result").andExpect {
                 status { isOk() }

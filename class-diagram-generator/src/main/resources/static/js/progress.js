@@ -4,6 +4,7 @@ const bar = document.getElementById('bar');
 const warnings = document.getElementById('warnings');
 const progressPercent = document.getElementById('progressPercent');
 const progressStageLabels = window.__progressStageLabels ?? {};
+const progressUiLabels = window.__progressUiLabels ?? {};
 
 const stageToStep = {
     EXTRACTING: 'intake',
@@ -55,12 +56,26 @@ function appendAlert(parent, cls, text) {
     parent.appendChild(div);
 }
 
+function renderIdleState() {
+    if (!warnings) return;
+    warnings.replaceChildren();
+    const div = document.createElement('div');
+    div.className = 'mmu-info-card';
+    div.textContent = progressUiLabels.idle ?? '작업을 시작했고 다음 단계 이벤트를 기다리는 중입니다.';
+    warnings.appendChild(div);
+}
+
+renderIdleState();
+
 es.addEventListener('stage', (e) => applyProgress(parseEvent(e.data)));
 es.addEventListener('progress', (e) => applyProgress(parseEvent(e.data)));
 
 es.addEventListener('warning', (e) => {
     const data = parseEvent(e.data);
-    appendAlert(warnings, 'alert alert-warning', `${data.code}: ${data.message}`);
+    if (warnings.querySelector('.mmu-info-card')) {
+        warnings.replaceChildren();
+    }
+    appendAlert(warnings, 'mmu-warning-card', `${data.code}: ${data.message}`);
 });
 
 es.addEventListener('done', () => {
@@ -72,7 +87,7 @@ es.addEventListener('error', (e) => {
     if (e && e.data) {
         const data = parseEvent(e.data);
         warnings.replaceChildren();
-        appendAlert(warnings, 'alert alert-danger', `${data.code}: ${data.message}`);
+        appendAlert(warnings, 'mmu-warning-card', `${data.code}: ${data.message}`);
     }
     es.close();
 });

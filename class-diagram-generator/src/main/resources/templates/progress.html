@@ -47,9 +47,13 @@
         </div>
     </div>
 </nav>
-<main class="container page-shell">
-    <section class="hero-card hero-card-compact">
-        <h1 class="page-title" th:text="#{page.progress.title}"></h1>
+<main class="container mmu-shell">
+    <section class="mmu-hero-card mmu-progress-hero" data-progress-hero>
+        <p class="mmu-eyebrow" th:text="#{page.progress.section}">Progress</p>
+        <h1 class="page-title" th:text="#{page.progress.title}">진행 상태</h1>
+        <p class="mmu-hero-copy" th:text="#{page.progress.lead}">
+            업로드한 소스를 분석하고 산출물을 생성하는 중입니다.
+        </p>
         <div class="percent-hero mt-4">
             <strong id="progressPercent" class="percent-hero__value">0%</strong>
             <span id="stage" class="percent-hero__stage" th:text="#{page.progress.stage}">-</span>
@@ -57,31 +61,40 @@
         <div class="progress progress-lg mt-3">
             <div id="bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
         </div>
+        <p class="mmu-status-note mt-3 mb-0" data-progress-note th:text="#{page.progress.autoRedirect}">
+            완료되면 결과 화면으로 자동 이동합니다.
+        </p>
     </section>
-    <section class="surface-card mt-4">
-        <ol class="timeline" id="timeline" aria-label="pipeline timeline">
-            <li class="timeline__step" data-step="intake">
-                <span class="timeline__dot"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span>
-                <span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span>
-            </li>
-            <li class="timeline__step" data-step="analysis">
-                <span class="timeline__dot"><i class="bi bi-braces" aria-hidden="true"></i></span>
-                <span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span>
-            </li>
-            <li class="timeline__step" data-step="diagrams">
-                <span class="timeline__dot"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
-                <span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span>
-            </li>
-            <li class="timeline__step" data-step="rendering">
-                <span class="timeline__dot"><i class="bi bi-file-earmark-richtext" aria-hidden="true"></i></span>
-                <span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span>
-            </li>
-            <li class="timeline__step" data-step="packaging">
-                <span class="timeline__dot"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
-                <span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span>
-            </li>
-        </ol>
-        <div id="warnings" class="warning-stack mt-4"></div>
+    <section class="mmu-progress-layout mt-4">
+        <article class="mmu-surface-card" data-progress-timeline>
+            <h2 class="mmu-section-title" th:text="#{page.progress.pipeline}">처리 단계</h2>
+            <ol class="timeline mt-4" id="timeline" aria-label="pipeline timeline">
+                <li class="timeline__step" data-step="intake">
+                    <span class="timeline__dot"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span>
+                </li>
+                <li class="timeline__step" data-step="analysis">
+                    <span class="timeline__dot"><i class="bi bi-braces" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span>
+                </li>
+                <li class="timeline__step" data-step="diagrams">
+                    <span class="timeline__dot"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span>
+                </li>
+                <li class="timeline__step" data-step="rendering">
+                    <span class="timeline__dot"><i class="bi bi-file-earmark-richtext" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span>
+                </li>
+                <li class="timeline__step" data-step="packaging">
+                    <span class="timeline__dot"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span>
+                </li>
+            </ol>
+        </article>
+        <article class="mmu-surface-card" data-progress-status>
+            <h2 class="mmu-section-title" th:text="#{page.progress.statusTitle}">상태 안내</h2>
+            <div id="warnings" class="mmu-warning-stack mt-4"></div>
+        </article>
     </section>
 </main>
 <script th:inline="javascript">
@@ -98,6 +111,9 @@
         RENDERING_XLSX: /*[[#{page.progress.stage.renderingXlsx}]]*/ 'Rendering XLSX',
         RENDERING_MD: /*[[#{page.progress.stage.renderingMd}]]*/ 'Rendering Markdown',
         PACKAGING: /*[[#{page.progress.stage.packaging}]]*/ 'Packaging Results'
+    };
+    window.__progressUiLabels = {
+        idle: /*[[#{page.progress.statusIdle}]]*/ 'The job has started and is waiting for the next stage event'
     };
 </script>
 <script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js" th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
