@@ -243,8 +243,26 @@
 }
 
 @media (max-width: 575.98px) {
+    .mmu-topbar .container {
+        gap: 0.5rem;
+    }
+
     .mmu-page-context {
         display: none;
+    }
+
+    .mmu-toolbar {
+        gap: 0.35rem;
+    }
+
+    .mmu-hero-card,
+    .mmu-surface-card {
+        padding: 1.25rem;
+    }
+
+    .mmu-theme-toggle {
+        width: 2.5rem;
+        height: 2.5rem;
     }
 }
 

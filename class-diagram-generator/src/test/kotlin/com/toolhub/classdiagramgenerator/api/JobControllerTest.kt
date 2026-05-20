@@ -1,7 +1,7 @@
 package com.toolhub.classdiagramgenerator.api
 
-import com.toolhub.classdiagramgenerator.domain.Warning
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
+import com.toolhub.classdiagramgenerator.domain.Warning
 import com.toolhub.classdiagramgenerator.job.ArtifactRecord
 import com.toolhub.classdiagramgenerator.job.JobRecord
 import com.toolhub.classdiagramgenerator.job.JobStatus
