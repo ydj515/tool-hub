@@ -66,6 +66,17 @@ class ViewControllerTest(
             }
         }
 
+        "GET / renders grouped upload cards and upload action hint" {
+            mockMvc.get("/?lang=ko").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-section=\"project\"")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-section=\"options\"")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-section=\"source\"")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-action-hint")) }
+                content { string(org.hamcrest.Matchers.containsString("data-upload-dropzone")) }
+            }
+        }
+
         "GET /jobs/{id} returns 200" {
             mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001").andExpect { status { isOk() } }
         }

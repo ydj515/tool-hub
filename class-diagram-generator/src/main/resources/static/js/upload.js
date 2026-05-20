@@ -25,16 +25,16 @@ if (form) {
         if (filename) filename.textContent = file ? file.name : emptyLabel;
         if (sizeEl) sizeEl.textContent = file ? formatBytes(file.size) : '';
         if (!dropzone) return;
-        if (file && isZipFile(file)) {
-            dropzone.classList.add('is-selected');
-        } else {
-            dropzone.classList.remove('is-selected');
-        }
+        const selected = Boolean(file && isZipFile(file));
+        dropzone.classList.toggle('is-selected', selected);
+        dropzone.classList.toggle('is-invalid', Boolean(file) && !selected);
     };
 
     const syncValidity = (file) => {
-        if (!fileInput) return;
-        fileInput.setCustomValidity(file && !isZipFile(file) ? invalidTypeMessage : '');
+        if (!fileInput || !dropzone) return;
+        const invalid = Boolean(file && !isZipFile(file));
+        fileInput.setCustomValidity(invalid ? invalidTypeMessage : '');
+        dropzone.classList.toggle('is-invalid', invalid);
     };
 
     const assignFile = (file) => {
