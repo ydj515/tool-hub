@@ -224,6 +224,24 @@
     background: color-mix(in srgb, rgba(245, 158, 11, 0.08) 40%, var(--mmu-surface-strong));
 }
 
+.mmu-warning-card__code {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.9rem;
+}
+
+.mmu-warning-card__message {
+    margin: 0;
+    color: var(--mmu-text-muted);
+    line-height: 1.6;
+}
+
+.mmu-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
 @media (max-width: 575.98px) {
     .mmu-page-context {
         display: none;
@@ -264,6 +282,10 @@
 }
 
 @media (max-width: 767.98px) {
+    .mmu-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
     .mmu-upload-submit .btn {
         width: 100%;
     }

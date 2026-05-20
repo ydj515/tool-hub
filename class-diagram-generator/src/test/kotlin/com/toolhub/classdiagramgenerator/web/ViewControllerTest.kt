@@ -103,6 +103,16 @@ class ViewControllerTest(
             }
         }
 
+        "GET /jobs/{id}/result renders summary cards and warning container" {
+            mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001/result").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("id=\"createdAt\"")) }
+                content { string(org.hamcrest.Matchers.containsString("id=\"expiresAt\"")) }
+                content { string(org.hamcrest.Matchers.containsString("id=\"artifactCount\"")) }
+                content { string(org.hamcrest.Matchers.containsString("id=\"resultWarnings\"")) }
+            }
+        }
+
         "GET /webjars/bootstrap/dist/css/bootstrap.min.css returns 200" {
             mockMvc.get("/webjars/bootstrap/dist/css/bootstrap.min.css").andExpect { status { isOk() } }
         }

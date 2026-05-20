@@ -58,6 +58,27 @@ function buildArtifactCard(a) {
     return card;
 }
 
+function renderWarnings(list) {
+    const section = document.getElementById('resultWarnings');
+    const container = document.getElementById('resultWarningsList');
+    if (!section || !container) return;
+    if (!list.length) {
+        section.hidden = true;
+        container.replaceChildren();
+        return;
+    }
+
+    section.hidden = false;
+    container.replaceChildren();
+    list.forEach((warning) => {
+        const card = el('article', 'mmu-warning-card');
+        const title = el('strong', 'mmu-warning-card__code', warning.code ?? '');
+        const body = el('p', 'mmu-warning-card__message', warning.message ?? '');
+        card.append(title, body);
+        container.appendChild(card);
+    });
+}
+
 async function load() {
     const res = await fetch(`/api/v1/jobs/${jobId}/result`);
     if (!res.ok) {
@@ -66,8 +87,10 @@ async function load() {
         return;
     }
     const data = await res.json();
+    document.getElementById('createdAt').textContent = formatDate(data.createdAt);
     document.getElementById('expiresAt').textContent = formatDate(data.expiresAt);
     document.getElementById('artifactCount').textContent = String(data.artifacts.length);
+    renderWarnings(data.warnings ?? []);
     const grid = document.getElementById('artifacts');
     grid.replaceChildren();
     data.artifacts.forEach((a) => grid.appendChild(buildArtifactCard(a)));
