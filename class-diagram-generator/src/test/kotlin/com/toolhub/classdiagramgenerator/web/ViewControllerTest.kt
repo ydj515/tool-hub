@@ -54,6 +54,18 @@ class ViewControllerTest(
             }
         }
 
+        "GET / renders modern UI assets and theme toggle shell" {
+            mockMvc.get("/?lang=en").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("/css/mmu/tokens.css")) }
+                content { string(org.hamcrest.Matchers.containsString("/css/mmu/components.css")) }
+                content { string(org.hamcrest.Matchers.containsString("/js/theme.js")) }
+                content { string(org.hamcrest.Matchers.containsString("mmu-body")) }
+                content { string(org.hamcrest.Matchers.containsString("mmu-topbar")) }
+                content { string(org.hamcrest.Matchers.containsString("data-theme-toggle")) }
+            }
+        }
+
         "GET /jobs/{id} returns 200" {
             mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001").andExpect { status { isOk() } }
         }

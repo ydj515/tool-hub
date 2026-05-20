@@ -2,16 +2,49 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <script>
+        (function () {
+            const stored = localStorage.getItem('cdg-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = stored ?? (systemDark ? 'dark' : 'light');
+        }());
+    </script>
     <title th:text="#{page.progress.title}">Progress</title>
     <link rel="icon" href="/favicon.ico" th:href="@{/favicon.ico}">
     <link rel="stylesheet" href="/webjars/bootstrap/dist/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
     <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+    <link rel="stylesheet" href="/css/mmu/tokens.css" th:href="@{/css/mmu/tokens.css}">
+    <link rel="stylesheet" href="/css/mmu/components.css" th:href="@{/css/mmu/components.css}">
     <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
 </head>
-<body>
-<nav class="navbar navbar-expand navbar-light border-bottom app-navbar">
+<body class="mmu-body">
+<nav class="navbar navbar-expand mmu-topbar app-navbar">
     <div class="container">
         <a class="navbar-brand" href="/">class-diagram-generator</a>
+        <span class="mmu-page-context" th:text="#{page.progress.title}">Progress</span>
+        <div class="mmu-toolbar">
+            <div class="lang-toggle" role="group" aria-label="Locale selector">
+                <a
+                    href="?lang=ko"
+                    class="lang-toggle__option"
+                    data-lang-option="ko"
+                    th:attr="data-active=${#locale.language == 'ko'}"
+                    th:classappend="${#locale.language == 'ko'} ? ' is-active' : ''">KO</a>
+                <a
+                    href="?lang=en"
+                    class="lang-toggle__option"
+                    data-lang-option="en"
+                    th:attr="data-active=${#locale.language == 'en'}"
+                    th:classappend="${#locale.language == 'en'} ? ' is-active' : ''">EN</a>
+            </div>
+            <button
+                type="button"
+                class="mmu-theme-toggle"
+                data-theme-toggle
+                th:attr="data-theme-label-light=#{page.theme.light},data-theme-label-dark=#{page.theme.dark}">
+                <i class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
 </nav>
 <main class="container page-shell">
@@ -68,6 +101,7 @@
     };
 </script>
 <script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js" th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script src="/js/theme.js" th:src="@{/js/theme.js}"></script>
 <script src="/js/progress.js" th:src="@{/js/progress.js}"></script>
 </body>
 </html>

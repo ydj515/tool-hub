@@ -1,0 +1,99 @@
+.mmu-body {
+    min-height: 100vh;
+    font-family: var(--mmu-font-sans);
+    background:
+        radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 34%),
+        linear-gradient(180deg, #fbfcff 0%, var(--mmu-bg) 100%);
+    color: var(--mmu-text);
+}
+
+.mmu-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: color-mix(in srgb, var(--mmu-surface-strong) 82%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--mmu-border);
+}
+
+.mmu-topbar .container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mmu-shell {
+    padding-top: var(--mmu-space-8);
+    padding-bottom: calc(var(--mmu-space-8) * 1.5);
+}
+
+.mmu-page-context {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--mmu-text-muted);
+    white-space: nowrap;
+}
+
+.mmu-hero-card,
+.mmu-surface-card,
+.mmu-meta-card {
+    border: 1px solid var(--mmu-border);
+    background: var(--mmu-surface);
+    border-radius: var(--mmu-radius-xl);
+    box-shadow: var(--mmu-shadow-soft);
+}
+
+.mmu-hero-card {
+    padding: 2rem;
+}
+
+.mmu-surface-card {
+    padding: 1.5rem;
+}
+
+.mmu-meta-card {
+    padding: 1rem 1.125rem;
+}
+
+.mmu-toolbar {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mmu-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--mmu-border);
+    border-radius: 999px;
+    background: var(--mmu-surface-strong);
+    color: var(--mmu-text);
+    box-shadow: var(--mmu-shadow-soft);
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease,
+        color 0.18s ease;
+}
+
+.mmu-theme-toggle:hover,
+.mmu-theme-toggle:focus-visible {
+    border-color: rgba(99, 102, 241, 0.32);
+    color: var(--mmu-accent);
+    transform: translateY(-1px);
+}
+
+.mmu-theme-toggle[data-theme-state="dark"] .bi::before {
+    content: "\f1d1";
+}
+
+@media (max-width: 575.98px) {
+    .mmu-page-context {
+        display: none;
+    }
+}
