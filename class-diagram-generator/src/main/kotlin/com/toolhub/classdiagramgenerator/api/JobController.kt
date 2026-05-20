@@ -103,6 +103,7 @@ class JobController(
             }
         return JobResultResponse(
             jobId = id,
+            createdAt = rec.createdAt,
             expiresAt = rec.expiresAt,
             warnings = rec.warnings,
             artifacts = artifacts,

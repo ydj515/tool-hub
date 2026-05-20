@@ -27,6 +27,7 @@ data class JobRecord(
     val includeDiagrams: Boolean,
     var status: JobStatus,
     val workDir: Path,
+    val createdAt: Instant = Instant.now(),
     var expiresAt: Instant? = null,
     val artifacts: MutableList<ArtifactRecord> = mutableListOf(),
     val warnings: MutableList<Warning> = mutableListOf(),

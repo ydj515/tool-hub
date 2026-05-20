@@ -1,5 +1,6 @@
 package com.toolhub.classdiagramgenerator.api
 
+import com.toolhub.classdiagramgenerator.domain.Warning
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.job.ArtifactRecord
 import com.toolhub.classdiagramgenerator.job.JobRecord
@@ -107,6 +108,51 @@ class JobControllerTest(
                 status { isOk() }
                 jsonPath("$.artifacts[0].sizeBytes") { value(1536) }
                 jsonPath("$.artifacts[0].sizeLabel") { value("1.5 KB") }
+            }
+        }
+
+        "GET /api/v1/jobs/{id}/result includes createdAt and warnings for summary cards" {
+            val jobId = UUID.randomUUID()
+            val workDir = Files.createTempDirectory("job-result-summary-test")
+            val artifactPath = workDir.resolve("artifact.txt")
+            Files.write(artifactPath, ByteArray(1536) { 'a'.code.toByte() })
+
+            jobStore.create(
+                JobRecord(
+                    id = jobId,
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("md"),
+                    includeDiagrams = false,
+                    status = JobStatus.DONE,
+                    workDir = workDir,
+                    expiresAt = Instant.parse("2026-05-19T06:00:00Z"),
+                    warnings =
+                        mutableListOf(
+                            Warning(
+                                code = "SOURCE_ENCODING_FALLBACK",
+                                message = "UTF-16BE source decoded with fallback",
+                            ),
+                        ),
+                    artifacts =
+                        mutableListOf(
+                            ArtifactRecord(
+                                module = "demo",
+                                format = "md",
+                                filename = "artifact.txt",
+                                path = artifactPath,
+                                sizeBytes = 1536,
+                            ),
+                        ),
+                ),
+            )
+
+            mockMvc.get("/api/v1/jobs/$jobId/result").andExpect {
+                status { isOk() }
+                jsonPath("$.createdAt") { exists() }
+                jsonPath("$.warnings[0].code") { value("SOURCE_ENCODING_FALLBACK") }
+                jsonPath("$.warnings[0].message") { value("UTF-16BE source decoded with fallback") }
             }
         }
     })

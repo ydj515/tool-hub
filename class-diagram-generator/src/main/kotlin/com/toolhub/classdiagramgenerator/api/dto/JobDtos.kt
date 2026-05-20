@@ -22,6 +22,7 @@ data class ArtifactSummary(
 
 data class JobResultResponse(
     val jobId: UUID,
+    val createdAt: Instant,
     val expiresAt: Instant?,
     val warnings: List<Warning>,
     val artifacts: List<ArtifactSummary>,
