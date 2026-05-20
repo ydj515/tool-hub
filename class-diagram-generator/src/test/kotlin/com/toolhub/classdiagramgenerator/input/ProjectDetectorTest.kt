@@ -45,6 +45,28 @@ class ProjectDetectorTest :
             modules shouldBe listOf("app", "core")
         }
 
+        "detects all modules from Kotlin DSL include list" {
+            val root = Files.createTempDirectory("proj-kts-")
+            root.resolve("settings.gradle.kts").writeText(
+                """
+                rootProject.name = "parent"
+                include("app", "core")
+                """.trimIndent(),
+            )
+            listOf("app", "core").forEach { name ->
+                val mod = root.resolve(name)
+                mod.createDirectories()
+                mod.resolve("build.gradle.kts").writeText("// noop")
+                val src = mod.resolve("src/main/java")
+                src.createDirectories()
+                src.resolve("X.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb").map { it.name }.sorted()
+
+            modules shouldBe listOf("app", "core")
+        }
+
         "detects Maven module via pom.xml" {
             val root = Files.createTempDirectory("proj-")
             root.resolve("pom.xml").writeText(

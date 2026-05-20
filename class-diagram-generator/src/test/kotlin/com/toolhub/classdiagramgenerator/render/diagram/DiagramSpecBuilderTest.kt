@@ -85,18 +85,75 @@ class DiagramSpecBuilderTest :
             val specs = builder.build(module)
             specs.any { it.scope == DiagramScope.LAYER && it.key == "layer-controller" } shouldBe false
         }
+
+        "unresolved internal target uses a consistent external node id" {
+            val module =
+                Module(
+                    name = "core",
+                    classes = listOf(cls("CLS-0001", "UserService", Layer.SERVICE)),
+                    relations =
+                        listOf(
+                            Relation("CLS-0001", TypeRef("BaseService", "com.missing.BaseService", false), RelationKind.EXTENDS),
+                        ),
+                )
+
+            val spec = builder.build(module).single { it.scope == DiagramScope.CLASS && it.key == "class-CLS-0001" }
+            val externalNode = spec.nodes.single { it.external }
+
+            spec.edges.single().toId shouldBe externalNode.id
+        }
+
+        "layer diagram includes an external fallback node for unresolved internal targets" {
+            val module =
+                Module(
+                    name = "core",
+                    classes = listOf(cls("CLS-0001", "UserService", Layer.SERVICE)),
+                    relations =
+                        listOf(
+                            Relation("CLS-0001", TypeRef("BaseService", "com.missing.BaseService", false), RelationKind.EXTENDS),
+                        ),
+                )
+
+            val spec = builder.build(module).single { it.scope == DiagramScope.LAYER && it.key == "layer-service" }
+            val externalNode = spec.nodes.single { it.external }
+
+            spec.edges.single().toId shouldBe externalNode.id
+        }
+
+        "ambiguous internal simple-name fallback does not bind to an arbitrary class" {
+            val module =
+                Module(
+                    name = "core",
+                    classes =
+                        listOf(
+                            cls("CLS-0001", "Caller", Layer.SERVICE),
+                            cls("CLS-0002", "Helper", Layer.SERVICE, "com.demo.a"),
+                            cls("CLS-0003", "Helper", Layer.MODEL, "com.demo.b"),
+                        ),
+                    relations =
+                        listOf(
+                            Relation("CLS-0001", TypeRef("Helper", null, false), RelationKind.EXTENDS),
+                        ),
+                )
+
+            val spec = builder.build(module).single { it.scope == DiagramScope.CLASS && it.key == "class-CLS-0001" }
+
+            spec.nodes.single { it.external }.displayName shouldBe "Helper"
+            spec.edges.single().toId shouldBe spec.nodes.single { it.external }.id
+        }
     })
 
 private fun cls(
     id: String,
     name: String,
     layer: Layer,
+    pkg: String = "com.demo",
 ) = ClassInfo(
     id = id,
     name = name,
     layer = layer,
     description = "",
-    packagePath = "com.demo",
+    packagePath = pkg,
     attributes = emptyList<AttributeInfo>(),
     operations = emptyList(),
 )

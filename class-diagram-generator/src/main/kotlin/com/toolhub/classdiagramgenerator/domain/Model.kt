@@ -12,7 +12,7 @@ enum class OutputLanguage(
     companion object {
         fun parse(value: String): OutputLanguage =
             entries.firstOrNull { it.code.equals(value, ignoreCase = true) }
-                ?: error("Unsupported language: $value")
+                ?: throw IllegalArgumentException("Unsupported language: $value")
     }
 }
 

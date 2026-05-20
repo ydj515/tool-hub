@@ -42,6 +42,32 @@ class JobOrchestratorTest(
             final.warnings.single().code shouldBe "SOURCE_ENCODING_FALLBACK"
             final.artifacts shouldHaveSize 3
         }
+
+        "artifact filenames are sanitized and stay within the output directory" {
+            val bytes = buildJavaZip()
+            val file = MockMultipartFile("file", "x.zip", "application/zip", bytes)
+
+            val rec = service.submit("demo/../../oops", "../v1.0", OutputLanguage.KO, listOf("md"), true, file)
+
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+
+            final.status shouldBe JobStatus.DONE
+            final.artifacts shouldHaveSize 1
+            final.artifacts
+                .single()
+                .filename
+                .contains('/') shouldBe false
+            final.artifacts
+                .single()
+                .filename
+                .contains('\\') shouldBe false
+            final.artifacts
+                .single()
+                .path
+                .normalize()
+                .startsWith(final.workDir.resolve("output").normalize()) shouldBe true
+        }
     })
 
 private fun waitForCompletion(

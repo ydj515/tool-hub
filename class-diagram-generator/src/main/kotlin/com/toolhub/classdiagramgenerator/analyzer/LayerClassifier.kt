@@ -27,7 +27,7 @@ class LayerClassifier {
         packagePath: String,
     ): Layer {
         val remainder =
-            if (basePackage.isEmpty() || !packagePath.startsWith(basePackage)) {
+            if (basePackage.isEmpty() || !matchesBasePackage(basePackage, packagePath)) {
                 packagePath
             } else {
                 packagePath.removePrefix(basePackage).trimStart('.')
@@ -35,6 +35,11 @@ class LayerClassifier {
         val firstSegment = remainder.substringBefore('.').lowercase()
         return mapping[firstSegment] ?: Layer.ETC
     }
+
+    private fun matchesBasePackage(
+        basePackage: String,
+        packagePath: String,
+    ): Boolean = packagePath == basePackage || packagePath.startsWith("$basePackage.")
 
     fun commonBasePackage(packages: Collection<String>): String {
         if (packages.isEmpty()) return ""

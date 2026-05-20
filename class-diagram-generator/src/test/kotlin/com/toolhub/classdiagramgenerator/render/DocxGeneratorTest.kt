@@ -1,5 +1,6 @@
 package com.toolhub.classdiagramgenerator.render
 
+import com.toolhub.classdiagramgenerator.config.AppProperties
 import com.toolhub.classdiagramgenerator.domain.AccessModifier
 import com.toolhub.classdiagramgenerator.domain.AttributeInfo
 import com.toolhub.classdiagramgenerator.domain.ClassInfo
@@ -17,12 +18,13 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.util.zip.ZipInputStream
 
 class DocxGeneratorTest :
     StringSpec({
-        val gen = DocxGenerator()
+        val gen = DocxGenerator(testAppProperties())
         val program =
             Program(
                 name = "demo",
@@ -155,7 +157,27 @@ class DocxGeneratorTest :
             documentXml shouldContain "<w:sectPr"
             documentXml shouldContain "<w:tblW w:w=\"5000\" w:type=\"pct\""
         }
+
+        "docx uses configured font family in generated runs" {
+            val customFont = "Noto Sans KR"
+            val out = ByteArrayOutputStream()
+            DocxGenerator(testAppProperties(customFont)).render(program, program.modules[0], DiagramArtifactIndex.EMPTY, out)
+
+            val documentXml = unzipEntry(out.toByteArray(), "word/document.xml")
+
+            documentXml shouldContain customFont
+        }
     })
+
+private fun testAppProperties(fontFamily: String = "Malgun Gothic"): AppProperties =
+    AppProperties(
+        workdir = Path.of(System.getProperty("java.io.tmpdir"), "class-diagram-generator-docx-test"),
+        job = AppProperties.Job(),
+        upload = AppProperties.Upload(),
+        analysis = AppProperties.Analysis(),
+        diagrams = AppProperties.Diagrams(),
+        render = AppProperties.Render(docx = AppProperties.Render.Docx(fontFamily = fontFamily)),
+    )
 
 private fun minimalPng(): ByteArray {
     val resource = DocxGeneratorTest::class.java.classLoader.getResourceAsStream("fixtures/diagram/minimal.png")

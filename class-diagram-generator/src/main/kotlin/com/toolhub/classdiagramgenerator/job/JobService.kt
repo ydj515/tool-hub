@@ -1,9 +1,12 @@
 package com.toolhub.classdiagramgenerator.job
 
+import com.toolhub.classdiagramgenerator.config.AppProperties
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
 import com.toolhub.classdiagramgenerator.storage.OutputStorage
+import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Executors
 import kotlin.io.path.createDirectories
@@ -13,6 +16,7 @@ class JobService(
     private val store: JobStore,
     private val storage: OutputStorage,
     private val orchestrator: JobOrchestrator,
+    private val props: AppProperties,
 ) {
     private val executor = Executors.newVirtualThreadPerTaskExecutor()
 
@@ -25,6 +29,9 @@ class JobService(
         file: MultipartFile,
     ): JobRecord {
         require(formats.isNotEmpty()) { "formats must not be empty" }
+        require(file.size <= props.upload.maxFileSizeMb * BYTES_PER_MB) {
+            "Upload exceeds app limit of ${props.upload.maxFileSizeMb} MB"
+        }
         val id = UUID.randomUUID()
         val workDir = storage.jobDir(id).createDirectories()
         storage.inputDir(id).createDirectories()
@@ -40,11 +47,29 @@ class JobService(
                 status = JobStatus.PENDING,
                 workDir = workDir,
             )
+        val uploadZip = storage.uploadZip(id)
+        try {
+            file.transferTo(uploadZip.toFile())
+        } catch (e: IOException) {
+            storage.cleanup(id)
+            throw e
+        } catch (e: IllegalStateException) {
+            storage.cleanup(id)
+            throw e
+        }
         store.create(record)
-        val bytes = file.bytes
         executor.submit {
-            orchestrator.run(record, bytes)
+            orchestrator.run(record, uploadZip)
         }
         return record
+    }
+
+    @PreDestroy
+    fun shutdownExecutor() {
+        executor.close()
+    }
+
+    companion object {
+        private const val BYTES_PER_MB = 1024L * 1024L
     }
 }

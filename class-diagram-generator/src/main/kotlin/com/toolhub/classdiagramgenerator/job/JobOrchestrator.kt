@@ -22,7 +22,8 @@ import com.toolhub.classdiagramgenerator.storage.OutputStorage
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.stereotype.Component
-import java.io.ByteArrayInputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -50,11 +51,11 @@ class JobOrchestrator(
 
     fun run(
         record: JobRecord,
-        zipBytes: ByteArray,
+        uploadZip: Path,
     ) {
         MDC.put("jobId", record.id.toString())
         try {
-            executePipeline(record, zipBytes)
+            executePipeline(record, uploadZip)
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
@@ -66,13 +67,15 @@ class JobOrchestrator(
 
     private fun executePipeline(
         record: JobRecord,
-        zipBytes: ByteArray,
+        uploadZip: Path,
     ) {
         record.status = JobStatus.RUNNING
         val inputDir = storage.inputDir(record.id)
 
         stage(record, Stage.EXTRACTING, PCT_EXTRACT)
-        zipExtractor.extract(ByteArrayInputStream(zipBytes), inputDir)
+        Files.newInputStream(uploadZip).use { input ->
+            zipExtractor.extract(input, inputDir)
+        }
 
         stage(record, Stage.DETECTING_MODULES, PCT_DETECT)
         val modules = projectDetector.detect(inputDir, fallbackName = record.programName)
@@ -207,7 +210,7 @@ class JobOrchestrator(
         program.modules.forEach { module ->
             val moduleToken = if (program.modules.size == 1) null else module.name
             val filename = buildFilename(record, moduleToken, format)
-            val target = outDir.resolve(filename)
+            val target = resolveOutputTarget(outDir, filename)
             target.outputStream().use { gen.render(program, module, diagrams, it) }
             record.artifacts +=
                 ArtifactRecord(
@@ -225,16 +228,33 @@ class JobOrchestrator(
         module: String?,
         format: String,
     ): String {
-        val parts = mutableListOf("class-design", record.programName)
-        if (module != null) parts += sanitizeModule(module)
-        parts += record.version
+        val parts = mutableListOf("class-design", sanitizeFilenameToken(record.programName, "program"))
+        if (module != null) parts += sanitizeFilenameToken(module, "module")
+        parts += sanitizeFilenameToken(record.version, "version")
         parts += ZonedDateTime.now().format(timestamp)
         return parts.joinToString("_") + "." + format
     }
 
-    private fun sanitizeModule(name: String): String {
-        val cleaned = name.replace(Regex("[^A-Za-z0-9._-]"), "-")
-        return cleaned.ifBlank { "module" }
+    private fun sanitizeFilenameToken(
+        value: String,
+        fallback: String,
+    ): String {
+        val cleaned =
+            value
+                .replace(Regex("[^A-Za-z0-9._-]"), "-")
+                .replace(Regex("""\.\.+"""), ".")
+                .trim('.', '-', '_')
+        return cleaned.ifBlank { fallback }
+    }
+
+    private fun resolveOutputTarget(
+        outDir: Path,
+        filename: String,
+    ): Path {
+        val normalizedOutDir = outDir.toAbsolutePath().normalize()
+        val target = normalizedOutDir.resolve(filename).normalize()
+        require(target.startsWith(normalizedOutDir)) { "Artifact path escapes output directory: $filename" }
+        return target
     }
 
     private fun stage(

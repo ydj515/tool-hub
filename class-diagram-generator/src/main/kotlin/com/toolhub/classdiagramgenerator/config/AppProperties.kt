@@ -12,6 +12,7 @@ data class AppProperties(
     val upload: Upload,
     val analysis: Analysis,
     val diagrams: Diagrams = Diagrams(),
+    val render: Render = Render(),
 ) {
     data class Job(
         val maxConcurrent: Int = 4,
@@ -32,6 +33,14 @@ data class AppProperties(
         val parallelism: Int = 0,
         val maxBytesPerPng: Long = 5_242_880L,
     )
+
+    data class Render(
+        val docx: Docx = Docx(),
+    ) {
+        data class Docx(
+            val fontFamily: String = "Malgun Gothic",
+        )
+    }
 }
 
 @Configuration

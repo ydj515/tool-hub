@@ -115,6 +115,73 @@ class RelationExtractorTest :
                 .target.external shouldBe true
             result.warnings.map { it.code } shouldContain "AMBIGUOUS_TYPE_REF"
         }
+
+        "same-package candidate wins over other internal simple-name matches" {
+            val parsed =
+                listOf(
+                    ParsedType(
+                        name = "Caller",
+                        packagePath = "com.demo.api",
+                        description = "",
+                        attributes = emptyList(),
+                        operations = emptyList(),
+                        extendsNames = listOf("Helper"),
+                        implementsNames = emptyList(),
+                    ),
+                    ParsedType("Helper", "com.demo.api", "", emptyList(), emptyList()),
+                    ParsedType("Helper", "com.demo.shared", "", emptyList(), emptyList()),
+                )
+            val classes =
+                listOf(
+                    classInfo("CLS-0001", "Caller", "com.demo.api"),
+                    classInfo("CLS-0002", "Helper", "com.demo.api"),
+                    classInfo("CLS-0003", "Helper", "com.demo.shared"),
+                )
+
+            val result = ex.extract(parsed, classes)
+
+            result.warnings shouldHaveSize 0
+            result.relations
+                .single()
+                .target.fqn shouldBe "com.demo.api.Helper"
+            result.relations
+                .single()
+                .target.external shouldBe false
+        }
+
+        "imported internal candidate wins when multiple simple-name matches exist" {
+            val parsed =
+                listOf(
+                    ParsedType(
+                        name = "Caller",
+                        packagePath = "com.demo.api",
+                        description = "",
+                        attributes = emptyList(),
+                        operations = emptyList(),
+                        extendsNames = listOf("Helper"),
+                        implementsNames = emptyList(),
+                        imports = listOf("com.demo.shared.Helper"),
+                    ),
+                    ParsedType("Helper", "com.demo.other", "", emptyList(), emptyList()),
+                    ParsedType("Helper", "com.demo.shared", "", emptyList(), emptyList()),
+                )
+            val classes =
+                listOf(
+                    classInfo("CLS-0001", "Caller", "com.demo.api"),
+                    classInfo("CLS-0002", "Helper", "com.demo.other"),
+                    classInfo("CLS-0003", "Helper", "com.demo.shared"),
+                )
+
+            val result = ex.extract(parsed, classes)
+
+            result.warnings shouldHaveSize 0
+            result.relations
+                .single()
+                .target.fqn shouldBe "com.demo.shared.Helper"
+            result.relations
+                .single()
+                .target.external shouldBe false
+        }
     })
 
 private fun classInfo(

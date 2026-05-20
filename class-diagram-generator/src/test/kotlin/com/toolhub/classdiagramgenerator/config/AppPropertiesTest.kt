@@ -19,4 +19,7 @@ class AppPropertiesTest(
         "max classes per module is 5000" {
             props.analysis.maxClassesPerModule shouldBe 5000
         }
+        "default docx font family is configurable" {
+            props.render.docx.fontFamily shouldBe "Malgun Gothic"
+        }
     })

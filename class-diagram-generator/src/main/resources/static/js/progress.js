@@ -46,7 +46,7 @@ function applyProgress(payload) {
 }
 
 function parseEvent(data) {
-    try { return JSON.parse(JSON.parse(data)); } catch (_) { return JSON.parse(data); }
+    return JSON.parse(data);
 }
 
 function appendAlert(parent, cls, text) {

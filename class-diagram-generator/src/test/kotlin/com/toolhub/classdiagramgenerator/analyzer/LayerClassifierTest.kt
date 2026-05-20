@@ -29,6 +29,9 @@ class LayerClassifierTest :
         "empty base means full path" {
             classifier.classify("", "service.user") shouldBe Layer.SERVICE
         }
+        "base package prefix match respects segment boundary" {
+            classifier.classify("com.foo", "com.fooservice.util") shouldBe Layer.ETC
+        }
         "commonBasePackage computes prefix" {
             classifier.commonBasePackage(listOf("com.demo.a", "com.demo.b.c")) shouldBe "com.demo"
         }

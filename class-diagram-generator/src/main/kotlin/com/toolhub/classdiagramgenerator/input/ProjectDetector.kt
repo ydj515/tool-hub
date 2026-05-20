@@ -83,9 +83,22 @@ class ProjectDetector {
             path.name == ".DS_Store" ||
             path.name.startsWith("._")
 
-    private val includeRegex = Regex("""include\s*[(\s'"]+([^'")]+)[\s'")]+""")
-
-    private fun parseGradleIncludes(content: String): List<String> = includeRegex.findAll(content).map { it.groupValues[1] }.toList()
+    private fun parseGradleIncludes(content: String): List<String> =
+        includeCallRegex
+            .findAll(content)
+            .flatMap { match ->
+                val args = match.groups[1]?.value ?: match.groups[2]?.value.orEmpty()
+                quotedTokenRegex.findAll(args).map { token -> token.groupValues[1] }
+            }.toList()
 
     private fun parseMavenArtifactId(xml: String): String? = Regex("""<artifactId>([^<]+)</artifactId>""").find(xml)?.groupValues?.get(1)
+
+    companion object {
+        private val includeCallRegex =
+            Regex(
+                """include\s*\((.*?)\)|include\s+([^\r\n]+)""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        private val quotedTokenRegex = Regex("""['"]([^'"]+)['"]""")
+    }
 }

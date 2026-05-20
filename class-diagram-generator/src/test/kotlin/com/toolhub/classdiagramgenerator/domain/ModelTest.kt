@@ -1,5 +1,6 @@
 package com.toolhub.classdiagramgenerator.domain
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.ZonedDateTime
@@ -39,5 +40,11 @@ class ModelTest :
         "OutputLanguage.parse accepts case insensitive code" {
             OutputLanguage.parse("ko") shouldBe OutputLanguage.KO
             OutputLanguage.parse("EN") shouldBe OutputLanguage.EN
+        }
+
+        "OutputLanguage.parse rejects invalid code with IllegalArgumentException" {
+            shouldThrow<IllegalArgumentException> {
+                OutputLanguage.parse("jp")
+            }
         }
     })

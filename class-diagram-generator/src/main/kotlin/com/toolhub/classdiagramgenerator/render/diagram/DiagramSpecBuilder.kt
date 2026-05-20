@@ -26,15 +26,16 @@ class DiagramSpecBuilder {
             if (members.isEmpty()) return@mapNotNull null
             val memberIds = members.map { it.id }.toSet()
             val relations = module.relations.filter { it.sourceClassId in memberIds }
-            val internalTargets =
-                relations
-                    .filter { !it.target.external }
-                    .mapNotNull { findInternalTarget(it.target, byId) }
-                    .map { nodeForInternal(it) }
-            val externalNodes = relations.filter { it.target.external }.map { it.target }.distinctBy { it.fqn ?: it.simpleName }
             val internalNodes = members.map { nodeForInternal(it) }
-            val externals = externalNodes.map { nodeForExternal(it) }
-            val nodes = (internalNodes + internalTargets + externals).distinctBy { it.id }
+            val targetNodes =
+                relations.map { relation ->
+                    if (relation.target.external) {
+                        nodeForExternal(relation.target)
+                    } else {
+                        findInternalTarget(relation.target, byId)?.let { nodeForInternal(it) } ?: nodeForExternal(relation.target)
+                    }
+                }
+            val nodes = (internalNodes + targetNodes).distinctBy { it.id }
             val edges = relations.map { edgeFor(it, byId) }
             DiagramSpec(
                 scope = DiagramScope.LAYER,
@@ -78,9 +79,11 @@ class DiagramSpecBuilder {
     private fun findInternalTarget(
         ref: TypeRef,
         byId: Map<String, ClassInfo>,
-    ): ClassInfo? =
-        byId.values.firstOrNull { "${it.packagePath}.${it.name}" == ref.fqn }
-            ?: byId.values.firstOrNull { it.name == ref.simpleName }
+    ): ClassInfo? {
+        byId.values.firstOrNull { "${it.packagePath}.${it.name}" == ref.fqn }?.let { return it }
+        val bySimpleName = byId.values.filter { it.name == ref.simpleName }
+        return bySimpleName.singleOrNull()
+    }
 
     private fun nodeForInternal(ci: ClassInfo): DiagramNode =
         DiagramNode(
@@ -94,17 +97,14 @@ class DiagramSpecBuilder {
             external = false,
         )
 
-    private fun nodeForExternal(ref: TypeRef): DiagramNode {
-        val hashInput = ref.fqn ?: ref.simpleName
-        val hash = sha1Hex(hashInput).take(EXTERNAL_HASH_LEN)
-        return DiagramNode(
-            id = "EXT_$hash",
+    private fun nodeForExternal(ref: TypeRef): DiagramNode =
+        DiagramNode(
+            id = externalNodeId(ref),
             classId = null,
             stereotype = null,
             displayName = ref.fqn?.substringAfterLast('.') ?: ref.simpleName,
             external = true,
         )
-    }
 
     private fun edgeFor(
         rel: Relation,
@@ -113,13 +113,19 @@ class DiagramSpecBuilder {
         val from = rel.sourceClassId.replace('-', '_')
         val to =
             if (rel.target.external) {
-                "EXT_${sha1Hex(rel.target.fqn ?: rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
+                externalNodeId(rel.target)
             } else {
                 val matched = findInternalTarget(rel.target, byId)
                 matched?.id?.replace('-', '_')
-                    ?: "EXT_${sha1Hex(rel.target.simpleName).take(EXTERNAL_HASH_LEN)}"
+                    ?: externalNodeId(rel.target)
             }
         return DiagramEdge(fromId = from, toId = to, kind = rel.kind)
+    }
+
+    private fun externalNodeId(ref: TypeRef): String {
+        val hashInput = ref.fqn ?: ref.simpleName
+        val hash = sha1Hex(hashInput).take(EXTERNAL_HASH_LEN)
+        return "EXT_$hash"
     }
 
     private fun sha1Hex(input: String): String {

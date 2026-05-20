@@ -1,5 +1,6 @@
 package com.toolhub.classdiagramgenerator.render
 
+import com.toolhub.classdiagramgenerator.config.AppProperties
 import com.toolhub.classdiagramgenerator.domain.ClassInfo
 import com.toolhub.classdiagramgenerator.domain.LabelDictionary
 import com.toolhub.classdiagramgenerator.domain.Module
@@ -27,10 +28,12 @@ import javax.imageio.ImageIO
 
 @Component
 @Suppress("TooManyFunctions")
-class DocxGenerator : DocumentGenerator {
+class DocxGenerator(
+    props: AppProperties,
+) : DocumentGenerator {
     override val format = "docx"
 
-    private val font = "맑은 고딕"
+    private val font = props.render.docx.fontFamily
     private val headerShade = "D9D9D9"
 
     override fun render(

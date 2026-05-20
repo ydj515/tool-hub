@@ -1,22 +1,21 @@
 package com.toolhub.classdiagramgenerator.job
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Component
-class ProgressBus(
-    private val objectMapper: ObjectMapper,
-) {
-    private val emitters = ConcurrentHashMap<UUID, MutableList<SseEmitter>>()
+class ProgressBus {
+    private val emitters = ConcurrentHashMap<UUID, CopyOnWriteArrayList<SseEmitter>>()
 
     fun subscribe(jobId: UUID): SseEmitter {
         val emitter = SseEmitter(0L)
-        emitters.computeIfAbsent(jobId) { mutableListOf() }.add(emitter)
+        emitters.computeIfAbsent(jobId) { CopyOnWriteArrayList() }.add(emitter)
         emitter.onCompletion { remove(jobId, emitter) }
         emitter.onTimeout { remove(jobId, emitter) }
         emitter.onError { remove(jobId, emitter) }
@@ -28,10 +27,9 @@ class ProgressBus(
         eventName: String,
         payload: Any,
     ) {
-        val data = objectMapper.writeValueAsString(payload)
         emitters[jobId]?.toList()?.forEach { em ->
             try {
-                em.send(SseEmitter.event().name(eventName).data(data))
+                em.send(SseEmitter.event().name(eventName).data(payload, MediaType.APPLICATION_JSON))
             } catch (
                 @Suppress("SwallowedException", "unused") e: IOException,
             ) {
@@ -65,7 +63,10 @@ class ProgressBus(
         jobId: UUID,
         emitter: SseEmitter,
     ) {
-        emitters[jobId]?.remove(emitter)
+        emitters.computeIfPresent(jobId) { _, list ->
+            list.remove(emitter)
+            list.takeIf { it.isNotEmpty() }
+        }
     }
 
     companion object {

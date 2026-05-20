@@ -88,6 +88,7 @@ class JavaSourceAnalyzerTest :
             parsed.types.single().packagePath shouldBe "com.demo.legacy"
             parsed.warnings.single().code shouldBe "SOURCE_ENCODING_FALLBACK"
             parsed.warnings.single().context["charset"] shouldBe "UTF-16BE"
+            parsed.warnings.single().context["path"] shouldBe path.fileName.toString()
         }
 
         "extracts extends names" {

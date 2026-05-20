@@ -79,7 +79,7 @@ class JavaSourceAnalyzer {
                             Warning(
                                 code = WARNING_SOURCE_ENCODING_FALLBACK,
                                 message = "Parsed source with fallback charset ${charset.name()}",
-                                context = mapOf("path" to path.toString(), "charset" to charset.name()),
+                                context = mapOf("path" to path.fileName.toString(), "charset" to charset.name()),
                             ),
                         )
                     }

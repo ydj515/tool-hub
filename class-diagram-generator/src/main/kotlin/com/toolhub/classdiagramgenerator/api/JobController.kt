@@ -10,7 +10,6 @@ import com.toolhub.classdiagramgenerator.job.ProgressBus
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import org.springframework.core.io.FileSystemResource
-import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -24,8 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
 import java.nio.file.Files
 import java.util.Locale
 import java.util.UUID
@@ -59,6 +57,7 @@ class JobController(
         val magic = file.inputStream.use { it.readNBytes(MIN_ZIP_SIZE) }
         require(magic[0] == ZIP_MAGIC_BYTE_0 && magic[1] == ZIP_MAGIC_BYTE_1) { "Not a ZIP file" }
         val parsedFormats = formats.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+        require(parsedFormats.isNotEmpty()) { "At least one format is required" }
         require(parsedFormats.all { it in SUPPORTED_FORMATS }) { "Unsupported format" }
         val rec =
             jobService.submit(
@@ -127,22 +126,24 @@ class JobController(
     @GetMapping("/{id}/bundle")
     fun bundle(
         @PathVariable id: UUID,
-    ): ResponseEntity<InputStreamResource> {
+    ): ResponseEntity<StreamingResponseBody> {
         val rec = jobStore.get(id) ?: throw NoSuchElementException("Job not found: $id")
-        val baos = ByteArrayOutputStream()
-        ZipOutputStream(baos).use { zos ->
-            rec.artifacts.forEach { art ->
-                zos.putNextEntry(ZipEntry(art.filename))
-                Files.copy(art.path, zos)
-                zos.closeEntry()
+        val body =
+            StreamingResponseBody { output ->
+                ZipOutputStream(output).use { zos ->
+                    rec.artifacts.forEach { art ->
+                        zos.putNextEntry(ZipEntry(art.filename))
+                        Files.copy(art.path, zos)
+                        zos.closeEntry()
+                    }
+                    zos.finish()
+                }
             }
-        }
-        val bytes = baos.toByteArray()
         return ResponseEntity
             .ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"bundle-$id.zip\"")
             .contentType(MediaType.parseMediaType("application/zip"))
-            .body(InputStreamResource(ByteArrayInputStream(bytes)))
+            .body(body)
     }
 
     companion object {

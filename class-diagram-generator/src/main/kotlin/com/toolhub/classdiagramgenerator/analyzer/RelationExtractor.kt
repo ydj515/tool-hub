@@ -55,6 +55,9 @@ class RelationExtractor {
                 TypeRef(simpleName, "${match.packagePath}.${match.name}", external = false)
             }
             candidates.size > 1 -> {
+                resolvePreferredInternal(owner, candidates)?.let { preferred ->
+                    return TypeRef(simpleName, "${preferred.packagePath}.${preferred.name}", external = false)
+                }
                 warnings +=
                     Warning(
                         code = "AMBIGUOUS_TYPE_REF",
@@ -70,6 +73,18 @@ class RelationExtractor {
             }
             else -> externalRef(simpleName, owner)
         }
+    }
+
+    private fun resolvePreferredInternal(
+        owner: ParsedType,
+        candidates: List<ClassInfo>,
+    ): ClassInfo? {
+        candidates.singleOrNull { it.packagePath == owner.packagePath }?.let { return it }
+        val imported =
+            owner.imports.firstOrNull { imported ->
+                candidates.any { candidate -> imported == "${candidate.packagePath}.${candidate.name}" }
+            }
+        return candidates.singleOrNull { "${it.packagePath}.${it.name}" == imported }
     }
 
     private fun externalRef(

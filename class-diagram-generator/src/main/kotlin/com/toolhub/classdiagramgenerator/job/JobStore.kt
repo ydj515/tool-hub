@@ -7,6 +7,7 @@ import java.nio.file.Path
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 enum class JobStatus { PENDING, RUNNING, DONE, FAILED }
 
@@ -25,13 +26,17 @@ data class JobRecord(
     val language: OutputLanguage,
     val formats: List<String>,
     val includeDiagrams: Boolean,
+    @Volatile
     var status: JobStatus,
     val workDir: Path,
     val createdAt: Instant = Instant.now(),
+    @Volatile
     var expiresAt: Instant? = null,
-    val artifacts: MutableList<ArtifactRecord> = mutableListOf(),
-    val warnings: MutableList<Warning> = mutableListOf(),
+    val artifacts: MutableList<ArtifactRecord> = CopyOnWriteArrayList(),
+    val warnings: MutableList<Warning> = CopyOnWriteArrayList(),
+    @Volatile
     var errorCode: String? = null,
+    @Volatile
     var errorMessage: String? = null,
 )
 
