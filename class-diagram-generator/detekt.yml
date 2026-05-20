@@ -1,0 +1,18 @@
+build:
+  maxIssues: 0
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+  MaxLineLength:
+    maxLineLength: 140
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
+performance:
+  SpreadOperator:
+    active: false

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            const stored = localStorage.getItem('cdg-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = stored ?? (systemDark ? 'dark' : 'light');
+        }());
+    </script>
+    <title th:text="#{page.progress.title}">Progress</title>
+    <link rel="icon" href="/favicon.ico" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" href="/webjars/bootstrap/dist/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+    <link rel="stylesheet" href="/css/mmu/tokens.css" th:href="@{/css/mmu/tokens.css}">
+    <link rel="stylesheet" href="/css/mmu/components.css" th:href="@{/css/mmu/components.css}">
+    <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
+</head>
+<body class="mmu-body">
+<nav class="navbar navbar-expand mmu-topbar app-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">class-diagram-generator</a>
+        <span class="mmu-page-context" th:text="#{page.progress.title}">Progress</span>
+        <div class="mmu-toolbar">
+            <div class="lang-toggle" role="group" aria-label="Locale selector">
+                <a
+                    href="?lang=ko"
+                    class="lang-toggle__option"
+                    data-lang-option="ko"
+                    th:attr="data-active=${#locale.language == 'ko'}"
+                    th:classappend="${#locale.language == 'ko'} ? ' is-active' : ''">KO</a>
+                <a
+                    href="?lang=en"
+                    class="lang-toggle__option"
+                    data-lang-option="en"
+                    th:attr="data-active=${#locale.language == 'en'}"
+                    th:classappend="${#locale.language == 'en'} ? ' is-active' : ''">EN</a>
+            </div>
+            <button
+                type="button"
+                class="mmu-theme-toggle"
+                data-theme-toggle
+                th:attr="data-theme-label-light=#{page.theme.light},data-theme-label-dark=#{page.theme.dark}">
+                <i class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+<main class="container mmu-shell">
+    <section class="mmu-hero-card mmu-progress-hero" data-progress-hero>
+        <p class="mmu-eyebrow" th:text="#{page.progress.section}">Progress</p>
+        <h1 class="page-title" th:text="#{page.progress.title}">진행 상태</h1>
+        <p class="mmu-hero-copy" th:text="#{page.progress.lead}">
+            업로드한 소스를 분석하고 산출물을 생성하는 중입니다.
+        </p>
+        <div class="percent-hero mt-4">
+            <strong id="progressPercent" class="percent-hero__value">0%</strong>
+            <span id="stage" class="percent-hero__stage" th:text="#{page.progress.stage}">-</span>
+        </div>
+        <div class="progress progress-lg mt-3">
+            <div id="bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+        </div>
+        <p class="mmu-status-note mt-3 mb-0" data-progress-note th:text="#{page.progress.autoRedirect}">
+            완료되면 결과 화면으로 자동 이동합니다.
+        </p>
+    </section>
+    <section class="mmu-progress-layout mt-4">
+        <article class="mmu-surface-card" data-progress-timeline>
+            <h2 class="mmu-section-title" th:text="#{page.progress.pipeline}">처리 단계</h2>
+            <ol class="timeline mt-4" id="timeline" aria-label="pipeline timeline">
+                <li class="timeline__step" data-step="intake">
+                    <span class="timeline__dot"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span>
+                </li>
+                <li class="timeline__step" data-step="analysis">
+                    <span class="timeline__dot"><i class="bi bi-braces" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span>
+                </li>
+                <li class="timeline__step" data-step="diagrams">
+                    <span class="timeline__dot"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span>
+                </li>
+                <li class="timeline__step" data-step="rendering">
+                    <span class="timeline__dot"><i class="bi bi-file-earmark-richtext" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span>
+                </li>
+                <li class="timeline__step" data-step="packaging">
+                    <span class="timeline__dot"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span>
+                </li>
+            </ol>
+        </article>
+        <article class="mmu-surface-card" data-progress-status>
+            <h2 class="mmu-section-title" th:text="#{page.progress.statusTitle}">상태 안내</h2>
+            <div id="warnings" class="mmu-warning-stack mt-4"></div>
+        </article>
+    </section>
+</main>
+<script th:inline="javascript">
+    window.__jobId = /*[[${jobId}]]*/ '';
+    window.__progressStageLabels = {
+        EXTRACTING: /*[[#{page.progress.stage.extracting}]]*/ 'Extracting',
+        DETECTING_MODULES: /*[[#{page.progress.stage.detectingModules}]]*/ 'Detecting Modules',
+        PARSING: /*[[#{page.progress.stage.parsing}]]*/ 'Parsing Sources',
+        CLASSIFYING: /*[[#{page.progress.stage.classifying}]]*/ 'Classifying Layers',
+        ASSIGNING_IDS: /*[[#{page.progress.stage.assigningIds}]]*/ 'Assigning IDs',
+        EXTRACTING_RELATIONS: /*[[#{page.progress.stage.extractingRelations}]]*/ 'Extracting Relations',
+        RENDERING_DIAGRAMS: /*[[#{page.progress.stage.renderingDiagrams}]]*/ 'Rendering Diagrams',
+        RENDERING_DOCX: /*[[#{page.progress.stage.renderingDocx}]]*/ 'Rendering DOCX',
+        RENDERING_XLSX: /*[[#{page.progress.stage.renderingXlsx}]]*/ 'Rendering XLSX',
+        RENDERING_MD: /*[[#{page.progress.stage.renderingMd}]]*/ 'Rendering Markdown',
+        PACKAGING: /*[[#{page.progress.stage.packaging}]]*/ 'Packaging Results'
+    };
+    window.__progressUiLabels = {
+        idle: /*[[#{page.progress.statusIdle}]]*/ 'The job has started and is waiting for the next stage event'
+    };
+</script>
+<script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js" th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script src="/js/theme.js" th:src="@{/js/theme.js}"></script>
+<script src="/js/progress.js" th:src="@{/js/progress.js}"></script>
+</body>
+</html>

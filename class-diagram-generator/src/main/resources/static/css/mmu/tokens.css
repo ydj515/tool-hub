@@ -1,0 +1,36 @@
+:root {
+    --mmu-font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    --mmu-bg: #f5f7fb;
+    --mmu-surface: rgba(255, 255, 255, 0.94);
+    --mmu-surface-strong: #ffffff;
+    --mmu-border: rgba(15, 23, 42, 0.08);
+    --mmu-text: #0f172a;
+    --mmu-text-muted: #64748b;
+    --mmu-accent: #6366f1;
+    --mmu-accent-strong: #4f46e5;
+    --mmu-accent-soft: rgba(99, 102, 241, 0.16);
+    --mmu-success: #10b981;
+    --mmu-warning: #f59e0b;
+    --mmu-danger: #ef4444;
+    --mmu-shadow-soft: 0 14px 30px rgba(15, 23, 42, 0.06);
+    --mmu-shadow-md: 0 24px 56px rgba(15, 23, 42, 0.1);
+    --mmu-radius-lg: 1.25rem;
+    --mmu-radius-xl: 1.5rem;
+    --mmu-space-2: 0.5rem;
+    --mmu-space-3: 0.75rem;
+    --mmu-space-4: 1rem;
+    --mmu-space-6: 1.5rem;
+    --mmu-space-8: 2rem;
+}
+
+html[data-theme="dark"] {
+    --mmu-bg: #0b1220;
+    --mmu-surface: rgba(15, 23, 42, 0.88);
+    --mmu-surface-strong: #111827;
+    --mmu-border: rgba(148, 163, 184, 0.18);
+    --mmu-text: #e5eefc;
+    --mmu-text-muted: #9fb0c7;
+    --mmu-accent-soft: rgba(99, 102, 241, 0.28);
+    --mmu-shadow-soft: 0 16px 32px rgba(2, 6, 23, 0.35);
+    --mmu-shadow-md: 0 24px 56px rgba(2, 6, 23, 0.5);
+}

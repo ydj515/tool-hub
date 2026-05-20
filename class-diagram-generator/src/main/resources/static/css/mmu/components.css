@@ -1,0 +1,310 @@
+.mmu-body {
+    min-height: 100vh;
+    font-family: var(--mmu-font-sans);
+    background:
+        radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 34%),
+        linear-gradient(180deg, #fbfcff 0%, var(--mmu-bg) 100%);
+    color: var(--mmu-text);
+}
+
+.mmu-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: color-mix(in srgb, var(--mmu-surface-strong) 82%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--mmu-border);
+}
+
+.mmu-topbar .container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mmu-shell {
+    padding-top: var(--mmu-space-8);
+    padding-bottom: calc(var(--mmu-space-8) * 1.5);
+}
+
+.mmu-page-context {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--mmu-text-muted);
+    white-space: nowrap;
+}
+
+.mmu-hero-card,
+.mmu-surface-card,
+.mmu-meta-card {
+    border: 1px solid var(--mmu-border);
+    background: var(--mmu-surface);
+    border-radius: var(--mmu-radius-xl);
+    box-shadow: var(--mmu-shadow-soft);
+}
+
+.mmu-hero-card {
+    padding: 2rem;
+}
+
+.mmu-surface-card {
+    padding: 1.5rem;
+}
+
+.mmu-meta-card {
+    padding: 1rem 1.125rem;
+}
+
+.mmu-toolbar {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mmu-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--mmu-border);
+    border-radius: 999px;
+    background: var(--mmu-surface-strong);
+    color: var(--mmu-text);
+    box-shadow: var(--mmu-shadow-soft);
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease,
+        color 0.18s ease;
+}
+
+.mmu-theme-toggle:hover,
+.mmu-theme-toggle:focus-visible {
+    border-color: rgba(99, 102, 241, 0.32);
+    color: var(--mmu-accent);
+    transform: translateY(-1px);
+}
+
+.mmu-theme-toggle[data-theme-state="dark"] .bi::before {
+    content: "\f1d1";
+}
+
+.mmu-page-hero {
+    background:
+        radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 38%),
+        linear-gradient(180deg, var(--mmu-surface-strong) 0%, var(--mmu-surface) 100%);
+}
+
+.mmu-eyebrow {
+    margin-bottom: 0.5rem;
+    color: var(--mmu-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mmu-hero-copy {
+    max-width: 38rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    color: var(--mmu-text-muted);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.mmu-section-heading {
+    margin-bottom: 1.25rem;
+}
+
+.mmu-section-heading h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.mmu-section-heading p {
+    margin-top: 0.4rem;
+    margin-bottom: 0;
+    color: var(--mmu-text-muted);
+    line-height: 1.6;
+}
+
+.mmu-upload-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 2rem;
+}
+
+.mmu-upload-stack {
+    display: grid;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.mmu-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem 2rem;
+}
+
+.mmu-field,
+.mmu-chip-grid,
+.mmu-toggle-row,
+.mmu-upload-submit {
+    min-width: 0;
+}
+
+.mmu-chip-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.875rem;
+}
+
+.mmu-toggle-row {
+    padding-top: 1rem;
+    border-top: 1px solid var(--mmu-border);
+}
+
+.mmu-dropzone {
+    min-height: 17rem;
+}
+
+.mmu-dropzone.is-invalid {
+    border-color: rgba(239, 68, 68, 0.48);
+    background: linear-gradient(180deg, rgba(254, 242, 242, 0.92), rgba(255, 255, 255, 0.98));
+}
+
+.mmu-upload-submit .btn {
+    min-width: 10rem;
+}
+
+.mmu-action-hint {
+    color: var(--mmu-text-muted);
+    line-height: 1.7;
+}
+
+.mmu-progress-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 1.5rem;
+}
+
+.mmu-section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.mmu-status-note {
+    color: var(--mmu-text-muted);
+    line-height: 1.7;
+}
+
+.mmu-warning-stack {
+    display: grid;
+    gap: 0.875rem;
+}
+
+.mmu-warning-card,
+.mmu-info-card {
+    padding: 1rem 1.125rem;
+    border-radius: 1rem;
+    border: 1px solid var(--mmu-border);
+    background: color-mix(in srgb, var(--mmu-surface-strong) 90%, transparent);
+}
+
+.mmu-warning-card {
+    border-color: rgba(245, 158, 11, 0.28);
+    background: color-mix(in srgb, rgba(245, 158, 11, 0.08) 40%, var(--mmu-surface-strong));
+}
+
+.mmu-warning-card__code {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.9rem;
+}
+
+.mmu-warning-card__message {
+    margin: 0;
+    color: var(--mmu-text-muted);
+    line-height: 1.6;
+}
+
+.mmu-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .mmu-topbar .container {
+        gap: 0.5rem;
+    }
+
+    .mmu-page-context {
+        display: none;
+    }
+
+    .mmu-toolbar {
+        gap: 0.35rem;
+    }
+
+    .mmu-hero-card,
+    .mmu-surface-card {
+        padding: 1.25rem;
+    }
+
+    .mmu-theme-toggle {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .mmu-upload-layout,
+    .mmu-form-grid,
+    .mmu-chip-grid,
+    .mmu-progress-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .timeline__step {
+        grid-template-columns: auto 1fr;
+        justify-items: start;
+        text-align: left;
+    }
+
+    .timeline__step::before {
+        left: 0.85rem;
+        top: -0.8rem;
+        width: 2px;
+        height: calc(100% + 0.8rem);
+    }
+
+    .timeline__step:first-child::before {
+        top: 0.85rem;
+        height: calc(100% - 0.05rem);
+        content: "";
+    }
+}
+
+@media (max-width: 767.98px) {
+    .mmu-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mmu-upload-submit .btn {
+        width: 100%;
+    }
+}

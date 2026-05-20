@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            const stored = localStorage.getItem('cdg-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = stored ?? (systemDark ? 'dark' : 'light');
+        }());
+    </script>
+    <title th:text="#{page.upload.title}">Class Diagram Generator</title>
+    <link rel="icon" href="/favicon.ico" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" href="/webjars/bootstrap/dist/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+    <link rel="stylesheet" href="/css/mmu/tokens.css" th:href="@{/css/mmu/tokens.css}">
+    <link rel="stylesheet" href="/css/mmu/components.css" th:href="@{/css/mmu/components.css}">
+    <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
+</head>
+<body class="mmu-body">
+<nav class="navbar navbar-expand mmu-topbar app-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">class-diagram-generator</a>
+        <span class="mmu-page-context" th:text="#{page.upload.title}">Class Diagram Generator</span>
+        <div class="mmu-toolbar">
+            <div class="lang-toggle" role="group" aria-label="Locale selector">
+                <a
+                    href="?lang=ko"
+                    class="lang-toggle__option"
+                    data-lang-option="ko"
+                    th:attr="data-active=${#locale.language == 'ko'}"
+                    th:classappend="${#locale.language == 'ko'} ? ' is-active' : ''">KO</a>
+                <a
+                    href="?lang=en"
+                    class="lang-toggle__option"
+                    data-lang-option="en"
+                    th:attr="data-active=${#locale.language == 'en'}"
+                    th:classappend="${#locale.language == 'en'} ? ' is-active' : ''">EN</a>
+            </div>
+            <button
+                type="button"
+                class="mmu-theme-toggle"
+                data-theme-toggle
+                th:attr="data-theme-label-light=#{page.theme.light},data-theme-label-dark=#{page.theme.dark}">
+                <i class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+<main class="container mmu-shell">
+    <section class="mmu-hero-card mmu-page-hero">
+        <p class="mmu-eyebrow" th:text="#{page.upload.section}">Upload</p>
+        <h1 class="page-title" th:text="#{page.upload.title}">클래스 설계서 자동 생성</h1>
+        <p class="mmu-hero-copy" th:text="#{page.upload.lead}">
+            Java 소스 ZIP을 업로드하면 문서와 다이어그램 산출물을 자동으로 생성합니다.
+        </p>
+    </section>
+    <form id="uploadForm" class="mmu-upload-layout mt-4" enctype="multipart/form-data">
+        <div class="mmu-upload-stack">
+            <section class="mmu-surface-card" data-upload-section="project">
+                <div class="mmu-section-heading">
+                    <h2 th:text="#{page.upload.projectInfo}">프로젝트 정보</h2>
+                    <p th:text="#{page.upload.projectInfo.help}">문서 제목, 버전, 산출물 언어를 설정합니다.</p>
+                </div>
+                <div class="mmu-form-grid">
+                    <div class="mmu-field">
+                        <label class="form-label" th:text="#{page.upload.programName}">프로그램명</label>
+                        <input class="form-control" name="programName" required pattern="^[A-Za-z0-9_\-]+$" maxlength="64">
+                    </div>
+                    <div class="mmu-field">
+                        <label class="form-label" th:text="#{page.upload.version}">버전</label>
+                        <input class="form-control" name="version" required pattern="^[A-Za-z0-9._\-]+$" maxlength="32" value="v1.0">
+                    </div>
+                    <div class="mmu-field">
+                        <label class="form-label" th:text="#{page.upload.language}">산출물 언어</label>
+                        <select class="form-select" name="language">
+                            <option value="ko" th:selected="${#locale.language == 'ko'}">한국어</option>
+                            <option value="en" th:selected="${#locale.language == 'en'}">English</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <section class="mmu-surface-card" data-upload-section="options">
+                <div class="mmu-section-heading">
+                    <h2 th:text="#{page.upload.outputOptions}">출력 설정</h2>
+                    <p th:text="#{page.upload.outputOptions.help}">생성할 문서 형식과 다이어그램 포함 여부를 선택합니다.</p>
+                </div>
+                <div class="mmu-chip-grid">
+                    <label class="form-check-card">
+                        <input type="checkbox" class="form-check-input" name="formats" value="docx" checked>
+                        <span>docx</span>
+                    </label>
+                    <label class="form-check-card">
+                        <input type="checkbox" class="form-check-input" name="formats" value="xlsx" checked>
+                        <span>xlsx</span>
+                    </label>
+                    <label class="form-check-card">
+                        <input type="checkbox" class="form-check-input" name="formats" value="md" checked>
+                        <span>md</span>
+                    </label>
+                </div>
+                <div class="mmu-toggle-row mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="includeDiagrams" id="includeDiagrams" value="true" checked>
+                        <label class="form-check-label" for="includeDiagrams" th:text="#{page.upload.includeDiagrams}">클래스 다이어그램 포함</label>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="mmu-upload-stack">
+            <section class="mmu-surface-card" data-upload-section="source">
+                <div class="mmu-section-heading">
+                    <h2 th:text="#{page.upload.sourceUpload}">소스 업로드</h2>
+                    <p th:text="#{page.upload.sourceUpload.help}">ZIP 파일 한 개만 업로드할 수 있습니다.</p>
+                </div>
+                <label
+                    class="file-dropzone mmu-dropzone"
+                    for="fileInput"
+                    data-upload-dropzone
+                    tabindex="0">
+                    <input
+                        id="fileInput"
+                        type="file"
+                        class="visually-hidden"
+                        name="file"
+                        accept=".zip"
+                        required
+                        data-upload-input
+                        th:attr="data-invalid-type-message=#{page.upload.dropzone.invalid}">
+                    <span class="file-dropzone__body" data-dropzone-default>
+                        <i class="bi bi-cloud-arrow-up file-dropzone__icon" aria-hidden="true"></i>
+                        <span class="file-dropzone__title" th:text="#{page.upload.dropzone.title}">ZIP 파일을 드래그하거나 클릭해서 선택하세요</span>
+                        <span class="file-dropzone__hint" th:text="#{page.upload.dropzone.hint}">.zip 파일만 업로드할 수 있습니다</span>
+                    </span>
+                    <span class="file-dropzone__success" data-dropzone-selected>
+                        <button
+                            type="button"
+                            class="file-dropzone__remove"
+                            data-upload-remove
+                            th:attr="aria-label=#{page.upload.dropzone.remove}, title=#{page.upload.dropzone.remove}">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        </button>
+                        <i class="bi bi-check-circle-fill file-dropzone__success-icon" aria-hidden="true"></i>
+                        <span class="file-dropzone__title" th:text="#{page.upload.dropzone.selected}">파일이 첨부되었습니다</span>
+                        <span class="file-dropzone__meta">
+                            <span
+                                class="file-dropzone__filename-strong"
+                                data-upload-filename
+                                th:attr="data-empty-label=#{page.upload.dropzone.empty}"></span>
+                            <span class="file-dropzone__dot" aria-hidden="true">·</span>
+                            <span class="file-dropzone__size" data-upload-size></span>
+                        </span>
+                        <button
+                            type="button"
+                            class="btn btn-outline-primary btn-sm file-dropzone__change"
+                            data-upload-change
+                            th:text="#{page.upload.dropzone.change}">다른 파일 선택</button>
+                    </span>
+                </label>
+            </section>
+            <section class="mmu-surface-card mmu-upload-submit">
+                <button type="submit" class="btn btn-primary btn-lg px-4" th:text="#{page.upload.submit}">업로드</button>
+                <p class="mmu-action-hint mt-3 mb-0" data-upload-action-hint th:text="#{page.upload.submitHint}">
+                    입력 ZIP 하나로 DOCX, XLSX, MD 산출물을 생성합니다.
+                </p>
+            </section>
+        </div>
+    </form>
+</main>
+<div th:replace="~{fragments/language-modal :: modal}"></div>
+<script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js" th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script src="/js/theme.js" th:src="@{/js/theme.js}"></script>
+<script src="/js/upload.js" th:src="@{/js/upload.js}"></script>
+</body>
+</html>

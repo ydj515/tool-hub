@@ -1,0 +1,44 @@
+[tools]
+java = "21.0.2"
+gradle = "8.14.4"
+
+# 사용법:
+#   mise run            -> default task (check)
+#   mise run <task>     -> 명시적 실행
+#   mise tasks          -> 정의된 task 목록 확인
+
+[tasks.default]
+description = "기본 task: 전체 검증 (check)"
+depends = ["check"]
+
+[tasks.dev]
+description = "Spring Boot 앱 기동 (http://localhost:8080)"
+run = "./gradlew bootRun"
+
+[tasks.build]
+description = "Jar 빌드 + 테스트"
+run = "./gradlew build"
+
+[tasks.test]
+description = "테스트 실행 (Kotest)"
+run = "./gradlew test"
+
+[tasks.check]
+description = "전체 검증: 테스트 + Spotless + Detekt"
+run = "./gradlew check"
+
+[tasks.format]
+description = "Spotless(ktlint)로 코드 자동 포맷"
+run = "./gradlew spotlessApply"
+
+[tasks.lint]
+description = "Detekt 정적 분석"
+run = "./gradlew detekt"
+
+[tasks.clean]
+description = "Gradle 빌드 캐시 정리"
+run = "./gradlew clean"
+
+[tasks."clean-check"]
+description = "clean 후 전체 검증 (CI 용도)"
+run = "./gradlew clean check"
