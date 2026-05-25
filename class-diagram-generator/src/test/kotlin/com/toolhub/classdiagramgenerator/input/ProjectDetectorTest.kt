@@ -79,6 +79,84 @@ class ProjectDetectorTest :
             modules[0].name shouldBe "my-service"
         }
 
+        "detects Maven multi-module project from parent pom modules" {
+            val root = Files.createTempDirectory("maven-multi-")
+            root.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <module>service</module>
+                    <module>support</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service", "support").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb").map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service", "support")
+        }
+
+        "detects Maven multi-module project inside a single wrapper directory" {
+            val root = Files.createTempDirectory("maven-wrapper-")
+            val wrappedRoot = root.resolve("maven-multi-jdk17")
+            wrappedRoot.createDirectories()
+            wrappedRoot.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <module>service</module>
+                    <module>support</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service", "support").forEach { name ->
+                val src = wrappedRoot.resolve("$name/src/main/java")
+                src.createDirectories()
+                wrappedRoot.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb").map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service", "support")
+        }
+
+        "ignores root java sources when Gradle multi-module declarations exist" {
+            val root = Files.createTempDirectory("gradle-multi-root-")
+            root.resolve("settings.gradle.kts").writeText("""include("api", "service")""")
+            root.resolve("src/main/java").createDirectories()
+            root.resolve("src/main/java/RootType.java").writeText("class RootType {}")
+            listOf("api", "service").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/build.gradle.kts").writeText("// noop")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb")
+
+            modules.map { it.name }.sorted() shouldBe listOf("api", "service")
+            modules.flatMap { it.sourceFiles }.none { it.name == "RootType.java" } shouldBe true
+        }
+
         "falls back to scanning all .java when no build file" {
             val root = Files.createTempDirectory("proj-")
             root.resolve("Loose.java").writeText("class Loose {}")

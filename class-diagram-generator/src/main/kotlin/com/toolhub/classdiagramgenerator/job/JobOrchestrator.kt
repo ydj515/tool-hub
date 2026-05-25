@@ -78,7 +78,12 @@ class JobOrchestrator(
         }
 
         stage(record, Stage.DETECTING_MODULES, PCT_DETECT)
-        val modules = projectDetector.detect(inputDir, fallbackName = record.programName)
+        val modules =
+            projectDetector.detect(
+                root = inputDir,
+                fallbackName = record.programName,
+                onWarning = { addWarning(record, it) },
+            )
 
         stage(record, Stage.PARSING, PCT_PARSE)
         val parsedModules = parseAll(record, modules)

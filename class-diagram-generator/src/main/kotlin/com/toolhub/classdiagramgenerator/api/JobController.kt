@@ -1,6 +1,7 @@
 package com.toolhub.classdiagramgenerator.api
 
 import com.toolhub.classdiagramgenerator.api.dto.ArtifactSummary
+import com.toolhub.classdiagramgenerator.api.dto.FormatDownloadSummary
 import com.toolhub.classdiagramgenerator.api.dto.JobCreatedResponse
 import com.toolhub.classdiagramgenerator.api.dto.JobResultResponse
 import com.toolhub.classdiagramgenerator.domain.OutputLanguage
@@ -100,6 +101,18 @@ class JobController(
                     downloadUrl = "/api/v1/jobs/$id/artifacts/$idx",
                 )
             }
+        val formatDownloads =
+            rec.artifacts
+                .groupBy { it.format }
+                .toSortedMap()
+                .map { (format, grouped) ->
+                    FormatDownloadSummary(
+                        format = format,
+                        artifactCount = grouped.size,
+                        downloadUrl = "/api/v1/jobs/$id/downloads/$format",
+                        archive = grouped.size > 1,
+                    )
+                }
         return JobResultResponse(
             jobId = id,
             createdAt = rec.createdAt,
@@ -107,6 +120,7 @@ class JobController(
             warnings = rec.warnings,
             artifacts = artifacts,
             bundleUrl = "/api/v1/jobs/$id/bundle",
+            formatDownloads = formatDownloads,
         )
     }
 
@@ -128,10 +142,49 @@ class JobController(
         @PathVariable id: UUID,
     ): ResponseEntity<StreamingResponseBody> {
         val rec = jobStore.get(id) ?: throw NoSuchElementException("Job not found: $id")
+        return zipArtifactBundle(
+            filename = "bundle-$id.zip",
+            artifacts = rec.artifacts,
+        )
+    }
+
+    @GetMapping("/{id}/downloads/{format}")
+    fun downloadByFormat(
+        @PathVariable id: UUID,
+        @PathVariable format: String,
+    ): ResponseEntity<StreamingResponseBody> {
+        val rec = jobStore.get(id) ?: throw NoSuchElementException("Job not found: $id")
+        val normalizedFormat = format.lowercase()
+        require(normalizedFormat in SUPPORTED_FORMATS) { "Unsupported format" }
+        val artifacts = rec.artifacts.filter { it.format == normalizedFormat }
+        val artifact =
+            artifacts.singleOrNull()
+                ?: if (artifacts.isEmpty()) {
+                    throw NoSuchElementException("No artifacts found for format: $normalizedFormat")
+                } else {
+                    null
+                }
+        if (artifact != null) {
+            val body = StreamingResponseBody { output -> Files.copy(artifact.path, output) }
+            return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${artifact.filename}\"")
+                .body(body)
+        }
+        return zipArtifactBundle(
+            filename = "bundle-$id-$normalizedFormat.zip",
+            artifacts = artifacts,
+        )
+    }
+
+    private fun zipArtifactBundle(
+        filename: String,
+        artifacts: List<com.toolhub.classdiagramgenerator.job.ArtifactRecord>,
+    ): ResponseEntity<StreamingResponseBody> {
         val body =
             StreamingResponseBody { output ->
                 ZipOutputStream(output).use { zos ->
-                    rec.artifacts.forEach { art ->
+                    artifacts.forEach { art ->
                         zos.putNextEntry(ZipEntry(art.filename))
                         Files.copy(art.path, zos)
                         zos.closeEntry()
@@ -141,7 +194,7 @@ class JobController(
             }
         return ResponseEntity
             .ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"bundle-$id.zip\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filename\"")
             .contentType(MediaType.parseMediaType("application/zip"))
             .body(body)
     }

@@ -20,6 +20,13 @@ data class ArtifactSummary(
     val downloadUrl: String,
 )
 
+data class FormatDownloadSummary(
+    val format: String,
+    val artifactCount: Int,
+    val downloadUrl: String,
+    val archive: Boolean,
+)
+
 data class JobResultResponse(
     val jobId: UUID,
     val createdAt: Instant,
@@ -27,4 +34,5 @@ data class JobResultResponse(
     val warnings: List<Warning>,
     val artifacts: List<ArtifactSummary>,
     val bundleUrl: String,
+    val formatDownloads: List<FormatDownloadSummary>,
 )
