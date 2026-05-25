@@ -94,10 +94,10 @@ export const tools: Tool[] = [
     longDescription:
       '클래스 다이어그램을 쉽게 생성할 수 있는 도구입니다. UML 표준을 따르며, 다양한 프로그래밍 언어를 지원합니다.',
     tags: ['UML', 'Design', 'Documentation'],
-    url: null,
+    url: 'https://class-diagram-generator.onrender.com/?lang=ko',
     github: 'https://github.com/ydj515/tool-hub/tree/main/class-diagram-generator',
     gradient: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
     accentColor: '#f97316',
-    status: 'coming-soon',
+    status: 'live',
   },
 ];
