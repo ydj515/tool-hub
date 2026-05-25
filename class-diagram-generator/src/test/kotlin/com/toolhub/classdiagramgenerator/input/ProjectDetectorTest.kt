@@ -3,6 +3,7 @@ package com.toolhub.classdiagramgenerator.input
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.nio.file.Files
 import kotlin.io.path.createDirectories
 import kotlin.io.path.name
@@ -108,6 +109,37 @@ class ProjectDetectorTest :
             modules shouldBe listOf("api", "service", "support")
         }
 
+        "ignores commented Maven module declarations" {
+            val root = Files.createTempDirectory("maven-commented-")
+            root.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <!-- <module>deprecated</module> -->
+                    <module>service</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val warnings = mutableListOf<com.toolhub.classdiagramgenerator.domain.Warning>()
+            val modules = detector.detect(root, fallbackName = "fb", onWarning = warnings::add).map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service")
+            warnings shouldHaveSize 0
+        }
+
         "detects Maven multi-module project inside a single wrapper directory" {
             val root = Files.createTempDirectory("maven-wrapper-")
             val wrappedRoot = root.resolve("maven-multi-jdk17")
@@ -155,6 +187,29 @@ class ProjectDetectorTest :
 
             modules.map { it.name }.sorted() shouldBe listOf("api", "service")
             modules.flatMap { it.sourceFiles }.none { it.name == "RootType.java" } shouldBe true
+        }
+
+        "ignores declared module paths that escape the extracted root" {
+            val root = Files.createTempDirectory("gradle-escape-")
+            val outside = Files.createTempDirectory("outside-module-")
+            root.resolve("settings.gradle").writeText(
+                """
+                include '../${outside.fileName}'
+                """.trimIndent(),
+            )
+            val src = outside.resolve("src/main/java")
+            src.createDirectories()
+            outside.resolve("build.gradle").writeText("// noop")
+            src.resolve("OutsideType.java").writeText("class OutsideType {}")
+
+            val warnings = mutableListOf<com.toolhub.classdiagramgenerator.domain.Warning>()
+            val modules = detector.detect(root, fallbackName = "fb", onWarning = warnings::add)
+
+            modules shouldHaveSize 0
+            warnings.shouldHaveSize(1)
+            warnings.first().code shouldBe "INVALID_DECLARED_MODULE_PATH"
+            warnings.first().context["module"] shouldBe "../${outside.fileName}"
+            warnings.first().message shouldNotBe ""
         }
 
         "falls back to scanning all .java when no build file" {

@@ -399,7 +399,7 @@ MVP에서 **한국어(ko)·영어(en) 2개 로케일을 정식 지원**한다.
 |---|---|
 | 메시지 번들 | `messages.properties`(공통/기본, 한국어), `messages_en.properties`(영어) |
 | 기본 로케일 | `ko_KR` |
-| 로케일 결정 우선순위 (웹 UI) | 1) URL 쿼리 `?lang=ko|en`, 2) 쿠키 `LOCALE`, 3) HTTP `Accept-Language`, 4) 기본값 `ko_KR` |
+| 로케일 결정 우선순위 (웹 UI) | 1) URL 쿼리 `?lang=ko\|en`, 2) 쿠키 `LOCALE`, 3) HTTP `Accept-Language`, 4) 기본값 `ko_KR` |
 | 구현 | Spring `MessageSource` + `LocaleResolver(CookieLocaleResolver, cookie=LOCALE, 30일)` + `LocaleChangeInterceptor(paramName=lang)` |
 | 페이지 사용 | Thymeleaf 표현식 `#{key.path}` 로 모든 라벨·헤더·버튼·에러 문구 출력 |
 | 언어 전환 UI | 공통 레이아웃 헤더 우측 토글 (`KO / EN`) — 클릭 시 `?lang=...` 부착 후 현재 페이지로 redirect |

@@ -295,6 +295,7 @@ class JobControllerTest(
 
             mockMvc.get("/api/v1/jobs/$jobId/downloads/xlsx").andExpect {
                 status { isOk() }
+                content { contentTypeCompatibleWith("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") }
                 header { string("Content-Disposition", "attachment; filename=\"artifact.xlsx\"") }
             }
         }

@@ -59,7 +59,18 @@ class ProjectDetector {
         onWarning: (Warning) -> Unit,
     ): ModuleDescriptor? {
         val rel = includePath.replace(':', '/').trimStart('/')
-        val dir = root.resolve(rel)
+        val normalizedRoot = root.toAbsolutePath().normalize()
+        val dir = normalizedRoot.resolve(rel).normalize()
+        if (!dir.startsWith(normalizedRoot)) {
+            onWarning(
+                Warning(
+                    code = "INVALID_DECLARED_MODULE_PATH",
+                    message = "Declared $buildSystem module path escapes project root: $includePath",
+                    context = mapOf("buildSystem" to buildSystem, "module" to includePath, "path" to rel),
+                ),
+            )
+            return null
+        }
         if (!dir.exists() || !dir.isDirectory()) {
             onWarning(
                 Warning(
@@ -143,7 +154,7 @@ class ProjectDetector {
 
     private fun parseMavenModules(xml: String): List<String> =
         mavenModulesRegex
-            .findAll(xml)
+            .findAll(xml.replace(xmlCommentRegex, ""))
             .flatMap { block ->
                 mavenModuleRegex.findAll(block.groupValues[1]).map { module -> module.groupValues[1].trim() }
             }.toList()
@@ -156,6 +167,7 @@ class ProjectDetector {
                 """include\s*\((.*?)\)|include\s+([^\r\n]+)""",
                 setOf(RegexOption.DOT_MATCHES_ALL),
             )
+        private val xmlCommentRegex = Regex("""<!--.*?-->""", setOf(RegexOption.DOT_MATCHES_ALL))
         private val quotedTokenRegex = Regex("""['"]([^'"]+)['"]""")
         private val mavenModulesRegex = Regex("""<modules>(.*?)</modules>""", setOf(RegexOption.DOT_MATCHES_ALL))
         private val mavenModuleRegex = Regex("""<module>\s*([^<]+)\s*</module>""")

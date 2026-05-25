@@ -14,6 +14,7 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.MediaTypeFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -166,8 +167,10 @@ class JobController(
                 }
         if (artifact != null) {
             val body = StreamingResponseBody { output -> Files.copy(artifact.path, output) }
+            val contentType = MediaTypeFactory.getMediaType(artifact.filename).orElse(MediaType.APPLICATION_OCTET_STREAM)
             return ResponseEntity
                 .ok()
+                .contentType(contentType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${artifact.filename}\"")
                 .body(body)
         }
