@@ -31,7 +31,7 @@ WORKDIR /app
 
 ENV DOCX_FONT_FAMILY="Noto Sans CJK KR"
 
-COPY --from=builder /app/build/libs/*.jar /app/app.jar
+COPY --from=builder /app/build/libs/app.jar /app/app.jar
 
 RUN mkdir -p /tmp/class-diagram-generator && \
     chown -R app:app /app /tmp/class-diagram-generator
@@ -40,4 +40,4 @@ USER app
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS:-} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java ${JAVA_OPTS:-} -jar /app/app.jar"]
