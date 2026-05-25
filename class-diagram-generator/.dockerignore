@@ -1,0 +1,9 @@
+.DS_Store
+.ai
+.gradle
+.idea
+.kotlin
+.playwright-mcp
+build
+docs
+scripts

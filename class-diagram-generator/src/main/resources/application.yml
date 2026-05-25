@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     encoding:
       charset: UTF-8
@@ -40,4 +40,4 @@ app:
     max-bytes-per-png: 5242880
   render:
     docx:
-      font-family: ${DOCX_FONT_FAMILY:Malgun Gothic}
+      font-family: ${DOCX_FONT_FAMILY:Noto Sans CJK KR}

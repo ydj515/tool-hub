@@ -38,7 +38,7 @@ data class AppProperties(
         val docx: Docx = Docx(),
     ) {
         data class Docx(
-            val fontFamily: String = "Malgun Gothic",
+            val fontFamily: String = "Noto Sans CJK KR",
         )
     }
 }
