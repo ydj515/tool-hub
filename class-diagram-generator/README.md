@@ -12,7 +12,7 @@ mise install        # JDK/Gradle 설치
 mise run dev        # Spring Boot 기동
 ```
 
-브라우저에서 http://localhost:8080 접속 → 언어 선택 → ZIP 업로드 → 진행 페이지 → 결과 페이지에서 다운로드.
+브라우저에서 http://localhost:8080 접속 → 필요 시 헤더의 `KO / EN` 토글 또는 산출물 언어 선택 확인 → ZIP 업로드 → 진행 페이지 → 결과 페이지에서 다운로드.
 
 ## Docker 실행
 

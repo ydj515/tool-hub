@@ -58,6 +58,19 @@ function buildArtifactCard(a) {
     return card;
 }
 
+function buildFormatDownloadButton(item) {
+    const format = (item.format ?? '').toUpperCase();
+    const hint = item.archive ? resultLabels.archiveHint : resultLabels.directHint;
+    const link = el('a', 'btn btn-outline-primary btn-sm btn-with-icon');
+    link.href = item.downloadUrl;
+    link.append(
+        icon('bi-download'),
+        el('span', null, `${format} ${resultLabels.download}`),
+    );
+    link.title = `${resultLabels.formatDownloadsTitle}: ${hint}`;
+    return link;
+}
+
 function renderWarnings(list) {
     const section = document.getElementById('resultWarnings');
     const container = document.getElementById('resultWarningsList');
@@ -79,6 +92,15 @@ function renderWarnings(list) {
     });
 }
 
+function renderFormatDownloads(list) {
+    const container = document.getElementById('formatDownloads');
+    if (!container) return;
+    container.replaceChildren();
+    list.forEach((item) => {
+        container.appendChild(buildFormatDownloadButton(item));
+    });
+}
+
 async function load() {
     const res = await fetch(`/api/v1/jobs/${jobId}/result`);
     if (!res.ok) {
@@ -91,6 +113,7 @@ async function load() {
     document.getElementById('expiresAt').textContent = formatDate(data.expiresAt);
     document.getElementById('artifactCount').textContent = String(data.artifacts.length);
     renderWarnings(data.warnings ?? []);
+    renderFormatDownloads(data.formatDownloads ?? []);
     const grid = document.getElementById('artifacts');
     grid.replaceChildren();
     data.artifacts.forEach((a) => grid.appendChild(buildArtifactCard(a)));

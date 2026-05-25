@@ -173,6 +173,53 @@ class JobControllerTest(
             }
         }
 
+        "GET /api/v1/jobs/{id}/result includes format download summaries" {
+            val jobId = UUID.randomUUID()
+            val workDir = Files.createTempDirectory("job-result-format-download-test")
+            val xlsxPath = workDir.resolve("module-a.xlsx")
+            val mdPath = workDir.resolve("module-a.md")
+            Files.writeString(xlsxPath, "xlsx-a")
+            Files.writeString(mdPath, "md-a")
+
+            jobStore.create(
+                JobRecord(
+                    id = jobId,
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("xlsx", "md"),
+                    includeDiagrams = false,
+                    status = JobStatus.DONE,
+                    workDir = workDir,
+                    artifacts =
+                        mutableListOf(
+                            ArtifactRecord(
+                                module = "api",
+                                format = "xlsx",
+                                filename = "module-a.xlsx",
+                                path = xlsxPath,
+                                sizeBytes = Files.size(xlsxPath),
+                            ),
+                            ArtifactRecord(
+                                module = "api",
+                                format = "md",
+                                filename = "module-a.md",
+                                path = mdPath,
+                                sizeBytes = Files.size(mdPath),
+                            ),
+                        ),
+                ),
+            )
+
+            mockMvc.get("/api/v1/jobs/$jobId/result").andExpect {
+                status { isOk() }
+                jsonPath("$.formatDownloads[0].format") { value("md") }
+                jsonPath("$.formatDownloads[0].downloadUrl") { value("/api/v1/jobs/$jobId/downloads/md") }
+                jsonPath("$.formatDownloads[1].format") { value("xlsx") }
+                jsonPath("$.formatDownloads[1].downloadUrl") { value("/api/v1/jobs/$jobId/downloads/xlsx") }
+            }
+        }
+
         "GET /api/v1/jobs/{id}/bundle streams a zip archive" {
             val jobId = UUID.randomUUID()
             val workDir = Files.createTempDirectory("job-bundle-test")
@@ -214,6 +261,97 @@ class JobControllerTest(
             ZipInputStream(ByteArrayInputStream(response)).use { zip ->
                 zip.nextEntry.name shouldBe "artifact.txt"
                 String(zip.readBytes()) shouldBe "hello"
+            }
+        }
+
+        "GET /api/v1/jobs/{id}/downloads/{format} returns file for single-module format artifact" {
+            val jobId = UUID.randomUUID()
+            val workDir = Files.createTempDirectory("job-format-file-test")
+            val artifactPath = workDir.resolve("artifact.xlsx")
+            Files.writeString(artifactPath, "xlsx")
+
+            jobStore.create(
+                JobRecord(
+                    id = jobId,
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("xlsx"),
+                    includeDiagrams = false,
+                    status = JobStatus.DONE,
+                    workDir = workDir,
+                    artifacts =
+                        mutableListOf(
+                            ArtifactRecord(
+                                module = "api",
+                                format = "xlsx",
+                                filename = "artifact.xlsx",
+                                path = artifactPath,
+                                sizeBytes = Files.size(artifactPath),
+                            ),
+                        ),
+                ),
+            )
+
+            mockMvc.get("/api/v1/jobs/$jobId/downloads/xlsx").andExpect {
+                status { isOk() }
+                content { contentTypeCompatibleWith("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") }
+                header { string("Content-Disposition", "attachment; filename=\"artifact.xlsx\"") }
+            }
+        }
+
+        "GET /api/v1/jobs/{id}/downloads/{format} returns zip for multi-module format artifacts" {
+            val jobId = UUID.randomUUID()
+            val workDir = Files.createTempDirectory("job-format-zip-test")
+            val firstPath = workDir.resolve("api.xlsx")
+            val secondPath = workDir.resolve("service.xlsx")
+            Files.writeString(firstPath, "xlsx-a")
+            Files.writeString(secondPath, "xlsx-b")
+
+            jobStore.create(
+                JobRecord(
+                    id = jobId,
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("xlsx"),
+                    includeDiagrams = false,
+                    status = JobStatus.DONE,
+                    workDir = workDir,
+                    artifacts =
+                        mutableListOf(
+                            ArtifactRecord(
+                                module = "api",
+                                format = "xlsx",
+                                filename = "api.xlsx",
+                                path = firstPath,
+                                sizeBytes = Files.size(firstPath),
+                            ),
+                            ArtifactRecord(
+                                module = "service",
+                                format = "xlsx",
+                                filename = "service.xlsx",
+                                path = secondPath,
+                                sizeBytes = Files.size(secondPath),
+                            ),
+                        ),
+                ),
+            )
+
+            val response =
+                mockMvc
+                    .get("/api/v1/jobs/$jobId/downloads/xlsx")
+                    .andExpect {
+                        status { isOk() }
+                        content { contentTypeCompatibleWith("application/zip") }
+                    }.andReturn()
+                    .response.contentAsByteArray
+
+            ZipInputStream(ByteArrayInputStream(response)).use { zip ->
+                zip.nextEntry.name shouldBe "api.xlsx"
+                String(zip.readBytes()) shouldBe "xlsx-a"
+                zip.nextEntry.name shouldBe "service.xlsx"
+                String(zip.readBytes()) shouldBe "xlsx-b"
             }
         }
     })

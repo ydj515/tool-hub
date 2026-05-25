@@ -59,6 +59,10 @@
             </div>
             <a id="bundleBtn" class="btn btn-primary btn-lg btn-with-icon" th:text="#{page.result.bundle}">묶음 다운로드</a>
         </div>
+        <div class="mt-4">
+            <h2 class="mmu-section-title" th:text="#{page.result.formatDownloads}">형식별 다운로드</h2>
+            <div id="formatDownloads" class="d-flex flex-wrap gap-2 mt-3"></div>
+        </div>
         <div class="mmu-meta-grid mt-4">
             <div class="mmu-meta-card">
                 <span class="meta-label" th:text="#{page.result.createdAt}">생성 시각</span>
@@ -90,7 +94,10 @@
     window.__resultLocale = /*[[${#locale.toLanguageTag()}]]*/ 'ko-KR';
     window.__resultLabels = {
         download: /*[[#{page.result.download}]]*/ 'Download',
-        loadError: /*[[#{page.result.loadError}]]*/ 'Failed to load result'
+        loadError: /*[[#{page.result.loadError}]]*/ 'Failed to load result',
+        formatDownloadsTitle: /*[[#{page.result.formatDownloads}]]*/ 'Format Downloads',
+        archiveHint: /*[[#{page.result.archiveHint}]]*/ 'ZIP',
+        directHint: /*[[#{page.result.directHint}]]*/ 'File'
     };
 </script>
 <script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js" th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>

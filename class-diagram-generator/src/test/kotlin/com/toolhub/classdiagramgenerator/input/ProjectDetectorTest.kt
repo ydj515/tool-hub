@@ -3,6 +3,7 @@ package com.toolhub.classdiagramgenerator.input
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.nio.file.Files
 import kotlin.io.path.createDirectories
 import kotlin.io.path.name
@@ -77,6 +78,138 @@ class ProjectDetectorTest :
             src.resolve("M.java").writeText("class M {}")
             val modules = detector.detect(root, fallbackName = "fb")
             modules[0].name shouldBe "my-service"
+        }
+
+        "detects Maven multi-module project from parent pom modules" {
+            val root = Files.createTempDirectory("maven-multi-")
+            root.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <module>service</module>
+                    <module>support</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service", "support").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb").map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service", "support")
+        }
+
+        "ignores commented Maven module declarations" {
+            val root = Files.createTempDirectory("maven-commented-")
+            root.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <!-- <module>deprecated</module> -->
+                    <module>service</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val warnings = mutableListOf<com.toolhub.classdiagramgenerator.domain.Warning>()
+            val modules = detector.detect(root, fallbackName = "fb", onWarning = warnings::add).map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service")
+            warnings shouldHaveSize 0
+        }
+
+        "detects Maven multi-module project inside a single wrapper directory" {
+            val root = Files.createTempDirectory("maven-wrapper-")
+            val wrappedRoot = root.resolve("maven-multi-jdk17")
+            wrappedRoot.createDirectories()
+            wrappedRoot.resolve("pom.xml").writeText(
+                """
+                <project>
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>catalog-parent</artifactId>
+                  <packaging>pom</packaging>
+                  <modules>
+                    <module>api</module>
+                    <module>service</module>
+                    <module>support</module>
+                  </modules>
+                </project>
+                """.trimIndent(),
+            )
+            listOf("api", "service", "support").forEach { name ->
+                val src = wrappedRoot.resolve("$name/src/main/java")
+                src.createDirectories()
+                wrappedRoot.resolve("$name/pom.xml").writeText("<project/>")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb").map { it.name }.sorted()
+
+            modules shouldBe listOf("api", "service", "support")
+        }
+
+        "ignores root java sources when Gradle multi-module declarations exist" {
+            val root = Files.createTempDirectory("gradle-multi-root-")
+            root.resolve("settings.gradle.kts").writeText("""include("api", "service")""")
+            root.resolve("src/main/java").createDirectories()
+            root.resolve("src/main/java/RootType.java").writeText("class RootType {}")
+            listOf("api", "service").forEach { name ->
+                val src = root.resolve("$name/src/main/java")
+                src.createDirectories()
+                root.resolve("$name/build.gradle.kts").writeText("// noop")
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.java").writeText("class X {}")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb")
+
+            modules.map { it.name }.sorted() shouldBe listOf("api", "service")
+            modules.flatMap { it.sourceFiles }.none { it.name == "RootType.java" } shouldBe true
+        }
+
+        "ignores declared module paths that escape the extracted root" {
+            val root = Files.createTempDirectory("gradle-escape-")
+            val outside = Files.createTempDirectory("outside-module-")
+            root.resolve("settings.gradle").writeText(
+                """
+                include '../${outside.fileName}'
+                """.trimIndent(),
+            )
+            val src = outside.resolve("src/main/java")
+            src.createDirectories()
+            outside.resolve("build.gradle").writeText("// noop")
+            src.resolve("OutsideType.java").writeText("class OutsideType {}")
+
+            val warnings = mutableListOf<com.toolhub.classdiagramgenerator.domain.Warning>()
+            val modules = detector.detect(root, fallbackName = "fb", onWarning = warnings::add)
+
+            modules shouldHaveSize 0
+            warnings.shouldHaveSize(1)
+            warnings.first().code shouldBe "INVALID_DECLARED_MODULE_PATH"
+            warnings.first().context["module"] shouldBe "../${outside.fileName}"
+            warnings.first().message shouldNotBe ""
         }
 
         "falls back to scanning all .java when no build file" {

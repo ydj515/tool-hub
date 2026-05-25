@@ -42,6 +42,74 @@ class EndToEndTest(
             final.artifacts.all { it.filename.startsWith("class-design_demo_") } shouldBe true
         }
 
+        "three-module Gradle zip yields artifacts for each module and format" {
+            val rec =
+                service.submit(
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "gradle-three.zip", "application/zip", buildGradleThreeModuleZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 9
+            final.artifacts.map { it.module }.toSet() shouldBe setOf("api", "service", "support")
+        }
+
+        "three-module Maven zip yields artifacts for each module and format" {
+            val rec =
+                service.submit(
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "maven-three.zip", "application/zip", buildMavenThreeModuleZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 9
+            final.artifacts.map { it.module }.toSet() shouldBe setOf("api", "service", "support")
+        }
+
+        "three-module Maven zip inside wrapper directory still yields artifacts for each module and format" {
+            val rec =
+                service.submit(
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "maven-three-wrapped.zip", "application/zip", buildWrappedMavenThreeModuleZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 9
+            final.artifacts.map { it.module }.toSet() shouldBe setOf("api", "service", "support")
+        }
+
+        "missing declared module yields warning and keeps present module artifacts" {
+            val rec =
+                service.submit(
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "maven-missing.zip", "application/zip", buildMavenMissingModuleZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 6
+            final.warnings.any { it.code == "MISSING_DECLARED_MODULE" } shouldBe true
+        }
+
         "diagrams embedded in docx/xlsx/md when includeDiagrams=true" {
             val rec =
                 service.submit(
@@ -145,6 +213,33 @@ private fun buildMultiModuleZip(): ByteArray {
     return out.toByteArray()
 }
 
+private fun mavenParentPomWithMissingModule(): String =
+    """
+    <project>
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>com.demo</groupId>
+      <artifactId>parent</artifactId>
+      <packaging>pom</packaging>
+      <modules>
+        <module>app</module>
+        <module>core</module>
+        <module>missing</module>
+      </modules>
+    </project>
+    """.trimIndent()
+
+private fun buildMavenMissingModuleZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(zos, "pom.xml", mavenParentPomWithMissingModule())
+        addEntry(zos, "app/pom.xml", "<project/>")
+        addEntry(zos, "app/src/main/java/com/demo/controller/AppController.java", appJavaSource())
+        addEntry(zos, "core/pom.xml", "<project/>")
+        addEntry(zos, "core/src/main/java/com/demo/service/CoreService.java", coreJavaSource())
+    }
+    return out.toByteArray()
+}
+
 private fun addEntry(
     zos: ZipOutputStream,
     name: String,
@@ -153,6 +248,47 @@ private fun addEntry(
     zos.putNextEntry(ZipEntry(name))
     zos.write(content.toByteArray())
     zos.closeEntry()
+}
+
+private fun apiJavaSource(): String =
+    "package com.demo.api;\n" +
+        "/** API controller. */\n" +
+        "public class ApiController {\n" +
+        "    public void get() {}\n" +
+        "}\n"
+
+private fun serviceJavaSource(): String =
+    "package com.demo.service;\n" +
+        "/** Service entry. */\n" +
+        "public class ServiceEntry {\n" +
+        "    public void execute() {}\n" +
+        "}\n"
+
+private fun supportJavaSource(): String =
+    "package com.demo.support;\n" +
+        "/** Support utility. */\n" +
+        "public class SupportUtil {\n" +
+        "    public String format() { return \"ok\"; }\n" +
+        "}\n"
+
+private fun gradleThreeModuleSettings(): String =
+    "rootProject.name = 'catalog-parent'\n" +
+        "include 'api'\n" +
+        "include 'service'\n" +
+        "include 'support'\n"
+
+private fun buildGradleThreeModuleZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(zos, "settings.gradle", gradleThreeModuleSettings())
+        addEntry(zos, "api/build.gradle", "// noop")
+        addEntry(zos, "api/src/main/java/com/demo/api/ApiController.java", apiJavaSource())
+        addEntry(zos, "service/build.gradle", "// noop")
+        addEntry(zos, "service/src/main/java/com/demo/service/ServiceEntry.java", serviceJavaSource())
+        addEntry(zos, "support/build.gradle", "// noop")
+        addEntry(zos, "support/src/main/java/com/demo/support/SupportUtil.java", supportJavaSource())
+    }
+    return out.toByteArray()
 }
 
 private fun baseServiceJava(): String =
@@ -174,6 +310,49 @@ private fun buildInheritanceZip(): ByteArray {
         addEntry(zos, "build.gradle", "// noop")
         addEntry(zos, "src/main/java/com/demo/service/BaseService.java", baseServiceJava())
         addEntry(zos, "src/main/java/com/demo/service/UserService.java", userServiceJava())
+    }
+    return out.toByteArray()
+}
+
+private fun mavenThreeModulePom(): String =
+    """
+    <project>
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>com.demo</groupId>
+      <artifactId>catalog-parent</artifactId>
+      <packaging>pom</packaging>
+      <modules>
+        <module>api</module>
+        <module>service</module>
+        <module>support</module>
+      </modules>
+    </project>
+    """.trimIndent()
+
+private fun buildMavenThreeModuleZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(zos, "pom.xml", mavenThreeModulePom())
+        addEntry(zos, "api/pom.xml", "<project/>")
+        addEntry(zos, "api/src/main/java/com/demo/api/ApiController.java", apiJavaSource())
+        addEntry(zos, "service/pom.xml", "<project/>")
+        addEntry(zos, "service/src/main/java/com/demo/service/ServiceEntry.java", serviceJavaSource())
+        addEntry(zos, "support/pom.xml", "<project/>")
+        addEntry(zos, "support/src/main/java/com/demo/support/SupportUtil.java", supportJavaSource())
+    }
+    return out.toByteArray()
+}
+
+private fun buildWrappedMavenThreeModuleZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(zos, "maven-multi-jdk17/pom.xml", mavenThreeModulePom())
+        addEntry(zos, "maven-multi-jdk17/api/pom.xml", "<project/>")
+        addEntry(zos, "maven-multi-jdk17/api/src/main/java/com/demo/api/ApiController.java", apiJavaSource())
+        addEntry(zos, "maven-multi-jdk17/service/pom.xml", "<project/>")
+        addEntry(zos, "maven-multi-jdk17/service/src/main/java/com/demo/service/ServiceEntry.java", serviceJavaSource())
+        addEntry(zos, "maven-multi-jdk17/support/pom.xml", "<project/>")
+        addEntry(zos, "maven-multi-jdk17/support/src/main/java/com/demo/support/SupportUtil.java", supportJavaSource())
     }
     return out.toByteArray()
 }

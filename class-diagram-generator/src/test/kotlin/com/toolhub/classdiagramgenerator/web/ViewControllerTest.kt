@@ -18,7 +18,7 @@ class ViewControllerTest(
             mockMvc.get("/").andExpect { status { isOk() } }
         }
 
-        "GET / renders Bootstrap asset paths and deferred modal init" {
+        "GET / renders Bootstrap asset paths without initial language modal" {
             mockMvc.get("/").andExpect {
                 status { isOk() }
                 content { string(org.hamcrest.Matchers.containsString("href=\"/favicon.ico\"")) }
@@ -27,7 +27,8 @@ class ViewControllerTest(
                 content { string(org.hamcrest.Matchers.containsString("/webjars/bootstrap-icons/")) }
                 content { string(org.hamcrest.Matchers.containsString("bootstrap-icons.css")) }
                 content { string(org.hamcrest.Matchers.containsString("bootstrap.bundle.min.js")) }
-                content { string(org.hamcrest.Matchers.containsString("window.addEventListener('load'")) }
+                content { string(not(org.hamcrest.Matchers.containsString("window.addEventListener('load'"))) }
+                content { string(not(org.hamcrest.Matchers.containsString("id=\"languageModal\""))) }
             }
         }
 
@@ -110,6 +111,15 @@ class ViewControllerTest(
                 content { string(org.hamcrest.Matchers.containsString("id=\"expiresAt\"")) }
                 content { string(org.hamcrest.Matchers.containsString("id=\"artifactCount\"")) }
                 content { string(org.hamcrest.Matchers.containsString("id=\"resultWarnings\"")) }
+            }
+        }
+
+        "GET /jobs/{id}/result renders bundle and format download actions" {
+            mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001/result").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("id=\"bundleBtn\"")) }
+                content { string(org.hamcrest.Matchers.containsString("id=\"formatDownloads\"")) }
+                content { string(org.hamcrest.Matchers.containsString("formatDownloadsTitle")) }
             }
         }
 
