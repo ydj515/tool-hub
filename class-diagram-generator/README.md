@@ -14,6 +14,34 @@ mise run dev        # Spring Boot 기동
 
 브라우저에서 http://localhost:8080 접속 → 언어 선택 → ZIP 업로드 → 진행 페이지 → 결과 페이지에서 다운로드.
 
+## Docker 실행
+
+```bash
+docker build -t class-diagram-generator ./class-diagram-generator
+docker run --rm -p 8080:8080 class-diagram-generator
+```
+
+`PORT` 환경변수를 주면 해당 포트로 기동한다. 예:
+
+```bash
+docker run --rm -e PORT=10000 -p 10000:10000 class-diagram-generator
+```
+
+한글 DOCX 품질을 위해 Docker 이미지에는 `Noto Sans CJK KR` 폰트가 포함된다. 다른 폰트를 강제로 쓰고 싶으면 `DOCX_FONT_FAMILY` 환경변수로 덮어쓸 수 있다.
+
+## Render 배포
+
+이 저장소는 모노레포이므로 `class-diagram-generator`만 배포하도록 루트 [render.yaml](../render.yaml) 에 `rootDir` 가 설정되어 있다.
+
+1. Render Dashboard에서 `New +` → `Blueprint` 또는 `Web Service`를 선택한다.
+2. 이 저장소를 연결한다.
+3. Blueprint를 쓸 경우 루트 `render.yaml` 을 그대로 적용한다.
+4. 배포 후 헬스체크 경로는 `/actuator/health` 로 동작한다.
+
+Render는 `PORT` 환경변수를 주입하므로 애플리케이션은 `server.port: ${PORT:8080}` 설정으로 Render 포트에 맞춰 기동한다.
+
+자세한 절차와 명령은 [docs/render-deploy.md](docs/render-deploy.md) 를 참고한다.
+
 ## 검증
 
 ```bash

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: class-diagram-generator
+    runtime: docker
+    plan: free
+    rootDir: class-diagram-generator
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    buildFilter:
+      paths:
+        - class-diagram-generator/**
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DOCX_FONT_FAMILY
+        value: Noto Sans CJK KR

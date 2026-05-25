@@ -20,6 +20,6 @@ class AppPropertiesTest(
             props.analysis.maxClassesPerModule shouldBe 5000
         }
         "default docx font family is configurable" {
-            props.render.docx.fontFamily shouldBe "Malgun Gothic"
+            props.render.docx.fontFamily shouldBe "Noto Sans CJK KR"
         }
     })
