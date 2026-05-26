@@ -89,7 +89,7 @@ class ProjectDetector {
         dir: Path,
         name: String,
     ): ModuleDescriptor {
-        val sources = collectJavaSources(dir)
+        val sources = collectSourceFiles(dir)
         return ModuleDescriptor(name = name, rootDir = dir, sourceFiles = sources)
     }
 
@@ -125,17 +125,34 @@ class ProjectDetector {
                 .toList()
         }
 
-    private fun collectJavaSources(dir: Path): List<Path> {
-        val preferred = dir.resolve("src/main/java")
-        val base = if (preferred.exists()) preferred else dir
-        return Files.walk(base).use { stream ->
-            stream.filter { path -> isJavaSourceCandidate(path) }.toList()
+    private fun collectSourceFiles(dir: Path): List<Path> {
+        val kotlinDir = dir.resolve("src/main/kotlin")
+        if (kotlinDir.exists()) {
+            return walkSources(kotlinDir, setOf("kt"))
         }
+
+        val javaDir = dir.resolve("src/main/java")
+        if (javaDir.exists()) {
+            return walkSources(javaDir, setOf("java"))
+        }
+
+        return walkSources(dir, setOf("kt", "java"))
     }
 
-    private fun isJavaSourceCandidate(path: Path): Boolean =
+    private fun walkSources(
+        base: Path,
+        extensions: Set<String>,
+    ): List<Path> =
+        Files.walk(base).use { stream ->
+            stream.filter { path -> isSourceCandidate(path, extensions) }.toList()
+        }
+
+    private fun isSourceCandidate(
+        path: Path,
+        extensions: Set<String>,
+    ): Boolean =
         !path.isDirectory() &&
-            path.extension == "java" &&
+            path.extension in extensions &&
             !isMacOsMetadata(path)
 
     private fun isMacOsMetadata(path: Path): Boolean =

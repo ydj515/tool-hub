@@ -68,6 +68,38 @@ class ProjectDetectorTest :
             modules shouldBe listOf("app", "core")
         }
 
+        "detects single Gradle Kotlin module with src/main/kotlin" {
+            val root = Files.createTempDirectory("proj-kotlin-single-")
+            root.resolve("build.gradle.kts").writeText("// noop")
+            val src = root.resolve("src/main/kotlin/com/example")
+            src.createDirectories()
+            src.resolve("Hello.kt").writeText("class Hello")
+
+            val modules = detector.detect(root, fallbackName = "demo")
+
+            modules shouldHaveSize 1
+            modules[0].name shouldBe "demo"
+            modules[0].sourceFiles.map { it.name } shouldBe listOf("Hello.kt")
+        }
+
+        "detects Gradle Kotlin multi-module project from settings.gradle.kts" {
+            val root = Files.createTempDirectory("proj-kotlin-multi-")
+            root.resolve("settings.gradle.kts").writeText("""include("app", "core")""")
+            listOf("app", "core").forEach { name ->
+                val mod = root.resolve(name)
+                mod.createDirectories()
+                mod.resolve("build.gradle.kts").writeText("// noop")
+                val src = mod.resolve("src/main/kotlin/com/example")
+                src.createDirectories()
+                src.resolve("${name.replaceFirstChar(Char::uppercase)}Type.kt").writeText("class X")
+            }
+
+            val modules = detector.detect(root, fallbackName = "fb")
+
+            modules.map { it.name }.sorted() shouldBe listOf("app", "core")
+            modules.flatMap { it.sourceFiles }.all { it.name.endsWith(".kt") } shouldBe true
+        }
+
         "detects Maven module via pom.xml" {
             val root = Files.createTempDirectory("proj-")
             root.resolve("pom.xml").writeText(
@@ -219,6 +251,17 @@ class ProjectDetectorTest :
             modules shouldHaveSize 1
             modules[0].name shouldBe "fb"
             modules[0].sourceFiles shouldHaveSize 1
+        }
+
+        "falls back to scanning loose .kt files when no build file" {
+            val root = Files.createTempDirectory("proj-loose-kt-")
+            root.resolve("Loose.kt").writeText("class Loose")
+
+            val modules = detector.detect(root, fallbackName = "fb")
+
+            modules shouldHaveSize 1
+            modules[0].name shouldBe "fb"
+            modules[0].sourceFiles.map { it.name } shouldBe listOf("Loose.kt")
         }
 
         "fallback scan ignores macOS metadata files" {
