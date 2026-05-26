@@ -1,10 +1,10 @@
 package com.toolhub.classdiagramgenerator.job
 
 import com.toolhub.classdiagramgenerator.analyzer.ClassIdAssigner
-import com.toolhub.classdiagramgenerator.analyzer.JavaSourceAnalyzer
 import com.toolhub.classdiagramgenerator.analyzer.LayerClassifier
 import com.toolhub.classdiagramgenerator.analyzer.ParsedType
 import com.toolhub.classdiagramgenerator.analyzer.RelationExtractor
+import com.toolhub.classdiagramgenerator.analyzer.SourceAnalyzer
 import com.toolhub.classdiagramgenerator.config.AppProperties
 import com.toolhub.classdiagramgenerator.domain.AttributeInfo
 import com.toolhub.classdiagramgenerator.domain.ClassInfo
@@ -36,7 +36,7 @@ import kotlin.io.path.outputStream
 class JobOrchestrator(
     private val zipExtractor: ZipExtractor,
     private val projectDetector: ProjectDetector,
-    private val analyzer: JavaSourceAnalyzer,
+    private val analyzers: List<SourceAnalyzer>,
     private val classifier: LayerClassifier,
     private val idAssigner: ClassIdAssigner,
     private val relationExtractor: RelationExtractor,
@@ -139,6 +139,7 @@ class JobOrchestrator(
         modules.map { md ->
             val types =
                 md.sourceFiles.flatMap { path ->
+                    val analyzer = analyzerFor(path)
                     val parsed = analyzer.parseFile(path)
                     parsed.warnings.forEach { warning -> addWarning(record, warning) }
                     parsed.types
@@ -148,6 +149,10 @@ class JobOrchestrator(
             }
             md to types
         }
+
+    private fun analyzerFor(path: Path): SourceAnalyzer =
+        analyzers.firstOrNull { analyzer -> analyzer.supports(path) }
+            ?: throw UnsupportedSourceTypeException(path.fileName.toString())
 
     private fun classifyModule(
         md: ModuleDescriptor,
@@ -284,11 +289,20 @@ class JobOrchestrator(
     ) {
         log.error("Job failed", e)
         record.status = JobStatus.FAILED
-        record.errorCode = if (e is ZipExtractor.ZipSlipException) "ZIP_SLIP" else "INTERNAL_ERROR"
+        record.errorCode =
+            when (e) {
+                is ZipExtractor.ZipSlipException -> "ZIP_SLIP"
+                is UnsupportedSourceTypeException -> "UNSUPPORTED_SOURCE_TYPE"
+                else -> "INTERNAL_ERROR"
+            }
         record.errorMessage = e.message
         bus.publish(record.id, "error", mapOf("code" to record.errorCode, "message" to record.errorMessage))
         bus.complete(record.id)
     }
+
+    private class UnsupportedSourceTypeException(
+        fileName: String,
+    ) : IllegalStateException("Unsupported source file type: $fileName")
 
     companion object {
         private const val PCT_EXTRACT = 5

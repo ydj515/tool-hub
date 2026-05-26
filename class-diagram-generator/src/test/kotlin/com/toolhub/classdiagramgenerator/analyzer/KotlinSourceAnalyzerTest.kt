@@ -1,9 +1,11 @@
 package com.toolhub.classdiagramgenerator.analyzer
 
 import com.toolhub.classdiagramgenerator.domain.AccessModifier
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.writeText
@@ -163,6 +165,35 @@ class KotlinSourceAnalyzerTest :
         "supports only kt extension" {
             analyzer.supports(Path("A.kt")) shouldBe true
             analyzer.supports(Path("A.java")) shouldBe false
+        }
+
+        "throws explicit exception when parse is called after destroy" {
+            val src = "class ClosedAnalyzerSample"
+            val path = Files.createTempFile("ClosedAnalyzerSample", ".kt").also { it.writeText(src) }
+            val instance = KotlinSourceAnalyzer()
+
+            instance.destroy()
+
+            val error = shouldThrow<IllegalStateException> { instance.parseFile(path) }
+            error.message shouldBe "KotlinSourceAnalyzer is already closed"
+        }
+
+        "parses UTF-16BE encoded kotlin source with fallback charset" {
+            val src =
+                """
+                package com.demo.legacy
+                class LegacyKotlinService
+                """.trimIndent()
+            val path = Files.createTempFile("LegacyKotlinService", ".kt")
+            Files.write(path, src.toByteArray(StandardCharsets.UTF_16BE))
+
+            val parsed = analyzer.parseFile(path)
+
+            parsed.types.single().name shouldBe "LegacyKotlinService"
+            parsed.types.single().packagePath shouldBe "com.demo.legacy"
+            parsed.warnings.map { it.code } shouldContain "SOURCE_ENCODING_FALLBACK"
+            parsed.warnings.first { it.code == "SOURCE_ENCODING_FALLBACK" }.context["charset"] shouldBe "UTF-16BE"
+            parsed.warnings.first { it.code == "SOURCE_ENCODING_FALLBACK" }.context["path"] shouldBe path.fileName.toString()
         }
 
         "keeps qualified super type names for extends and interface extends" {

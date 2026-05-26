@@ -110,6 +110,76 @@ class EndToEndTest(
             final.warnings.any { it.code == "MISSING_DECLARED_MODULE" } shouldBe true
         }
 
+        "single-module Gradle Kotlin zip yields 3 artifacts" {
+            val rec =
+                service.submit(
+                    programName = "catalog",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "gradle-single-kotlin.zip", "application/zip", buildGradleSingleKotlinZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 3
+            final.warnings.isEmpty() shouldBe true
+        }
+
+        "single-module Maven Kotlin zip yields 3 artifacts" {
+            val rec =
+                service.submit(
+                    programName = "catalog",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "maven-single-kotlin.zip", "application/zip", buildMavenSingleKotlinZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 3
+            final.warnings.isEmpty() shouldBe true
+        }
+
+        "three-module Gradle Kotlin zip yields artifacts for each module and format" {
+            val rec =
+                service.submit(
+                    programName = "catalog",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "gradle-three-kotlin.zip", "application/zip", buildGradleThreeModuleKotlinZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 9
+            final.artifacts.map { it.module }.toSet() shouldBe setOf("api", "service", "support")
+            final.warnings.isEmpty() shouldBe true
+        }
+
+        "three-module Maven Kotlin zip yields artifacts for each module and format" {
+            val rec =
+                service.submit(
+                    programName = "catalog",
+                    version = "v1.0",
+                    language = OutputLanguage.EN,
+                    formats = listOf("docx", "xlsx", "md"),
+                    includeDiagrams = true,
+                    file = MockMultipartFile("file", "maven-three-kotlin.zip", "application/zip", buildMavenThreeModuleKotlinZip()),
+                )
+            waitForCompletion(rec.id, store)
+            val final = store.get(rec.id)!!
+            final.status shouldBe JobStatus.DONE
+            final.artifacts.size shouldBe 9
+            final.artifacts.map { it.module }.toSet() shouldBe setOf("api", "service", "support")
+            final.warnings.isEmpty() shouldBe true
+        }
+
         "diagrams embedded in docx/xlsx/md when includeDiagrams=true" {
             val rec =
                 service.submit(
@@ -310,6 +380,175 @@ private fun buildInheritanceZip(): ByteArray {
         addEntry(zos, "build.gradle", "// noop")
         addEntry(zos, "src/main/java/com/demo/service/BaseService.java", baseServiceJava())
         addEntry(zos, "src/main/java/com/demo/service/UserService.java", userServiceJava())
+    }
+    return out.toByteArray()
+}
+
+private fun singleKotlinSource(): String =
+    """
+    package com.demo.catalog
+
+    /** 상태 타입. */
+    enum class CatalogStatus {
+        READY,
+        SOLD_OUT,
+    }
+
+    /** 상품 요약. */
+    data class CatalogSummary(
+        val sku: String,
+        val status: CatalogStatus,
+    )
+
+    /** 조회 서비스. */
+    class CatalogService {
+        fun summaries(): List<CatalogSummary> = listOf(CatalogSummary("CAT-001", CatalogStatus.READY))
+    }
+    """.trimIndent()
+
+private fun kotlinSupportSource(): String =
+    """
+    package com.demo.support
+
+    /** 공유 상태 타입. */
+    enum class CatalogStatus {
+        READY,
+        SOLD_OUT,
+    }
+
+    /** 공유 요약 뷰. */
+    data class CatalogSnapshot(
+        val sku: String,
+        val status: CatalogStatus,
+    )
+
+    /** 공용 포맷터. */
+    object CatalogSupport {
+        fun normalize(sku: String): String = sku.trim().uppercase()
+    }
+    """.trimIndent()
+
+private fun kotlinServiceSource(): String =
+    """
+    package com.demo.service
+
+    import com.demo.support.CatalogSnapshot
+    import com.demo.support.CatalogStatus
+    import com.demo.support.CatalogSupport
+
+    /** 서비스 계약. */
+    interface CatalogReadable {
+        fun findAll(): List<CatalogSnapshot>
+    }
+
+    /** 상품 서비스. */
+    class CatalogService : CatalogReadable {
+        override fun findAll(): List<CatalogSnapshot> =
+            listOf(CatalogSnapshot(CatalogSupport.normalize("cat-001"), CatalogStatus.READY))
+    }
+    """.trimIndent()
+
+private fun kotlinApiSource(): String =
+    """
+    package com.demo.api
+
+    import com.demo.service.CatalogReadable
+    import com.demo.service.CatalogService
+    import com.demo.support.CatalogSnapshot
+
+    /** API 진입점. */
+    class CatalogController(
+        private val catalogService: CatalogReadable = CatalogService(),
+    ) {
+        fun list(): List<CatalogSnapshot> = catalogService.findAll()
+    }
+    """.trimIndent()
+
+private fun buildGradleSingleKotlinZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(zos, "settings.gradle.kts", """rootProject.name = "gradle-single-kotlin"""")
+        addEntry(
+            zos,
+            "build.gradle.kts",
+            """
+            plugins {
+                kotlin("jvm") version "2.0.21"
+            }
+            """.trimIndent(),
+        )
+        addEntry(zos, "src/main/kotlin/com/demo/catalog/CatalogModule.kt", singleKotlinSource())
+    }
+    return out.toByteArray()
+}
+
+private fun buildMavenSingleKotlinZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(
+            zos,
+            "pom.xml",
+            """
+            <project>
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.demo</groupId>
+              <artifactId>maven-single-kotlin</artifactId>
+            </project>
+            """.trimIndent(),
+        )
+        addEntry(zos, "src/main/kotlin/com/demo/catalog/CatalogModule.kt", singleKotlinSource())
+    }
+    return out.toByteArray()
+}
+
+private fun buildGradleThreeModuleKotlinZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(
+            zos,
+            "settings.gradle.kts",
+            """
+            rootProject.name = "gradle-multi-kotlin"
+            include("api", "service", "support")
+            """.trimIndent(),
+        )
+        addEntry(zos, "build.gradle.kts", "// root")
+        addEntry(zos, "api/build.gradle.kts", """plugins { kotlin("jvm") version "2.0.21" }""")
+        addEntry(zos, "service/build.gradle.kts", """plugins { kotlin("jvm") version "2.0.21" }""")
+        addEntry(zos, "support/build.gradle.kts", """plugins { kotlin("jvm") version "2.0.21" }""")
+        addEntry(zos, "api/src/main/kotlin/com/demo/api/CatalogController.kt", kotlinApiSource())
+        addEntry(zos, "service/src/main/kotlin/com/demo/service/CatalogService.kt", kotlinServiceSource())
+        addEntry(zos, "support/src/main/kotlin/com/demo/support/CatalogSupport.kt", kotlinSupportSource())
+    }
+    return out.toByteArray()
+}
+
+private fun buildMavenThreeModuleKotlinZip(): ByteArray {
+    val out = ByteArrayOutputStream()
+    ZipOutputStream(out).use { zos ->
+        addEntry(
+            zos,
+            "pom.xml",
+            """
+            <project>
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.demo</groupId>
+              <artifactId>maven-multi-kotlin</artifactId>
+              <packaging>pom</packaging>
+              <modules>
+                <module>api</module>
+                <module>service</module>
+                <module>support</module>
+              </modules>
+            </project>
+            """.trimIndent(),
+        )
+        addEntry(zos, "api/pom.xml", "<project/>")
+        addEntry(zos, "service/pom.xml", "<project/>")
+        addEntry(zos, "support/pom.xml", "<project/>")
+        addEntry(zos, "api/src/main/kotlin/com/demo/api/CatalogController.kt", kotlinApiSource())
+        addEntry(zos, "service/src/main/kotlin/com/demo/service/CatalogService.kt", kotlinServiceSource())
+        addEntry(zos, "support/src/main/kotlin/com/demo/support/CatalogSupport.kt", kotlinSupportSource())
     }
     return out.toByteArray()
 }

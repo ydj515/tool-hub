@@ -26,34 +26,83 @@ import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.springframework.stereotype.Component
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
 @Component
 @Suppress("TooManyFunctions")
 class KotlinSourceAnalyzer : SourceAnalyzer {
+    private val lifecycleLock = Any()
+
+    @Volatile
+    private var closed = false
     private val disposable = Disposer.newDisposable()
     private val environment: KotlinCoreEnvironment = createEnvironment()
     private val psiFactory = KtPsiFactory(environment.project, false)
 
     override fun supports(path: Path): Boolean = path.fileName.toString().endsWith(".kt")
 
-    @Synchronized
     override fun parseFile(path: Path): ParsedSource {
-        val content = Files.readString(path)
-        val file = createKtFile(path.fileName.toString(), content)
-        val pkg = file.packageFqName.asString()
-        val imports = file.importDirectives.mapNotNull { it.importPath?.pathStr }
-        val knownKinds = collectKnownKinds(file.declarations)
-        val types = mutableListOf<ParsedType>()
-        file.declarations.filterIsInstance<KtClassOrObject>().forEach { collect(it, pkg, imports, knownKinds, types) }
-        return ParsedSource(types = types, warnings = collectWarnings(path, file))
+        synchronized(lifecycleLock) {
+            check(!closed) { "KotlinSourceAnalyzer is already closed" }
+
+            val decoded = decodeSource(path)
+            val file = decoded.file
+            val pkg = file.packageFqName.asString()
+            val imports = file.importDirectives.mapNotNull { it.importPath?.pathStr }
+            val knownKinds = collectKnownKinds(file.declarations)
+            val types = mutableListOf<ParsedType>()
+            file.declarations.filterIsInstance<KtClassOrObject>().forEach { collect(it, pkg, imports, knownKinds, types) }
+            return ParsedSource(types = types, warnings = decoded.warnings + collectWarnings(path, file))
+        }
     }
 
     @PreDestroy
     fun destroy() {
-        Disposer.dispose(disposable)
+        synchronized(lifecycleLock) {
+            if (closed) return
+            closed = true
+            Disposer.dispose(disposable)
+        }
     }
+
+    private fun decodeSource(path: Path): DecodedKotlinSource {
+        val bytes = Files.readAllBytes(path)
+        val candidates = kotlinCandidateCharsets(bytes)
+        var firstParsed: KtFile? = null
+
+        candidates.forEachIndexed { index, charset ->
+            val file = createKtFile(path.fileName.toString(), decode(bytes, charset))
+            if (firstParsed == null) {
+                firstParsed = file
+            }
+            val hasErrors = file.collectDescendantsOfType<PsiErrorElement>().isNotEmpty()
+            if (!hasErrors) {
+                val warnings =
+                    if (index == 0) {
+                        emptyList()
+                    } else {
+                        listOf(
+                            Warning(
+                                code = WARNING_SOURCE_ENCODING_FALLBACK,
+                                message = "Parsed source with fallback charset ${charset.name()}",
+                                context = mapOf("path" to path.fileName.toString(), "charset" to charset.name()),
+                            ),
+                        )
+                    }
+                return DecodedKotlinSource(file = file, warnings = warnings)
+            }
+        }
+
+        return DecodedKotlinSource(file = checkNotNull(firstParsed), warnings = emptyList())
+    }
+
+    private data class DecodedKotlinSource(
+        val file: KtFile,
+        val warnings: List<Warning>,
+    )
 
     private fun createEnvironment(): KotlinCoreEnvironment {
         val configuration = CompilerConfiguration()
@@ -262,5 +311,85 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
 
     companion object {
         private const val WARNING_KOTLIN_PARSE_PARTIAL = "KOTLIN_PARSE_PARTIAL"
+        private const val WARNING_SOURCE_ENCODING_FALLBACK = "SOURCE_ENCODING_FALLBACK"
     }
 }
+
+private fun kotlinCandidateCharsets(bytes: ByteArray): List<Charset> {
+    val candidates = linkedSetOf(StandardCharsets.UTF_8)
+    val platformDefault = Charset.defaultCharset()
+    if (platformDefault != StandardCharsets.UTF_8) {
+        candidates += platformDefault
+    }
+
+    when (detectKotlinUtf16Hint(bytes)) {
+        KotlinUtf16Hint.BIG_ENDIAN -> {
+            candidates += StandardCharsets.UTF_16BE
+            candidates += StandardCharsets.UTF_16
+        }
+
+        KotlinUtf16Hint.LITTLE_ENDIAN -> {
+            candidates += StandardCharsets.UTF_16LE
+            candidates += StandardCharsets.UTF_16
+        }
+
+        KotlinUtf16Hint.UNKNOWN -> {
+            candidates += StandardCharsets.UTF_16
+            candidates += StandardCharsets.UTF_16BE
+            candidates += StandardCharsets.UTF_16LE
+        }
+
+        KotlinUtf16Hint.NONE -> Unit
+    }
+    return candidates.toList()
+}
+
+private fun detectKotlinUtf16Hint(bytes: ByteArray): KotlinUtf16Hint {
+    detectKotlinBomHint(bytes)?.let { return it }
+    val (evenZeros, oddZeros) = countKotlinZeroBytes(bytes)
+    return kotlinZeroPatternHint(evenZeros, oddZeros)
+}
+
+private fun decode(
+    bytes: ByteArray,
+    charset: Charset,
+): String = String(bytes, charset).removePrefix(KOTLIN_UTF8_BOM)
+
+private fun detectKotlinBomHint(bytes: ByteArray): KotlinUtf16Hint? {
+    if (bytes.size < KOTLIN_UTF16_BOM_SIZE) return null
+    return when {
+        bytes[0] == 0xFE.toByte() && bytes[1] == 0xFF.toByte() -> KotlinUtf16Hint.BIG_ENDIAN
+        bytes[0] == 0xFF.toByte() && bytes[1] == 0xFE.toByte() -> KotlinUtf16Hint.LITTLE_ENDIAN
+        else -> null
+    }
+}
+
+private fun countKotlinZeroBytes(bytes: ByteArray): Pair<Int, Int> {
+    val sampleSize = minOf(bytes.size, KOTLIN_UTF16_SAMPLE_SIZE)
+    var evenZeros = 0
+    var oddZeros = 0
+    repeat(sampleSize) { index ->
+        if (bytes[index] == 0.toByte()) {
+            if (index % 2 == 0) evenZeros++ else oddZeros++
+        }
+    }
+    return evenZeros to oddZeros
+}
+
+private fun kotlinZeroPatternHint(
+    evenZeros: Int,
+    oddZeros: Int,
+): KotlinUtf16Hint =
+    when {
+        evenZeros >= KOTLIN_UTF16_ZERO_THRESHOLD && evenZeros > oddZeros -> KotlinUtf16Hint.BIG_ENDIAN
+        oddZeros >= KOTLIN_UTF16_ZERO_THRESHOLD && oddZeros > evenZeros -> KotlinUtf16Hint.LITTLE_ENDIAN
+        evenZeros >= KOTLIN_UTF16_ZERO_THRESHOLD || oddZeros >= KOTLIN_UTF16_ZERO_THRESHOLD -> KotlinUtf16Hint.UNKNOWN
+        else -> KotlinUtf16Hint.NONE
+    }
+
+private enum class KotlinUtf16Hint { BIG_ENDIAN, LITTLE_ENDIAN, UNKNOWN, NONE }
+
+private const val KOTLIN_UTF16_BOM_SIZE = 2
+private const val KOTLIN_UTF16_SAMPLE_SIZE = 64
+private const val KOTLIN_UTF16_ZERO_THRESHOLD = 2
+private const val KOTLIN_UTF8_BOM = "\uFEFF"
