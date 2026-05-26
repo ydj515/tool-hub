@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.jackson.module.kotlin)
     implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.compiler.embeddable)
     implementation(libs.javaparser.core)
     implementation(libs.poi)
     implementation(libs.poi.ooxml)

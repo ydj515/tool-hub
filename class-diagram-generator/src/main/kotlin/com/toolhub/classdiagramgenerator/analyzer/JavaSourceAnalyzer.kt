@@ -45,14 +45,14 @@ data class ParsedSource(
 )
 
 @Component
-class JavaSourceAnalyzer {
+class JavaSourceAnalyzer : SourceAnalyzer {
     // record 등 최신 Java 문법을 안정적으로 지원하도록 툴체인과 같은 언어 레벨로 고정한다.
     private val parser =
         JavaParser(
             ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21),
         )
 
-    fun parseFile(path: Path): ParsedSource {
+    override fun parseFile(path: Path): ParsedSource {
         val parsed = parseCompilationUnit(path)
         val unit = parsed.unit
         val pkg = unit.packageDeclaration.map { it.nameAsString }.orElse("")
