@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import kotlin.io.path.Path
 import kotlin.io.path.writeText
 
 class JavaSourceAnalyzerTest :
@@ -129,5 +130,11 @@ class JavaSourceAnalyzerTest :
             )
             val parsed = JavaSourceAnalyzer().parseFile(tmp)
             parsed.types[0].imports shouldBe listOf("com.demo.base.BaseService", "java.util.List")
+        }
+
+        "supports only java extension" {
+            analyzer.supports(Path("A.java")) shouldBe true
+            analyzer.supports(Path("A.kt")) shouldBe false
+            analyzer.supports(Path("/")) shouldBe false
         }
     })

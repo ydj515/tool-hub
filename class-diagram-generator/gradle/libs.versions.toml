@@ -1,5 +1,6 @@
 [versions]
 kotlin = "2.0.21"
+kotlinCompiler = "2.0.21"
 springBoot = "3.3.5"
 springDepMgmt = "1.1.6"
 javaparser = "3.26.2"
@@ -25,6 +26,7 @@ spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-test     = { module = "org.springframework.boot:spring-boot-starter-test" }
 jackson-module-kotlin        = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 kotlin-reflect               = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-compiler-embeddable   = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlinCompiler" }
 javaparser-core              = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
 poi                          = { module = "org.apache.poi:poi", version.ref = "poi" }
 poi-ooxml                    = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }

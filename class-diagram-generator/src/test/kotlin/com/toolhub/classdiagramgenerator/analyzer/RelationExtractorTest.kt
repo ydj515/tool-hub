@@ -182,6 +182,71 @@ class RelationExtractorTest :
                 .single()
                 .target.external shouldBe false
         }
+
+        "kotlin interface extends and class implements are extracted with correct kinds" {
+            val parsed =
+                listOf(
+                    ParsedType(
+                        name = "BasePort",
+                        packagePath = "com.demo.port",
+                        description = "",
+                        attributes = emptyList(),
+                        operations = emptyList(),
+                    ),
+                    ParsedType(
+                        name = "ChildPort",
+                        packagePath = "com.demo.port",
+                        description = "",
+                        attributes = emptyList(),
+                        operations = emptyList(),
+                        extendsNames = listOf("BasePort"),
+                        implementsNames = emptyList(),
+                    ),
+                    ParsedType(
+                        name = "PortAdapter",
+                        packagePath = "com.demo.adapter",
+                        description = "",
+                        attributes = emptyList(),
+                        operations = emptyList(),
+                        extendsNames = emptyList(),
+                        implementsNames = listOf("ChildPort"),
+                        imports = listOf("com.demo.port.ChildPort"),
+                    ),
+                )
+            val classes =
+                listOf(
+                    classInfo("CLS-0001", "BasePort", "com.demo.port"),
+                    classInfo("CLS-0002", "ChildPort", "com.demo.port"),
+                    classInfo("CLS-0003", "PortAdapter", "com.demo.adapter"),
+                )
+
+            val result = ex.extract(parsed, classes)
+
+            result.warnings shouldHaveSize 0
+            result.relations shouldHaveSize 2
+            result.relations shouldContain
+                com.toolhub.classdiagramgenerator.domain.Relation(
+                    sourceClassId = "CLS-0002",
+                    target =
+                        com.toolhub.classdiagramgenerator.domain.TypeRef(
+                            simpleName = "BasePort",
+                            fqn = "com.demo.port.BasePort",
+                            external = false,
+                        ),
+                    kind = RelationKind.EXTENDS,
+                )
+            result.relations shouldContain
+                com.toolhub.classdiagramgenerator.domain.Relation(
+                    sourceClassId = "CLS-0003",
+                    target =
+                        com.toolhub.classdiagramgenerator.domain.TypeRef(
+                            simpleName = "ChildPort",
+                            fqn = "com.demo.port.ChildPort",
+                            external = false,
+                        ),
+                    kind = RelationKind.IMPLEMENTS,
+                )
+        }
     })
 
 private fun classInfo(

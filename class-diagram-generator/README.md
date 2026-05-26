@@ -1,9 +1,21 @@
 # class-diagram-generator
 
-Java 소스 ZIP을 입력받아 docx / xlsx / md 클래스 설계서를 자동 생성하는 Spring Boot 3 + Kotlin 기반 도구.
+Java 또는 순수 Kotlin 소스 ZIP을 입력받아 docx / xlsx / md 클래스 설계서를 자동 생성하는 Spring Boot 3 + Kotlin 기반 도구.
 
 - 상세 PRD: [docs/PRD-class-diagram-generator.md](docs/PRD-class-diagram-generator.md)
 - 구현 계획: [docs/mvp-plan.md](docs/mvp-plan.md)
+
+## 지원 범위
+
+- 언어: Java, 순수 Kotlin
+- 빌드 도구: Gradle, Maven
+- 프로젝트 구조: single module, multi module
+- 소스 루트:
+  - Java: `src/main/java`
+  - Kotlin: `src/main/kotlin`
+- 현재 정책:
+  - 순수 Kotlin 프로젝트를 지원한다.
+  - 동일 모듈 안에서 Java와 Kotlin을 함께 분석하는 혼합 소스 프로젝트는 이번 범위에 포함하지 않는다.
 
 ## 로컬 실행
 
@@ -49,6 +61,12 @@ mise run            # default = check (테스트 + Spotless + Detekt)
 ```
 
 또는 직접 `./gradlew check`.
+
+Kotlin 파이프라인 중심 회귀 검증만 빠르게 확인하려면 아래 테스트를 실행한다.
+
+```bash
+./gradlew test --tests 'com.toolhub.classdiagramgenerator.EndToEndTest'
+```
 
 ## mise tasks
 
