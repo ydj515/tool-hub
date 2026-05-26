@@ -98,6 +98,20 @@ class ProjectDetectorTest :
             modules[0].sourceFiles.map { it.name } shouldBe listOf("KotlinType.kt")
         }
 
+        "falls back to java sources when src/main/kotlin exists but is empty" {
+            val root = Files.createTempDirectory("proj-empty-kotlin-dir-")
+            root.resolve("build.gradle.kts").writeText("// noop")
+            root.resolve("src/main/kotlin").createDirectories()
+            val javaSrc = root.resolve("src/main/java/com/example")
+            javaSrc.createDirectories()
+            javaSrc.resolve("JavaType.java").writeText("class JavaType {}")
+
+            val modules = detector.detect(root, fallbackName = "demo")
+
+            modules shouldHaveSize 1
+            modules[0].sourceFiles.map { it.name } shouldBe listOf("JavaType.java")
+        }
+
         "detects Gradle Kotlin multi-module project from settings.gradle.kts" {
             val root = Files.createTempDirectory("proj-kotlin-multi-")
             root.resolve("settings.gradle.kts").writeText("""include("app", "core")""")

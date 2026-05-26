@@ -42,7 +42,7 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
     private val environment: KotlinCoreEnvironment = createEnvironment()
     private val psiFactory = KtPsiFactory(environment.project, false)
 
-    override fun supports(path: Path): Boolean = path.fileName.toString().endsWith(".kt")
+    override fun supports(path: Path): Boolean = path.fileName?.toString()?.endsWith(".kt") == true
 
     override fun parseFile(path: Path): ParsedSource {
         synchronized(lifecycleLock) {
@@ -71,10 +71,11 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
     private fun decodeSource(path: Path): DecodedKotlinSource {
         val bytes = Files.readAllBytes(path)
         val candidates = kotlinCandidateCharsets(bytes)
+        val fileName = path.fileName?.toString() ?: "unknown"
         var firstParsed: KtFile? = null
 
         candidates.forEachIndexed { index, charset ->
-            val file = createKtFile(path.fileName.toString(), decode(bytes, charset))
+            val file = createKtFile(fileName, decode(bytes, charset))
             if (firstParsed == null) {
                 firstParsed = file
             }
@@ -88,7 +89,7 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
                             Warning(
                                 code = WARNING_SOURCE_ENCODING_FALLBACK,
                                 message = "Parsed source with fallback charset ${charset.name()}",
-                                context = mapOf("path" to path.fileName.toString(), "charset" to charset.name()),
+                                context = mapOf("path" to fileName, "charset" to charset.name()),
                             ),
                         )
                     }

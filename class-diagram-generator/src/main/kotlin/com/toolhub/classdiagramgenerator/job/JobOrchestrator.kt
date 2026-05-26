@@ -152,7 +152,7 @@ class JobOrchestrator(
 
     private fun analyzerFor(path: Path): SourceAnalyzer =
         analyzers.firstOrNull { analyzer -> analyzer.supports(path) }
-            ?: throw UnsupportedSourceTypeException(path.fileName.toString())
+            ?: throw UnsupportedSourceTypeException(path.fileName?.toString() ?: "unknown")
 
     private fun classifyModule(
         md: ModuleDescriptor,

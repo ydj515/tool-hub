@@ -165,6 +165,7 @@ class KotlinSourceAnalyzerTest :
         "supports only kt extension" {
             analyzer.supports(Path("A.kt")) shouldBe true
             analyzer.supports(Path("A.java")) shouldBe false
+            analyzer.supports(Path("/")) shouldBe false
         }
 
         "throws explicit exception when parse is called after destroy" {

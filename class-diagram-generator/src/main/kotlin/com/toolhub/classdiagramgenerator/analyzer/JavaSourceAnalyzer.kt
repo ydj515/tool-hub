@@ -52,7 +52,7 @@ class JavaSourceAnalyzer : SourceAnalyzer {
             ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21),
         )
 
-    override fun supports(path: Path): Boolean = path.fileName.toString().endsWith(".java")
+    override fun supports(path: Path): Boolean = path.fileName?.toString()?.endsWith(".java") == true
 
     override fun parseFile(path: Path): ParsedSource {
         val parsed = parseCompilationUnit(path)

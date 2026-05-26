@@ -135,5 +135,6 @@ class JavaSourceAnalyzerTest :
         "supports only java extension" {
             analyzer.supports(Path("A.java")) shouldBe true
             analyzer.supports(Path("A.kt")) shouldBe false
+            analyzer.supports(Path("/")) shouldBe false
         }
     })

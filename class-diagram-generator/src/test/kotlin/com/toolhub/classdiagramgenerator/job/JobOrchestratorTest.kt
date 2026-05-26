@@ -114,6 +114,32 @@ class JobOrchestratorTest(
             record.errorMessage shouldBe "Unsupported source file type: Foo.scala"
             record.errorMessage.shouldNotContain("/tmp/secret/workspace")
         }
+
+        "unsupported analyzer error falls back to unknown for root path" {
+            val record =
+                JobRecord(
+                    id = UUID.randomUUID(),
+                    programName = "demo",
+                    version = "v1.0",
+                    language = OutputLanguage.KO,
+                    formats = listOf("md"),
+                    includeDiagrams = false,
+                    status = JobStatus.RUNNING,
+                    workDir = Files.createTempDirectory("job-orchestrator-root-error-"),
+                    createdAt = Instant.now(),
+                )
+            val path = Path.of("/")
+
+            val thrown =
+                runCatching { invokeAnalyzerFor(orchestrator, path) }
+                    .exceptionOrNull() as Exception
+
+            invokeHandleFailure(orchestrator, record, thrown)
+
+            record.status shouldBe JobStatus.FAILED
+            record.errorCode shouldBe "UNSUPPORTED_SOURCE_TYPE"
+            record.errorMessage shouldBe "Unsupported source file type: unknown"
+        }
     })
 
 private fun waitForCompletion(
