@@ -82,6 +82,22 @@ class ProjectDetectorTest :
             modules[0].sourceFiles.map { it.name } shouldBe listOf("Hello.kt")
         }
 
+        "prefers Kotlin-only source collection when both kotlin and java dirs exist" {
+            val root = Files.createTempDirectory("proj-kotlin-java-mixed-")
+            root.resolve("build.gradle.kts").writeText("// noop")
+            val kotlinSrc = root.resolve("src/main/kotlin/com/example")
+            kotlinSrc.createDirectories()
+            kotlinSrc.resolve("KotlinType.kt").writeText("class KotlinType")
+            val javaSrc = root.resolve("src/main/java/com/example")
+            javaSrc.createDirectories()
+            javaSrc.resolve("JavaType.java").writeText("class JavaType {}")
+
+            val modules = detector.detect(root, fallbackName = "demo")
+
+            modules shouldHaveSize 1
+            modules[0].sourceFiles.map { it.name } shouldBe listOf("KotlinType.kt")
+        }
+
         "detects Gradle Kotlin multi-module project from settings.gradle.kts" {
             val root = Files.createTempDirectory("proj-kotlin-multi-")
             root.resolve("settings.gradle.kts").writeText("""include("app", "core")""")

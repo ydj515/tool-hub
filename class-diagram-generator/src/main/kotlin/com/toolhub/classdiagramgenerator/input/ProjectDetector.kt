@@ -127,6 +127,7 @@ class ProjectDetector {
 
     private fun collectSourceFiles(dir: Path): List<Path> {
         val kotlinDir = dir.resolve("src/main/kotlin")
+        // 순수 Kotlin 지원 범위를 우선해 kotlin 디렉터리가 있으면 java는 스캔하지 않는다.
         if (kotlinDir.exists()) {
             return walkSources(kotlinDir, setOf("kt"))
         }
