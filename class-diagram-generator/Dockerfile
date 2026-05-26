@@ -1,18 +1,15 @@
 # syntax=docker/dockerfile:1.7
 
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM gradle:8.14.5-jdk21-corretto AS builder
 
-WORKDIR /app
+WORKDIR /home/gradle/project
 
-COPY gradlew ./
-COPY gradle ./gradle
-COPY build.gradle.kts settings.gradle.kts detekt.yml ./
+COPY --chown=gradle:gradle gradle ./gradle
+COPY --chown=gradle:gradle build.gradle.kts settings.gradle.kts detekt.yml ./
+COPY --chown=gradle:gradle src ./src
 
-RUN chmod +x gradlew
-
-COPY src ./src
-
-RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon -Dkotlin.compiler.execution.strategy=in-process bootJar
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle --no-daemon -Dkotlin.compiler.execution.strategy=in-process bootJar
 
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
@@ -31,7 +28,7 @@ WORKDIR /app
 
 ENV DOCX_FONT_FAMILY="Noto Sans CJK KR"
 
-COPY --from=builder /app/build/libs/app.jar /app/app.jar
+COPY --from=builder /home/gradle/project/build/libs/app.jar /app/app.jar
 
 RUN mkdir -p /tmp/class-diagram-generator && \
     chown -R app:app /app /tmp/class-diagram-generator

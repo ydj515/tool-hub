@@ -115,7 +115,7 @@ Kotlin 파이프라인 중심 회귀 검증만 빠르게 확인하려면 아래 
 
 ## 기술 스택
 
-- JDK 21 (Temurin, mise 관리) / Kotlin 2.0.21 / Gradle 8.14.4 (Kotlin DSL)
+- JDK 21 (Temurin, mise 관리) / Kotlin 2.0.21 / Gradle 8.14.5 (Kotlin DSL)
 - Spring Boot 3.3.5 (web, validation, thymeleaf, actuator)
 - JavaParser 3.26.2 / Apache POI 5.3.0
 - Bootstrap 5.3.3 + Bootstrap Icons 1.11.x (WebJars) + 순수 Vanilla JS (`EventSource`)
