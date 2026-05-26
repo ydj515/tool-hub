@@ -1,10 +1,11 @@
 package com.toolhub.classdiagramgenerator.analyzer
 
 import com.toolhub.classdiagramgenerator.domain.AccessModifier
+import com.toolhub.classdiagramgenerator.domain.Warning
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
+import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
@@ -22,6 +23,7 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
+import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,47 +31,52 @@ import java.nio.file.Path
 @Component
 @Suppress("TooManyFunctions")
 class KotlinSourceAnalyzer : SourceAnalyzer {
+    private val disposable = Disposer.newDisposable()
+    private val environment: KotlinCoreEnvironment = createEnvironment()
+    private val psiFactory = KtPsiFactory(environment.project, false)
+
+    override fun supports(path: Path): Boolean = path.fileName.toString().endsWith(".kt")
+
     override fun parseFile(path: Path): ParsedSource {
         val content = Files.readString(path)
-        val disposable = Disposer.newDisposable()
-        return try {
-            val file = createKtFile(disposable, path.fileName.toString(), content)
-            val pkg = file.packageFqName.asString()
-            val imports = file.importDirectives.mapNotNull { it.importPath?.pathStr }
-            val knownKinds = collectKnownKinds(file.declarations)
-            val types = mutableListOf<ParsedType>()
-            file.declarations.filterIsInstance<KtClassOrObject>().forEach { collect(it, pkg, imports, knownKinds, types) }
-            ParsedSource(types = types)
-        } finally {
-            Disposer.dispose(disposable)
-        }
+        val file = createKtFile(path.fileName.toString(), content)
+        val pkg = file.packageFqName.asString()
+        val imports = file.importDirectives.mapNotNull { it.importPath?.pathStr }
+        val knownKinds = collectKnownKinds(file.declarations)
+        val types = mutableListOf<ParsedType>()
+        file.declarations.filterIsInstance<KtClassOrObject>().forEach { collect(it, pkg, imports, knownKinds, types) }
+        return ParsedSource(types = types, warnings = collectWarnings(path, file))
     }
 
-    private fun createKtFile(
-        disposable: Disposable,
-        fileName: String,
-        content: String,
-    ): KtFile {
+    private fun createEnvironment(): KotlinCoreEnvironment {
         val configuration = CompilerConfiguration()
         configuration.put(CommonConfigurationKeys.MODULE_NAME, "class-diagram-generator")
         configuration.put(JVMConfigurationKeys.JVM_TARGET, JvmTarget.JVM_21)
-        val env = KotlinCoreEnvironment.createForProduction(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
-        return KtPsiFactory(env.project, false).createFile(fileName, content)
+        return KotlinCoreEnvironment.createForProduction(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
     }
+
+    private fun createKtFile(
+        fileName: String,
+        content: String,
+    ): KtFile = psiFactory.createFile(fileName, content)
 
     private fun collectKnownKinds(declarations: List<KtDeclaration>): Map<String, KnownTypeKind> {
         val result = mutableMapOf<String, KnownTypeKind>()
-        declarations.filterIsInstance<KtClassOrObject>().forEach { collectKnownKind(it, result) }
+        declarations.filterIsInstance<KtClassOrObject>().forEach { collectKnownKind(it, result, parent = null) }
         return result
     }
 
     private fun collectKnownKind(
         declaration: KtClassOrObject,
         out: MutableMap<String, KnownTypeKind>,
+        parent: String?,
     ) {
         val name = declaration.typeName() ?: return
-        out[name] = if (declaration is KtClass && declaration.isInterface()) KnownTypeKind.INTERFACE else KnownTypeKind.CLASS_LIKE
-        declaration.declarations.filterIsInstance<KtClassOrObject>().forEach { collectKnownKind(it, out) }
+        val qualifiedName = if (parent.isNullOrBlank()) name else "$parent.$name"
+        val kind = if (declaration is KtClass && declaration.isInterface()) KnownTypeKind.INTERFACE else KnownTypeKind.CLASS_LIKE
+        out[name] = kind
+        out[qualifiedName] = kind
+        declaration.declarations.filterIsInstance<KtClassOrObject>().forEach { collectKnownKind(it, out, qualifiedName) }
     }
 
     private fun collect(
@@ -146,39 +153,67 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
         if (entries.isEmpty()) return emptyList<String>() to emptyList()
 
         if (declaration is KtClass && declaration.isInterface()) {
-            return entries.map { it.name } to emptyList()
+            return entries.map { it.displayName } to emptyList()
         }
 
         val extendsNames = mutableListOf<String>()
         val implementsNames = mutableListOf<String>()
         entries.forEach { entry ->
-            val kind = knownKinds[entry.name]
+            val kind = knownTypeKind(entry, knownKinds)
             if (kind == KnownTypeKind.INTERFACE) {
-                implementsNames += entry.name
+                implementsNames += entry.displayName
             } else if (entry.isConstructorCall && extendsNames.isEmpty()) {
-                extendsNames += entry.name
+                extendsNames += entry.displayName
             } else {
-                implementsNames += entry.name
+                implementsNames += entry.displayName
             }
         }
         return extendsNames to implementsNames
     }
 
+    private fun knownTypeKind(
+        entry: ParentEntry,
+        knownKinds: Map<String, KnownTypeKind>,
+    ): KnownTypeKind? = knownKinds[entry.lookupName] ?: knownKinds[entry.shortName]
+
     private fun KtSuperTypeListEntry.toParentEntry(): ParentEntry? {
-        val name =
-            typeAsUserType?.referencedName
-                ?: typeReference
-                    ?.text
-                    ?.substringBefore("<")
-                    ?.substringBefore("(")
+        val baseTypeText =
+            typeReference
+                ?.text
+                ?.substringBefore("<")
+                ?.substringBefore("(")
+                ?.trim()
                 ?: return null
-        return ParentEntry(name = name, isConstructorCall = this is KtSuperTypeCallEntry)
+        val shortName = baseTypeText.substringAfterLast('.')
+        return ParentEntry(
+            displayName = baseTypeText,
+            lookupName = baseTypeText,
+            shortName = shortName,
+            isConstructorCall = this is KtSuperTypeCallEntry,
+        )
     }
 
     private data class ParentEntry(
-        val name: String,
+        val displayName: String,
+        val lookupName: String,
+        val shortName: String,
         val isConstructorCall: Boolean,
     )
+
+    private fun collectWarnings(
+        path: Path,
+        file: KtFile,
+    ): List<Warning> {
+        val errors = file.collectDescendantsOfType<PsiErrorElement>()
+        if (errors.isEmpty()) return emptyList()
+        return listOf(
+            Warning(
+                code = WARNING_KOTLIN_PARSE_PARTIAL,
+                message = "Kotlin source parsed with PSI errors",
+                context = mapOf("path" to path.fileName.toString(), "errorCount" to errors.size.toString()),
+            ),
+        )
+    }
 
     private fun accessOf(declaration: KtDeclaration): AccessModifier =
         when {
@@ -216,5 +251,9 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
     private enum class KnownTypeKind {
         INTERFACE,
         CLASS_LIKE,
+    }
+
+    companion object {
+        private const val WARNING_KOTLIN_PARSE_PARTIAL = "KOTLIN_PARSE_PARTIAL"
     }
 }

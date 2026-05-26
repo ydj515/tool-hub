@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
+import kotlin.io.path.Path
 import kotlin.io.path.writeText
 
 class KotlinSourceAnalyzerTest :
@@ -142,5 +143,25 @@ class KotlinSourceAnalyzerTest :
             val parsed = analyzer.parseFile(path).types.single()
             parsed.extendsNames shouldBe emptyList()
             parsed.implementsNames shouldBe listOf("Runnable", "AutoCloseable")
+        }
+
+        "collects warning when kotlin source has parse error" {
+            val src =
+                """
+                package com.demo
+
+                class Broken {
+                    fun x( {
+                }
+                """.trimIndent()
+            val path = Files.createTempFile("Broken", ".kt").also { it.writeText(src) }
+
+            val parsed = analyzer.parseFile(path)
+            parsed.warnings.single().code shouldBe "KOTLIN_PARSE_PARTIAL"
+        }
+
+        "supports only kt extension" {
+            analyzer.supports(Path("A.kt")) shouldBe true
+            analyzer.supports(Path("A.java")) shouldBe false
         }
     })
