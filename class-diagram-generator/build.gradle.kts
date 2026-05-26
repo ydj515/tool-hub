@@ -63,6 +63,8 @@ tasks.withType<Test>().configureEach {
 
 tasks.named<BootJar>("bootJar") {
     archiveFileName.set("app.jar")
+    requiresUnpack("**/kotlin-compiler-embeddable-*.jar")
+    requiresUnpack("**/kotlin-daemon-embeddable-*.jar")
 }
 
 spotless {
