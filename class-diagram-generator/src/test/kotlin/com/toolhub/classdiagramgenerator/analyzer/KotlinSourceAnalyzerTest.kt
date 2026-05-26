@@ -126,4 +126,21 @@ class KotlinSourceAnalyzerTest :
             val parsed = analyzer.parseFile(path).types.single()
             parsed.description shouldBe "첫 문장."
         }
+
+        "class with only external interfaces has empty extends and filled implements" {
+            val src =
+                """
+                package com.demo
+
+                class Worker : Runnable, AutoCloseable {
+                    override fun run() {}
+                    override fun close() {}
+                }
+                """.trimIndent()
+            val path = Files.createTempFile("Worker", ".kt").also { it.writeText(src) }
+
+            val parsed = analyzer.parseFile(path).types.single()
+            parsed.extendsNames shouldBe emptyList()
+            parsed.implementsNames shouldBe listOf("Runnable", "AutoCloseable")
+        }
     })

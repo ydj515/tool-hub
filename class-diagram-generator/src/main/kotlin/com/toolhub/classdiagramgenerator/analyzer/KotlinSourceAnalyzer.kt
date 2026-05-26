@@ -20,6 +20,8 @@ import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry
+import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -135,36 +137,48 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
         declaration: KtClassOrObject,
         knownKinds: Map<String, KnownTypeKind>,
     ): Pair<List<String>, List<String>> {
-        val rawNames =
+        val entries =
             declaration
                 .superTypeListEntries
                 .mapNotNull { entry ->
-                    entry.typeAsUserType?.referencedName
-                        ?: entry.typeReference
-                            ?.text
-                            ?.substringBefore("<")
-                            ?.substringBefore("(")
+                    entry.toParentEntry()
                 }
-        if (rawNames.isEmpty()) return emptyList<String>() to emptyList()
+        if (entries.isEmpty()) return emptyList<String>() to emptyList()
 
         if (declaration is KtClass && declaration.isInterface()) {
-            return rawNames to emptyList()
+            return entries.map { it.name } to emptyList()
         }
 
         val extendsNames = mutableListOf<String>()
         val implementsNames = mutableListOf<String>()
-        rawNames.forEach { name ->
-            val kind = knownKinds[name]
+        entries.forEach { entry ->
+            val kind = knownKinds[entry.name]
             if (kind == KnownTypeKind.INTERFACE) {
-                implementsNames += name
-            } else if (extendsNames.isEmpty()) {
-                extendsNames += name
+                implementsNames += entry.name
+            } else if (entry.isConstructorCall && extendsNames.isEmpty()) {
+                extendsNames += entry.name
             } else {
-                implementsNames += name
+                implementsNames += entry.name
             }
         }
         return extendsNames to implementsNames
     }
+
+    private fun KtSuperTypeListEntry.toParentEntry(): ParentEntry? {
+        val name =
+            typeAsUserType?.referencedName
+                ?: typeReference
+                    ?.text
+                    ?.substringBefore("<")
+                    ?.substringBefore("(")
+                ?: return null
+        return ParentEntry(name = name, isConstructorCall = this is KtSuperTypeCallEntry)
+    }
+
+    private data class ParentEntry(
+        val name: String,
+        val isConstructorCall: Boolean,
+    )
 
     private fun accessOf(declaration: KtDeclaration): AccessModifier =
         when {
