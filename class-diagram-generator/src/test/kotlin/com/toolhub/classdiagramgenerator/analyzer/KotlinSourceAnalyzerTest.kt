@@ -164,4 +164,37 @@ class KotlinSourceAnalyzerTest :
             analyzer.supports(Path("A.kt")) shouldBe true
             analyzer.supports(Path("A.java")) shouldBe false
         }
+
+        "keeps qualified super type names for extends and interface extends" {
+            val classSrc =
+                """
+                package com.demo
+
+                class Outer {
+                    open class Parent
+                    interface Contract
+                }
+
+                class Child : Outer.Parent()
+                """.trimIndent()
+            val classPath = Files.createTempFile("QualifiedClass", ".kt").also { it.writeText(classSrc) }
+            val classParsed = analyzer.parseFile(classPath).types.first { it.name == "Child" }
+            classParsed.extendsNames shouldBe listOf("Outer.Parent")
+            classParsed.implementsNames shouldBe emptyList()
+
+            val interfaceSrc =
+                """
+                package com.demo
+
+                class Outer {
+                    interface Contract
+                }
+
+                interface ChildContract : Outer.Contract
+                """.trimIndent()
+            val interfacePath = Files.createTempFile("QualifiedInterface", ".kt").also { it.writeText(interfaceSrc) }
+            val interfaceParsed = analyzer.parseFile(interfacePath).types.first { it.name == "ChildContract" }
+            interfaceParsed.extendsNames shouldBe listOf("Outer.Contract")
+            interfaceParsed.implementsNames shouldBe emptyList()
+        }
     })

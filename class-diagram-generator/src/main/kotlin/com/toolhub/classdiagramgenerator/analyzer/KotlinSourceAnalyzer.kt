@@ -2,6 +2,7 @@ package com.toolhub.classdiagramgenerator.analyzer
 
 import com.toolhub.classdiagramgenerator.domain.AccessModifier
 import com.toolhub.classdiagramgenerator.domain.Warning
+import jakarta.annotation.PreDestroy
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
@@ -37,6 +38,7 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
 
     override fun supports(path: Path): Boolean = path.fileName.toString().endsWith(".kt")
 
+    @Synchronized
     override fun parseFile(path: Path): ParsedSource {
         val content = Files.readString(path)
         val file = createKtFile(path.fileName.toString(), content)
@@ -46,6 +48,11 @@ class KotlinSourceAnalyzer : SourceAnalyzer {
         val types = mutableListOf<ParsedType>()
         file.declarations.filterIsInstance<KtClassOrObject>().forEach { collect(it, pkg, imports, knownKinds, types) }
         return ParsedSource(types = types, warnings = collectWarnings(path, file))
+    }
+
+    @PreDestroy
+    fun destroy() {
+        Disposer.dispose(disposable)
     }
 
     private fun createEnvironment(): KotlinCoreEnvironment {
