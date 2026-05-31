@@ -1,0 +1,11 @@
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/controller/CatalogController.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/model/Product.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/model/ProductDetail.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/model/ProductStatus.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/model/ProductSummary.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/repository/InMemoryProductRepository.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/repository/ProductRepository.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/service/AbstractCatalogSupport.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/service/CatalogService.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/service/DefaultCatalogService.java
+/Users/dongjin/dev/study/tool-hub/class-diagram-generator/sample-projects/maven-single-jdk21/src/main/java/com/example/catalog/util/SkuFormatter.java
