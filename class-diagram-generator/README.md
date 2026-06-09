@@ -4,6 +4,9 @@ Java 또는 순수 Kotlin 소스 ZIP을 입력받아 docx / xlsx / md 클래스 
 
 - 상세 PRD: [docs/PRD-class-diagram-generator.md](docs/PRD-class-diagram-generator.md)
 - 구현 계획: [docs/mvp-plan.md](docs/mvp-plan.md)
+- 아키텍처 결정 인덱스: [docs/architecture-decisions.md](docs/architecture-decisions.md)
+- 잡 처리/SSE 설계 메모: [docs/job-processing-design.md](docs/job-processing-design.md)
+- 소스 분석 설계 메모: [docs/source-analysis-design.md](docs/source-analysis-design.md)
 
 ## 지원 범위
 
