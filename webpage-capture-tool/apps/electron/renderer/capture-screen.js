@@ -41,6 +41,12 @@ function updateCaptureAspectButtons() {
   });
 }
 
+function parseCaptureDepth(value) {
+  const parsed = parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.min(2, Math.max(0, parsed));
+}
+
 function initCaptureScreen() {
   const srcSingle = document.getElementById("src-single");
   const srcFile = document.getElementById("src-file");
@@ -52,6 +58,7 @@ function initCaptureScreen() {
   const btnPickOut = document.getElementById("btn-pick-out");
   const outDirInput = document.getElementById("out-dir");
   const waitMsInput = document.getElementById("wait-ms");
+  const depthInput = document.getElementById("depth");
   const headlessInput = document.getElementById("headless");
   const dedupeInput = document.getElementById("dedupe");
   const dropzone = document.getElementById("dropzone");
@@ -162,6 +169,12 @@ function initCaptureScreen() {
     AppState.project.capturePreset.waitMs = parseInt(e.target.value, 10) || 2000;
     updateCapturePanel();
   });
+  depthInput.addEventListener("input", (e) => {
+    const depth = parseCaptureDepth(e.target.value);
+    AppState.project.capturePreset.depth = depth;
+    e.target.value = depth;
+    updateCapturePanel();
+  });
   headlessInput.addEventListener("change", (e) => {
     AppState.project.capturePreset.headless = e.target.checked;
   });
@@ -197,23 +210,27 @@ function initCaptureScreen() {
 }
 
 function updateCapturePanel() {
-  const { viewport, captureScope, waitMs, aspectMode } = AppState.project.capturePreset;
+  const { viewport, captureScope, waitMs, aspectMode, depth } = AppState.project.capturePreset;
   const vEl = document.getElementById("info-viewport");
   const sEl = document.getElementById("info-scope");
   const wEl = document.getElementById("info-wait");
   const aEl = document.getElementById("info-aspect");
+  const dEl = document.getElementById("info-depth");
   if (vEl) vEl.textContent = `${viewport.width}x${viewport.height}`;
   if (sEl) sEl.textContent = captureScope;
   if (wEl) wEl.textContent = `${waitMs}ms`;
   if (aEl) aEl.textContent = aspectMode;
+  if (dEl) dEl.textContent = String(parseCaptureDepth(depth));
 }
 
 /** 캡처 화면 진입 시 상태를 폼에 반영 */
 function syncCaptureFormFromState() {
   const preset = AppState.project.capturePreset;
+  preset.depth = parseCaptureDepth(preset.depth);
   const singleUrlInput = document.getElementById("single-url");
   const filePathsInput = document.getElementById("file-paths");
   const waitMsInput = document.getElementById("wait-ms");
+  const depthInput = document.getElementById("depth");
   const headlessInput = document.getElementById("headless");
   const dedupeInput = document.getElementById("dedupe");
   const outDirInput = document.getElementById("out-dir");
@@ -224,6 +241,7 @@ function syncCaptureFormFromState() {
   if (singleUrlInput) singleUrlInput.value = preset.singleUrl || "";
   if (filePathsInput) filePathsInput.value = (preset.filePaths || []).join(", ");
   if (waitMsInput) waitMsInput.value = preset.waitMs;
+  if (depthInput) depthInput.value = parseCaptureDepth(preset.depth);
   if (headlessInput) headlessInput.checked = preset.headless;
   if (dedupeInput) dedupeInput.checked = preset.dedupe;
   if (outDirInput) outDirInput.value = preset.outDir || "";
@@ -275,6 +293,7 @@ function buildCaptureArgs() {
 
   if (preset.outDir) args.push("--out", preset.outDir);
   args.push("--wait", String(preset.waitMs));
+  args.push("--depth", String(parseCaptureDepth(preset.depth)));
   args.push("--viewportPreset", preset.viewportPreset);
   args.push("--viewportWidth", String(preset.viewport.width));
   args.push("--viewportHeight", String(preset.viewport.height));
@@ -292,3 +311,4 @@ window.initCaptureScreen = initCaptureScreen;
 window.syncCaptureFormFromState = syncCaptureFormFromState;
 window.buildCaptureArgs = buildCaptureArgs;
 window.updateCapturePanel = updateCapturePanel;
+window.parseCaptureDepth = parseCaptureDepth;

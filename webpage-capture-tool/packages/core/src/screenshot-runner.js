@@ -14,6 +14,10 @@ function ensureOutputDir(outDir) {
 }
 
 function buildBaseName(index, row, columns) {
+  if (row.__baseName) {
+    return row.__baseName;
+  }
+
   const { id, subjectKey } = columns;
   const idValue = row[id] || "";
   const subject = row[subjectKey] || "";
@@ -27,6 +31,57 @@ function buildBaseName(index, row, columns) {
 function makeStageError(stage, error) {
   const next = new Error(error && error.message ? error.message : String(error));
   next.stage = stage;
+  return next;
+}
+
+function normalizeHttpUrl(rawUrl, baseUrl) {
+  try {
+    const url = new URL(rawUrl, baseUrl);
+    if (!["http:", "https:"].includes(url.protocol)) {
+      return null;
+    }
+    url.hash = "";
+    return url;
+  } catch (_e) {
+    return null;
+  }
+}
+
+async function collectDepthOneLinks(page, baseUrl) {
+  const base = normalizeHttpUrl(baseUrl);
+  if (!base) return [];
+
+  const hrefs = await page.$$eval("a[href]", (anchors) => anchors.map((a) => a.href));
+  const baseHref = base.toString();
+  const seen = new Set();
+  const links = [];
+
+  hrefs.forEach((href) => {
+    const next = normalizeHttpUrl(href, baseHref);
+    if (!next || next.origin !== base.origin) return;
+
+    const normalized = next.toString();
+    if (normalized === baseHref || seen.has(normalized)) return;
+
+    seen.add(normalized);
+    links.push(normalized);
+  });
+
+  return links;
+}
+
+function createDepthRow(parentRow, url, columns, childIndex, depth) {
+  const { id, subjectKey, urlKey } = columns;
+  const parentId = parentRow[id] || "";
+  const parentSubject = parentRow[subjectKey] || parentId || "page";
+  const next = {
+    [id]: parentId ? `${parentId}-d${depth}-${childIndex}` : "",
+    [subjectKey]: `${parentSubject}_d${depth}_${childIndex}`,
+    [urlKey]: url,
+    __depth: depth,
+    __parentUrl: parentRow[urlKey] || ""
+  };
+
   return next;
 }
 
@@ -113,7 +168,9 @@ async function takeScreenshots(rows, options) {
     viewport,
     captureScope = "fullPage",
     captureSelector = null,
-    domRules = []
+    domRules = [],
+    depth = 0,
+    dedupe = true
   } = options;
   const { urlKey } = columns;
 
@@ -129,17 +186,24 @@ async function takeScreenshots(rows, options) {
     const failed = [];
     const results = [];
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
+    const queue = rows.map((row) => Object.assign({ __depth: row.__depth || 0 }, row));
+    const queuedUrls = new Set(
+      dedupe
+        ? queue.map((row) => (row[urlKey] || "").trim()).filter(Boolean)
+        : []
+    );
+
+    for (let i = 0; i < queue.length; i++) {
+      const row = queue[i];
       const url = (row[urlKey] || "").trim();
 
       if (!url) {
-        console.log(`(${i + 1}/${rows.length}) URL 없음, 스킵`);
+        console.log(`(${i + 1}/${queue.length}) URL 없음, 스킵`);
         continue;
       }
 
       const baseName = buildBaseName(i + 1, row, columns);
-      console.log(`[${i + 1}/${rows.length}] ${url}`);
+      console.log(`[${i + 1}/${queue.length}] ${url}`);
 
       try {
         const { filePath, domResults } = await captureUrl(page, {
@@ -165,6 +229,18 @@ async function takeScreenshots(rows, options) {
         };
         results.push(result);
         console.log(JSON.stringify({ type: "capture-result", result }));
+
+        if (depth > 0 && (row.__depth || 0) < depth) {
+          const links = await collectDepthOneLinks(page, url);
+          links.forEach((link, linkIndex) => {
+            if (dedupe && queuedUrls.has(link)) return;
+            if (dedupe) queuedUrls.add(link);
+            queue.push(createDepthRow(row, link, columns, linkIndex + 1, (row.__depth || 0) + 1));
+          });
+          if (links.length > 0) {
+            console.log(JSON.stringify({ type: "depth-links", url, depth: (row.__depth || 0) + 1, count: links.length }));
+          }
+        }
       } catch (e) {
         const errorMsg = e && e.message ? e.message : `${e}`;
         const category = e && e.stage ? e.stage : "unknown";
@@ -189,7 +265,7 @@ async function takeScreenshots(rows, options) {
       console.log(JSON.stringify({ type: "failed-summary", failed }));
     }
 
-    return { saved, total: rows.length, failed, results };
+    return { saved, total: queue.length, failed, results };
   } finally {
     await browser.close();
   }
@@ -207,8 +283,33 @@ async function takeSingleScreenshot(url, options) {
     captureScope = "fullPage",
     captureSelector = null,
     domRules = [],
-    baseName = "001_capture"
+    baseName = "001_capture",
+    depth = 0
   } = options;
+
+  if (depth > 0) {
+    return takeScreenshots(
+      [
+        {
+          id: "",
+          subject: baseName.replace(/^\d+_/, "") || "capture",
+          detailPage: url,
+          __baseName: baseName
+        }
+      ],
+      {
+        columns: { id: "id", subjectKey: "subject", urlKey: "detailPage" },
+        outDir,
+        waitMs,
+        headless,
+        viewport,
+        captureScope,
+        captureSelector,
+        domRules,
+        depth
+      }
+    );
+  }
 
   ensureOutputDir(outDir);
 
@@ -254,5 +355,7 @@ async function takeSingleScreenshot(url, options) {
 module.exports = {
   takeScreenshots,
   takeSingleScreenshot,
+  collectDepthOneLinks,
+  createDepthRow,
   waitForRender
 };

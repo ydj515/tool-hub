@@ -30,6 +30,7 @@ function logHelp() {
   --viewportHeight  뷰포트 높이 (px)
   --captureScope    fullPage | viewport | selector
   --captureSelector selector 범위 캡처용 CSS selector
+  --depth           링크 탐색 깊이 0 | 1 | 2 (기본: 0)
   --headless false  브라우저 표시
   --dedupe false    URL 중복 제거 끄기
   --onlyUrls        지정한 URL만 실행 (콤마 또는 줄바꿈 구분)
@@ -38,7 +39,7 @@ function logHelp() {
 }
 
 function logOptions(opts) {
-  const { singleUrl, filePaths, columns, sheetName, outDir, dedupe, waitMs, headless, csvEncoding, viewportPreset, captureScope } = opts;
+  const { singleUrl, filePaths, columns, sheetName, outDir, dedupe, waitMs, headless, csvEncoding, viewportPreset, captureScope, depth = 0 } = opts;
 
   if (singleUrl) {
     console.log(`단일 URL: ${singleUrl}`);
@@ -47,7 +48,7 @@ function logOptions(opts) {
     console.log(`컬럼 매핑: id='${columns.id}', subject='${columns.subjectKey}', url='${columns.urlKey}'`);
   }
   console.log(`옵션: sheet='${sheetName}', out='${outDir}', dedupe=${dedupe}, waitMs=${waitMs}, headless=${headless}`);
-  console.log(`뷰포트: preset=${viewportPreset}, scope=${captureScope}`);
+  console.log(`뷰포트: preset=${viewportPreset}, scope=${captureScope}, depth=${depth}`);
   if (csvEncoding) console.log(`CSV 인코딩: ${csvEncoding}`);
   if (opts.onlyUrls && opts.onlyUrls.length > 0) {
     console.log(`대상 URL 필터: ${opts.onlyUrls.length}개`);
@@ -89,6 +90,7 @@ async function runCapture(opts) {
       captureScope: opts.captureScope,
       captureSelector: opts.captureSelector,
       domRules: opts.domRules || [],
+      depth: opts.depth,
       baseName: "001_capture"
     });
     console.log(`DONE (saved ${saved}/${total})`);

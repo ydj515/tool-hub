@@ -17,6 +17,7 @@ npx webpage-capture --file sample.xlsx --headless false
 - `--out`: 출력 폴더 (기본: 실행 디렉토리의 `./screenshots`).
 - `--dedupe false`: URL 중복 제거 끄기 (기본 켜짐).
 - `--wait 3000`: 페이지 진입 후 대기 시간(ms), 기본 2000.
+- `--depth 0|1|2`: 입력 URL에서 같은 origin 링크를 몇 단계까지 따라갈지 지정합니다. 기본 0.
 - `--headless false`: 브라우저 UI 보기.
 - `--csvEncoding`: CSV 인코딩(`utf8`, `cp949`, `euc-kr`). 잘못된 값 입력 시 경고 후 기본값 사용.
 

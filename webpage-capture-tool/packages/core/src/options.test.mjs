@@ -24,6 +24,22 @@ describe("parseCliOptions", () => {
     expect(result.outDir).toBe(path.resolve("captures"));
   });
 
+  it("--depth 2 입력 시 두 단계 탐색으로 설정한다", () => {
+    const result = parseCliOptions(["--file", "a.xlsx", "--depth", "2"]);
+
+    expect(result.depth).toBe(2);
+  });
+
+  it("depth 기본값은 0이고 지원 범위는 0부터 2까지로 제한한다", () => {
+    const defaultResult = parseCliOptions(["--file", "a.xlsx"]);
+    const tooLarge = parseCliOptions(["--file", "a.xlsx", "--depth", "3"]);
+    const invalid = parseCliOptions(["--file", "a.xlsx", "--depth", "abc"]);
+
+    expect(defaultResult.depth).toBe(0);
+    expect(tooLarge.depth).toBe(2);
+    expect(invalid.depth).toBe(0);
+  });
+
   it("falls back to the default encoding with a warning for unsupported input", () => {
     const result = parseCliOptions([
       "--file",

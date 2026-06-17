@@ -28,7 +28,7 @@ npm run cli -- --file absolutePath/docs/sample-files/sample.xlsx
 npx webpage-capture --file docs/sample-files/sample.xlsx --wait 2500 --headless false
 ```
 
-주요 옵션은 `--sheet`, `--id`/`--subject`/`--url`, `--out`(기본: 실행 디렉토리의 `./screenshots`), `--wait`, `--headless false`, `--dedupe false`, `--csvEncoding utf8|cp949|euc-kr`. TXT 파일은 한 줄 한 URL, `#` 주석 허용.
+주요 옵션은 `--sheet`, `--id`/`--subject`/`--url`, `--out`(기본: 실행 디렉토리의 `./screenshots`), `--wait`, `--depth 0|1|2`, `--headless false`, `--dedupe false`, `--csvEncoding utf8|cp949|euc-kr`. TXT 파일은 한 줄 한 URL, `#` 주석 허용.
 
 샘플 데이터는 `packages/cli/sample-files`와 `packages/cli/datalist.xlsx`에 있습니다.
 

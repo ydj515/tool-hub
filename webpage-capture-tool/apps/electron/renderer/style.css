@@ -242,6 +242,10 @@ input:focus, select:focus, textarea:focus {
 }
 input[type="color"] { padding: 2px 4px; height: 36px; cursor: pointer; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.capture-options-row {
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 160px) minmax(320px, 1fr);
+  align-items: end;
+}
 .inline { display: flex; align-items: center; gap: 8px; }
 .inline.fill { width: 100%; }
 .inline.fill input { flex: 1; min-width: 0; }

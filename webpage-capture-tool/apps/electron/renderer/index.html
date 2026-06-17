@@ -169,10 +169,14 @@
               </div>
             </div>
 
-            <div class="row">
+            <div class="row capture-options-row">
               <div class="form-group">
                 <label class="form-label">대기 시간 (ms)</label>
                 <input type="number" id="wait-ms" value="2000" min="0" max="30000" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">탐색 깊이</label>
+                <input type="number" id="depth" value="0" min="0" max="2" step="1" />
               </div>
               <div class="form-group">
                 <label class="form-label">출력 폴더</label>
@@ -348,6 +352,7 @@
             <div class="info-row"><span>뷰포트</span><span id="info-viewport">1440x1024</span></div>
             <div class="info-row"><span>비율</span><span id="info-aspect">free</span></div>
             <div class="info-row"><span>범위</span><span id="info-scope">fullPage</span></div>
+            <div class="info-row"><span>탐색</span><span id="info-depth">0</span></div>
             <div class="info-row"><span>대기</span><span id="info-wait">2000ms</span></div>
           </div>
         </div>

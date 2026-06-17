@@ -3,7 +3,7 @@
  */
 const { parseCliOptions, DEFAULTS } = require("./src/options");
 const { loadRowsFromFiles, dedupeByUrl } = require("./src/data-loader");
-const { takeScreenshots, takeSingleScreenshot } = require("./src/screenshot-runner");
+const { takeScreenshots, takeSingleScreenshot, collectDepthOneLinks, createDepthRow } = require("./src/screenshot-runner");
 const { applyDomRules, formatDomRuleLog } = require("./src/dom-rule-runner");
 const { applyEditRules, processImage } = require("./src/image-edit-runner");
 const { createEmptyProject, saveProject, loadProject, saveRecipe, loadRecipe, mergeRecipeIntoProject } = require("./src/recipe-store");
@@ -22,6 +22,8 @@ module.exports = {
   // 캡처
   takeScreenshots,
   takeSingleScreenshot,
+  collectDepthOneLinks,
+  createDepthRow,
   // DOM 규칙
   applyDomRules,
   formatDomRuleLog,

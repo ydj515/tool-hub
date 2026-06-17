@@ -16,6 +16,7 @@ const DEFAULTS = {
   waitMs: 2000,
   headless: true,
   dedupe: true,
+  depth: 0,
   viewport: { width: 1280, height: 720 },
   viewportPreset: "custom",
   captureScope: "fullPage",
@@ -76,6 +77,15 @@ function resolveCsvEncoding(rawValue) {
   return { encoding: undefined, warning };
 }
 
+function parseDepth(value) {
+  const parsed = parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    return DEFAULTS.depth;
+  }
+
+  return Math.min(2, Math.max(0, parsed));
+}
+
 /**
  * CLI 인자를 기본값과 함께 정규화된 옵션 객체로 변환한다.
  */
@@ -133,6 +143,7 @@ function parseCliOptions(argv) {
 
   const captureScope = raw.captureScope || DEFAULTS.captureScope;
   const captureSelector = raw.captureSelector || null;
+  const depth = parseDepth(raw.depth);
 
   return {
     filePaths,
@@ -146,6 +157,7 @@ function parseCliOptions(argv) {
     outDir: path.resolve(outDir),
     headless: toBoolean(raw.headless, DEFAULTS.headless),
     dedupe: toBoolean(raw.dedupe, DEFAULTS.dedupe),
+    depth,
     viewport,
     viewportPreset,
     captureScope,

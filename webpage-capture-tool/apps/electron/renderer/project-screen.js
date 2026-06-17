@@ -45,6 +45,7 @@ function createDefaultCapturePreset(viewportPreset = "word", outDir = "") {
     aspectRatioValue: null,
     captureScope: "fullPage",
     captureSelector: null,
+    depth: 0,
     waitMs: 2000,
     headless: true,
     dedupe: true,
