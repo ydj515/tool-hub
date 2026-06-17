@@ -210,6 +210,18 @@
           </div>
           <div class="screen-body">
             <p class="hint">캡처 전에 텍스트를 치환하거나 요소를 숨깁니다. 규칙은 순서대로 적용됩니다.</p>
+            <div class="dom-preview-panel">
+              <div class="dom-preview-controls">
+                <div class="form-group">
+                  <label class="form-label">미리보기 URL</label>
+                  <input type="text" id="dom-preview-url" placeholder="https://example.com/page" />
+                </div>
+                <button class="btn secondary" id="btn-load-dom-preview">DOM 불러오기</button>
+              </div>
+              <div class="dom-candidate-list" id="dom-candidate-list">
+                <p class="empty-hint">URL을 불러오면 DOM 후보가 표시됩니다.</p>
+              </div>
+            </div>
             <div class="rule-table" id="dom-rule-list">
               <div class="rule-table-header">
                 <span>활성</span>

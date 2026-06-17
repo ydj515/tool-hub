@@ -5,6 +5,7 @@ const { parseCliOptions, DEFAULTS } = require("./src/options");
 const { loadRowsFromFiles, dedupeByUrl } = require("./src/data-loader");
 const { takeScreenshots, takeSingleScreenshot, collectDepthOneLinks, createDepthRow } = require("./src/screenshot-runner");
 const { applyDomRules, formatDomRuleLog } = require("./src/dom-rule-runner");
+const { inspectDomForUrl, collectDomPreviewCandidates, normalizeDomPreviewCandidates } = require("./src/dom-preview-runner");
 const { applyEditRules, processImage } = require("./src/image-edit-runner");
 const { createEmptyProject, saveProject, loadProject, saveRecipe, loadRecipe, mergeRecipeIntoProject } = require("./src/recipe-store");
 const { BUILTIN_PROFILES, VIEWPORT_PRESETS, resolveFilename, makeSafeTitle } = require("./src/export-profile");
@@ -27,6 +28,9 @@ module.exports = {
   // DOM 규칙
   applyDomRules,
   formatDomRuleLog,
+  inspectDomForUrl,
+  collectDomPreviewCandidates,
+  normalizeDomPreviewCandidates,
   // 이미지 편집
   applyEditRules,
   processImage,

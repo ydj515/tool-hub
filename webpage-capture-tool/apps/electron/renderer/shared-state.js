@@ -52,6 +52,13 @@ const AppState = {
   failedUrls: [],
   failedSelectors: [],
 
+  domPreview: {
+    url: "",
+    candidates: [],
+    selectedSelector: "",
+    isLoading: false
+  },
+
   // 이미지 편집 상태
   imageEdit: {
     currentIndex: -1,

@@ -117,6 +117,7 @@ function initProjectScreen() {
     AppState.captureResults = [];
     AppState.failedUrls = [];
     AppState.failedSelectors = [];
+    AppState.domPreview = { url: "", candidates: [], selectedSelector: "", isLoading: false };
 
     AppState.exportConfig.channels = { markdown: true, word: false, ppt: false };
     AppState.exportConfig.outputDir = outDir || "";
@@ -231,6 +232,7 @@ function applyProjectToState(data, filePath) {
   AppState.captureResults = data.captureResults || [];
   AppState.failedUrls = [];
   AppState.failedSelectors = [];
+  AppState.domPreview = { url: "", candidates: [], selectedSelector: "", isLoading: false };
   AppState.exportResults = { outputDir: "", markdownPath: "", wordPath: "", pptPath: "", exportedAt: "" };
 
   document.getElementById("project-name").textContent = AppState.project.name;

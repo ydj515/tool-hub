@@ -15,6 +15,7 @@ const { BUILTIN_PROFILES } = require("@webpage-capture/core");
 const { exportMarkdown } = require("@webpage-capture/core");
 const { exportWordAssets } = require("@webpage-capture/core");
 const { exportPptAssets } = require("@webpage-capture/core");
+const { inspectDomForUrl } = require("@webpage-capture/core");
 const { ImageFileHistory } = require("./ipc-utils");
 
 let mainWindow;
@@ -115,6 +116,24 @@ function runCaptureCli(args) {
   return { ok: true };
 }
 
+async function runWithPlaywrightBrowsersPath(task) {
+  const browsersPath = getPlaywrightBrowsersPath();
+  const prev = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (browsersPath) {
+    process.env.PLAYWRIGHT_BROWSERS_PATH = browsersPath;
+  }
+
+  try {
+    return await task();
+  } finally {
+    if (prev === undefined) {
+      delete process.env.PLAYWRIGHT_BROWSERS_PATH;
+    } else {
+      process.env.PLAYWRIGHT_BROWSERS_PATH = prev;
+    }
+  }
+}
+
 // ============================================================
 // 앱 생명주기
 // ============================================================
@@ -194,6 +213,26 @@ ipcMain.handle("capture:cancel", async () => {
     return { ok: true };
   }
   return { ok: false, message: "실행 중인 프로세스가 없습니다." };
+});
+
+// ============================================================
+// IPC 핸들러 — DOM 미리보기
+// ============================================================
+ipcMain.handle("dom:inspect", async (_event, opts) => {
+  try {
+    if (!opts || !opts.url) {
+      return { error: "URL을 입력해주세요." };
+    }
+
+    return await runWithPlaywrightBrowsersPath(() => inspectDomForUrl(opts.url, {
+      headless: opts.headless !== false,
+      viewport: opts.viewport || { width: 1440, height: 1024 },
+      waitMs: opts.waitMs || 2000,
+      limit: opts.limit || 100
+    }));
+  } catch (e) {
+    return { error: e && e.message ? e.message : String(e) };
+  }
 });
 
 // ============================================================

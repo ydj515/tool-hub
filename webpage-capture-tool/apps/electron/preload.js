@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld("workbenchApi", {
   runCapture: (args) => ipcRenderer.invoke("capture:run", args),
   cancelCapture: () => ipcRenderer.invoke("capture:cancel"),
 
+  // DOM 미리보기
+  inspectDom: (opts) => ipcRenderer.invoke("dom:inspect", opts),
+
   // 프로젝트
   saveProject: (data, filePath) => ipcRenderer.invoke("project:save", data, filePath),
   loadProject: (filePath) => ipcRenderer.invoke("project:load", filePath),

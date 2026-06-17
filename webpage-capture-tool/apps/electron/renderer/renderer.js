@@ -49,7 +49,10 @@ function switchScreen(screenId) {
     syncExportFormFromState();
     updateExportPreview();
   }
-  if (screenId === "dom") renderDomRuleList();
+  if (screenId === "dom") {
+    renderDomRuleList();
+    renderDomPreview();
+  }
 }
 
 function bindNavigation() {
