@@ -65,6 +65,7 @@ interface Props {
   columnNames: string[];
   onEditorMount: (editorInstance: editor.IStandaloneCodeEditor) => void;
   hasErrors: boolean;
+  theme?: "light" | "dark";
 }
 
 export default function MonacoDdlEditor({
@@ -76,6 +77,7 @@ export default function MonacoDdlEditor({
   columnNames,
   onEditorMount,
   hasErrors,
+  theme = "light",
 }: Props) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -119,6 +121,43 @@ export default function MonacoDdlEditor({
 
     monaco.editor.setModelMarkers(model, "ddl-validation", markers);
   }, [monaco, editorMounted, issues]);
+
+  // 앱 표면색에 맞춘 커스텀 에디터 테마를 정의한다.
+  useEffect(() => {
+    if (!monaco) {
+      return;
+    }
+    monaco.editor.defineTheme("toolhub-light", {
+      base: "vs",
+      inherit: true,
+      rules: [],
+      colors: {
+        "editor.background": "#ffffff",
+        "editor.foreground": "#171717",
+        "editorLineNumber.foreground": "#8e9198",
+        "editorLineNumber.activeForeground": "#3366ff",
+        "editor.selectionBackground": "#dbe6ff",
+        "editor.lineHighlightBackground": "#f4f6ff",
+        "editorCursor.foreground": "#3366ff",
+        "editorIndentGuide.background": "#eceef3",
+      },
+    });
+    monaco.editor.defineTheme("toolhub-dark", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [],
+      colors: {
+        "editor.background": "#1b1c1e",
+        "editor.foreground": "#f7f7f7",
+        "editorLineNumber.foreground": "#6b6e76",
+        "editorLineNumber.activeForeground": "#5b84ff",
+        "editor.selectionBackground": "#2c3a63",
+        "editor.lineHighlightBackground": "#212328",
+        "editorCursor.foreground": "#5b84ff",
+        "editorIndentGuide.background": "#2e2f33",
+      },
+    });
+  }, [monaco]);
 
   // Register autocomplete provider once per monaco instance
   useEffect(() => {
@@ -191,7 +230,7 @@ export default function MonacoDdlEditor({
       <Editor
         language="sql"
         value={value}
-        theme="vs"
+        theme={theme === "dark" ? "toolhub-dark" : "toolhub-light"}
         onChange={(val) => onChange(val ?? "")}
         onMount={handleMount}
         options={{

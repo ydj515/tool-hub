@@ -509,7 +509,7 @@ export default function GeneratorClient() {
             Generate
           </button>
           <button className="themeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
-            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
+            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span className="themeIconPlaceholder" />}
           </button>
         </div>
       </section>
@@ -535,7 +535,7 @@ export default function GeneratorClient() {
             </select>
           </div>
 
-          <div className="fieldGroup" style={{ marginTop: 12 }}>
+          <div className="fieldGroup spaced">
             <label htmlFor="outputDialect">Output DB</label>
             <select
               id="outputDialect"
@@ -575,7 +575,7 @@ export default function GeneratorClient() {
             <span>경계값 포함</span>
           </label>
 
-          <div className="fieldGroup" style={{ marginTop: 12 }}>
+          <div className="fieldGroup spaced">
             <label htmlFor="dataLocale">Data Locale</label>
             <select
               id="dataLocale"
@@ -622,6 +622,7 @@ export default function GeneratorClient() {
             columnNames={columnNames}
             onEditorMount={(editorInstance) => { editorRef.current = editorInstance; }}
             hasErrors={ddlValidation.hasErrors}
+            theme={theme}
           />
           <div
             id="ddl-validation"
