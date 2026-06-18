@@ -330,7 +330,7 @@ export default function ConfigDiffClient() {
             비교
           </button>
           <button className="themeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환">
-            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span style={{ display: "block", width: 16, height: 16 }} />}
+            {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span className="themeIconPlaceholder" />}
           </button>
         </div>
       </header>
@@ -364,7 +364,7 @@ export default function ConfigDiffClient() {
                   파일 업로드
                 </button>
                 <input ref={inputARef} type="file" accept=".yml,.yaml,.json,.properties,.env,text/*"
-                  style={{ display: "none" }} onChange={(e) => handleFileUpload(e, "a")} />
+                  className="hiddenFileInput" onChange={(e) => handleFileUpload(e, "a")} />
               </div>
 
               {parseErrorA && (
@@ -405,7 +405,7 @@ export default function ConfigDiffClient() {
                   파일 업로드
                 </button>
                 <input ref={inputBRef} type="file" accept=".yml,.yaml,.json,.properties,.env,text/*"
-                  style={{ display: "none" }} onChange={(e) => handleFileUpload(e, "b")} />
+                  className="hiddenFileInput" onChange={(e) => handleFileUpload(e, "b")} />
               </div>
 
               {parseErrorB && (
@@ -446,6 +446,7 @@ export default function ConfigDiffClient() {
               modified={compareSnapshot.contentB}
               formatA={compareSnapshot.formatA}
               formatB={compareSnapshot.formatB}
+              theme={theme}
             />
           </div>
         )}

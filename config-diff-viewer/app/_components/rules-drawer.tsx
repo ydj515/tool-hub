@@ -142,7 +142,7 @@ export default function RulesDrawer({ open, onClose }: Props) {
               </div>
 
               {/* Value patterns */}
-              <div className="drawerSection" style={{ marginTop: 16 }}>
+              <div className="drawerSection spaced">
                 <div className="drawerSectionTitle">
                   값 패턴 (정규식 기반)
                   <span className="drawerTabCount">{SECRET_VALUE_PATTERNS_META.length}</span>
@@ -154,7 +154,7 @@ export default function RulesDrawer({ open, onClose }: Props) {
                   <div key={i} className="ruleCard">
                     <div className="ruleCardTop">
                       <IssueBadge severity={p.severity} />
-                      <strong className="ruleMessage" style={{ fontSize: "0.86rem" }}>
+                      <strong className="ruleMessage valuePatternName">
                         {p.name}
                       </strong>
                     </div>

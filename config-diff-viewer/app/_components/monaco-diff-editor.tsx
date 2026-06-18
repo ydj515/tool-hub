@@ -40,16 +40,17 @@ interface Props {
   modified: string;
   formatA: ConfigFormat;
   formatB: ConfigFormat;
+  theme?: "light" | "dark";
 }
 
-export default function MonacoDiffEditor({ original, modified, formatA, formatB }: Props) {
+export default function MonacoDiffEditor({ original, modified, formatA, formatB, theme = "light" }: Props) {
   return (
     <DiffEditor
       original={original}
       modified={modified}
       originalLanguage={toMonacoLang(formatA)}
       modifiedLanguage={toMonacoLang(formatB)}
-      theme="vs"
+      theme={theme === "dark" ? "vs-dark" : "vs"}
       height="420px"
       options={{
         renderSideBySide: true,

@@ -45,7 +45,7 @@ function DiffTable({
       <table className="issueTable">
         <thead>
           <tr>
-            <th style={{ width: 90 }}>상태</th>
+            <th className="statusColumn">상태</th>
             <th>Key</th>
             <th>{filenameA}</th>
             <th>{filenameB}</th>
@@ -90,7 +90,7 @@ function IssueTable({ issues }: { issues: ValidationIssue[] }) {
       <table className="issueTable">
         <thead>
           <tr>
-            <th style={{ width: 90 }}>Severity</th>
+            <th className="severityColumn">Severity</th>
             <th>Key</th>
             <th>Value</th>
             <th>내용</th>
@@ -115,8 +115,8 @@ function IssueTable({ issues }: { issues: ValidationIssue[] }) {
                   <span className="valuePill missing">—</span>
                 )}
               </td>
-              <td style={{ maxWidth: 260 }}>{issue.message}</td>
-              <td style={{ maxWidth: 220 }}>
+              <td className="messageCell">{issue.message}</td>
+              <td className="suggestionCell">
                 <span className="suggestionText">{issue.suggestion ?? "—"}</span>
               </td>
             </tr>
@@ -204,7 +204,7 @@ function DuplicateTable({ issues }: { issues: ValidationIssue[] }) {
       <table className="issueTable">
         <thead>
           <tr>
-            <th style={{ width: 90 }}>Severity</th>
+            <th className="severityColumn">Severity</th>
             <th>Key</th>
             <th>파일</th>
             <th>내용</th>
@@ -217,8 +217,8 @@ function DuplicateTable({ issues }: { issues: ValidationIssue[] }) {
               <td><IssueBadge severity={issue.severity} /></td>
               <td><span className="keyPath">{issue.key ?? "—"}</span></td>
               <td><span className="valuePill">{issue.file}</span></td>
-              <td style={{ maxWidth: 260 }}>{issue.message}</td>
-              <td style={{ maxWidth: 220 }}>
+              <td className="messageCell">{issue.message}</td>
+              <td className="suggestionCell">
                 <span className="suggestionText">{issue.suggestion ?? "—"}</span>
               </td>
             </tr>

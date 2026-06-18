@@ -118,7 +118,7 @@ export default function ResultPanel({ report, options }: Props) {
         })}
 
         {criticalHigh > 0 && (
-          <span style={{ marginLeft: "auto", fontSize: "0.78rem", color: "#b91c1c", fontWeight: 700, alignSelf: "center" }}>
+          <span className="criticalHighNotice">
             CRITICAL/HIGH {criticalHigh}건
           </span>
         )}
