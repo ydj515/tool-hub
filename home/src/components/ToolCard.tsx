@@ -1,7 +1,6 @@
 /**
  * 도구 카드의 시각 표현과 링크 동작을 담당한다.
  */
-import { useState } from 'react';
 import type { Tool } from '../data/tools';
 
 function ExternalLinkIcon() {
@@ -30,46 +29,27 @@ interface ToolCardProps {
  * 개별 도구의 상태, 설명, 외부 링크를 카드 형태로 렌더링한다.
  */
 export default function ToolCard({ tool }: ToolCardProps) {
-  const { name, longDescription, tags, url, github, gradient, accentColor, status } = tool;
+  const { id, name, longDescription, tags, url, github, status } = tool;
   const isLive = status === 'live';
-  const [hovered, setHovered] = useState(false);
 
   return (
     <article
-      className={`relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-[#0f0f1c] border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
-      style={{
-        transition: 'transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease, opacity 0.3s ease, filter 0.3s ease',
-        transform: isLive && hovered ? 'translateY(-5px)' : 'translateY(0)',
-        borderColor: isLive && hovered ? `${accentColor}45` : undefined,
-        boxShadow:
-          isLive && hovered
-            ? `0 24px 56px -12px ${accentColor}30, 0 8px 24px -6px rgba(0,0,0,0.12)`
-            : '0 1px 3px rgba(0,0,0,0.06)',
-        opacity: !isLive ? 0.48 : 1,
-        filter: !isLive ? 'grayscale(0.8)' : 'none',
-      }}
-      onMouseEnter={() => isLive && setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`toolCard relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-[#0f0f1c] border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
+      data-tool-id={id}
+      data-live={isLive ? 'true' : 'false'}
     >
       {/* accent 링 오버레이 — pointer-events-none이므로 상호작용에 영향 없음 */}
-      <div
-        className="absolute inset-0 rounded-2xl pointer-events-none z-[3]"
-        style={{
-          boxShadow: `inset 0 0 0 1px ${accentColor}30`,
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.28s ease',
-        }}
-      />
+      <div className="toolCardAccentRing absolute inset-0 rounded-2xl pointer-events-none z-[3]" />
 
       {/* 그라디언트 배너 */}
-      <div className="h-[148px] relative shrink-0" style={{ background: gradient }}>
+      <div className="toolCardHero h-[148px] relative shrink-0">
         {/* z-auto: stretched link(z-1)이 위에서 클릭 영역을 담당 */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/5 to-black/40" />
 
         {/* 상태 뱃지 — z-[1]: 그라디언트 위, stretched link와 동일 레벨(DOM 순서상 ::after가 위) */}
         <div className="absolute top-3.5 right-3.5 z-[1]">
           <span
-            className={`text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-full backdrop-blur-sm ${
+            className={`text-[10px] font-bold tracking-normal uppercase px-2.5 py-1 rounded-full backdrop-blur-sm ${
               isLive ? 'bg-white/22 text-white' : 'bg-black/28 text-white/58'
             }`}
           >
@@ -79,7 +59,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
         {/* 도구 이름 */}
         <div className="absolute bottom-3.5 left-4 right-4 z-[1]">
-          <h3 className="text-[17px] font-bold text-white leading-snug tracking-[-0.01em] drop-shadow-sm">
+          <h3 className="text-[17px] font-bold text-white leading-snug tracking-normal drop-shadow-sm">
             {name}
           </h3>
         </div>
@@ -96,12 +76,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-[11px] font-medium px-2 py-0.5 rounded-md tracking-[0.02em]"
-              style={{
-                background: `${accentColor}16`,
-                color: `${accentColor}c8`,
-                border: `1px solid ${accentColor}28`,
-              }}
+              className="toolTag text-[11px] font-medium px-2 py-0.5 rounded-md tracking-normal"
             >
               {tag}
             </span>
@@ -121,12 +96,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-indigo-500 focus-visible:outline-offset-2"
-              style={{
-                background: `${accentColor}1a`,
-                border: `1px solid ${accentColor}38`,
-                color: accentColor,
-              }}
+              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-indigo-500 focus-visible:outline-offset-2"
             >
               <ExternalLinkIcon />
               Visit Site

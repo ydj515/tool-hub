@@ -10,8 +10,6 @@ export interface Tool {
   tags: string[];
   url: string | null;
   github: string;
-  gradient: string;
-  accentColor: string;
   status: ToolStatus;
 }
 
@@ -24,8 +22,6 @@ export const tools: Tool[] = [
     tags: ['Canvas', 'Image', 'Download'],
     url: 'https://tool-hubsign-maker.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/sign-maker',
-    gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-    accentColor: '#6366f1',
     status: 'live',
   },
   {
@@ -36,8 +32,6 @@ export const tools: Tool[] = [
     tags: ['SQL', 'DDL', 'Database'],
     url: 'https://tool-hubddl-seed-generator.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/ddl-seed-generator',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-    accentColor: '#10b981',
     status: 'live',
   },
   {
@@ -48,8 +42,6 @@ export const tools: Tool[] = [
     tags: ['File', 'Testing', 'Utility'],
     url: 'https://tool-hubdummy-file-generator.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/dummy-file-generator',
-    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    accentColor: '#f59e0b',
     status: 'live',
   },
   {
@@ -60,8 +52,6 @@ export const tools: Tool[] = [
     tags: ['Config', 'YAML', 'JSON', 'Security'],
     url: 'https://config-diff-viewer-five.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/config-diff-viewer',
-    gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-    accentColor: '#ef4444',
     status: 'live',
   },
   {
@@ -72,8 +62,6 @@ export const tools: Tool[] = [
     tags: ['Shortcut', 'Keyboard', 'Reference'],
     url: 'https://shortcut-cheatsheet.vercel.app/',
     github: 'https://github.com/ydj515/shortcut-cheatsheet',
-    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-    accentColor: '#06b6d4',
     status: 'live',
   },
   {
@@ -84,9 +72,7 @@ export const tools: Tool[] = [
     tags: ['Screenshot', 'Browser', 'Automation'],
     url: null,
     github: 'https://github.com/ydj515/tool-hub/tree/main/webpage-capture-tool',
-    gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-    accentColor: '#3b82f6',
-    status: 'live',
+    status: 'coming-soon',
   },
     {
     id: 'class-diagram-generator',
@@ -96,8 +82,6 @@ export const tools: Tool[] = [
     tags: ['UML', 'Design', 'Documentation'],
     url: 'https://class-diagram-generator.onrender.com/?lang=ko',
     github: 'https://github.com/ydj515/tool-hub/tree/main/class-diagram-generator',
-    gradient: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
-    accentColor: '#f97316',
     status: 'live',
   },
 ];

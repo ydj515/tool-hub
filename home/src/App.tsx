@@ -58,28 +58,10 @@ export default function App() {
 
       {/* 배경 레이어 (다크 모드 전용) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div
-          className="absolute inset-0 opacity-0 dark:opacity-100"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)
-            `,
-            backgroundSize: '44px 44px',
-          }}
-        />
-        <div
-          className="orb-a absolute -top-[15%] -left-[5%] w-[65vw] h-[65vw] max-w-[680px] max-h-[680px] rounded-full blur-[130px] opacity-0 dark:opacity-[0.08]"
-          style={{ background: 'radial-gradient(circle, #6366f1, #8b5cf6 55%, transparent)' }}
-        />
-        <div
-          className="orb-b absolute top-[5%] right-[-8%] w-[55vw] h-[55vw] max-w-[560px] max-h-[560px] rounded-full blur-[110px] opacity-0 dark:opacity-[0.055]"
-          style={{ background: 'radial-gradient(circle, #22d3ee, #3b82f6 55%, transparent)' }}
-        />
-        <div
-          className="orb-c absolute bottom-[-8%] left-[25%] w-[50vw] h-[50vw] max-w-[520px] max-h-[520px] rounded-full blur-[100px] opacity-0 dark:opacity-[0.045]"
-          style={{ background: 'radial-gradient(circle, #10b981, #6366f1 55%, transparent)' }}
-        />
+        <div className="dark-grid absolute inset-0 opacity-0 dark:opacity-100" />
+        <div className="orb-a orb-bg-a absolute -top-[15%] -left-[5%] w-[65vw] h-[65vw] max-w-[680px] max-h-[680px] rounded-full blur-[130px] opacity-0 dark:opacity-[0.08]" />
+        <div className="orb-b orb-bg-b absolute top-[5%] right-[-8%] w-[55vw] h-[55vw] max-w-[560px] max-h-[560px] rounded-full blur-[110px] opacity-0 dark:opacity-[0.055]" />
+        <div className="orb-c orb-bg-c absolute bottom-[-8%] left-[25%] w-[50vw] h-[50vw] max-w-[520px] max-h-[520px] rounded-full blur-[100px] opacity-0 dark:opacity-[0.045]" />
       </div>
 
       {/* 헤더 */}
@@ -93,7 +75,7 @@ export default function App() {
                 <rect x="9.5" y="1.5" width="3" height="10" rx="0.8" fill="white" opacity="0.4" />
               </svg>
             </div>
-            <span className="text-[15px] font-semibold tracking-[-0.02em] text-gray-900 dark:text-white">
+            <span className="text-[15px] font-semibold tracking-normal text-gray-900 dark:text-white">
               Tool Hub
             </span>
           </div>
@@ -124,7 +106,7 @@ export default function App() {
         <section className="py-14 sm:py-24 px-6">
           <div className="max-w-[600px] mx-auto text-center flex flex-col items-center gap-5">
             {/* 상태 인디케이터 */}
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400 tracking-[0.07em] uppercase">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400 tracking-normal uppercase">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-70" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500 dark:bg-indigo-400" />
@@ -133,7 +115,7 @@ export default function App() {
             </div>
 
             {/* 메인 타이틀 */}
-            <h1 className="text-[clamp(40px,7vw,64px)] font-black leading-[1.08] tracking-[-0.035em] text-gray-900 dark:text-white">
+            <h1 className="text-[clamp(40px,7vw,64px)] font-black leading-[1.08] tracking-normal text-gray-900 dark:text-white">
               개발자를 위한
               <br />
               <span className="bg-gradient-to-r from-indigo-500 via-purple-400 to-sky-400 dark:from-indigo-400 dark:via-purple-400 dark:to-sky-300 bg-clip-text text-transparent">
@@ -172,7 +154,7 @@ export default function App() {
         <section className="max-w-[1120px] mx-auto px-6 pb-28">
           {/* 섹션 헤더 */}
           <div className="flex items-center gap-4 mb-5">
-            <span className="text-[11px] font-bold tracking-[0.08em] uppercase text-gray-400 dark:text-white/30 shrink-0">
+            <span className="text-[11px] font-bold tracking-normal uppercase text-gray-400 dark:text-white/30 shrink-0">
               All Tools
             </span>
             <div className="flex-1 h-px bg-black/[0.07] dark:bg-white/[0.07]" />
