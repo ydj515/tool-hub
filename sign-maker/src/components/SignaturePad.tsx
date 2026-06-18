@@ -87,10 +87,10 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
           const strokePoints = getStroke(stroke.points, BEAUTIFY_OPTIONS);
           const pathData = getSvgPathFromStroke(strokePoints);
           const path = new Path2D(pathData);
-          ctx.fillStyle = "#1d2522";
+          ctx.fillStyle = "#171717";
           ctx.fill(path);
         } else {
-          ctx.strokeStyle = "#1d2522";
+          ctx.strokeStyle = "#171717";
           ctx.lineWidth = 1.5;
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
@@ -173,28 +173,21 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
     return (
       <div
         ref={containerRef}
-        className="w-full rounded-lg overflow-hidden relative"
-        style={{
-          height: "400px",
-          background: "#ffffff",
-          border: "1px solid var(--line)",
-        }}
+        className="signature-stage w-full rounded-xl overflow-hidden relative"
       >
         <canvas
           ref={canvasRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className="block w-full h-full cursor-crosshair"
-          style={{ touchAction: "none" }}
+          className="signature-canvas block w-full h-full cursor-crosshair"
         />
         {countdown > 0 && (
           <div
             key={countdown}
-            className="beautify-countdown-badge absolute bottom-2.5 right-2.5 px-2 py-1 rounded-full text-xs font-bold pointer-events-none"
-            style={{ background: "var(--green)", color: "#f8fff9" }}
+            className="beautify-countdown-badge countdown-badge absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full text-xs font-semibold pointer-events-none"
           >
-            Beautifying in {countdown}…
+            {countdown}초 후 정리…
           </div>
         )}
       </div>

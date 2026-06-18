@@ -35,51 +35,37 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-5">
+    <div className="min-h-screen p-4 md:p-6">
       {/* Top bar */}
-      <header
-        className="flex items-center gap-3 max-w-[1400px] mx-auto mb-4 px-4 py-3.5 rounded-lg bg-surface border border-line"
-      >
+      <header className="ds-card flex items-center gap-3 max-w-[1400px] mx-auto mb-5 px-5 py-4">
         <div
-          className="w-10 h-10 rounded-lg grid place-items-center shrink-0"
-          style={{ background: "var(--green)", color: "#f8fff9" }}
+          className="app-mark w-10 h-10 rounded-xl grid place-items-center shrink-0"
         >
           <Pencil size={18} />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-bold leading-tight" style={{ color: "var(--text)" }}>
+          <h1 className="app-title text-xl font-bold leading-tight">
             Signature &amp; Trace Studio
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
-            서명을 직접 그리거나 이미지에서 추출합니다.
+          <p className="app-subtitle text-sm mt-0.5">
+            서명을 직접 그리거나 이미지에서 추출해요.
           </p>
         </div>
 
-        {/* Tab switcher */}
-        <div
-          className="flex items-center rounded-lg overflow-hidden"
-          style={{ border: "1px solid var(--line)" }}
-        >
+        {/* Tab switcher — segmented control */}
+        <div className="seg flex items-center gap-1">
           <button
             onClick={() => setActiveTab("draw")}
-            className="flex items-center gap-1.5 px-3 h-9 text-sm font-bold transition-colors"
-            style={
-              activeTab === "draw"
-                ? { background: "var(--green)", color: "#f8fff9", border: "none" }
-                : { background: "var(--surface-2)", color: "var(--muted)", border: "none" }
-            }
+            data-active={activeTab === "draw"}
+            className="seg-btn flex items-center gap-1.5 px-3 h-8 text-sm font-semibold"
           >
             <PenTool size={14} />
             Draw
           </button>
           <button
             onClick={() => setActiveTab("upload")}
-            className="flex items-center gap-1.5 px-3 h-9 text-sm font-bold transition-colors"
-            style={
-              activeTab === "upload"
-                ? { background: "var(--green)", color: "#f8fff9", border: "none" }
-                : { background: "var(--surface-2)", color: "var(--muted)", border: "none" }
-            }
+            data-active={activeTab === "upload"}
+            className="seg-btn flex items-center gap-1.5 px-3 h-8 text-sm font-semibold"
           >
             <ImageIcon size={14} />
             Upload
@@ -90,34 +76,23 @@ function App() {
         <button
           onClick={toggleTheme}
           aria-label="테마 전환"
-          className="w-9 h-9 rounded-lg grid place-items-center transition-colors"
-          style={{
-            background: "var(--surface-2)",
-            border: "1px solid var(--line)",
-            color: "var(--muted)",
-          }}
+          className="btn-icon w-9 h-9 grid place-items-center shrink-0"
         >
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </header>
 
       {/* Workspace */}
-      <div className="max-w-[1400px] mx-auto grid gap-4 grid-cols-1 md:grid-cols-[1fr_320px]">
+      <div className="max-w-[1400px] mx-auto grid gap-5 grid-cols-1 md:grid-cols-[1fr_320px]">
 
         {/* Canvas panel */}
-        <section
-          className="rounded-lg overflow-hidden flex flex-col"
-          style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
-        >
-          <div
-            className="flex items-center gap-2 px-4 py-3 border-b"
-            style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}
-          >
-            <span className="text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--muted)" }}>
-              Canvas Workspace
+        <section className="ds-card overflow-hidden flex flex-col">
+          <div className="panel-head flex items-center gap-2 px-5 py-3.5 border-b">
+            <span className="panel-title text-sm font-semibold">
+              캔버스
             </span>
           </div>
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-5">
             {activeTab === "draw"
               ? <SignaturePad ref={signaturePadRef} />
               : <ImageUploader ref={imageUploaderRef} threshold={threshold} />}
@@ -125,59 +100,46 @@ function App() {
         </section>
 
         {/* Controls panel */}
-        <aside
-          className="rounded-lg flex flex-col"
-          style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
-        >
-          <div
-            className="px-4 py-3 border-b"
-            style={{ borderColor: "var(--line)", background: "var(--surface-2)" }}
-          >
-            <span className="text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--muted)" }}>
-              {activeTab === "draw" ? "Drawing Tools" : "Image Settings"}
+        <aside className="ds-card flex flex-col">
+          <div className="panel-head px-5 py-3.5 border-b">
+            <span className="panel-title text-sm font-semibold">
+              {activeTab === "draw" ? "그리기 도구" : "이미지 설정"}
             </span>
           </div>
 
-          <div className="p-4 flex flex-col gap-4 flex-1">
+          <div className="p-5 flex flex-col gap-4 flex-1">
             {activeTab === "draw" ? (
               <>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-                  캔버스에 서명을 그리세요. 펜을 멈추면 3초 후 자동으로 부드럽게 처리됩니다.
+                <p className="panel-copy text-sm leading-relaxed">
+                  캔버스에 서명을 그리세요. 펜을 멈추면 3초 후 자동으로 부드럽게 정리돼요.
                 </p>
                 <div className="flex gap-2 mt-auto">
                   <button
                     onClick={() => signaturePadRef.current?.clear()}
-                    className="flex-1 h-10 rounded-lg text-sm font-bold transition-colors"
-                    style={{
-                      background: "var(--surface-2)",
-                      border: "1px solid var(--line)",
-                      color: "var(--text)",
-                    }}
+                    className="btn-secondary flex-1 h-10 text-sm font-semibold"
                   >
-                    Clear
+                    지우기
                   </button>
                   <button
                     onClick={() => signaturePadRef.current?.download()}
-                    className="flex-1 h-10 rounded-lg text-sm font-bold transition-colors"
-                    style={{ background: "var(--green)", color: "#f8fff9" }}
+                    className="btn-primary flex-1 h-10 text-sm font-semibold"
                   >
-                    Download
+                    내려받기
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-                  흰 배경의 이미지를 업로드하면 서명을 추출합니다.
+                <p className="panel-copy text-sm leading-relaxed">
+                  흰 배경의 이미지를 업로드하면 서명을 추출해요.
                 </p>
 
                 <div>
                   <label
-                    className="flex justify-between mb-2 text-xs font-extrabold uppercase tracking-wide"
-                    style={{ color: "var(--muted)" }}
+                    className="setting-label flex justify-between mb-2 text-sm font-medium"
                   >
-                    <span>Background Threshold</span>
-                    <span style={{ color: "var(--text)" }}>{threshold}</span>
+                    <span>배경 임계값</span>
+                    <span className="setting-value">{threshold}</span>
                   </label>
                   <input
                     type="range"
@@ -192,21 +154,15 @@ function App() {
                 <div className="flex gap-2 mt-auto">
                   <button
                     onClick={() => { imageUploaderRef.current?.reset(); setThreshold(200); }}
-                    className="flex-1 h-10 rounded-lg text-sm font-bold transition-colors"
-                    style={{
-                      background: "var(--surface-2)",
-                      border: "1px solid var(--line)",
-                      color: "var(--text)",
-                    }}
+                    className="btn-secondary flex-1 h-10 text-sm font-semibold"
                   >
-                    Reset
+                    초기화
                   </button>
                   <button
                     onClick={() => imageUploaderRef.current?.download()}
-                    className="flex-1 h-10 rounded-lg text-sm font-bold transition-colors"
-                    style={{ background: "var(--green)", color: "#f8fff9" }}
+                    className="btn-primary flex-1 h-10 text-sm font-semibold"
                   >
-                    Download
+                    내려받기
                   </button>
                 </div>
               </>

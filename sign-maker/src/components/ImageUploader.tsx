@@ -74,7 +74,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         if (avg >= currentThreshold) {
           data[i + 3] = 0;
         } else {
-          data[i] = 29; data[i + 1] = 37; data[i + 2] = 34;
+          data[i] = 23; data[i + 1] = 23; data[i + 2] = 23;
         }
       }
       ctx.putImageData(imageData, x, y);
@@ -108,33 +108,21 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
         onDrop={handleDrop}
         onClick={!hasImage ? () => fileInputRef.current?.click() : undefined}
-        className="w-full rounded-lg overflow-hidden relative flex items-center justify-center transition-all"
-        style={{
-          height: "400px",
-          background: hasImage ? "#ffffff" : (isDragging ? "var(--surface-3)" : "var(--surface-2)"),
-          border: isDragging ? "2px dashed var(--green)" : "1px solid var(--line)",
-          cursor: !hasImage ? "pointer" : "default",
-        }}
+        className="upload-dropzone w-full rounded-xl overflow-hidden relative flex items-center justify-center transition-all"
+        data-has-image={hasImage ? "true" : "false"}
+        data-dragging={isDragging ? "true" : "false"}
       >
         {!hasImage && (
           <div className="absolute flex flex-col items-center gap-2 text-center pointer-events-none">
-            <div
-              className="w-12 h-12 rounded-full grid place-items-center"
-              style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
-            >
-              <Upload size={20} style={{ color: "var(--muted)" }} />
+            <div className="upload-icon-box w-12 h-12 rounded-2xl grid place-items-center">
+              <Upload size={20} />
             </div>
-            <p className="text-sm font-bold" style={{ color: "var(--text)" }}>
-              클릭하거나 드래그하여 업로드
+            <p className="upload-title text-sm font-semibold">
+              클릭하거나 드래그하여 업로드해요
             </p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>PNG, JPG, JPEG (최대 5MB)</p>
+            <p className="upload-hint text-xs">PNG, JPG, JPEG (최대 5MB)</p>
             <button
-              className="mt-1 px-4 h-9 rounded-lg text-xs font-bold pointer-events-auto transition-colors"
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                color: "var(--text)",
-              }}
+              className="btn-secondary mt-1 px-4 h-9 text-xs font-semibold pointer-events-auto"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
             >
               파일 선택
@@ -150,8 +138,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         />
         <canvas
           ref={canvasRef}
-          className="block w-full h-full"
-          style={{ opacity: hasImage ? 1 : 0 }}
+          className={`upload-preview-canvas block w-full h-full ${hasImage ? "is-visible" : ""}`}
         />
       </div>
     );

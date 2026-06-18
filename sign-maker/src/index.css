@@ -1,55 +1,118 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-/* ── Design tokens ── */
+/* ──────────────────────────────────────────────────────────────
+   Design tokens
+   하나의 액션 컬러와 정밀한 cool-grey 중립 팔레트를 사용한다.
+   ────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --bg:          #f4f0e8;
-  --surface:     #fffdf8;
-  --surface-2:   #f8f4ec;
-  --surface-3:   #eef5ef;
-  --line:        #d8d0c2;
-  --line-strong: #b8ad9d;
-  --text:        #1d2522;
-  --muted:       #65716b;
-  --soft:        #7b837e;
-  --green:       #27745f;
-  --green-dark:  #195a49;
-  --danger:      #b42336;
-  --grid-color:  rgba(29, 37, 34, 0.035);
+
+  /* Typography */
+  --font-sans: "ToolHub Sans",
+    -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* Surfaces / Backgrounds (플랫 화이트 + 그룹 배경) */
+  --bg:          #f7f7f8;            /* 페이지 그룹 배경 */
+  --surface:     #ffffff;            /* 카드 / 패널 */
+  --surface-2:   #f7f7f8;            /* 보조 패널 배경 */
+
+  /* Fills (반투명 중립 — 칩/트랙/고스트 hover) */
+  --fill:        rgba(112,115,124,0.08);
+  --fill-subtle: rgba(112,115,124,0.05);
+  --fill-bold:   rgba(112,115,124,0.16);
+
+  /* Lines / Borders (반투명 헤어라인) */
+  --line:        rgba(112,115,124,0.22);
+  --line-subtle: rgba(112,115,124,0.08);
+  --line-strong: rgba(112,115,124,0.52);
+
+  /* Text / Label (near-black 위 불투명도 단계) */
+  --text:        rgb(23,23,23);          /* 본문 기본 */
+  --text-neutral:rgba(46,47,51,0.88);    /* 2차 */
+  --muted:       rgba(55,56,60,0.61);    /* 3차 */
+  --soft:        rgba(55,56,60,0.28);     /* 보조/placeholder */
+
+  /* Brand / Primary */
+  --primary:         rgb(51,102,255);
+  --primary-strong:  rgb(0,94,235);      /* hover */
+  --primary-heavy:   rgb(0,84,209);      /* pressed */
+  --primary-surface: rgb(234,242,254);   /* 선택 틴트 */
+  --on-primary:      #ffffff;
+
+  /* Status */
+  --danger:      rgb(229,52,58);
+
+  /* Radius */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(23,23,25,0.06), 0 1px 3px rgba(23,23,25,0.07);
+  --shadow-md: 0 2px 8px rgba(23,23,25,0.08), 0 1px 2px rgba(23,23,25,0.06);
+  --shadow-lg: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:  160ms;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg:          #131917;
-  --surface:     #1a201e;
-  --surface-2:   #1e2724;
-  --surface-3:   #23302d;
-  --line:        #2a3532;
-  --line-strong: #3a4744;
-  --text:        #dde5e1;
-  --muted:       #8a9b93;
-  --soft:        #7a8a82;
-  --green:       #3aab7e;
-  --green-dark:  #27745f;
-  --danger:      #e05c6c;
-  --grid-color:  rgba(255, 255, 255, 0.04);
+
+  --bg:          rgb(15,15,16);
+  --surface:     rgb(27,28,30);
+  --surface-2:   rgb(33,34,37);
+
+  --fill:        rgba(112,115,124,0.22);
+  --fill-subtle: rgba(112,115,124,0.12);
+  --fill-bold:   rgba(112,115,124,0.28);
+
+  --line:        rgba(112,115,124,0.32);
+  --line-subtle: rgba(112,115,124,0.16);
+  --line-strong: rgba(194,196,200,0.52);
+
+  --text:        rgb(247,247,247);
+  --text-neutral:rgba(194,196,200,0.88);
+  --muted:       rgba(174,176,182,0.61);
+  --soft:        rgba(174,176,182,0.28);
+
+  --primary:         rgb(91,132,255);
+  --primary-strong:  rgb(26,117,255);
+  --primary-heavy:   rgb(0,102,255);
+  --primary-surface: rgba(91,132,255,0.16);
+  --on-primary:      #ffffff;
+
+  --danger:      rgb(229,92,108);
 }
 
+/* Tailwind 컬러 유틸리티 매핑 (bg-surface, border-line, text-muted …) */
 @theme inline {
-  --color-bg:          var(--bg);
-  --color-surface:     var(--surface);
-  --color-surface-2:   var(--surface-2);
-  --color-surface-3:   var(--surface-3);
-  --color-line:        var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-tx:          var(--text);
-  --color-muted:       var(--muted);
-  --color-soft:        var(--soft);
-  --color-green:       var(--green);
-  --color-green-dark:  var(--green-dark);
-  --color-danger:      var(--danger);
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-surface-2:    var(--surface-2);
+  --color-fill:         var(--fill);
+  --color-line:         var(--line);
+  --color-line-subtle:  var(--line-subtle);
+  --color-line-strong:  var(--line-strong);
+  --color-tx:           var(--text);
+  --color-tx-neutral:   var(--text-neutral);
+  --color-muted:        var(--muted);
+  --color-primary:      var(--primary);
+  --color-on-primary:   var(--on-primary);
+  --color-danger:       var(--danger);
+  --font-sans:          var(--font-sans);
 }
 
 /* ── Base ── */
@@ -62,36 +125,167 @@ html, body {
 
 body {
   min-height: 100vh;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg);
-  background-image:
-    linear-gradient(90deg,  var(--grid-color) 1px, transparent 1px),
-    linear-gradient(180deg, var(--grid-color) 1px, transparent 1px);
-  background-size: 28px 28px;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input[type="range"]    { accent-color: var(--primary); }
+input[type="checkbox"] { accent-color: var(--primary); }
+
+/* ── Component utilities ──
+   인라인 스타일로는 hover/active를 표현할 수 없어 여기서 정의한다. */
+
+.ds-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--dur) var(--ease);
+}
+.btn-primary:hover  { background: var(--primary-strong); }
+.btn-primary:active { background: var(--primary-heavy); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  transition: background var(--dur) var(--ease);
+}
+.btn-secondary:hover { background: var(--fill); }
+
+.btn-icon {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.btn-icon:hover { background: var(--fill); color: var(--text); }
+
+.app-mark {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.app-title {
+  color: var(--text);
+  letter-spacing: 0;
+}
+
+.app-subtitle,
+.panel-copy,
+.setting-label,
+.upload-hint {
+  color: var(--muted);
+}
+
+.panel-head {
+  border-color: var(--line-subtle);
+}
+
+.panel-title {
+  color: var(--text-neutral);
+}
+
+.setting-value,
+.upload-title {
   color: var(--text);
 }
 
-/* Slider thumb color */
-input[type="range"] { accent-color: var(--green); }
-input[type="checkbox"] { accent-color: var(--green); }
+.signature-stage,
+.upload-dropzone {
+  height: 400px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.signature-canvas {
+  touch-action: none;
+}
+
+.countdown-badge {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.upload-dropzone {
+  cursor: pointer;
+}
+
+.upload-dropzone[data-has-image="true"] {
+  cursor: default;
+}
+
+.upload-dropzone[data-has-image="false"] {
+  background: var(--surface-2);
+}
+
+.upload-dropzone[data-dragging="true"] {
+  background: var(--primary-surface);
+  border: 2px dashed var(--primary);
+}
+
+.upload-icon-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.upload-preview-canvas {
+  opacity: 0;
+}
+
+.upload-preview-canvas.is-visible {
+  opacity: 1;
+}
+
+/* Segmented control (Draw / Upload 탭 전환) */
+.seg {
+  background: var(--fill);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+.seg-btn {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn[data-active="true"] {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Focus ring — 2px primary outline, 2px offset */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-icon:focus-visible,
+.seg-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
 @keyframes beautify-countdown-pulse {
-  0% {
-    opacity: 0.7;
-    transform: scale(0.96);
-  }
-  20% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  55% {
-    opacity: 0.92;
-    transform: scale(1.04);
-  }
-  100% {
-    opacity: 0.72;
-    transform: scale(1);
-  }
+  0%   { opacity: 0.7;  transform: scale(0.96); }
+  20%  { opacity: 1;    transform: scale(1); }
+  55%  { opacity: 0.92; transform: scale(1.04); }
+  100% { opacity: 0.72; transform: scale(1); }
 }
 
 .beautify-countdown-badge {

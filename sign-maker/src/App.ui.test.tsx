@@ -9,14 +9,14 @@ describe("Sign Maker App UI", () => {
 
     render(<App />);
 
-    expect(screen.getByText("Drawing Tools")).toBeInTheDocument();
-    expect(screen.getByText("캔버스에 서명을 그리세요. 펜을 멈추면 3초 후 자동으로 부드럽게 처리됩니다.")).toBeInTheDocument();
+    expect(screen.getByText("그리기 도구")).toBeInTheDocument();
+    expect(screen.getByText("캔버스에 서명을 그리세요. 펜을 멈추면 3초 후 자동으로 부드럽게 정리돼요.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /upload/i }));
 
-    expect(screen.getByText("Image Settings")).toBeInTheDocument();
-    expect(screen.getByText("Background Threshold")).toBeInTheDocument();
-    expect(screen.getByText("클릭하거나 드래그하여 업로드")).toBeInTheDocument();
+    expect(screen.getByText("이미지 설정")).toBeInTheDocument();
+    expect(screen.getByText("배경 임계값")).toBeInTheDocument();
+    expect(screen.getByText("클릭하거나 드래그하여 업로드해요")).toBeInTheDocument();
   });
 
   it("toggles the document theme attribute", async () => {
