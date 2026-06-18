@@ -1,21 +1,56 @@
+/* Tool Hub UI tokens
+   - 단일 액션 컬러: #3366FF
+   - 차가운 중립(cool-neutral) 그레이 + 흰색 표면
+   - 로컬 타이포 / 부드러운 모서리 / 중립 저확산 그림자
+   기존 --mmu-* 변수명을 유지하면서 값만 새 토큰으로 매핑한다. */
+
+@font-face {
+    font-family: "ToolHub Sans";
+    src: url("/fonts/toolhub-sans.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
-    --mmu-font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
-    --mmu-bg: #f5f7fb;
-    --mmu-surface: rgba(255, 255, 255, 0.94);
+    /* 타이포 */
+    --mmu-font-sans: "ToolHub Sans",
+        -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+    /* 배경 / 표면 — 평평한 흰색 + 차가운 그루핑 배경 */
+    --mmu-bg: #f7f7f8;                         /* cool-neutral-99 grouped bg */
+    --mmu-surface: #ffffff;                    /* 카드/패널 표면 */
     --mmu-surface-strong: #ffffff;
-    --mmu-border: rgba(15, 23, 42, 0.08);
-    --mmu-text: #0f172a;
-    --mmu-text-muted: #64748b;
-    --mmu-accent: #6366f1;
-    --mmu-accent-strong: #4f46e5;
-    --mmu-accent-soft: rgba(99, 102, 241, 0.16);
-    --mmu-success: #10b981;
-    --mmu-warning: #f59e0b;
-    --mmu-danger: #ef4444;
-    --mmu-shadow-soft: 0 14px 30px rgba(15, 23, 42, 0.06);
-    --mmu-shadow-md: 0 24px 56px rgba(15, 23, 42, 0.1);
-    --mmu-radius-lg: 1.25rem;
-    --mmu-radius-xl: 1.5rem;
+
+    /* 보더 / 라인 — 반투명 중립 헤어라인(#70737C 기반) */
+    --mmu-border: rgba(112, 115, 124, 0.22);   /* 기본 보더 */
+    --mmu-border-subtle: rgba(112, 115, 124, 0.08);
+    --mmu-border-strong: rgba(112, 115, 124, 0.52);
+
+    /* 텍스트 — 근사 블랙 위 불투명도 단계 */
+    --mmu-text: #171717;                       /* label-normal */
+    --mmu-text-muted: rgba(55, 56, 60, 0.61);  /* label-alternative */
+
+    /* 액션 컬러 */
+    --mmu-accent: #3366ff;                     /* primary-normal */
+    --mmu-accent-strong: #005eeb;              /* primary-strong (hover) */
+    --mmu-accent-heavy: #0054d1;               /* primary-heavy (press) */
+    --mmu-accent-soft: #eaf2fe;               /* primary-surface (선택 틴트) */
+
+    /* 상태 컬러 */
+    --mmu-success: #00bf40;
+    --mmu-warning: #ff9200;
+    --mmu-danger: #ff4242;
+
+    /* 그림자 — 중립, 저확산(절대 검정/유채색 아님) */
+    --mmu-shadow-soft: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+    --mmu-shadow-md: 0 8px 24px rgba(23, 23, 25, 0.10), 0 2px 6px rgba(23, 23, 25, 0.06);
+
+    /* 모서리 — 컨트롤 8~12px, 카드 16px, 시트/대형 카드 20px */
+    --mmu-radius-lg: 16px;
+    --mmu-radius-xl: 20px;
+
+    /* 간격 — 4px 그리드 */
     --mmu-space-2: 0.5rem;
     --mmu-space-3: 0.75rem;
     --mmu-space-4: 1rem;
@@ -24,13 +59,18 @@
 }
 
 html[data-theme="dark"] {
-    --mmu-bg: #0b1220;
-    --mmu-surface: rgba(15, 23, 42, 0.88);
-    --mmu-surface-strong: #111827;
-    --mmu-border: rgba(148, 163, 184, 0.18);
-    --mmu-text: #e5eefc;
-    --mmu-text-muted: #9fb0c7;
-    --mmu-accent-soft: rgba(99, 102, 241, 0.28);
-    --mmu-shadow-soft: 0 16px 32px rgba(2, 6, 23, 0.35);
-    --mmu-shadow-md: 0 24px 56px rgba(2, 6, 23, 0.5);
+    --mmu-bg: #141415;                          /* cool-neutral-5 근사 grouped bg */
+    --mmu-surface: #1b1c1e;                     /* background-normal-normal (dark) */
+    --mmu-surface-strong: #232427;
+    --mmu-border: rgba(149, 153, 163, 0.24);
+    --mmu-border-subtle: rgba(149, 153, 163, 0.10);
+    --mmu-border-strong: rgba(149, 153, 163, 0.45);
+    --mmu-text: #f7f7f7;                        /* label-normal (dark) */
+    --mmu-text-muted: rgba(194, 196, 200, 0.61);
+    --mmu-accent: #5b84ff;                      /* primary-normal (dark) */
+    --mmu-accent-strong: #7a9bff;
+    --mmu-accent-heavy: #99b3ff;
+    --mmu-accent-soft: rgba(91, 132, 255, 0.16);
+    --mmu-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --mmu-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
 }

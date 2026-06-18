@@ -1,10 +1,10 @@
 .mmu-body {
     min-height: 100vh;
     font-family: var(--mmu-font-sans);
-    background:
-        radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 34%),
-        linear-gradient(180deg, #fbfcff 0%, var(--mmu-bg) 100%);
+    background: var(--mmu-bg);
     color: var(--mmu-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .mmu-topbar {
@@ -83,7 +83,7 @@
 
 .mmu-theme-toggle:hover,
 .mmu-theme-toggle:focus-visible {
-    border-color: rgba(99, 102, 241, 0.32);
+    border-color: var(--mmu-accent);
     color: var(--mmu-accent);
     transform: translateY(-1px);
 }
@@ -93,9 +93,7 @@
 }
 
 .mmu-page-hero {
-    background:
-        radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 38%),
-        linear-gradient(180deg, var(--mmu-surface-strong) 0%, var(--mmu-surface) 100%);
+    background: var(--mmu-surface);
 }
 
 .mmu-eyebrow {
@@ -103,7 +101,7 @@
     color: var(--mmu-accent);
     font-size: 0.78rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
 }
 
@@ -124,7 +122,7 @@
     margin: 0;
     font-size: 1.05rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
 }
 
 .mmu-section-heading p {
@@ -175,8 +173,8 @@
 }
 
 .mmu-dropzone.is-invalid {
-    border-color: rgba(239, 68, 68, 0.48);
-    background: linear-gradient(180deg, rgba(254, 242, 242, 0.92), rgba(255, 255, 255, 0.98));
+    border-color: color-mix(in srgb, var(--mmu-danger) 55%, transparent);
+    background: color-mix(in srgb, var(--mmu-danger) 6%, var(--mmu-surface));
 }
 
 .mmu-upload-submit .btn {
@@ -198,7 +196,7 @@
     margin: 0;
     font-size: 1.05rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
 }
 
 .mmu-status-note {
@@ -220,8 +218,8 @@
 }
 
 .mmu-warning-card {
-    border-color: rgba(245, 158, 11, 0.28);
-    background: color-mix(in srgb, rgba(245, 158, 11, 0.08) 40%, var(--mmu-surface-strong));
+    border-color: color-mix(in srgb, var(--mmu-warning) 30%, transparent);
+    background: color-mix(in srgb, var(--mmu-warning) 7%, var(--mmu-surface));
 }
 
 .mmu-warning-card__code {
