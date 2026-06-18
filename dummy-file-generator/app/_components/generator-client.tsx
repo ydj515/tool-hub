@@ -219,7 +219,7 @@ export default function GeneratorClient() {
   return (
     <main className="pageShell">
       <button className="globalThemeBtn" type="button" onClick={toggleTheme} aria-label="테마 전환" aria-pressed={mounted && theme === "dark"}>
-        {mounted ? (theme === "dark" ? <SunIcon /> : <MoonIcon />) : <span style={{ display: "block", width: 16, height: 16 }} />}
+        {mounted ? (theme === "dark" ? <SunIcon /> : <MoonIcon />) : <span className="themeIconPlaceholder" />}
       </button>
 
       <section className="card">
