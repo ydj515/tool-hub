@@ -34,7 +34,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
   return (
     <article
-      className={`toolCard relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-[#0f0f1c] border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
+      className={`toolCard relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-surface-dark border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
       data-tool-id={id}
       data-live={isLive ? 'true' : 'false'}
     >

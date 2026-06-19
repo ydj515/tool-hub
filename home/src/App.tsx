@@ -54,7 +54,7 @@ export default function App() {
     : tools;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f5f9] dark:bg-[#080810] text-gray-900 dark:text-[#eeeef5]">
+    <div className="min-h-screen flex flex-col bg-canvas dark:bg-canvas-dark text-gray-900 dark:text-ink-dark">
 
       {/* 배경 레이어 (다크 모드 전용) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -65,7 +65,7 @@ export default function App() {
       </div>
 
       {/* 헤더 */}
-      <header className="sticky top-0 z-50 bg-white/70 dark:bg-[#080810]/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06]">
+      <header className="sticky top-0 z-50 bg-white/70 dark:bg-canvas-dark/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06]">
         <div className="max-w-[1120px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
