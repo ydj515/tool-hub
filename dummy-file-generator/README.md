@@ -59,8 +59,8 @@ curl -X POST http://localhost:3000/api/blob/sign \
 현재는 스텁 응답이며, 실제 Vercel Blob 연동 시 `BLOB_READ_WRITE_TOKEN`과 `@vercel/blob`를 연결해야 합니다.
 
 ## 테스트/문서
-- 테스트 플랜: `/Users/dongjin/dev/study/tool-hub/dummy-file-generator/tests/TEST_PLAN.md`
-- API 문서: `/Users/dongjin/dev/study/tool-hub/dummy-file-generator/docs/API.md`
+- 테스트 플랜: [tests/TEST_PLAN.md](tests/TEST_PLAN.md)
+- API 문서: [docs/API.md](docs/API.md)
 
 ## 제한 사항
 - 생성 파일은 메모리 저장소(Map)에 30분 TTL로 보관됩니다.

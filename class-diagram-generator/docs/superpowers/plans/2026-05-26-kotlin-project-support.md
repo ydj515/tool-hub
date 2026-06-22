@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** `class-diagram-generator`가 순수 Kotlin Gradle/Maven 단일 모듈과 멀티모듈 프로젝트 ZIP을 분석해 기존 Java와 동일하게 문서 산출물을 생성하도록 확장하고, `/Users/dongjin/Desktop/sample-projects`에 Kotlin Spring 샘플 8종을 추가한다.
+**Goal:** `class-diagram-generator`가 순수 Kotlin Gradle/Maven 단일 모듈과 멀티모듈 프로젝트 ZIP을 분석해 기존 Java와 동일하게 문서 산출물을 생성하도록 확장하고, `sample-projects`에 Kotlin Spring 샘플 8종을 추가한다.
 
 **Architecture:** `ProjectDetector`는 Kotlin 소스 루트를 감지하도록 확장하고, 파싱 계층은 `SourceAnalyzer` 인터페이스 아래에서 Java와 Kotlin 분석기를 병렬 운영한다. Kotlin 파서는 `kotlin-compiler-embeddable` 기반 PSI로 구현하고, 결과는 기존 `ParsedType` 모델로 변환해 `RelationExtractor`, 렌더러, 결과 API를 최대한 재사용한다.
 
@@ -38,18 +38,18 @@
   - Gradle/Maven single/multi Kotlin ZIP 종단 테스트
 - Modify: `README.md`
   - Kotlin 프로젝트 지원과 검증 경로 문서화
-- Modify: `/Users/dongjin/Desktop/sample-projects/README.md`
+- Modify: `sample-projects/README.md`
   - Kotlin 샘플 목록과 사용법 문서화
-- Create: `/Users/dongjin/Desktop/sample-projects/verify-kotlin-samples.sh`
+- Create: `sample-projects/verify-kotlin-samples.sh`
   - Kotlin 샘플 스모크 검증 스크립트
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk21/**`
+- Create: `sample-projects/gradle-single-kotlin-jdk17/**`
+- Create: `sample-projects/gradle-single-kotlin-jdk21/**`
+- Create: `sample-projects/gradle-multi-kotlin-jdk17/**`
+- Create: `sample-projects/gradle-multi-kotlin-jdk21/**`
+- Create: `sample-projects/maven-single-kotlin-jdk17/**`
+- Create: `sample-projects/maven-single-kotlin-jdk21/**`
+- Create: `sample-projects/maven-multi-kotlin-jdk17/**`
+- Create: `sample-projects/maven-multi-kotlin-jdk21/**`
   - 현실적인 Spring 수준의 Kotlin 업로드 샘플
 
 ### Task 1: Kotlin 소스 감지 규칙 확장
@@ -775,18 +775,18 @@ git commit -m "test(class-diagram-generator): cover kotlin project uploads"
 ### Task 5: Desktop Kotlin 샘플 프로젝트와 검증 스크립트 추가
 
 **Files:**
-- Modify: `/Users/dongjin/Desktop/sample-projects/README.md`
-- Create: `/Users/dongjin/Desktop/sample-projects/verify-kotlin-samples.sh`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/settings.gradle.kts`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/build.gradle.kts`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/src/main/kotlin/com/example/catalog/service/CatalogService.kt`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk21/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk17/**`
-- Create: `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk21/**`
+- Modify: `sample-projects/README.md`
+- Create: `sample-projects/verify-kotlin-samples.sh`
+- Create: `sample-projects/gradle-single-kotlin-jdk17/settings.gradle.kts`
+- Create: `sample-projects/gradle-single-kotlin-jdk17/build.gradle.kts`
+- Create: `sample-projects/gradle-single-kotlin-jdk17/src/main/kotlin/com/example/catalog/service/CatalogService.kt`
+- Create: `sample-projects/gradle-single-kotlin-jdk21/**`
+- Create: `sample-projects/gradle-multi-kotlin-jdk17/**`
+- Create: `sample-projects/gradle-multi-kotlin-jdk21/**`
+- Create: `sample-projects/maven-single-kotlin-jdk17/**`
+- Create: `sample-projects/maven-single-kotlin-jdk21/**`
+- Create: `sample-projects/maven-multi-kotlin-jdk17/**`
+- Create: `sample-projects/maven-multi-kotlin-jdk21/**`
 
 - [ ] **Step 1: Kotlin 샘플 검증 스크립트를 먼저 추가하고 실패를 확인**
 
@@ -796,7 +796,7 @@ git commit -m "test(class-diagram-generator): cover kotlin project uploads"
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="/Users/dongjin/dev/study/tool-hub"
+REPO_ROOT="$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)"
 GRADLEW="${REPO_ROOT}/class-diagram-generator/gradlew"
 
 verify_gradle_sample() {
@@ -825,18 +825,18 @@ verify_maven_sample "maven-multi-kotlin-jdk21"
 echo "[verify] 모든 Kotlin 샘플 검증이 완료되었습니다."
 ```
 
-Run: `bash /Users/dongjin/Desktop/sample-projects/verify-kotlin-samples.sh`
+Run: `bash sample-projects/verify-kotlin-samples.sh`
 Expected: FAIL because Kotlin 샘플 디렉터리가 아직 존재하지 않음
 
 - [ ] **Step 2: JDK 17 기준 템플릿과 각 변형 샘플의 파일 구성을 생성**
 
 ```kotlin
-// /Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/settings.gradle.kts
+// sample-projects/gradle-single-kotlin-jdk17/settings.gradle.kts
 rootProject.name = "gradle-single-kotlin-jdk17"
 ```
 
 ```kotlin
-// /Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/build.gradle.kts
+// sample-projects/gradle-single-kotlin-jdk17/build.gradle.kts
 plugins {
     kotlin("jvm") version "2.0.21"
 }
@@ -864,7 +864,7 @@ dependencies {
 ```
 
 ```kotlin
-// /Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17/src/main/kotlin/com/example/catalog/service/CatalogService.kt
+// sample-projects/gradle-single-kotlin-jdk17/src/main/kotlin/com/example/catalog/service/CatalogService.kt
 package com.example.catalog.service
 
 import org.springframework.stereotype.Service
@@ -917,7 +917,7 @@ data class CatalogSummary(
 ```
 
 ```kotlin
-// /Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk17/build.gradle.kts
+// sample-projects/gradle-multi-kotlin-jdk17/build.gradle.kts
 plugins {
     kotlin("jvm") version "2.0.21" apply false
 }
@@ -949,7 +949,7 @@ subprojects {
 ```
 
 ```xml
-<!-- /Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk17/pom.xml -->
+<!-- sample-projects/maven-multi-kotlin-jdk17/pom.xml -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -997,10 +997,10 @@ subprojects {
 ```
 
 Create the remaining sample trees with this exact file set and these exact value changes:
-- `/Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk21`
+- `sample-projects/gradle-single-kotlin-jdk21`
   - create `settings.gradle.kts`, `build.gradle.kts`, `src/main/kotlin/com/example/catalog/service/CatalogService.kt`
   - copy the JDK 17 single-module contents and replace every toolchain value `17` with `21`
-- `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk17`
+- `sample-projects/gradle-multi-kotlin-jdk17`
   - create `settings.gradle.kts` containing `rootProject.name = "gradle-multi-kotlin-jdk17"` and `include("api", "service", "support")`
   - create root `build.gradle.kts`
   - create `api/build.gradle.kts`, `service/build.gradle.kts`, `support/build.gradle.kts`
@@ -1009,7 +1009,7 @@ Create the remaining sample trees with this exact file set and these exact value
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogSummary.kt`
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogStatus.kt`
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogSupport.kt`
-- `/Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk21`
+- `sample-projects/gradle-multi-kotlin-jdk21`
   - create `settings.gradle.kts`, root `build.gradle.kts`
   - create `api/build.gradle.kts`, `service/build.gradle.kts`, `support/build.gradle.kts`
   - create `api/src/main/kotlin/com/example/catalog/api/CatalogController.kt`
@@ -1018,14 +1018,14 @@ Create the remaining sample trees with this exact file set and these exact value
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogStatus.kt`
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogSupport.kt`
   - replace every toolchain value `17` with `21`
-- `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk17`
+- `sample-projects/maven-single-kotlin-jdk17`
   - create `pom.xml`
   - create `src/main/kotlin/com/example/catalog/service/CatalogService.kt`
-- `/Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk21`
+- `sample-projects/maven-single-kotlin-jdk21`
   - create `pom.xml`
   - create `src/main/kotlin/com/example/catalog/service/CatalogService.kt`
   - replace `<maven.compiler.release>17</maven.compiler.release>` with `21`
-- `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk17`
+- `sample-projects/maven-multi-kotlin-jdk17`
   - create root `pom.xml`
   - create `api/pom.xml`, `service/pom.xml`, `support/pom.xml`
   - create `api/src/main/kotlin/com/example/catalog/api/CatalogController.kt`
@@ -1033,7 +1033,7 @@ Create the remaining sample trees with this exact file set and these exact value
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogSummary.kt`
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogStatus.kt`
   - create `support/src/main/kotlin/com/example/catalog/support/CatalogSupport.kt`
-- `/Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk21`
+- `sample-projects/maven-multi-kotlin-jdk21`
   - create root `pom.xml`
   - create `api/pom.xml`, `service/pom.xml`, `support/pom.xml`
   - create `api/src/main/kotlin/com/example/catalog/api/CatalogController.kt`
@@ -1071,21 +1071,21 @@ Kotlin 샘플 검증: `bash ./verify-kotlin-samples.sh`
 
 - [ ] **Step 4: 샘플 검증 스크립트를 실행**
 
-Run: `bash /Users/dongjin/Desktop/sample-projects/verify-kotlin-samples.sh`
+Run: `bash sample-projects/verify-kotlin-samples.sh`
 Expected: PASS
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add /Users/dongjin/Desktop/sample-projects/README.md \
-  /Users/dongjin/Desktop/sample-projects/verify-kotlin-samples.sh \
-  /Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk17 \
-  /Users/dongjin/Desktop/sample-projects/gradle-single-kotlin-jdk21 \
-  /Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk17 \
-  /Users/dongjin/Desktop/sample-projects/gradle-multi-kotlin-jdk21 \
-  /Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk17 \
-  /Users/dongjin/Desktop/sample-projects/maven-single-kotlin-jdk21 \
-  /Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk17 \
-  /Users/dongjin/Desktop/sample-projects/maven-multi-kotlin-jdk21
+git add sample-projects/README.md \
+  sample-projects/verify-kotlin-samples.sh \
+  sample-projects/gradle-single-kotlin-jdk17 \
+  sample-projects/gradle-single-kotlin-jdk21 \
+  sample-projects/gradle-multi-kotlin-jdk17 \
+  sample-projects/gradle-multi-kotlin-jdk21 \
+  sample-projects/maven-single-kotlin-jdk17 \
+  sample-projects/maven-single-kotlin-jdk21 \
+  sample-projects/maven-multi-kotlin-jdk17 \
+  sample-projects/maven-multi-kotlin-jdk21
 git commit -m "test(class-diagram-generator): add kotlin sample projects"
 ```

@@ -24,5 +24,5 @@ Finishing code changes without verification is not allowed.
 - Prefer small topic-focused docs over one oversized guide.
 
 ## Detailed References
-- Contributor guide: [docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/docs/contributor-guide.md)
-- Project-specific guides: see the references listed inside [docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/docs/contributor-guide.md)
+- Contributor guide: [docs/contributor-guide.md](docs/contributor-guide.md)
+- Project-specific guides: see the references listed inside [docs/contributor-guide.md](docs/contributor-guide.md)

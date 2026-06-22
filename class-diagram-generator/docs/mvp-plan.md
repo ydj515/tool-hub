@@ -3567,7 +3567,8 @@ package com.demo.service;
 /** 코어 서비스. */
 public class CoreService { private String name; public void exec() {} }
 EOF
-cd /tmp/fixture && zip -r multi-module.zip . && mv multi-module.zip "/Users/dongjin/dev/study/tool-hub/class-diagram-generator/src/test/resources/fixtures/multi-module.zip"
+(cd /tmp/fixture && zip -r multi-module.zip .)
+mv /tmp/fixture/multi-module.zip src/test/resources/fixtures/multi-module.zip
 ```
 
 - [ ] **Step 2: 통합 테스트 작성**

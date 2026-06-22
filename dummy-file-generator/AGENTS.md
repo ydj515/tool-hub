@@ -8,4 +8,4 @@ Use this file as a short index for contributors and agents working in `dummy-fil
 - Treat successful verification as mandatory before considering the work complete.
 
 ## Detailed Reference
-- Project guide: [docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/dummy-file-generator/docs/contributor-guide.md)
+- Project guide: [docs/contributor-guide.md](docs/contributor-guide.md)

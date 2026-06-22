@@ -28,9 +28,9 @@ Keep shared guidance short in `AGENTS.md` and move detail into `docs/*.md`.
 - Avoid: turning `AGENTS.md` into a long handbook with project-specific implementation details.
 
 ## Project-Specific References
-- `home/`: [home/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/home/docs/contributor-guide.md)
-- `sign-maker/`: [sign-maker/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/sign-maker/docs/contributor-guide.md)
-- `dummy-file-generator/`: [dummy-file-generator/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/dummy-file-generator/docs/contributor-guide.md)
-- `ddl-seed-generator/`: [ddl-seed-generator/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/ddl-seed-generator/docs/contributor-guide.md)
-- `config-diff-viewer/`: [config-diff-viewer/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/config-diff-viewer/docs/contributor-guide.md)
-- `webpage-capture-tool/`: [webpage-capture-tool/docs/contributor-guide.md](/Users/dongjin/dev/study/tool-hub/webpage-capture-tool/docs/contributor-guide.md)
+- `home/`: [home/docs/contributor-guide.md](../home/docs/contributor-guide.md)
+- `sign-maker/`: [sign-maker/docs/contributor-guide.md](../sign-maker/docs/contributor-guide.md)
+- `dummy-file-generator/`: [dummy-file-generator/docs/contributor-guide.md](../dummy-file-generator/docs/contributor-guide.md)
+- `ddl-seed-generator/`: [ddl-seed-generator/docs/contributor-guide.md](../ddl-seed-generator/docs/contributor-guide.md)
+- `config-diff-viewer/`: [config-diff-viewer/docs/contributor-guide.md](../config-diff-viewer/docs/contributor-guide.md)
+- `webpage-capture-tool/`: [webpage-capture-tool/docs/contributor-guide.md](../webpage-capture-tool/docs/contributor-guide.md)
