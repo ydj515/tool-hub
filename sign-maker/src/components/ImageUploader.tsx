@@ -9,6 +9,7 @@ import React, {
   useEffect,
 } from "react";
 import { Upload } from "lucide-react";
+import Button from "./ui/Button";
 
 export interface ImageUploaderRef {
   reset: () => void;
@@ -121,12 +122,13 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
               클릭하거나 드래그하여 업로드해요
             </p>
             <p className="upload-hint text-xs">PNG, JPG, JPEG (최대 5MB)</p>
-            <button
-              className="btn-secondary mt-1 px-4 h-9 text-xs font-semibold pointer-events-auto"
+            <Button
+              variant="secondary"
+              className="mt-1 px-4 h-9 text-xs font-semibold pointer-events-auto"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
             >
               파일 선택
-            </button>
+            </Button>
           </div>
         )}
         <input

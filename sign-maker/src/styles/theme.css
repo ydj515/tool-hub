@@ -1,0 +1,114 @@
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ──────────────────────────────────────────────────────────────
+   Design tokens
+   하나의 액션 컬러와 정밀한 cool-grey 중립 팔레트를 사용한다.
+   ────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  /* Typography */
+  --font-sans: "ToolHub Sans",
+    -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* Surfaces / Backgrounds (플랫 화이트 + 그룹 배경) */
+  --bg:          #f7f7f8;            /* 페이지 그룹 배경 */
+  --surface:     #ffffff;            /* 카드 / 패널 */
+  --surface-2:   #f7f7f8;            /* 보조 패널 배경 */
+
+  /* Fills (반투명 중립 — 칩/트랙/고스트 hover) */
+  --fill:        rgba(112,115,124,0.08);
+  --fill-subtle: rgba(112,115,124,0.05);
+  --fill-bold:   rgba(112,115,124,0.16);
+
+  /* Lines / Borders (반투명 헤어라인) */
+  --line:        rgba(112,115,124,0.22);
+  --line-subtle: rgba(112,115,124,0.08);
+  --line-strong: rgba(112,115,124,0.52);
+
+  /* Text / Label (near-black 위 불투명도 단계) */
+  --text:        rgb(23,23,23);          /* 본문 기본 */
+  --text-neutral:rgba(46,47,51,0.88);    /* 2차 */
+  --muted:       rgba(55,56,60,0.61);    /* 3차 */
+  --soft:        rgba(55,56,60,0.28);     /* 보조/placeholder */
+
+  /* Brand / Primary */
+  --primary:         rgb(51,102,255);
+  --primary-strong:  rgb(0,94,235);      /* hover */
+  --primary-heavy:   rgb(0,84,209);      /* pressed */
+  --primary-surface: rgb(234,242,254);   /* 선택 틴트 */
+  --on-primary:      #ffffff;
+
+  /* Status */
+  --danger:      rgb(229,52,58);
+
+  /* Radius */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(23,23,25,0.06), 0 1px 3px rgba(23,23,25,0.07);
+  --shadow-md: 0 2px 8px rgba(23,23,25,0.08), 0 1px 2px rgba(23,23,25,0.06);
+  --shadow-lg: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:  160ms;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:          rgb(15,15,16);
+  --surface:     rgb(27,28,30);
+  --surface-2:   rgb(33,34,37);
+
+  --fill:        rgba(112,115,124,0.22);
+  --fill-subtle: rgba(112,115,124,0.12);
+  --fill-bold:   rgba(112,115,124,0.28);
+
+  --line:        rgba(112,115,124,0.32);
+  --line-subtle: rgba(112,115,124,0.16);
+  --line-strong: rgba(194,196,200,0.52);
+
+  --text:        rgb(247,247,247);
+  --text-neutral:rgba(194,196,200,0.88);
+  --muted:       rgba(174,176,182,0.61);
+  --soft:        rgba(174,176,182,0.28);
+
+  --primary:         rgb(91,132,255);
+  --primary-strong:  rgb(26,117,255);
+  --primary-heavy:   rgb(0,102,255);
+  --primary-surface: rgba(91,132,255,0.16);
+  --on-primary:      #ffffff;
+
+  --danger:      rgb(229,92,108);
+}
+
+/* Tailwind 컬러 유틸리티 매핑 (bg-surface, border-line, text-muted …) */
+@theme inline {
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-surface-2:    var(--surface-2);
+  --color-fill:         var(--fill);
+  --color-line:         var(--line);
+  --color-line-subtle:  var(--line-subtle);
+  --color-line-strong:  var(--line-strong);
+  --color-tx:           var(--text);
+  --color-tx-neutral:   var(--text-neutral);
+  --color-muted:        var(--muted);
+  --color-primary:      var(--primary);
+  --color-on-primary:   var(--on-primary);
+  --color-danger:       var(--danger);
+  --font-sans:          var(--font-sans);
+}
