@@ -1,0 +1,77 @@
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ── Design tokens ──
+   하나의 액션 컬러를 쿨 그레이 중립 위에 사용한다.
+   브랜드/액션/활성/포커스 = --primary 계열, 긍정 상태(ok/added/제안) = --green. */
+:root {
+  color-scheme: light;
+  --bg:          #f7f7f8; /* 그룹 배경 (cool-neutral-99) */
+  --surface:     #ffffff; /* 카드 — 화이트 */
+  --surface-2:   #f4f4f5; /* 입력/서브틀 필 (cool-neutral-98) */
+  --surface-3:   #ececee; /* 중립 호버/칩 */
+  --line:        rgba(112, 115, 124, 0.22); /* 반투명 하어라인 */
+  --line-strong: rgba(112, 115, 124, 0.45);
+  --text:        #171717; /* label-normal */
+  --muted:       rgba(55, 56, 60, 0.61); /* label-alternative */
+  --soft:        rgba(55, 56, 60, 0.40); /* label-assistive */
+  /* 액션/브랜드 */
+  --primary:        #3366ff;
+  --primary-strong: #005eeb; /* hover */
+  --primary-heavy:  #0054d1; /* press */
+  --primary-surface:#eaf2fe; /* 선택 틴트 */
+  /* 상태 컬러 */
+  --green:       #0e8a43; /* 긍정 */
+  --green-dark:  #0b6e36;
+  --coral:       #c2410c; /* HIGH */
+  --yellow:      #92600a; /* MEDIUM */
+  --danger:      #d11f2e; /* CRITICAL / negative */
+  --code:        #171717;
+  --code-line:   #2e2f33;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:          #1b1c1e; /* background-normal-normal (dark) */
+  --surface:     #212225; /* elevated (cool-neutral-17) */
+  --surface-2:   #26282b;
+  --surface-3:   #2e3034;
+  --line:        rgba(174, 176, 182, 0.18);
+  --line-strong: rgba(174, 176, 182, 0.34);
+  --text:        #f7f7f7; /* label-normal (dark) */
+  --muted:       rgba(194, 196, 200, 0.70);
+  --soft:        rgba(174, 176, 182, 0.45);
+  --primary:        #5b84ff; /* primary-normal (dark) */
+  --primary-strong: #3366ff;
+  --primary-heavy:  #1a75ff;
+  --primary-surface:rgba(91, 132, 255, 0.16);
+  --green:       #34c77b;
+  --green-dark:  #1ea860;
+  --coral:       #ff8a5c;
+  --yellow:      #e0a93a;
+  --danger:      #ff6464;
+  --code:        #0f1010;
+  --code-line:   #2a2b2f;
+}
+
+@theme inline {
+  --color-bg:          var(--bg);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-surface-3:   var(--surface-3);
+  --color-line:        var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-tx:          var(--text);
+  --color-muted:       var(--muted);
+  --color-primary:     var(--primary);
+  --color-green:       var(--green);
+  --color-green-dark:  var(--green-dark);
+  --color-danger:      var(--danger);
+}

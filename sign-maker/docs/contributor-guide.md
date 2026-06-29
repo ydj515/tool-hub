@@ -1,7 +1,7 @@
 # Sign Maker Contributor Guide
 
 ## Project Overview
-`sign-maker/` is a Vite app for drawing signatures or extracting them from uploaded images. Main source files live in `src/`, shared UI is in `src/components/`, and styles live in `src/index.css` and `src/App.css`.
+`sign-maker/` is a Vite app for drawing signatures or extracting them from uploaded images. Main source files live in `src/`, shared UI is in `src/components/`, and styles live in `src/index.css` with topic files under `src/styles/`.
 
 ## Project Commands
 - `npm install`
