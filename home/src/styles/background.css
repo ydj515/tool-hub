@@ -1,0 +1,37 @@
+/* 다크 모드 배경 레이어 스타일 (Background.tsx 대응):
+   떠다니는 오브 애니메이션과 그리드/그라디언트. */
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  25%  { transform: translate(55px, -38px) scale(1.06); }
+  50%  { transform: translate(-28px, 48px) scale(0.94); }
+  75%  { transform: translate(18px, -52px) scale(1.03); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(-48px, 32px) scale(1.05); }
+  66%  { transform: translate(38px, -20px) scale(0.96); }
+}
+
+.orb-a { animation: orb-drift-a 20s ease-in-out infinite; will-change: transform; }
+.orb-b { animation: orb-drift-b 26s ease-in-out infinite; will-change: transform; }
+.orb-c { animation: orb-drift-a 32s ease-in-out infinite reverse; will-change: transform; }
+
+.dark-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.orb-bg-a {
+  background: radial-gradient(circle, #6366f1, #8b5cf6 55%, transparent);
+}
+
+.orb-bg-b {
+  background: radial-gradient(circle, #22d3ee, #3b82f6 55%, transparent);
+}
+
+.orb-bg-c {
+  background: radial-gradient(circle, #10b981, #6366f1 55%, transparent);
+}
