@@ -15,7 +15,7 @@ export default function Header({ theme, onToggle }: HeaderProps) {
     <header className="sticky top-0 z-50 bg-white/70 dark:bg-canvas-dark/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06]">
       <div className="max-w-[1120px] mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-accent shadow-sm">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <rect x="0.5" y="1.5" width="3" height="10" rx="0.8" fill="white" />
               <rect x="5" y="1.5" width="3" height="10" rx="0.8" fill="white" opacity="0.68" />

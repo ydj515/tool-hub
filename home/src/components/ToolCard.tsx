@@ -96,7 +96,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-indigo-500 focus-visible:outline-offset-2"
+              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             >
               <ExternalLinkIcon />
               Visit Site

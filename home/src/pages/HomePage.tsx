@@ -3,6 +3,8 @@
  */
 import { useState } from 'react';
 import ToolCard from '../components/ToolCard';
+import FilterButton from '../components/ui/FilterButton';
+import Stat from '../components/ui/Stat';
 import { tools } from '../data/tools';
 
 const liveCount = tools.filter((t) => t.status === 'live').length;
@@ -21,10 +23,10 @@ export default function HomePage() {
       <section className="py-14 sm:py-24 px-6">
         <div className="max-w-[600px] mx-auto text-center flex flex-col items-center gap-5">
           {/* 상태 인디케이터 */}
-          <div className="flex items-center gap-2 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400 tracking-normal uppercase">
+          <div className="flex items-center gap-2 text-[11px] font-semibold text-primary dark:text-primary-light tracking-normal uppercase">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-70" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500 dark:bg-indigo-400" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-light opacity-70" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary dark:bg-primary-light" />
             </span>
             Open Source · Always Free
           </div>
@@ -47,20 +49,11 @@ export default function HomePage() {
 
           {/* 인라인 통계 */}
           <div className="flex items-center gap-3.5 text-sm mt-1">
-            <span>
-              <span className="font-bold text-gray-900 dark:text-white tabular-nums">{tools.length}</span>
-              <span className="text-gray-400 dark:text-white/30 ml-1">tools</span>
-            </span>
+            <Stat value={tools.length} label="tools" />
             <span className="text-gray-200 dark:text-white/12 text-base select-none">/</span>
-            <span>
-              <span className="font-bold text-gray-900 dark:text-white tabular-nums">{liveCount}</span>
-              <span className="text-gray-400 dark:text-white/30 ml-1">live</span>
-            </span>
+            <Stat value={liveCount} label="live" />
             <span className="text-gray-200 dark:text-white/12 text-base select-none">/</span>
-            <span>
-              <span className="font-bold text-gray-900 dark:text-white">100%</span>
-              <span className="text-gray-400 dark:text-white/30 ml-1">free</span>
-            </span>
+            <Stat value="100%" label="free" tabular={false} />
           </div>
         </div>
       </section>
@@ -80,28 +73,18 @@ export default function HomePage() {
 
         {/* 태그 필터 */}
         <div className="flex gap-2 flex-wrap mb-8">
-          <button
+          <FilterButton
+            label="All"
+            active={activeTag === null}
             onClick={() => setActiveTag(null)}
-            className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
-              activeTag === null
-                ? 'bg-indigo-500 text-white border-indigo-500'
-                : 'text-gray-400 dark:text-white/40 border-black/[0.10] dark:border-white/[0.10] hover:border-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-400'
-            }`}
-          >
-            All
-          </button>
+          />
           {allTags.map((tag) => (
-            <button
+            <FilterButton
               key={tag}
+              label={tag}
+              active={activeTag === tag}
               onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
-                activeTag === tag
-                  ? 'bg-indigo-500 text-white border-indigo-500'
-                  : 'text-gray-400 dark:text-white/40 border-black/[0.10] dark:border-white/[0.10] hover:border-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-400'
-              }`}
-            >
-              {tag}
-            </button>
+            />
           ))}
         </div>
 

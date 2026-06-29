@@ -14,7 +14,7 @@ export default function Footer() {
           href={GITHUB_REPO}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[12px] text-gray-400 dark:text-white/25 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+          className="text-[12px] text-gray-400 dark:text-white/25 hover:text-primary dark:hover:text-primary-light transition-colors"
         >
           View on GitHub
         </a>
