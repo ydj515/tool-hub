@@ -1,0 +1,109 @@
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ──────────────────────────────────────────────────────────────
+   Design tokens
+   하나의 액션 컬러와 정밀한 쿨그레이 뉴트럴, 4px 그리드,
+   소프트 코너, 반투명 하어라인, 뉴트럴 저확산 섀도우를 따른다.
+   ────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  /* 표면 — 거의 흰색 위 옅은 그룹 배경 */
+  --bg:           rgb(247, 247, 248);   /* 페이지 그룹 배경 */
+  --surface:      #ffffff;               /* 카드 */
+  --surface-2:    #ffffff;               /* 입력/고스트 컨트롤 */
+  --surface-3:    rgb(234, 242, 254);    /* primary-surface 틴트 박스 */
+
+  /* 라인 — 반투명 뉴트럴 하어라인 */
+  --line:         rgba(112, 115, 124, 0.22);
+  --line-strong:  rgba(112, 115, 124, 0.52);
+  --line-subtle:  rgba(112, 115, 124, 0.08);
+
+  /* 텍스트 — 근검정 위 불투명도 단계 */
+  --text:         rgb(23, 23, 23);
+  --muted:        rgba(55, 56, 60, 0.61);
+  --soft:         rgba(55, 56, 60, 0.28);
+
+  /* 액션 — 단일 강조색 */
+  --primary:        rgb(51, 102, 255);
+  --primary-strong: rgb(0, 94, 235);
+  --primary-heavy:  rgb(0, 84, 209);
+  --primary-surface: rgb(234, 242, 254);
+  --on-primary:     #ffffff;
+
+  /* 상태 */
+  --danger:       rgb(255, 66, 66);
+  --warn:         rgb(255, 146, 0);
+  --warn-fg:      #8a5300;
+  --positive:     rgb(0, 191, 64);
+
+  /* 코드 표면 — 인버스 뉴트럴 */
+  --code:         rgb(27, 28, 30);
+  --code-line:    rgb(55, 56, 60);
+  --code-text:    rgb(232, 233, 236);
+
+  --shadow-sm:    0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+  --shadow-md:    0 2px 8px rgba(23, 23, 25, 0.08), 0 1px 2px rgba(23, 23, 25, 0.06);
+  --shadow-lg:    0 8px 24px rgba(23, 23, 25, 0.10), 0 2px 6px rgba(23, 23, 25, 0.06);
+
+  --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:           rgb(15, 15, 16);
+  --surface:      rgb(27, 28, 30);
+  --surface-2:    rgb(33, 34, 37);
+  --surface-3:    rgba(91, 132, 255, 0.16);
+
+  --line:         rgba(112, 115, 124, 0.32);
+  --line-strong:  rgba(194, 196, 200, 0.52);
+  --line-subtle:  rgba(112, 115, 124, 0.22);
+
+  --text:         rgb(247, 247, 247);
+  --muted:        rgba(174, 176, 182, 0.61);
+  --soft:         rgba(174, 176, 182, 0.28);
+
+  --primary:        rgb(91, 132, 255);
+  --primary-strong: rgb(26, 117, 255);
+  --primary-heavy:  rgb(0, 102, 255);
+  --primary-surface: rgba(91, 132, 255, 0.16);
+  --on-primary:     #ffffff;
+
+  --danger:       rgb(255, 99, 99);
+  --warn:         rgb(255, 169, 56);
+  --warn-fg:      rgb(255, 169, 56);
+  --positive:     rgb(30, 212, 90);
+
+  --code:         rgb(20, 20, 21);
+  --code-line:    rgb(46, 47, 51);
+  --code-text:    rgb(228, 229, 232);
+
+  --shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md:    0 2px 8px rgba(0, 0, 0, 0.36);
+  --shadow-lg:    0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.30);
+}
+
+@theme inline {
+  --color-bg:          var(--bg);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-surface-3:   var(--surface-3);
+  --color-line:        var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-tx:          var(--text);
+  --color-muted:       var(--muted);
+  --color-primary:     var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-danger:      var(--danger);
+}
