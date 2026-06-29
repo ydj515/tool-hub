@@ -4,7 +4,7 @@ import { cleanup } from "@testing-library/react";
 
 afterEach(() => {
   cleanup();
-  document.documentElement.className = "";
+  document.documentElement.removeAttribute("data-theme");
   localStorage.clear();
 });
 

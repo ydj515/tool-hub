@@ -1,29 +1,19 @@
 /**
- * 홈 화면의 다크 모드 상태를 동기화하는 커스텀 훅이다.
+ * 홈 화면의 테마 상태를 data-theme 속성·localStorage와 동기화하는 커스텀 훅이다.
  */
 import { useState, useEffect } from 'react';
+import { resolveInitialTheme } from '../theme';
 
-type Theme = 'dark' | 'light';
+type Theme = 'light' | 'dark';
 
 /**
- * 홈 화면의 테마 상태를 DOM과 localStorage에 동기화한다.
+ * 홈 화면의 테마 상태를 data-theme 속성과 localStorage에 동기화한다.
  */
 export function useTheme(): { theme: Theme; toggle: () => void } {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // 인라인 스크립트가 이미 DOM에 적용한 값을 읽어 FOUC 없이 초기 상태를 동기화
-    if (typeof document !== 'undefined') {
-      return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    }
-    return 'dark';
-  });
+  const [theme, setTheme] = useState<Theme>(resolveInitialTheme);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem('theme', theme);
     } catch {

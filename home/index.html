@@ -13,7 +13,7 @@
           if (t !== 'light' && t !== 'dark') {
             t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           }
-          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', t);
         } catch (e) {}
       })();
     </script>

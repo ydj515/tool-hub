@@ -18,17 +18,17 @@ describe("Home App", () => {
     expect(screen.queryByText("Sign Maker")).not.toBeInTheDocument();
   });
 
-  it("toggles the theme class on the document root", async () => {
+  it("toggles the document theme attribute", async () => {
     const user = userEvent.setup();
 
     render(<App />);
 
     const toggleButton = screen.getByRole("button", { name: "테마 전환" });
 
-    expect(document.documentElement).not.toHaveClass("dark");
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
 
     await user.click(toggleButton);
 
-    expect(document.documentElement).toHaveClass("dark");
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
   });
 });
