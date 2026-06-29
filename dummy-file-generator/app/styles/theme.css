@@ -1,0 +1,105 @@
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ── Design tokens ──
+   하나의 액션 컬러를 정밀한 cool-grey 중립 시스템 위에 사용한다. */
+:root {
+  color-scheme: light;
+
+  /* 브랜드 / 프라이머리 */
+  --color-primary:         rgb(51, 102, 255);   /* #3366FF 액션 블루 */
+  --color-primary-strong:  rgb(0, 94, 235);     /* hover */
+  --color-primary-heavy:   rgb(0, 84, 209);     /* pressed */
+  --color-primary-surface: rgb(234, 242, 254);  /* 선택 틴트 배경 */
+  --color-on-primary:      rgb(255, 255, 255);
+
+  /* 표면 / 배경 */
+  --surface:          rgb(255, 255, 255);       /* 카드 — 흰색 */
+  --surface-alt:      rgb(247, 247, 248);       /* #F7F7F8 그룹 배경 (페이지) */
+
+  /* 텍스트 (near-black 위 불투명도) */
+  --text-normal:      rgb(23, 23, 23);
+  --text-neutral:     rgba(46, 47, 51, 0.88);
+  --text-alternative: rgba(55, 56, 60, 0.61);
+  --text-assistive:   rgba(55, 56, 60, 0.28);
+  --text-disable:     rgba(55, 56, 60, 0.16);
+
+  /* 중립 채움 (트랙 / 고스트 hover / 칩) */
+  --fill-subtle: rgba(112, 115, 124, 0.05);
+  --fill:        rgba(112, 115, 124, 0.08);
+  --fill-bold:   rgba(112, 115, 124, 0.16);
+
+  /* 라인 / 보더 (translucent hairline) */
+  --line-subtle: rgba(112, 115, 124, 0.08);
+  --line:        rgba(112, 115, 124, 0.22);
+  --line-strong: rgba(112, 115, 124, 0.52);
+
+  /* 상태 */
+  --danger:    rgb(255, 66, 66);
+  --danger-bg: rgb(254, 236, 236);
+
+  /* 반경 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* 그림자 */
+  --shadow-sm: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+  --shadow-md: 0 2px 8px rgba(23, 23, 25, 0.08), 0 1px 2px rgba(23, 23, 25, 0.06);
+
+  /* 모션 */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary:         rgb(91, 132, 255);
+  --color-primary-strong:  rgb(26, 117, 255);
+  --color-primary-heavy:   rgb(0, 102, 255);
+  --color-primary-surface: rgba(91, 132, 255, 0.16);
+  --color-on-primary:      rgb(255, 255, 255);
+
+  --surface:     rgb(33, 34, 37);    /* elevated card */
+  --surface-alt: rgb(27, 28, 30);    /* page background */
+
+  --text-normal:      rgb(247, 247, 247);
+  --text-neutral:     rgba(194, 196, 200, 0.88);
+  --text-alternative: rgba(174, 176, 182, 0.61);
+  --text-assistive:   rgba(174, 176, 182, 0.28);
+  --text-disable:     rgba(152, 155, 162, 0.16);
+
+  --fill-subtle: rgba(112, 115, 124, 0.12);
+  --fill:        rgba(112, 115, 124, 0.22);
+  --fill-bold:   rgba(112, 115, 124, 0.28);
+
+  --line-subtle: rgba(112, 115, 124, 0.22);
+  --line:        rgba(112, 115, 124, 0.32);
+  --line-strong: rgba(194, 196, 200, 0.52);
+
+  --danger:    rgb(255, 99, 99);
+  --danger-bg: rgba(255, 99, 99, 0.14);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.30);
+}
+
+@theme inline {
+  --color-primary:    var(--color-primary);
+  --color-surface:    var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-line:       var(--line);
+  --color-tx:         var(--text-normal);
+  --color-muted:      var(--text-alternative);
+  --color-danger:     var(--danger);
+}

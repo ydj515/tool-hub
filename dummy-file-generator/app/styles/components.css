@@ -1,0 +1,282 @@
+/* ── Layout ── */
+.pageShell {
+  min-height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.card {
+  width: min(560px, 100%);
+  border-radius: var(--radius-lg);          /* 카드 16px */
+  background: var(--surface);
+  border: 1px solid var(--line-subtle);     /* translucent hairline */
+  box-shadow: var(--shadow-md);             /* 중립·저확산 elevation */
+  padding: 28px;
+}
+
+/* ── Header ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line-subtle);
+  margin-bottom: 22px;
+}
+
+.brandIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.brandIcon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentcolor;
+  fill: none;
+}
+
+h1 {
+  font-size: 1.375rem;          /* Title scale */
+  line-height: 1.3;
+  letter-spacing: 0;
+  font-weight: 700;
+  color: var(--text-normal);
+}
+
+.topbar p {
+  margin-top: 3px;
+  color: var(--text-alternative);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.globalThemeBtn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-subtle);
+  background: var(--surface);
+  color: var(--text-alternative);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 40;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+  box-shadow: var(--shadow-sm);
+}
+
+.globalThemeBtn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.globalThemeBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.globalThemeBtn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentcolor;
+  fill: none;
+}
+
+.themeIconPlaceholder {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Form ── */
+.fieldHead {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+  color: var(--text-neutral);
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.typeBtn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-alternative);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  display: grid;
+  grid-template-columns: 15px 1fr;
+  gap: 7px;
+  align-items: center;
+  justify-items: center;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard),
+              background var(--duration-fast) var(--ease-standard);
+}
+
+.typeBtn:hover { border-color: var(--line-strong); color: var(--text-normal); background: var(--fill-subtle); }
+
+.typeBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.typeBtn.active {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-surface);
+  font-weight: 600;
+}
+
+.typeBtn svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentcolor;
+  fill: currentcolor;
+}
+
+.typeBtn span { line-height: 1; }
+
+.fieldLabel {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  color: var(--text-neutral);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.zipLabel { margin-top: 14px; margin-bottom: 8px; }
+
+.zipStructureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.zipStructureBtn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-alternative);
+  border-radius: var(--radius-sm);
+  min-height: 40px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard),
+              background var(--duration-fast) var(--ease-standard);
+}
+
+.zipStructureBtn:hover { border-color: var(--line-strong); color: var(--text-normal); background: var(--fill-subtle); }
+
+.zipStructureBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.zipStructureBtn.active {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-surface);
+  font-weight: 600;
+}
+
+.sizeInput {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-normal);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.sizeInput::placeholder { color: var(--text-assistive); }
+
+.sizeInput:hover { border-color: var(--line-strong); }
+
+.sizeInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary), transparent 84%);
+}
+
+.hint {
+  margin: 7px 2px 0;
+  color: var(--text-alternative);
+  font-size: 0.8125rem;
+}
+
+.generateBtn {
+  margin-top: 20px;
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-md);
+  min-height: 48px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background var(--duration-base) var(--ease-standard);
+}
+
+.generateBtn:hover { background: var(--color-primary-strong); }
+
+.generateBtn:active { background: var(--color-primary-heavy); }
+
+.generateBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.generateBtn:disabled {
+  background: var(--fill-bold);
+  color: var(--text-disable);
+  cursor: not-allowed;
+}
+
+.generateBtn svg { width: 17px; height: 17px; stroke: currentcolor; fill: none; }
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .card { padding: 20px 16px; }
+  .typeGrid { grid-template-columns: repeat(2, 1fr); }
+}
