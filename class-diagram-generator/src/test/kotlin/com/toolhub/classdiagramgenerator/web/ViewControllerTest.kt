@@ -78,6 +78,17 @@ class ViewControllerTest(
             }
         }
 
+        "GET / renders html lang attribute matching the selected locale" {
+            mockMvc.get("/?lang=en").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("lang=\"en\"")) }
+            }
+            mockMvc.get("/?lang=ko").andExpect {
+                status { isOk() }
+                content { string(org.hamcrest.Matchers.containsString("lang=\"ko\"")) }
+            }
+        }
+
         "GET /jobs/{id} returns 200" {
             mockMvc.get("/jobs/00000000-0000-0000-0000-000000000001").andExpect { status { isOk() } }
         }
