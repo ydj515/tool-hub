@@ -25,4 +25,5 @@ Finishing code changes without verification is not allowed.
 
 ## Detailed References
 - Contributor guide: [docs/contributor-guide.md](docs/contributor-guide.md)
+- Frontend conventions (web apps): [docs/frontend-conventions.md](docs/frontend-conventions.md)
 - Project-specific guides: see the references listed inside [docs/contributor-guide.md](docs/contributor-guide.md)

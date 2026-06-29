@@ -27,6 +27,11 @@ Keep shared guidance short in `AGENTS.md` and move detail into `docs/*.md`.
 - Good: create project-specific docs such as `home/docs/contributor-guide.md` when instructions differ by project.
 - Avoid: turning `AGENTS.md` into a long handbook with project-specific implementation details.
 
+## Frontend Conventions
+Web apps (Vite + Next.js) share a structure playbook — shell/content split, CSS topic split, `theme.ts`/`useTheme`, and repeated UI as components.
+
+- [frontend-conventions.md](frontend-conventions.md)
+
 ## Project-Specific References
 - `home/`: [home/docs/contributor-guide.md](../home/docs/contributor-guide.md)
 - `sign-maker/`: [sign-maker/docs/contributor-guide.md](../sign-maker/docs/contributor-guide.md)
