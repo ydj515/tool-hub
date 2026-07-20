@@ -121,6 +121,37 @@ describe('YAML domain', () => {
     });
   });
 
+  it('bare !와 같은 AST 표현으로 이어질 수 있는 lexical custom tag !<!>를 거부한다', () => {
+    const result = parseYaml('value: !<!> 123\n');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic).toEqual({
+      format: 'yaml',
+      code: 'TAG_RESOLVE_FAILED',
+      message: '지원하지 않는 YAML tag입니다.',
+      startOffset: 7,
+      endOffset: 11,
+      line: 1,
+      column: 8,
+    });
+  });
+
+  it.each([
+    ['!custom data\n', 0, 7],
+    ['!custom\nkey: value\n', 0, 7],
+    ['!custom { key: value }\n', 0, 7],
+    ['!custom\n- one\n', 0, 7],
+    ['!custom [one, two]\n', 0, 7],
+    ['? !custom key\n: value\n', 2, 9],
+  ])('CST 부착 경로에서 %s의 tag token을 진단한다', (source, startOffset, endOffset) => {
+    const result = parseYaml(source);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('TAG_RESOLVE_FAILED');
+    expect(result.diagnostic.startOffset).toBe(startOffset);
+    expect(result.diagnostic.endOffset).toBe(endOffset);
+  });
+
   it('YAML Pretty에서 주석과 anchor 표현을 제거한다', () => {
     const result = prettyYaml('# comment\nbase: &base { enabled: true }\ncopy: *base\n');
     expect(result.ok).toBe(true);

@@ -24,6 +24,7 @@ const JSON_COMPATIBLE_TAGS = new Set([
 const MAX_ALIAS_EXPANSIONS = 100;
 
 type TagRange = [number, number];
+type AttachedTag = { source?: string; range: TagRange };
 type CstSourceToken = { type: string; offset: number; source: string };
 type CstItem = {
   start?: CstSourceToken[];
@@ -58,13 +59,13 @@ function attachedTag(tokens: CstSourceToken[] | undefined): CstSourceToken | und
   return tokens?.find((token) => token.type === 'tag');
 }
 
-function collectCstTagRanges(source: string): Map<string, TagRange> {
-  const ranges = new Map<string, TagRange>();
+function collectCstTags(source: string): Map<string, AttachedTag> {
+  const tags = new Map<string, AttachedTag>();
 
   function attach(token: CstToken | undefined, tokens: CstSourceToken[] | undefined) {
     if (!token) return;
     const tag = attachedTag(tokens);
-    if (tag) ranges.set(tokenKey(token), [tag.offset, tag.offset + tag.source.length]);
+    if (tag) tags.set(tokenKey(token), { source: tag.source, range: [tag.offset, tag.offset + tag.source.length] });
   }
 
   function visit(token: CstToken | undefined) {
@@ -84,36 +85,37 @@ function collectCstTagRanges(source: string): Map<string, TagRange> {
     attach(token.value, token.start);
     visit(token.value);
   }
-  return ranges;
+  return tags;
 }
 
-function tagTokenRange(
+function attachedTagForNode(
   node: { range?: unknown; srcToken?: unknown },
-  cstRanges: Map<string, TagRange>,
+  cstTags: Map<string, AttachedTag>,
   warnings: YAMLError[],
-): TagRange | undefined {
+): AttachedTag | undefined {
   const srcToken = node.srcToken as { type?: unknown; offset?: unknown } | undefined;
   if (srcToken && typeof srcToken.type === 'string' && typeof srcToken.offset === 'number') {
-    const cstRange = cstRanges.get(tokenKey({ type: srcToken.type, offset: srcToken.offset }));
-    if (cstRange) {
+    const cstTag = cstTags.get(tokenKey({ type: srcToken.type, offset: srcToken.offset }));
+    if (cstTag) {
       const warning = warnings.find(
-        (issue) => issue.code === 'TAG_RESOLVE_FAILED' && issue.pos[0] === cstRange[0] && issue.pos[1] === cstRange[1],
+        (issue) =>
+          issue.code === 'TAG_RESOLVE_FAILED' && issue.pos[0] === cstTag.range[0] && issue.pos[1] === cstTag.range[1],
       );
-      return warning ? [...warning.pos] : cstRange;
+      return warning ? { ...cstTag, range: [...warning.pos] } : cstTag;
     }
   }
 
   const nodeStart = Array.isArray(node.range) ? node.range[0] : undefined;
   if (typeof nodeStart === 'number') {
     const warning = warnings.find((issue) => issue.code === 'TAG_RESOLVE_FAILED' && issue.pos[1] === nodeStart);
-    if (warning) return [...warning.pos];
+    if (warning) return { range: [...warning.pos] };
   }
   return undefined;
 }
 
 function unsupportedTagRange(
   value: unknown,
-  cstRanges: Map<string, TagRange>,
+  cstTags: Map<string, AttachedTag>,
   warnings: YAMLError[],
   visited = new WeakSet<object>(),
 ): TagRange | undefined {
@@ -128,17 +130,18 @@ function unsupportedTagRange(
     key?: unknown;
     value?: unknown;
   };
-  if (typeof node.tag === 'string' && node.tag !== '!' && !JSON_COMPATIBLE_TAGS.has(node.tag)) {
-    const range = tagTokenRange(node, cstRanges, warnings);
-    if (range) return range;
+  const tag = attachedTagForNode(node, cstTags, warnings);
+  const isNonSpecificTag = node.tag === '!' && tag?.source === '!';
+  if (typeof node.tag === 'string' && !isNonSpecificTag && !JSON_COMPATIBLE_TAGS.has(node.tag)) {
+    if (tag) return tag.range;
   }
   for (const child of [node.key, node.value]) {
-    const range = unsupportedTagRange(child, cstRanges, warnings, visited);
+    const range = unsupportedTagRange(child, cstTags, warnings, visited);
     if (range !== undefined) return range;
   }
   if (Array.isArray(node.items)) {
     for (const item of node.items) {
-      const range = unsupportedTagRange(item, cstRanges, warnings, visited);
+      const range = unsupportedTagRange(item, cstTags, warnings, visited);
       if (range !== undefined) return range;
     }
   }
@@ -203,8 +206,8 @@ export function parseYaml(source: string): OperationResult<DataNode> {
     lineCounter,
     keepSourceTokens: true,
   });
-  const cstTagRanges = collectCstTagRanges(source);
-  const tagRange = unsupportedTagRange(document.contents, cstTagRanges, document.warnings);
+  const cstTags = collectCstTags(source);
+  const tagRange = unsupportedTagRange(document.contents, cstTags, document.warnings);
   let firstIssue: YAMLError | undefined;
   for (const issue of [...document.errors, ...document.warnings]) {
     if (tagRange && issue.code === 'TAG_RESOLVE_FAILED') continue;
