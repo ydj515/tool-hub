@@ -21,7 +21,14 @@ vi.mock('../components/editor/CodeEditor', async () => {
 });
 
 describe('ConverterPage', () => {
-  beforeEach(() => { vi.useFakeTimers(); focusDiagnostic.mockReset(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+    focusDiagnostic.mockReset();
+    window.matchMedia = vi.fn((query: string) => ({
+      matches: query === '(max-width: 767px)', media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }));
+  });
   afterEach(() => vi.useRealTimers());
 
   it('JSON 입력을 자동 변환하고 JSON Pretty를 제공한다', () => {
@@ -154,8 +161,47 @@ describe('ConverterPage', () => {
     expect(resultTab).toHaveAttribute('tabindex', '-1');
     fireEvent.keyDown(sourceTab, { key: 'ArrowRight' });
     expect(resultTab).toHaveAttribute('aria-selected', 'true');
+    fireEvent.keyDown(resultTab, { key: 'ArrowRight' });
+    expect(sourceTab).toHaveAttribute('aria-selected', 'true');
     const jsonDirection = screen.getByRole('radio', { name: 'JSON → YAML' });
     fireEvent.keyDown(jsonDirection, { key: 'ArrowRight' });
-    expect(screen.getByRole('radio', { name: 'YAML → JSON' })).toHaveAttribute('aria-checked', 'true');
+    const yamlDirection = screen.getByRole('radio', { name: 'YAML → JSON' });
+    expect(yamlDirection).toHaveAttribute('aria-checked', 'true');
+    fireEvent.keyDown(yamlDirection, { key: 'ArrowRight' });
+    expect(jsonDirection).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByLabelText('JSON 또는 YAML 파일 열기')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('진단 예약 뒤 사용자가 결과 탭을 선택하면 focus를 취소한다', () => {
+    render(<ConverterPage theme="light" />);
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a" 1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: /1행 6열/ }));
+    fireEvent.click(screen.getByRole('tab', { name: '결과' }));
+    act(() => vi.runOnlyPendingTimers());
+    expect(screen.getByRole('tab', { name: '결과' })).toHaveAttribute('aria-selected', 'true');
+    expect(focusDiagnostic).not.toHaveBeenCalled();
+  });
+
+  it('늦은 clipboard 실패가 새 원본 mutation 뒤 메시지를 되살리지 않는다', async () => {
+    let rejectWrite: (error: Error) => void = () => undefined;
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => new Promise<void>((_resolve, reject) => { rejectWrite = reject; })) } });
+    render(<ConverterPage theme="light" />);
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":2}' } });
+    await act(async () => { rejectWrite(new Error('denied')); });
+    expect(screen.queryByText('결과를 클립보드에 복사하지 못했습니다.')).not.toBeInTheDocument();
+  });
+
+  it('desktop에서는 tablist와 tabpanel 역할을 제공하지 않는다', () => {
+    window.matchMedia = vi.fn((query: string) => ({
+      matches: false, media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }));
+    render(<ConverterPage theme="light" />);
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument();
   });
 });

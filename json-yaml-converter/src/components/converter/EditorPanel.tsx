@@ -20,16 +20,18 @@ interface EditorPanelProps {
   mobileHidden: boolean;
   panelId: string;
   tabId: string;
+  isMobile: boolean;
   children?: ReactNode;
 }
 
 export function EditorPanel({
   kind, format, value, theme, diagnostic, editorRef, onChange, onPretty, onCopy, onDownload,
-  prettyDisabled = false, resultDisabled = false, mobileHidden, panelId, tabId, children,
+  prettyDisabled = false, resultDisabled = false, mobileHidden, panelId, tabId, isMobile, children,
 }: EditorPanelProps) {
   const source = kind === 'source';
   const label = `${format.toUpperCase()} ${source ? '원본' : '결과'}`;
-  return <section className="editor-panel" role="tabpanel" id={panelId} aria-labelledby={tabId} tabIndex={0} data-mobile-hidden={mobileHidden} aria-label={`${source ? '원본' : '결과'} 편집기`}>
+  const mobileTabPanelProps = isMobile ? { role: 'tabpanel', id: panelId, 'aria-labelledby': tabId, tabIndex: 0 } : {};
+  return <section className="editor-panel" {...mobileTabPanelProps} data-mobile-hidden={mobileHidden} aria-label={`${source ? '원본' : '결과'} 편집기`}>
     <header className="editor-panel__header">
       <div><strong>{source ? '원본' : '결과'}</strong><span className="format-label">{format.toUpperCase()}</span></div>
       <div className="editor-panel__actions">

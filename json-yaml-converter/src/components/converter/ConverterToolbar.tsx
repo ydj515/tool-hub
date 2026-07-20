@@ -23,14 +23,17 @@ export function ConverterToolbar({
     event.target.value = '';
   };
   const handleDirectionKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    const next = event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'End'
-      ? 'yaml-to-json'
-      : event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'Home'
-        ? 'json-to-yaml'
-        : null;
+    const current = event.currentTarget.dataset.direction as ConverterDirection;
+    const next = event.key === 'Home' ? 'json-to-yaml'
+      : event.key === 'End' ? 'yaml-to-json'
+        : event.key === 'ArrowRight' || event.key === 'ArrowDown'
+          ? current === 'json-to-yaml' ? 'yaml-to-json' : 'json-to-yaml'
+          : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+            ? current === 'json-to-yaml' ? 'yaml-to-json' : 'json-to-yaml'
+            : null;
     if (!next) return;
     event.preventDefault();
-    onDirectionChange(next);
+    if (next !== current) onDirectionChange(next);
     (next === 'json-to-yaml' ? jsonDirectionRef : yamlDirectionRef).current?.focus();
   };
 
@@ -45,6 +48,7 @@ export function ConverterToolbar({
         type="button"
         role="radio"
         aria-checked={direction === value}
+        data-direction={value}
         tabIndex={direction === value ? 0 : -1}
         className="direction-selector__option"
         onClick={() => onDirectionChange(value)}
@@ -53,7 +57,7 @@ export function ConverterToolbar({
     </div>
     <Button type="button" onClick={onLoadSample}>예제 불러오기</Button>
     <Button type="button" onClick={() => fileInputRef.current?.click()}>파일 열기</Button>
-    <input ref={fileInputRef} id="source-file" className="visually-hidden" type="file" aria-label="JSON 또는 YAML 파일 열기" accept=".json,.yaml,.yml,application/json,application/yaml,text/yaml" onChange={handleFileChange} />
+    <input ref={fileInputRef} id="source-file" className="visually-hidden" tabIndex={-1} type="file" aria-label="JSON 또는 YAML 파일 열기" accept=".json,.yaml,.yml,application/json,application/yaml,text/yaml" onChange={handleFileChange} />
     <Button type="button" onClick={onClear}>원본 지우기</Button>
   </section>;
 }

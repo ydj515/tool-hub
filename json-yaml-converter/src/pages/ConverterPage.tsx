@@ -15,6 +15,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
   const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'source' | 'result'>('source');
   const fileRequestRef = useRef(0);
+  const clipboardRequestRef = useRef(0);
   const mountedRef = useRef(true);
   const diagnosticFocusTimerRef = useRef<number | null>(null);
 
@@ -28,6 +29,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
 
   const beginMutation = () => {
     fileRequestRef.current += 1;
+    clipboardRequestRef.current += 1;
     setMessage(null);
     return fileRequestRef.current;
   };
@@ -47,10 +49,16 @@ export function ConverterPage({ theme }: { theme: Theme }) {
     } else setMessage(result.error.message);
   };
   const handleCopy = async () => {
+    const revision = fileRequestRef.current;
+    const request = clipboardRequestRef.current + 1;
+    const result = state.result;
+    clipboardRequestRef.current = request;
     try {
-      await navigator.clipboard.writeText(state.result);
+      await navigator.clipboard.writeText(result);
+      if (!mountedRef.current || revision !== fileRequestRef.current || request !== clipboardRequestRef.current) return;
       setMessage('결과를 클립보드에 복사했습니다.');
     } catch {
+      if (!mountedRef.current || revision !== fileRequestRef.current || request !== clipboardRequestRef.current) return;
       setMessage('결과를 클립보드에 복사하지 못했습니다.');
     }
   };
@@ -74,13 +82,20 @@ export function ConverterPage({ theme }: { theme: Theme }) {
       if (mountedRef.current) sourceEditorRef.current?.focusDiagnostic();
     }, 0);
   };
+  const handleTabChange = (tab: 'source' | 'result') => {
+    if (diagnosticFocusTimerRef.current !== null) {
+      window.clearTimeout(diagnosticFocusTimerRef.current);
+      diagnosticFocusTimerRef.current = null;
+    }
+    setActiveTab(tab);
+  };
 
   return <main className="converter-page" aria-label="변환기 작업 공간">
     <ConverterToolbar direction={state.direction} onDirectionChange={handleDirectionChange} onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
     {message ? <p className="action-message" role="status">{message}</p> : null}
     {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
     <StatusBar state={state} />
-    <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} onTabChange={setActiveTab} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
+    <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
   </main>;
 }
 
