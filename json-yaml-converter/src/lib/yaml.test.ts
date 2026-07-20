@@ -55,16 +55,22 @@ describe('YAML domain', () => {
   });
 
   it.each([
-    'value: !custom data\n',
-    'value: !<tag:example.com,2026:foo> data\n',
-    '%TAG !e! tag:example.com,2026:\n---\nvalue: !e!foo data\n',
-    'value: !!timestamp 2026-01-01\n',
-  ])('JSON 호환 기본 tag가 아닌 %s를 거부한다', (source) => {
+    ['value: !custom data\n', 7, 14, 1, 8],
+    ['value: !<tag:example.com,2026:foo> data\n', 7, 34, 1, 8],
+    ['%TAG !e! tag:example.com,2026:\n---\nvalue: !e!foo data\n', 42, 48, 3, 8],
+    ['value: !!timestamp 2026-01-01\n', 7, 18, 1, 8],
+    ['%TAG !e! tag:yaml.org,2002:\n---\nvalue: !e!timestamp 2026-01-01\n', 39, 51, 3, 8],
+  ])('JSON 호환 기본 tag가 아닌 %s의 실제 tag token을 진단한다', (source, startOffset, endOffset, line, column) => {
     const result = parseYaml(source);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.diagnostic.code).toBe('TAG_RESOLVE_FAILED');
     expect(result.diagnostic.message).toBe('지원하지 않는 YAML tag입니다.');
+    expect(result.diagnostic.startOffset).toBe(startOffset);
+    expect(result.diagnostic.endOffset).toBe(endOffset);
+    expect(result.diagnostic.endOffset - result.diagnostic.startOffset).toBe(endOffset - startOffset);
+    expect(result.diagnostic.line).toBe(line);
+    expect(result.diagnostic.column).toBe(column);
   });
 
   it.each([
@@ -79,14 +85,14 @@ describe('YAML domain', () => {
     expect(parseYaml(source).ok).toBe(true);
   });
 
-  it('첫 custom tag 값의 node 범위를 진단한다', () => {
+  it('여러 custom tag 중 첫 tag token 범위를 진단한다', () => {
     const result = parseYaml('first: !<tag:example.com,2026:foo> data\nsecond: !custom other\n');
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.diagnostic.startOffset).toBe(35);
-    expect(result.diagnostic.endOffset).toBe(39);
+    expect(result.diagnostic.startOffset).toBe(7);
+    expect(result.diagnostic.endOffset).toBe(34);
     expect(result.diagnostic.line).toBe(1);
-    expect(result.diagnostic.column).toBe(36);
+    expect(result.diagnostic.column).toBe(8);
   });
 
   it('뒤쪽 문법 오류보다 앞쪽 custom tag를 먼저 진단한다', () => {
@@ -94,7 +100,25 @@ describe('YAML domain', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.diagnostic.code).toBe('TAG_RESOLVE_FAILED');
-    expect(result.diagnostic.startOffset).toBe(15);
+    expect(result.diagnostic.startOffset).toBe(7);
+  });
+
+  it('앞쪽 문법 오류를 뒤쪽 custom tag보다 먼저 진단한다', () => {
+    const result = parseYaml('service:\n  name: converter\n enabled: true\ncustom: !custom data\n');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('BAD_INDENT');
+    expect(result.diagnostic.startOffset).toBe(27);
+  });
+
+  it('non-specific tag 단독 !를 문자열 의미로 허용한다', () => {
+    expect(parseYaml('value: ! 123\n')).toEqual({
+      ok: true,
+      value: {
+        kind: 'mapping',
+        entries: [{ key: 'value', value: { kind: 'string', value: '123' } }],
+      },
+    });
   });
 
   it('YAML Pretty에서 주석과 anchor 표현을 제거한다', () => {
