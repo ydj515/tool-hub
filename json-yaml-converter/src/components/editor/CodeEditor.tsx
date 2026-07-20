@@ -1,5 +1,6 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Editor, type Monaco, type OnMount } from '@monaco-editor/react';
+import type { editor as MonacoEditor } from 'monaco-editor';
 import type { Diagnostic, DataFormat } from '../../lib/diagnostics';
 import type { Theme } from '../../theme';
 import { setupMonaco } from '../../editor/setupMonaco';
@@ -29,38 +30,62 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
 ) {
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
+  const markedModelRef = useRef<MonacoEditor.ITextModel | null>(null);
+  const [editorVersion, setEditorVersion] = useState(0);
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    setEditorVersion((version) => version + 1);
   };
 
   useEffect(() => {
     const editor = editorRef.current;
     const monaco = monacoRef.current;
-    const model = editor?.getModel();
-    if (!monaco || !model) return;
+    if (!editor || !monaco) return;
 
-    const markers = diagnostic
-      ? (() => {
-          const start = model.getPositionAt(diagnostic.startOffset);
-          const end = model.getPositionAt(diagnostic.endOffset);
-          return [{
-            severity: monaco.MarkerSeverity.Error,
-            message: diagnostic.message,
-            startLineNumber: start.lineNumber,
-            startColumn: start.column,
-            endLineNumber: end.lineNumber,
-            endColumn: start.lineNumber === end.lineNumber && start.column === end.column
-              ? start.column + 1
-              : end.column,
-          }];
-        })()
-      : [];
+    const applyMarkers = (model: MonacoEditor.ITextModel) => {
+      const previousModel = markedModelRef.current;
+      if (previousModel && previousModel !== model) {
+        monaco.editor.setModelMarkers(previousModel, MARKER_OWNER, []);
+      }
 
-    monaco.editor.setModelMarkers(model, MARKER_OWNER, markers);
-    return () => monaco.editor.setModelMarkers(model, MARKER_OWNER, []);
-  }, [diagnostic]);
+      const markers = diagnostic
+        ? (() => {
+            const start = model.getPositionAt(diagnostic.startOffset);
+            const end = model.getPositionAt(diagnostic.endOffset);
+            return [{
+              severity: monaco.MarkerSeverity.Error,
+              message: diagnostic.message,
+              startLineNumber: start.lineNumber,
+              startColumn: start.column,
+              endLineNumber: end.lineNumber,
+              endColumn: start.lineNumber === end.lineNumber && start.column === end.column
+                ? start.column + 1
+                : end.column,
+            }];
+          })()
+        : [];
+
+      monaco.editor.setModelMarkers(model, MARKER_OWNER, markers);
+      markedModelRef.current = model;
+    };
+
+    const model = editor.getModel();
+    if (model) applyMarkers(model);
+
+    const modelChangeSubscription = editor.onDidChangeModel(() => {
+      const nextModel = editor.getModel();
+      if (nextModel) applyMarkers(nextModel);
+    });
+
+    return () => {
+      modelChangeSubscription.dispose();
+      const markedModel = markedModelRef.current;
+      if (markedModel) monaco.editor.setModelMarkers(markedModel, MARKER_OWNER, []);
+      markedModelRef.current = null;
+    };
+  }, [diagnostic, editorVersion]);
 
   useImperativeHandle(ref, () => ({
     focusDiagnostic() {
