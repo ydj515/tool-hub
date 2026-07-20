@@ -42,5 +42,5 @@ export function downloadResult(source: string, direction: ConverterDirection): v
   anchor.download = output.name;
   anchor.hidden = true;
   anchor.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

@@ -55,19 +55,27 @@ describe('file adapter', () => {
     ['a: 1\n', 'json-to-yaml', 'converted.yaml', 'application/yaml'],
     ['{\n  "a": 1\n}\n', 'yaml-to-json', 'converted.json', 'application/json'],
   ] as const)('%s 방향 결과를 올바른 파일로 다운로드한다', (source, direction, name, mime) => {
-    const click = vi.fn();
-    const anchor = { click, download: '', href: '' } as unknown as HTMLAnchorElement;
+    vi.useFakeTimers();
+    const anchor = document.createElement('a');
+    const click = vi.spyOn(anchor, 'click').mockImplementation(() => undefined);
     const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
     const blob = vi.spyOn(globalThis, 'Blob');
 
-    downloadResult(source, direction);
+    try {
+      downloadResult(source, direction);
 
-    expect(blob).toHaveBeenCalledWith([source], { type: mime });
-    expect(anchor.download).toBe(name);
-    expect(anchor.href).toBe('blob:test');
-    expect(click).toHaveBeenCalledOnce();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
-    createElement.mockRestore();
-    blob.mockRestore();
+      expect(blob).toHaveBeenCalledWith([source], { type: mime });
+      expect(anchor.download).toBe(name);
+      expect(anchor.href).toBe('blob:test');
+      expect(click).toHaveBeenCalledOnce();
+      expect(document.body.contains(anchor)).toBe(false);
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+      vi.runAllTimers();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
+    } finally {
+      createElement.mockRestore();
+      blob.mockRestore();
+      vi.useRealTimers();
+    }
   });
 });
