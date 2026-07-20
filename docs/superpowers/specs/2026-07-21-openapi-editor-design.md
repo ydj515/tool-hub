@@ -5,7 +5,7 @@
 | 프로젝트 디렉터리 | `openapi-editor/` |
 | 제품 표시명 | OpenAPI Studio |
 | 작성일 | 2026-07-21 |
-| 상태 | 사용자 검토 대기 |
+| 상태 | 사용자 승인, 구현 대기 |
 | 구현 방식 | Vite + React + TypeScript SPA, Web Worker |
 | 데이터 처리 위치 | 브라우저 내부 전용 |
 
