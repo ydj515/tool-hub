@@ -39,4 +39,60 @@ describe('JSON domain', () => {
       value: '{\n  "b": 2,\n  "a": 1\n}\n',
     });
   });
+
+  it.each(['', ' \t\r\n '])('빈 JSON 문서 %j를 거부한다', (source) => {
+    const result = parseJson(source);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('ValueExpected');
+  });
+
+  it('유한하지 않은 숫자의 위치와 범위를 표시한다', () => {
+    const result = parseJson('1e999');
+    expect(result).toEqual({
+      ok: false,
+      diagnostic: expect.objectContaining({
+        code: 'NON_FINITE_NUMBER',
+        startOffset: 0,
+        endOffset: 5,
+        line: 1,
+        column: 1,
+      }),
+    });
+  });
+
+  it('escape 후 같은 키가 되면 두 번째 키 token 위치를 표시한다', () => {
+    const result = parseJson('{"a":1,"\\u0061":2}');
+    expect(result).toEqual({
+      ok: false,
+      diagnostic: expect.objectContaining({
+        code: 'DUPLICATE_KEY',
+        startOffset: 7,
+        endOffset: 15,
+        line: 1,
+        column: 8,
+      }),
+    });
+  });
+
+  it('따옴표, 역슬래시, 제어 문자와 유니코드 escape를 왕복한다', () => {
+    const parsed = parseJson('{"text":"\\"\\\\\\b\\f\\n\\r\\t\\u0041"}');
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const serialized = stringifyJson(parsed.value);
+    const reparsed = parseJson(serialized);
+    expect(reparsed).toEqual(parsed);
+  });
+
+  it.each([
+    ['null', 'null\n'],
+    ['false', 'false\n'],
+    ['"text"', '"text"\n'],
+    ['3.5', '3.5\n'],
+  ])('스칼라 루트 %s를 직렬화한다', (source, expected) => {
+    const parsed = parseJson(source);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(stringifyJson(parsed.value)).toBe(expected);
+  });
 });
