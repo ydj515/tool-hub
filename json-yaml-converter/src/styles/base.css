@@ -1,0 +1,6 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+html, body { margin: 0; }
+body { min-height: 100vh; font-family: var(--font-sans); background: var(--bg); color: var(--text); }
+button, input { font: inherit; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
