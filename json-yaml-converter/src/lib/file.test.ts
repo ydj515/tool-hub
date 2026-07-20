@@ -71,6 +71,7 @@ describe('file adapter', () => {
       expect(document.body.contains(anchor)).toBe(false);
       expect(URL.revokeObjectURL).not.toHaveBeenCalled();
       vi.runAllTimers();
+      expect(URL.revokeObjectURL).toHaveBeenCalledOnce();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
     } finally {
       createElement.mockRestore();
