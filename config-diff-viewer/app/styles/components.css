@@ -850,6 +850,15 @@
 .filenameInput:hover { border-color: var(--line); background: var(--surface-2); }
 .filenameInput:focus { outline: none; border-color: var(--primary); background: var(--surface); }
 
+@media (min-width: 901px) {
+  .inputSideHeader {
+    display: grid;
+    grid-template-columns: auto minmax(80px, 200px) auto auto auto;
+  }
+
+  .inputSideHeader .filenameInput { width: 100%; }
+}
+
 .codeTextarea {
   width: 100%;
   min-height: 300px;
