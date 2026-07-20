@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { RefObject } from 'react';
+import { useRef } from 'react';
+import type { KeyboardEvent, RefObject } from 'react';
 import type { ConverterState } from '../../hooks/useConverter';
 import type { CodeEditorHandle } from '../editor/CodeEditor';
 import type { Theme } from '../../theme';
@@ -9,6 +9,8 @@ interface ConverterWorkspaceProps {
   state: ConverterState;
   theme: Theme;
   sourceEditorRef: RefObject<CodeEditorHandle | null>;
+  activeTab: 'source' | 'result';
+  onTabChange(tab: 'source' | 'result'): void;
   onSourceChange(value: string): void;
   onPretty(): void;
   onCopy(): void;
@@ -16,21 +18,36 @@ interface ConverterWorkspaceProps {
   onSwap(): void;
 }
 
-export function ConverterWorkspace({ state, theme, sourceEditorRef, onSourceChange, onPretty, onCopy, onDownload, onSwap }: ConverterWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState<'source' | 'result'>('source');
+export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, onTabChange, onSourceChange, onPretty, onCopy, onDownload, onSwap }: ConverterWorkspaceProps) {
+  const sourceTabRef = useRef<HTMLButtonElement>(null);
+  const resultTabRef = useRef<HTMLButtonElement>(null);
   const sourceFormat = state.direction === 'json-to-yaml' ? 'json' : 'yaml';
   const resultFormat = sourceFormat === 'json' ? 'yaml' : 'json';
   const disabled = !state.resultFresh || state.result.length === 0;
-  const switchAndSwap = () => { setActiveTab('source'); onSwap(); };
+  const selectTab = (tab: 'source' | 'result') => {
+    onTabChange(tab);
+    (tab === 'source' ? sourceTabRef : resultTabRef).current?.focus();
+  };
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const next = event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'End'
+      ? 'result'
+      : event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'Home'
+        ? 'source'
+        : null;
+    if (!next) return;
+    event.preventDefault();
+    selectTab(next);
+  };
+  const switchAndSwap = () => { onTabChange('source'); onSwap(); };
   return <>
     <div className="mobile-tabs" role="tablist" aria-label="편집기 보기">
-      <button type="button" role="tab" aria-selected={activeTab === 'source'} onClick={() => setActiveTab('source')}>원본</button>
-      <button type="button" role="tab" aria-selected={activeTab === 'result'} onClick={() => setActiveTab('result')}>결과{state.resultFresh ? <span className="completion-badge">변환 완료</span> : null}</button>
+      <button ref={sourceTabRef} type="button" role="tab" id="converter-source-tab" aria-controls="converter-source-panel" aria-selected={activeTab === 'source'} tabIndex={activeTab === 'source' ? 0 : -1} onClick={() => selectTab('source')} onKeyDown={handleTabKeyDown}>원본</button>
+      <button ref={resultTabRef} type="button" role="tab" id="converter-result-tab" aria-controls="converter-result-panel" aria-selected={activeTab === 'result'} tabIndex={activeTab === 'result' ? 0 : -1} onClick={() => selectTab('result')} onKeyDown={handleTabKeyDown}>결과{state.resultFresh ? <span className="completion-badge">변환 완료</span> : null}</button>
     </div>
     <div className="converter-grid">
-      <EditorPanel kind="source" format={sourceFormat} value={state.source} theme={theme} diagnostic={state.diagnostic} editorRef={sourceEditorRef} onChange={onSourceChange} onPretty={onPretty} prettyDisabled={state.status !== 'valid'} mobileHidden={activeTab !== 'source'} />
+      <EditorPanel kind="source" format={sourceFormat} value={state.source} theme={theme} diagnostic={state.diagnostic} editorRef={sourceEditorRef} onChange={onSourceChange} onPretty={onPretty} prettyDisabled={state.status !== 'valid'} mobileHidden={activeTab !== 'source'} panelId="converter-source-panel" tabId="converter-source-tab" />
       <div className="converter-grid__swap"><button type="button" className="btn btn-icon" aria-label="변환 방향 전환" disabled={disabled} onClick={switchAndSwap}>⇄</button></div>
-      <EditorPanel kind="result" format={resultFormat} value={state.result} theme={theme} diagnostic={null} onCopy={onCopy} onDownload={onDownload} resultDisabled={disabled} mobileHidden={activeTab !== 'result'}>{!state.resultFresh && state.result.length > 0 ? <p className="stale-result" role="status">현재 입력과 동기화되지 않은 결과</p> : null}</EditorPanel>
+      <EditorPanel kind="result" format={resultFormat} value={state.result} theme={theme} diagnostic={null} onCopy={onCopy} onDownload={onDownload} resultDisabled={disabled} mobileHidden={activeTab !== 'result'} panelId="converter-result-panel" tabId="converter-result-tab">{!state.resultFresh && state.result.length > 0 ? <p className="stale-result" role="status">현재 입력과 동기화되지 않은 결과</p> : null}</EditorPanel>
     </div>
   </>;
 }
