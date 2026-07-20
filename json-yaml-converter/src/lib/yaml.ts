@@ -12,6 +12,17 @@ const YAML_MESSAGES: Record<string, string> = {
   UNEXPECTED_TOKEN: '예상하지 못한 YAML 토큰이 있습니다.',
 };
 
+const JSON_COMPATIBLE_TAGS = new Set([
+  'tag:yaml.org,2002:map',
+  'tag:yaml.org,2002:seq',
+  'tag:yaml.org,2002:str',
+  'tag:yaml.org,2002:null',
+  'tag:yaml.org,2002:bool',
+  'tag:yaml.org,2002:int',
+  'tag:yaml.org,2002:float',
+]);
+const MAX_ALIAS_EXPANSIONS = 100;
+
 function failure(source: string, code: string, message: string, offset = 0, length = 0): OperationResult<never> {
   return { ok: false, diagnostic: diagnosticAt('yaml', code, message, source, offset, length) };
 }
@@ -21,22 +32,25 @@ function parseDiagnostic(source: string, error: YAMLError): OperationResult<neve
   return failure(source, error.code, YAML_MESSAGES[error.code] ?? error.message.split('\n')[0], start, end - start);
 }
 
-function customTagOffset(value: unknown, visited = new WeakSet<object>()): number | undefined {
+function unsupportedTagRange(value: unknown, visited = new WeakSet<object>()): [number, number] | undefined {
   if (typeof value !== 'object' || value === null || visited.has(value)) return undefined;
   visited.add(value);
 
   const node = value as { tag?: unknown; range?: unknown; items?: unknown; key?: unknown; value?: unknown };
-  if (typeof node.tag === 'string' && node.tag.startsWith('!')) {
-    return Array.isArray(node.range) && typeof node.range[0] === 'number' ? node.range[0] : 0;
+  if (typeof node.tag === 'string' && !JSON_COMPATIBLE_TAGS.has(node.tag)) {
+    if (Array.isArray(node.range) && typeof node.range[0] === 'number' && typeof node.range[1] === 'number') {
+      return [node.range[0], node.range[1]];
+    }
+    return [0, 0];
   }
   for (const child of [node.key, node.value]) {
-    const offset = customTagOffset(child, visited);
-    if (offset !== undefined) return offset;
+    const range = unsupportedTagRange(child, visited);
+    if (range !== undefined) return range;
   }
   if (Array.isArray(node.items)) {
     for (const item of node.items) {
-      const offset = customTagOffset(item, visited);
-      if (offset !== undefined) return offset;
+      const range = unsupportedTagRange(item, visited);
+      if (range !== undefined) return range;
     }
   }
   return undefined;
@@ -99,14 +113,22 @@ export function parseYaml(source: string): OperationResult<DataNode> {
     logLevel: 'error',
     lineCounter,
   });
-  const firstError = document.errors[0];
-  if (firstError) return parseDiagnostic(source, firstError);
-  const tagOffset = customTagOffset(document.contents);
-  if (tagOffset !== undefined) return failure(source, 'TAG_RESOLVE_FAILED', '지원하지 않는 YAML tag입니다.', tagOffset);
+  const tagRange = unsupportedTagRange(document.contents);
+  let firstIssue: YAMLError | undefined;
+  for (const issue of [...document.errors, ...document.warnings]) {
+    if (tagRange && issue.code === 'TAG_RESOLVE_FAILED') continue;
+    if (!firstIssue || issue.pos[0] < firstIssue.pos[0]) firstIssue = issue;
+  }
+  if (tagRange && (!firstIssue || tagRange[0] <= firstIssue.pos[0])) {
+    const [start, end] = tagRange;
+    return failure(source, 'TAG_RESOLVE_FAILED', '지원하지 않는 YAML tag입니다.', start, end - start);
+  }
+  if (firstIssue) return parseDiagnostic(source, firstIssue);
 
   let value: unknown;
   try {
-    value = document.toJS({ mapAsMap: true, maxAliasCount: 100 });
+    // yaml은 anchor 원본도 alias count에 포함하므로 허용 횟수에 1을 더한다.
+    value = document.toJS({ mapAsMap: true, maxAliasCount: MAX_ALIAS_EXPANSIONS + 1 });
   } catch {
     return failure(source, 'ALIAS_LIMIT', 'YAML alias 확장 횟수가 제한을 초과했습니다.');
   }
@@ -130,11 +152,12 @@ function toYamlValue(node: DataNode): unknown {
 
 export function stringifyYaml(node: DataNode): string {
   const output = stringify(toYamlValue(node), {
+    blockQuote: false,
     indent: 2,
     lineWidth: 0,
     sortMapEntries: false,
   });
-  return output.replace(/\s*$/, '') + '\n';
+  return output.replace(/\n+$/, '\n');
 }
 
 export function prettyYaml(source: string): OperationResult<string> {
