@@ -204,4 +204,50 @@ describe('ConverterPage', () => {
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument();
   });
+
+  it('느린 파일을 읽는 동안 fresh 결과 action을 즉시 비활성화한다', () => {
+    let resolveFile: (value: string) => void = () => undefined;
+    const file = new File([''], 'slow.json', { type: 'application/json' });
+    Object.defineProperty(file, 'text', { value: () => new Promise<string>((resolve) => { resolveFile = resolve; }) });
+    render(<ConverterPage theme="light" />);
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.change(screen.getByLabelText('JSON 또는 YAML 파일 열기'), { target: { files: [file] } });
+    expect(screen.getByRole('button', { name: '결과 복사' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '결과 다운로드' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toBeDisabled();
+    void resolveFile;
+  });
+
+  it('파일 source commit은 기존 pending copy 완료 메시지를 무시한다', async () => {
+    let resolveCopy: () => void = () => undefined;
+    let resolveFile: (value: string) => void = () => undefined;
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => new Promise<void>((resolve) => { resolveCopy = resolve; })) } });
+    const file = new File([''], 'next.json', { type: 'application/json' });
+    Object.defineProperty(file, 'text', { value: () => new Promise<string>((resolve) => { resolveFile = resolve; }) });
+    render(<ConverterPage theme="light" />);
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
+    fireEvent.change(screen.getByLabelText('JSON 또는 YAML 파일 열기'), { target: { files: [file] } });
+    await act(async () => { resolveFile('{"b":2}'); });
+    await act(async () => { resolveCopy(); });
+    expect(screen.queryByText('결과를 클립보드에 복사했습니다.')).not.toBeInTheDocument();
+  });
+
+  it('오래된 파일 A 완료가 최신 파일 B의 pending 상태를 끝내지 않는다', async () => {
+    let resolveA: (value: string) => void = () => undefined;
+    let resolveB: (value: string) => void = () => undefined;
+    const fileA = new File([''], 'a.json', { type: 'application/json' });
+    const fileB = new File([''], 'b.json', { type: 'application/json' });
+    Object.defineProperty(fileA, 'text', { value: () => new Promise<string>((resolve) => { resolveA = resolve; }) });
+    Object.defineProperty(fileB, 'text', { value: () => new Promise<string>((resolve) => { resolveB = resolve; }) });
+    render(<ConverterPage theme="light" />);
+    const input = screen.getByLabelText('JSON 또는 YAML 파일 열기');
+    fireEvent.change(input, { target: { files: [fileA] } });
+    fireEvent.change(input, { target: { files: [fileB] } });
+    await act(async () => { resolveA('{"a":1}'); });
+    expect(screen.getByRole('button', { name: '결과 복사' })).toBeDisabled();
+    await act(async () => { resolveB('{"b":2}'); });
+  });
 });

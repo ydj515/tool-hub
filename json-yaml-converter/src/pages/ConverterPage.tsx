@@ -14,6 +14,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
   const sourceEditorRef = useRef<CodeEditorHandle>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'source' | 'result'>('source');
+  const [filePending, setFilePending] = useState(false);
   const fileRequestRef = useRef(0);
   const clipboardRequestRef = useRef(0);
   const mountedRef = useRef(true);
@@ -30,6 +31,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
   const beginMutation = () => {
     fileRequestRef.current += 1;
     clipboardRequestRef.current += 1;
+    setFilePending(false);
     setMessage(null);
     return fileRequestRef.current;
   };
@@ -42,9 +44,12 @@ export function ConverterPage({ theme }: { theme: Theme }) {
   };
   const handleFile = async (file: File) => {
     const request = beginMutation();
+    setFilePending(true);
     const result = await readSourceFile(file);
     if (!mountedRef.current || request !== fileRequestRef.current) return;
+    setFilePending(false);
     if (result.ok) {
+      clipboardRequestRef.current += 1;
       setDirectionAndSource(result.value.direction, result.value.source);
     } else setMessage(result.error.message);
   };
@@ -95,7 +100,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
     {message ? <p className="action-message" role="status">{message}</p> : null}
     {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
     <StatusBar state={state} />
-    <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
+    <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
   </main>;
 }
 

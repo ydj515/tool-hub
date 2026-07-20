@@ -10,6 +10,7 @@ interface ConverterWorkspaceProps {
   theme: Theme;
   sourceEditorRef: RefObject<CodeEditorHandle | null>;
   activeTab: 'source' | 'result';
+  filePending: boolean;
   onTabChange(tab: 'source' | 'result'): void;
   onSourceChange(value: string): void;
   onPretty(): void;
@@ -18,13 +19,13 @@ interface ConverterWorkspaceProps {
   onSwap(): void;
 }
 
-export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, onTabChange, onSourceChange, onPretty, onCopy, onDownload, onSwap }: ConverterWorkspaceProps) {
+export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, filePending, onTabChange, onSourceChange, onPretty, onCopy, onDownload, onSwap }: ConverterWorkspaceProps) {
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
   const sourceTabRef = useRef<HTMLButtonElement>(null);
   const resultTabRef = useRef<HTMLButtonElement>(null);
   const sourceFormat = state.direction === 'json-to-yaml' ? 'json' : 'yaml';
   const resultFormat = sourceFormat === 'json' ? 'yaml' : 'json';
-  const disabled = !state.resultFresh || state.result.length === 0;
+  const disabled = filePending || !state.resultFresh || state.result.length === 0;
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)');
     const update = () => setIsMobile(mediaQuery.matches);
