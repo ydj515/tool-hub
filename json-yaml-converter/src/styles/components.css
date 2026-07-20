@@ -5,3 +5,38 @@
 .theme-button { padding: 8px 12px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-md); }
 .theme-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .app-main { min-height: calc(100vh - 72px); }
+.converter-page { width: min(1440px, 100%); margin: 0 auto; padding: 24px; }
+.converter-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.direction-selector { display: flex; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.direction-selector__option { border: 0; padding: 8px 12px; color: var(--text); background: var(--surface); }
+.direction-selector__option[aria-checked="true"] { color: var(--on-primary); background: var(--primary); }
+.btn { min-height: 36px; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 8px 12px; color: var(--text); background: var(--surface-2); cursor: pointer; }
+.btn-primary { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
+.btn-icon { display: inline-grid; place-items: center; width: 40px; padding: 8px; }
+.btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); gap: 12px; }
+.converter-grid__swap { display: grid; place-items: center; }
+.editor-panel { min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.editor-panel__header { min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line-subtle); }
+.editor-panel__header > div { display: flex; align-items: center; gap: 8px; }
+.editor-panel__actions { flex-wrap: wrap; justify-content: flex-end; }
+.format-label { color: var(--muted); font-size: 12px; }
+.editor-frame { height: 360px; background: var(--editor-bg); }
+.diagnostic-banner { margin: 8px 0; color: var(--danger); background: var(--danger-surface); border: 1px solid var(--danger); border-radius: var(--radius-md); padding: 10px 12px; }
+.diagnostic-banner button { color: inherit; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.stale-result { margin: 8px 12px; color: var(--warning); font-weight: 600; }
+.status-bar, .action-message { color: var(--muted); font-size: 13px; }
+.status-bar--valid { color: var(--success); }
+.status-bar--oversized, .status-bar--invalid { color: var(--danger); }
+.completion-badge { margin-left: 4px; color: var(--success); font-size: 12px; }
+.mobile-tabs { display: none; }
+@media (max-width: 767px) {
+  .converter-page { padding: 12px; }
+  .converter-grid { display: block; }
+  .converter-grid__swap { display: none; }
+  .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
+  .mobile-tabs button { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
+  .mobile-tabs button[aria-selected="true"] { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
+  .editor-panel[data-mobile-hidden="true"] { display: none; }
+  .editor-frame { height: 52vh; min-height: 320px; }
+}
