@@ -19,6 +19,34 @@ describe('useConverter', () => {
     expect(result.current.state).toMatchObject({ status: 'valid', result: 'a: 2\n', resultFresh: true });
   });
 
+  it.each([
+    {
+      name: '같은 source 재설정',
+      prepare: (converter: ReturnType<typeof useConverter>) => converter.setSource('{"a":1}'),
+      repeat: (converter: ReturnType<typeof useConverter>) => converter.setSource('{"a":1}'),
+    },
+    {
+      name: '현재 방향 재선택',
+      prepare: (converter: ReturnType<typeof useConverter>) => converter.setSource('{"a":1}'),
+      repeat: (converter: ReturnType<typeof useConverter>) => converter.selectDirection('json-to-yaml'),
+    },
+    {
+      name: '같은 sample 재선택',
+      prepare: (converter: ReturnType<typeof useConverter>) => converter.loadSample(),
+      repeat: (converter: ReturnType<typeof useConverter>) => converter.loadSample(),
+    },
+  ])('$name은 기존 예약을 취소하고 새 300ms 예약을 시작한다', ({ prepare, repeat }) => {
+    const { result } = renderHook(() => useConverter());
+    act(() => prepare(result.current));
+    act(() => vi.advanceTimersByTime(100));
+    act(() => repeat(result.current));
+
+    act(() => vi.advanceTimersByTime(299));
+    expect(result.current.state.status).toBe('scheduled');
+    act(() => vi.advanceTimersByTime(1));
+    expect(result.current.state).toMatchObject({ status: 'valid', resultFresh: true });
+  });
+
   it('오류 시 마지막 성공 결과를 stale로 유지하고 수정 후 복구한다', () => {
     const { result } = renderHook(() => useConverter());
     act(() => result.current.setSource('{"a":1}'));

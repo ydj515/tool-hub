@@ -85,6 +85,7 @@ export function useConverter(): {
   swap: () => void;
 } {
   const [state, setState] = useState<ConverterState>(() => initialState(DEFAULT_DIRECTION));
+  const [scheduledRevision, setScheduledRevision] = useState(0);
   const stateRef = useRef(state);
   const directionRef = useRef<ConverterDirection>(state.direction);
   const revisionRef = useRef(0);
@@ -108,12 +109,13 @@ export function useConverter(): {
     directionRef.current = direction;
     cancelTimer();
     replaceState(sourceState(direction, source, stateRef.current));
+    setScheduledRevision(revisionRef.current);
   };
 
   useEffect(() => {
     if (state.status !== 'scheduled') return undefined;
 
-    const revision = revisionRef.current;
+    const revision = scheduledRevision;
     const direction = state.direction;
     const source = state.source;
     const timer = setTimeout(() => {
@@ -151,7 +153,7 @@ export function useConverter(): {
       clearTimeout(timer);
       if (timerRef.current === timer) timerRef.current = null;
     };
-  }, [state.direction, state.source, state.status]);
+  }, [scheduledRevision, state.direction, state.source, state.status]);
 
   return {
     state,
