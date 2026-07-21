@@ -2,15 +2,15 @@
 .app-header { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--line-subtle); }
 .app-title { margin: 0; font-size: 20px; line-height: 1.2; }
 .privacy-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-.theme-button { padding: 8px 12px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.theme-button { padding: 8px 12px; color: var(--text); background: var(--surface-2); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
 .theme-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .app-main { min-height: calc(100vh - 72px); }
 .converter-page { width: min(1440px, 100%); margin: 0 auto; padding: 24px; }
 .converter-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
-.direction-selector { display: flex; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.direction-selector { display: flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; }
 .direction-selector__option { border: 0; padding: 8px 12px; color: var(--text); background: var(--surface); }
 .direction-selector__option[aria-checked="true"] { color: var(--on-primary); background: var(--primary); }
-.btn { min-height: 36px; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 8px 12px; color: var(--text); background: var(--surface-2); cursor: pointer; }
+.btn { min-height: 36px; border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px 12px; color: var(--text); background: var(--surface-2); cursor: pointer; }
 .btn-primary { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
 .btn-icon { display: inline-grid; place-items: center; width: 40px; padding: 8px; }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -36,7 +36,7 @@
   .converter-grid { display: block; }
   .converter-grid__swap { display: none; }
   .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
-  .mobile-tabs button { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
+  .mobile-tabs button { border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
   .mobile-tabs button[aria-selected="true"] { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
   .editor-panel[data-mobile-hidden="true"] { display: none; }
   .editor-frame { height: 52vh; min-height: 320px; }

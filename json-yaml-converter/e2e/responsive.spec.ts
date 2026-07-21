@@ -1,5 +1,79 @@
 import { expect, test } from '@playwright/test';
 
+type Rgb = { red: number; green: number; blue: number; alpha: number };
+type BrowserElement = { parentElement: BrowserElement | null };
+type BrowserStyles = { color: string; backgroundColor: string; borderTopColor: string };
+type BrowserWindow = { getComputedStyle(element: BrowserElement): BrowserStyles };
+
+function parseColor(color: string): Rgb {
+  const match = color.match(/^rgba?\(([^)]+)\)$/);
+  if (!match) throw new Error(`지원하지 않는 계산 색상: ${color}`);
+  const [red, green, blue, alpha = '1'] = match[1].split(',').map((value) => value.trim());
+  return { red: Number(red), green: Number(green), blue: Number(blue), alpha: Number(alpha) };
+}
+
+function composite(foreground: Rgb, background: Rgb): Rgb {
+  const alpha = foreground.alpha + background.alpha * (1 - foreground.alpha);
+  if (alpha === 0) return { red: 0, green: 0, blue: 0, alpha: 0 };
+  return {
+    red: (foreground.red * foreground.alpha + background.red * background.alpha * (1 - foreground.alpha)) / alpha,
+    green: (foreground.green * foreground.alpha + background.green * background.alpha * (1 - foreground.alpha)) / alpha,
+    blue: (foreground.blue * foreground.alpha + background.blue * background.alpha * (1 - foreground.alpha)) / alpha,
+    alpha,
+  };
+}
+
+function relativeLuminance(color: Rgb) {
+  const linear = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * linear(color.red) + 0.7152 * linear(color.green) + 0.0722 * linear(color.blue);
+}
+
+function contrast(foreground: Rgb, background: Rgb) {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  return (Math.max(foregroundLuminance, backgroundLuminance) + 0.05)
+    / (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+}
+
+async function computedColors(locator: import('@playwright/test').Locator) {
+  return locator.evaluate((element) => {
+    const browserElement = element as unknown as BrowserElement;
+    const browserWindow = globalThis as typeof globalThis & BrowserWindow;
+    const styles = browserWindow.getComputedStyle(browserElement);
+    const backgrounds: string[] = [];
+    let current: BrowserElement | null = browserElement;
+    while (current) {
+      backgrounds.push(browserWindow.getComputedStyle(current).backgroundColor);
+      current = current.parentElement;
+    }
+    return {
+      color: styles.color,
+      background: styles.backgroundColor,
+      border: styles.borderTopColor,
+      backgrounds,
+    };
+  });
+}
+
+function compositeBackground(backgrounds: string[]) {
+  return [...backgrounds].reverse().reduce(
+    (composited, background) => composite(parseColor(background), composited),
+    { red: 0, green: 0, blue: 0, alpha: 0 },
+  );
+}
+
+async function enterInvalidJson(page: import('@playwright/test').Page) {
+  const editor = page.getByLabel('JSON 원본')
+    .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
+    .locator('.view-lines');
+  await editor.click();
+  await page.keyboard.type('{"enabled" true}');
+  await expect(page.getByTestId('diagnostic-banner')).toBeVisible();
+}
+
 test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
@@ -46,3 +120,28 @@ test('테마 버튼이 data-theme을 전환한다', async ({ page }) => {
   await page.getByRole('button', { name: '테마 전환' }).click();
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', before ?? 'light');
 });
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`${theme} 테마의 진단과 활성 control은 WCAG 대비를 충족한다`, async ({ page }) => {
+    await page.goto('/');
+    if (theme === 'dark') await page.getByRole('button', { name: '테마 전환' }).click();
+    await enterInvalidJson(page);
+
+    const diagnostic = await computedColors(page.getByTestId('diagnostic-banner'));
+    const diagnosticBackground = compositeBackground(diagnostic.backgrounds);
+    expect(contrast(parseColor(diagnostic.color), diagnosticBackground)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(composite(parseColor(diagnostic.border), diagnosticBackground), diagnosticBackground)).toBeGreaterThanOrEqual(3);
+
+    const secondary = await computedColors(page.getByRole('button', { name: '예제 불러오기', exact: true }));
+    const secondaryBackground = compositeBackground(secondary.backgrounds);
+    expect(contrast(parseColor(secondary.color), secondaryBackground)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(composite(parseColor(secondary.border), secondaryBackground), secondaryBackground)).toBeGreaterThanOrEqual(3);
+
+    const selectedDirection = await computedColors(page.getByRole('radio', { name: 'JSON → YAML', exact: true }));
+    const selector = await computedColors(page.getByRole('radiogroup', { name: '변환 방향', exact: true }));
+    const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
+    const selectorBackground = compositeBackground(selector.backgrounds);
+    expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(selectedDirectionBackground, selectorBackground)).toBeGreaterThanOrEqual(3);
+  });
+}
