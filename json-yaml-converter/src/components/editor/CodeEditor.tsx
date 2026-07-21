@@ -31,11 +31,13 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const markedModelRef = useRef<MonacoEditor.ITextModel | null>(null);
+  const glyphDecorationsRef = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null);
   const [editorVersion, setEditorVersion] = useState(0);
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    glyphDecorationsRef.current = editor.createDecorationsCollection();
     setEditorVersion((version) => version + 1);
   };
 
@@ -50,24 +52,37 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
         monaco.editor.setModelMarkers(previousModel, MARKER_OWNER, []);
       }
 
-      const markers = diagnostic
-        ? (() => {
-            const start = model.getPositionAt(diagnostic.startOffset);
-            const end = model.getPositionAt(diagnostic.endOffset);
-            return [{
-              severity: monaco.MarkerSeverity.Error,
-              message: diagnostic.message,
-              startLineNumber: start.lineNumber,
-              startColumn: start.column,
-              endLineNumber: end.lineNumber,
-              endColumn: start.lineNumber === end.lineNumber && start.column === end.column
-                ? start.column + 1
-                : end.column,
-            }];
-          })()
+      const start = diagnostic ? model.getPositionAt(diagnostic.startOffset) : null;
+      const end = diagnostic ? model.getPositionAt(diagnostic.endOffset) : null;
+      const markers = diagnostic && start && end
+        ? [{
+            severity: monaco.MarkerSeverity.Error,
+            message: diagnostic.message,
+            startLineNumber: start.lineNumber,
+            startColumn: start.column,
+            endLineNumber: end.lineNumber,
+            endColumn: start.lineNumber === end.lineNumber && start.column === end.column
+              ? start.column + 1
+              : end.column,
+          }]
         : [];
 
       monaco.editor.setModelMarkers(model, MARKER_OWNER, markers);
+      glyphDecorationsRef.current?.set(diagnostic && start && !readOnly
+        ? [{
+            range: {
+              startLineNumber: start.lineNumber,
+              startColumn: start.column,
+              endLineNumber: start.lineNumber,
+              endColumn: start.column,
+            },
+            options: {
+              glyphMarginClassName: 'json-yaml-converter-glyph-error',
+              glyphMarginHoverMessage: { value: diagnostic.message },
+              glyphMargin: { position: monaco.editor.GlyphMarginLane.Left },
+            },
+          }]
+        : []);
       markedModelRef.current = model;
     };
 
@@ -84,8 +99,9 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       const markedModel = markedModelRef.current;
       if (markedModel) monaco.editor.setModelMarkers(markedModel, MARKER_OWNER, []);
       markedModelRef.current = null;
+      glyphDecorationsRef.current?.clear();
     };
-  }, [diagnostic, editorVersion]);
+  }, [diagnostic, editorVersion, readOnly]);
 
   useImperativeHandle(ref, () => ({
     focusDiagnostic() {
@@ -129,6 +145,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       lineHeight: 20,
       padding: { top: 12, bottom: 12 },
       renderValidationDecorations: 'on',
+      glyphMargin: true,
       ariaLabel,
     }}
   />;

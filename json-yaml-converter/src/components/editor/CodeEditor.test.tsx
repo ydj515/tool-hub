@@ -12,6 +12,12 @@ const focus = vi.fn();
 const executeEdits = vi.fn();
 const pushUndoStop = vi.fn();
 const disposeModelListener = vi.fn();
+const setGlyphDecorations = vi.fn();
+const clearGlyphDecorations = vi.fn();
+const glyphDecorations = {
+  set: setGlyphDecorations,
+  clear: clearGlyphDecorations,
+};
 const modelA = {
   getPositionAt: (offset: number) => ({ lineNumber: 1, column: offset + 1 }),
   getFullModelRange: () => ({ startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 3 }),
@@ -35,8 +41,12 @@ const editor = {
   focus,
   executeEdits,
   pushUndoStop,
+  createDecorationsCollection: () => glyphDecorations,
 };
-const monaco = { editor: { setModelMarkers }, MarkerSeverity: { Error: 8 } };
+const monaco = {
+  editor: { setModelMarkers, GlyphMarginLane: { Left: 1 } },
+  MarkerSeverity: { Error: 8 },
+};
 
 vi.mock('@monaco-editor/react', () => ({
   loader: { config: vi.fn() },
@@ -76,6 +86,12 @@ describe('CodeEditor', () => {
     expect(setModelMarkers).toHaveBeenCalledWith(modelA, 'json-yaml-converter', [
       expect.objectContaining({
         startLineNumber: 1, startColumn: 2, endLineNumber: 1, endColumn: 3, message: '오류',
+      }),
+    ]);
+    expect(setGlyphDecorations).toHaveBeenCalledWith([
+      expect.objectContaining({
+        range: expect.objectContaining({ startLineNumber: 1, startColumn: 2 }),
+        options: expect.objectContaining({ glyphMarginClassName: 'json-yaml-converter-glyph-error' }),
       }),
     ]);
 
@@ -125,10 +141,24 @@ describe('CodeEditor', () => {
     expect(setModelMarkers).toHaveBeenCalledWith(modelB, 'json-yaml-converter', [
       expect.objectContaining({ startLineNumber: 2, message: '오류' }),
     ]);
+    expect(setGlyphDecorations).toHaveBeenLastCalledWith([
+      expect.objectContaining({ range: expect.objectContaining({ startLineNumber: 2 }) }),
+    ]);
 
     unmount();
 
     expect(setModelMarkers).toHaveBeenCalledWith(modelB, 'json-yaml-converter', []);
+    expect(clearGlyphDecorations).toHaveBeenCalledTimes(1);
     expect(disposeModelListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('읽기 전용 결과 편집기에는 diagnostic gutter glyph를 등록하지 않는다', () => {
+    render(<CodeEditor ariaLabel="결과" value="{}" format="json" theme="light" readOnly diagnostic={{
+      format: 'json', code: 'X', message: '오류', startOffset: 1, endOffset: 2, line: 1, column: 2,
+    }} onChange={vi.fn()} />);
+
+    act(() => mountEditor?.(editor, monaco));
+
+    expect(setGlyphDecorations).toHaveBeenCalledWith([]);
   });
 });

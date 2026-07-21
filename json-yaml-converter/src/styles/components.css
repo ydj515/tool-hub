@@ -24,6 +24,7 @@
 .editor-frame { height: 360px; background: var(--editor-bg); }
 .diagnostic-banner { margin: 8px 0; color: var(--danger); background: var(--danger-surface); border: 1px solid var(--danger); border-radius: var(--radius-md); padding: 10px 12px; }
 .diagnostic-banner button { color: inherit; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.monaco-editor .json-yaml-converter-glyph-error { background-image: radial-gradient(circle, var(--danger) 0 4px, transparent 4.5px); background-position: center; background-repeat: no-repeat; }
 .stale-result { margin: 8px 12px; color: var(--warning); font-weight: 600; }
 .status-bar, .action-message { color: var(--muted); font-size: 13px; }
 .status-bar--valid { color: var(--success); }
