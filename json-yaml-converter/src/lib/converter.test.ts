@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { convertSource, prettySource, sampleFor } from './converter';
+import { OUTPUT_LIMIT_BYTES } from './safety';
 
 describe('converter', () => {
   it('JSON을 YAML로 변환한다', () => {
@@ -27,5 +28,25 @@ describe('converter', () => {
     const result = convertSource('name: tool-hub\n', 'json-to-yaml');
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.diagnostic.format).toBe('json');
+  });
+
+  it('들여쓰기 증폭으로 출력 제한을 넘는 변환을 blocking 진단으로 거부한다', () => {
+    const source = `${'['.repeat(90)}${Array.from({ length: 12_000 }, () => '0').join(',')}${']'.repeat(90)}`;
+    expect(new TextEncoder().encode(source).byteLength).toBeLessThan(1024 * 1024);
+
+    const result = convertSource(source, 'json-to-yaml');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+    expect(result.diagnostic.format).toBe('json');
+    expect(OUTPUT_LIMIT_BYTES).toBe(2 * 1024 * 1024);
+  });
+
+  it('Pretty 출력이 제한을 넘으면 원문 대신 blocking 진단을 반환한다', () => {
+    const source = `${'['.repeat(90)}${Array.from({ length: 12_000 }, () => '0').join(',')}${']'.repeat(90)}`;
+    const result = prettySource(source, 'json-to-yaml');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
   });
 });

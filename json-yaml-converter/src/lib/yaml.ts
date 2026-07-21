@@ -1,6 +1,7 @@
-import { LineCounter, Parser, parseDocument, stringify, type YAMLError } from 'yaml';
+import { LineCounter, Parser, isAlias, isCollection, isPair, isScalar, parseDocument, stringify, type YAMLError } from 'yaml';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
+import { MAX_NESTING_DEPTH, outputWithinLimit, safetyDiagnostic, validateDataNode } from './safety';
 
 const YAML_MESSAGES: Record<string, string> = {
   BAD_INDENT: '이 위치의 들여쓰기가 올바르지 않습니다.',
@@ -148,6 +149,61 @@ function unsupportedTagRange(
   return undefined;
 }
 
+function sourceRange(value: { range?: unknown }): [number, number] {
+  if (!Array.isArray(value.range)) return [0, 0];
+  const [start, end] = value.range;
+  return [typeof start === 'number' ? start : 0, typeof end === 'number' ? end : 0];
+}
+
+function inspectYamlAst(
+  source: string,
+  document: ReturnType<typeof parseDocument>,
+): OperationResult<true> {
+  type Frame = { value: unknown; depth: number; exit?: boolean };
+  const stack: Frame[] = [{ value: document.contents, depth: 1 }];
+  const active = new WeakSet<object>();
+
+  while (stack.length > 0) {
+    const frame = stack.pop();
+    if (!frame || frame.value === null || typeof frame.value !== 'object') continue;
+    if (frame.exit) {
+      active.delete(frame.value);
+      continue;
+    }
+    if (isPair(frame.value)) {
+      stack.push({ value: frame.value.value, depth: frame.depth });
+      stack.push({ value: frame.value.key, depth: frame.depth });
+      continue;
+    }
+    if (isAlias(frame.value)) {
+      const target = frame.value.resolve(document);
+      if (target && active.has(target)) {
+        const [start, end] = sourceRange(frame.value);
+        return failure(source, 'CYCLIC_ALIAS', '순환 YAML alias는 지원하지 않습니다.', start, end - start);
+      }
+      continue;
+    }
+    if (isScalar(frame.value)) {
+      if (typeof frame.value.value === 'number' && !Number.isFinite(frame.value.value)) {
+        const [start, end] = sourceRange(frame.value);
+        return failure(source, 'NON_FINITE_NUMBER', 'JSON으로 표현할 수 없는 숫자입니다.', start, end - start);
+      }
+      continue;
+    }
+    if (!isCollection(frame.value)) continue;
+    if (frame.depth > MAX_NESTING_DEPTH) {
+      const [start, end] = sourceRange(frame.value);
+      return failure(source, 'MAX_DEPTH_EXCEEDED', `중첩 깊이는 ${MAX_NESTING_DEPTH}단계까지 지원합니다.`, start, end - start);
+    }
+    active.add(frame.value);
+    stack.push({ ...frame, exit: true });
+    for (let index = frame.value.items.length - 1; index >= 0; index -= 1) {
+      stack.push({ value: frame.value.items[index], depth: frame.depth + 1 });
+    }
+  }
+  return { ok: true, value: true };
+}
+
 function sequenceFrom(source: string, values: unknown[], active: WeakSet<object>): OperationResult<DataNode> {
   const items: DataNode[] = [];
   for (const value of values) {
@@ -195,38 +251,61 @@ function fromYamlValue(source: string, value: unknown, active: WeakSet<object>):
 }
 
 export function parseYaml(source: string): OperationResult<DataNode> {
-  const lineCounter = new LineCounter();
-  const document = parseDocument(source, {
-    version: '1.2',
-    strict: true,
-    uniqueKeys: true,
-    stringKeys: true,
-    prettyErrors: true,
-    logLevel: 'error',
-    lineCounter,
-    keepSourceTokens: true,
-  });
-  const cstTags = collectCstTags(source);
-  const tagRange = unsupportedTagRange(document.contents, cstTags, document.warnings);
-  let firstIssue: YAMLError | undefined;
-  for (const issue of [...document.errors, ...document.warnings]) {
-    if (tagRange && issue.code === 'TAG_RESOLVE_FAILED') continue;
-    if (!firstIssue || issue.pos[0] < firstIssue.pos[0]) firstIssue = issue;
-  }
-  if (tagRange && (!firstIssue || tagRange[0] <= firstIssue.pos[0])) {
-    const [start, end] = tagRange;
-    return failure(source, 'TAG_RESOLVE_FAILED', '지원하지 않는 YAML tag입니다.', start, end - start);
-  }
-  if (firstIssue) return parseDiagnostic(source, firstIssue);
-
-  let value: unknown;
   try {
-    // yaml은 anchor 원본도 alias count에 포함하므로 허용 횟수에 1을 더한다.
-    value = document.toJS({ mapAsMap: true, maxAliasCount: MAX_ALIAS_EXPANSIONS + 1 });
+    const lineCounter = new LineCounter();
+    const document = parseDocument(source, {
+      version: '1.2',
+      strict: true,
+      uniqueKeys: true,
+      stringKeys: true,
+      prettyErrors: true,
+      logLevel: 'error',
+      lineCounter,
+      keepSourceTokens: true,
+    });
+    const inspected = inspectYamlAst(source, document);
+    if (!inspected.ok) {
+      let earlierIssue: YAMLError | undefined;
+      for (const issue of [...document.errors, ...document.warnings]) {
+        if (issue.pos[0] < inspected.diagnostic.startOffset && (!earlierIssue || issue.pos[0] < earlierIssue.pos[0])) {
+          earlierIssue = issue;
+        }
+      }
+      return earlierIssue ? parseDiagnostic(source, earlierIssue) : inspected;
+    }
+    const cstTags = collectCstTags(source);
+    const tagRange = unsupportedTagRange(document.contents, cstTags, document.warnings);
+    let firstIssue: YAMLError | undefined;
+    for (const issue of [...document.errors, ...document.warnings]) {
+      if (tagRange && issue.code === 'TAG_RESOLVE_FAILED') continue;
+      if (!firstIssue || issue.pos[0] < firstIssue.pos[0]) firstIssue = issue;
+    }
+    if (tagRange && (!firstIssue || tagRange[0] <= firstIssue.pos[0])) {
+      const [start, end] = tagRange;
+      return failure(source, 'TAG_RESOLVE_FAILED', '지원하지 않는 YAML tag입니다.', start, end - start);
+    }
+    if (firstIssue) return parseDiagnostic(source, firstIssue);
+
+    let value: unknown;
+    try {
+      // yaml은 anchor 원본도 alias count에 포함하므로 허용 횟수에 1을 더한다.
+      value = document.toJS({ mapAsMap: true, maxAliasCount: MAX_ALIAS_EXPANSIONS + 1 });
+    } catch (error) {
+      if (error instanceof ReferenceError && error.message.includes('Excessive alias count')) {
+        return failure(source, 'ALIAS_LIMIT', 'YAML alias 확장 횟수가 제한을 초과했습니다.');
+      }
+      return {
+        ok: false,
+        diagnostic: safetyDiagnostic('yaml', 'UNEXPECTED_ERROR', 'YAML 정규화 중 예상하지 못한 오류가 발생했습니다.', source),
+      };
+    }
+    return fromYamlValue(source, value, new WeakSet<object>());
   } catch {
-    return failure(source, 'ALIAS_LIMIT', 'YAML alias 확장 횟수가 제한을 초과했습니다.');
+    return {
+      ok: false,
+      diagnostic: safetyDiagnostic('yaml', 'UNEXPECTED_ERROR', 'YAML 처리 중 예상하지 못한 오류가 발생했습니다.', source),
+    };
   }
-  return fromYamlValue(source, value, new WeakSet<object>());
 }
 
 function toYamlValue(node: DataNode): unknown {
@@ -244,18 +323,27 @@ function toYamlValue(node: DataNode): unknown {
   }
 }
 
-export function stringifyYaml(node: DataNode): string {
-  const output = stringify(toYamlValue(node), {
-    blockQuote: false,
-    indent: 2,
-    lineWidth: 0,
-    sortMapEntries: false,
-  });
-  return output.replace(/\n+$/, '\n');
+export function stringifyYaml(node: DataNode): OperationResult<string> {
+  try {
+    const valid = validateDataNode(node, 'yaml');
+    if (!valid.ok) return valid;
+    const output = stringify(toYamlValue(node), {
+      blockQuote: false,
+      indent: 2,
+      lineWidth: 0,
+      sortMapEntries: false,
+    }).replace(/\n+$/, '\n');
+    return outputWithinLimit('yaml', output);
+  } catch {
+    return {
+      ok: false,
+      diagnostic: safetyDiagnostic('yaml', 'UNEXPECTED_ERROR', 'YAML 직렬화 중 예상하지 못한 오류가 발생했습니다.'),
+    };
+  }
 }
 
 export function prettyYaml(source: string): OperationResult<string> {
   const parsed = parseYaml(source);
   if (!parsed.ok) return parsed;
-  return { ok: true, value: stringifyYaml(parsed.value) };
+  return stringifyYaml(parsed.value);
 }

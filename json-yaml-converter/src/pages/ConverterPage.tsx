@@ -10,7 +10,7 @@ import { downloadResult, readSourceFile } from '../lib/file';
 import type { Theme } from '../theme';
 
 export function ConverterPage({ theme }: { theme: Theme }) {
-  const { state, setSource, selectDirection, setDirectionAndSource, loadSample, clear, swap } = useConverter();
+  const { state, setSource, selectDirection, setDirectionAndSource, loadSample, clear, swap, reportDiagnostic } = useConverter();
   const sourceEditorRef = useRef<CodeEditorHandle>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'source' | 'result'>('source');
@@ -39,8 +39,21 @@ export function ConverterPage({ theme }: { theme: Theme }) {
   const handlePretty = () => {
     if (state.status !== 'valid') return;
     beginMutation();
-    const result = prettySource(state.source, state.direction);
-    if (result.ok) sourceEditorRef.current?.replaceAll(result.value);
+    try {
+      const result = prettySource(state.source, state.direction);
+      if (result.ok) sourceEditorRef.current?.replaceAll(result.value);
+      else reportDiagnostic(result.diagnostic);
+    } catch {
+      reportDiagnostic({
+        format: state.direction === 'json-to-yaml' ? 'json' : 'yaml',
+        code: 'UNEXPECTED_ERROR',
+        message: 'Pretty 중 예상하지 못한 오류가 발생했습니다.',
+        startOffset: 0,
+        endOffset: 1,
+        line: 1,
+        column: 1,
+      });
+    }
   };
   const handleFile = async (file: File) => {
     const request = beginMutation();
@@ -75,7 +88,7 @@ export function ConverterPage({ theme }: { theme: Theme }) {
     }
   };
   const handleSourceChange = (value: string) => { beginMutation(); setSource(value); };
-  const handleDirectionChange = (direction: typeof state.direction) => { beginMutation(); selectDirection(direction); };
+  const handleDirectionChange = (direction: typeof state.direction) => { beginMutation(); setActiveTab('source'); selectDirection(direction); };
   const handleLoadSample = () => { beginMutation(); loadSample(); };
   const handleClear = () => { beginMutation(); clear(); };
   const handleSwap = () => { beginMutation(); setActiveTab('source'); swap(); };

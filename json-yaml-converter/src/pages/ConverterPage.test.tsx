@@ -57,6 +57,17 @@ describe('ConverterPage', () => {
     expect(screen.getByLabelText('JSON 결과')).toHaveValue('{\n  "a": 1\n}\n');
   });
 
+  it('결과 탭에서 방향 선택기를 바꾸면 원본 탭으로 돌아간다', () => {
+    render(<ConverterPage theme="light" />);
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('tab', { name: /결과/ }));
+
+    fireEvent.click(screen.getByRole('radio', { name: 'YAML → JSON' }));
+
+    expect(screen.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true');
+  });
+
   it('오류 위치와 stale 결과를 표시하고 내보내기를 막는다', () => {
     render(<ConverterPage theme="light" />);
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });

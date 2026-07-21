@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import type { DataNode } from './data-node';
 import { parseJson, prettyJson, stringifyJson } from './json';
+import { OUTPUT_LIMIT_BYTES } from './safety';
+
+const nestedJson = (depth: number) => '['.repeat(depth) + '0' + ']'.repeat(depth);
 
 describe('JSON domain', () => {
   it.each(['null', 'true', '"text"', '3', '[1,2]'])('루트 값 %s를 허용한다', (source) => {
@@ -10,9 +14,10 @@ describe('JSON domain', () => {
     const parsed = parseJson('{"10":"ten","2":"two","value":[true,null,3]}');
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(stringifyJson(parsed.value)).toBe(
-      '{\n  "10": "ten",\n  "2": "two",\n  "value": [\n    true,\n    null,\n    3\n  ]\n}\n',
-    );
+    expect(stringifyJson(parsed.value)).toEqual({
+      ok: true,
+      value: '{\n  "10": "ten",\n  "2": "two",\n  "value": [\n    true,\n    null,\n    3\n  ]\n}\n',
+    });
   });
 
   it.each([
@@ -61,6 +66,25 @@ describe('JSON domain', () => {
     });
   });
 
+  it('브라우저 안전 깊이를 넘는 JSON을 blocking 진단으로 거부한다', () => {
+    const result = parseJson(nestedJson(101));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('MAX_DEPTH_EXCEEDED');
+  });
+
+  it('직접 받은 DataNode에도 깊이와 출력 제한을 적용한다', () => {
+    let deepNode: DataNode = { kind: 'null' };
+    for (let depth = 0; depth < 101; depth += 1) deepNode = { kind: 'sequence', items: [deepNode] };
+    const deepResult = stringifyJson(deepNode);
+    expect(deepResult.ok).toBe(false);
+    if (!deepResult.ok) expect(deepResult.diagnostic.code).toBe('MAX_DEPTH_EXCEEDED');
+
+    const largeResult = stringifyJson({ kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES) });
+    expect(largeResult.ok).toBe(false);
+    if (!largeResult.ok) expect(largeResult.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
   it('escape 후 같은 키가 되면 두 번째 키 token 위치를 표시한다', () => {
     const result = parseJson('{"a":1,"\\u0061":2}');
     expect(result).toEqual({
@@ -80,7 +104,9 @@ describe('JSON domain', () => {
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
     const serialized = stringifyJson(parsed.value);
-    const reparsed = parseJson(serialized);
+    expect(serialized.ok).toBe(true);
+    if (!serialized.ok) return;
+    const reparsed = parseJson(serialized.value);
     expect(reparsed).toEqual(parsed);
   });
 
@@ -93,6 +119,6 @@ describe('JSON domain', () => {
     const parsed = parseJson(source);
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(stringifyJson(parsed.value)).toBe(expected);
+    expect(stringifyJson(parsed.value)).toEqual({ ok: true, value: expected });
   });
 });

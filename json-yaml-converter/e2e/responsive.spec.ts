@@ -13,6 +13,7 @@ async function fillMonaco(page: import('@playwright/test').Page, label: string, 
 
 type Rgb = { red: number; green: number; blue: number; alpha: number };
 type BrowserElement = { parentElement: BrowserElement | null };
+type BrowserTextElement = BrowserElement & { textContent: string | null };
 type BrowserStyles = {
   color: string;
   backgroundColor: string;
@@ -23,6 +24,46 @@ type BrowserStyles = {
   backgroundImage: string;
 };
 type BrowserWindow = { getComputedStyle(element: BrowserElement): BrowserStyles };
+type ScheduledStatusCapture = { text: string; color: string; backgrounds: string[] };
+
+async function observeNextScheduledStatus(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    const browserGlobal = globalThis as typeof globalThis & {
+      __scheduledStatusCapture?: Promise<ScheduledStatusCapture>;
+      document: { body: BrowserElement; querySelector(selector: string): BrowserTextElement | null };
+      getComputedStyle(element: BrowserElement): BrowserStyles;
+      MutationObserver: new (callback: () => void) => {
+        disconnect(): void;
+        observe(target: BrowserElement, options: { childList: boolean; characterData: boolean; subtree: boolean }): void;
+      };
+    };
+    browserGlobal.__scheduledStatusCapture = new Promise((resolve) => {
+      const observer = new browserGlobal.MutationObserver(() => {
+        const element = browserGlobal.document.querySelector('.status-bar');
+        if (!element?.textContent?.includes('변환 준비 중')) return;
+        const backgrounds: string[] = [];
+        let current: BrowserElement | null = element;
+        while (current) {
+          backgrounds.push(browserGlobal.getComputedStyle(current).backgroundColor);
+          current = current.parentElement;
+        }
+        resolve({ text: element.textContent, color: browserGlobal.getComputedStyle(element).color, backgrounds });
+        observer.disconnect();
+      });
+      observer.observe(browserGlobal.document.body, { childList: true, characterData: true, subtree: true });
+    });
+  });
+}
+
+async function readScheduledStatus(page: import('@playwright/test').Page): Promise<ScheduledStatusCapture> {
+  return page.evaluate(() => {
+    const browserGlobal = globalThis as typeof globalThis & {
+      __scheduledStatusCapture?: Promise<ScheduledStatusCapture>;
+    };
+    if (!browserGlobal.__scheduledStatusCapture) throw new Error('scheduled 상태 observer가 설치되지 않았습니다.');
+    return browserGlobal.__scheduledStatusCapture;
+  });
+}
 
 function parseColor(color: string): Rgb {
   const match = color.match(/^rgba?\(([^)]+)\)$/);
@@ -146,6 +187,29 @@ test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤�
   await expect(page.getByRole('tabpanel', { name: '결과' })).toBeVisible();
 });
 
+test('모바일 결과 탭에서 keyboard swap하고 stale 결과에서는 비활성화한다', async ({ context, page }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await fillMonaco(page, 'JSON 원본', '{"mobile":true}');
+  await expect(page.getByRole('tab', { name: /결과/ })).toContainText('변환 완료');
+  await page.getByRole('tab', { name: /결과/ }).click();
+
+  await page.keyboard.press('Tab');
+  const swap = page.getByRole('button', { name: '변환 방향 전환' });
+  await expect(swap).toBeFocused();
+  await page.keyboard.press('Enter');
+
+  await expect(page.getByRole('radio', { name: 'YAML → JSON' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByLabel('YAML 원본')
+    .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
+    .locator('.view-lines')).toContainText('mobile: true');
+
+  await fillMonaco(page, 'YAML 원본', 'mobile true');
+  await expect(swap).toBeDisabled();
+});
+
 test('테마 버튼이 data-theme을 전환한다', async ({ page }) => {
   await page.goto('/');
   const before = await page.locator('html').getAttribute('data-theme');
@@ -154,7 +218,9 @@ test('테마 버튼이 data-theme을 전환한다', async ({ page }) => {
 });
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`${theme} 테마의 진단과 활성 control은 WCAG 대비를 충족한다`, async ({ page }) => {
+  test(`${theme} 테마의 진단과 활성 control은 WCAG 대비를 충족한다`, async ({ context, page }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     if (theme === 'dark') await page.getByRole('button', { name: '테마 전환' }).click();
     const selectedDirection = await computedColors(page.getByRole('radio', { name: 'JSON → YAML', exact: true }));
@@ -195,5 +261,18 @@ for (const theme of ['light', 'dark'] as const) {
     const glyphSolidStop = firstGradientStop(glyph.backgroundImage);
     expect(glyphSolidStop.alpha).toBeCloseTo(1, 10);
     expect(contrast(glyphSolidStop, glyphMarginBackground)).toBeGreaterThanOrEqual(3);
+
+    await page.getByRole('button', { name: '원본 지우기' }).click();
+    await observeNextScheduledStatus(page);
+    await fillMonaco(page, 'JSON 원본', '{"contrast":true}');
+    const status = await readScheduledStatus(page);
+    expect(status.text).toContain('변환 준비 중');
+    const statusBackground = compositeBackground(status.backgrounds);
+    expect(contrast(composite(parseColor(status.color), statusBackground), statusBackground)).toBeGreaterThanOrEqual(4.5);
+    await expect(page.getByRole('tab', { name: /결과/ })).toContainText('변환 완료');
+    await page.getByRole('tab', { name: /결과/ }).click();
+    const selectedBadge = page.locator('.completion-badge');
+    const badge = await computedColors(selectedBadge);
+    expect(contrast(parseColor(badge.color), compositeBackground(badge.backgrounds))).toBeGreaterThanOrEqual(4.5);
   });
 }

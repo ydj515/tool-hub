@@ -114,4 +114,36 @@ describe('useConverter', () => {
     act(() => vi.advanceTimersByTime(300));
     expect(result.current.state).toMatchObject({ status: 'empty', source: '', result: '', resultFresh: false });
   });
+
+  it('예상하지 못한 변환 예외도 timer 밖으로 던지지 않고 invalid 진단으로 전환한다', () => {
+    const convert = vi.fn(() => { throw new Error('unexpected'); });
+    const { result } = renderHook(() => useConverter(convert));
+    act(() => result.current.setSource('{"a":1}'));
+
+    expect(() => act(() => vi.advanceTimersByTime(300))).not.toThrow();
+    expect(result.current.state).toMatchObject({ status: 'invalid', resultFresh: false });
+    expect(result.current.state.diagnostic?.code).toBe('UNEXPECTED_ERROR');
+  });
+
+  it.each([
+    {
+      name: '중첩 깊이 초과',
+      source: '['.repeat(101) + '0' + ']'.repeat(101),
+      code: 'MAX_DEPTH_EXCEEDED',
+    },
+    {
+      name: '생성 출력 초과',
+      source: `${'['.repeat(90)}${Array.from({ length: 12_000 }, () => '0').join(',')}${']'.repeat(90)}`,
+      code: 'OUTPUT_TOO_LARGE',
+    },
+  ])('$name도 scheduled에 머물지 않고 invalid 진단으로 전환한다', ({ source, code }) => {
+    const { result } = renderHook(() => useConverter());
+    act(() => result.current.setSource(source));
+    expect(result.current.state.status).toBe('scheduled');
+
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(result.current.state).toMatchObject({ status: 'invalid', resultFresh: false });
+    expect(result.current.state.diagnostic?.code).toBe(code);
+  });
 });

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import type { DataNode } from './data-node';
 import { parseYaml, prettyYaml, stringifyYaml } from './yaml';
+import { OUTPUT_LIMIT_BYTES } from './safety';
+
+const nestedYaml = (depth: number) => '['.repeat(depth) + '0' + ']'.repeat(depth);
 
 describe('YAML domain', () => {
   const aliases = (count: number) => Array.from({ length: count }, () => '  - *base').join('\n');
@@ -16,14 +20,20 @@ describe('YAML domain', () => {
     const parsed = parseYaml('"10": ten\n"2": two\nvalue:\n  - true\n  - null\n');
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(stringifyYaml(parsed.value)).toBe('"10": ten\n"2": two\nvalue:\n  - true\n  - null\n');
+    expect(stringifyYaml(parsed.value)).toEqual({
+      ok: true,
+      value: '"10": ten\n"2": two\nvalue:\n  - true\n  - null\n',
+    });
   });
 
   it('anchor와 alias를 실제 값으로 확장한다', () => {
     const parsed = parseYaml('base: &base\n  enabled: true\ncopy: *base\n');
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(stringifyYaml(parsed.value)).toContain('copy:\n  enabled: true');
+    const output = stringifyYaml(parsed.value);
+    expect(output.ok).toBe(true);
+    if (!output.ok) return;
+    expect(output.value).toContain('copy:\n  enabled: true');
   });
 
   it.each([
@@ -177,15 +187,17 @@ describe('YAML domain', () => {
   it('긴 문자열을 자동 줄바꿈하지 않는다', () => {
     const value = 'a'.repeat(160);
     const output = stringifyYaml({ kind: 'string', value });
-    expect(output).toBe(`${value}\n`);
+    expect(output).toEqual({ ok: true, value: `${value}\n` });
   });
 
   it('후행 개행이 있는 문자열의 의미를 보존하고 파일 끝에는 LF 하나만 둔다', () => {
     const node = { kind: 'string', value: 'a\n\n' } as const;
     const output = stringifyYaml(node);
-    expect(output.endsWith('\n')).toBe(true);
-    expect(output.endsWith('\n\n')).toBe(false);
-    expect(parseYaml(output)).toEqual({ ok: true, value: node });
+    expect(output.ok).toBe(true);
+    if (!output.ok) return;
+    expect(output.value.endsWith('\n')).toBe(true);
+    expect(output.value.endsWith('\n\n')).toBe(false);
+    expect(parseYaml(output.value)).toEqual({ ok: true, value: node });
   });
 
   it.each(['value: .nan\n', 'value: .inf\n', 'value: -.inf\n'])('비유한 숫자 %s를 거부한다', (source) => {
@@ -193,5 +205,50 @@ describe('YAML domain', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.diagnostic.code).toBe('NON_FINITE_NUMBER');
+  });
+
+  it('첫 줄이 아닌 비유한 scalar의 실제 범위를 진단한다', () => {
+    const result = parseYaml('header: ok\nvalue: .inf\n');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic).toMatchObject({
+      code: 'NON_FINITE_NUMBER',
+      startOffset: 18,
+      endOffset: 22,
+      line: 2,
+      column: 8,
+    });
+  });
+
+  it('순환을 닫는 alias token의 실제 범위를 진단한다', () => {
+    const result = parseYaml('header: ok\nroot: &root\n  self: *root\n');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic).toMatchObject({
+      code: 'CYCLIC_ALIAS',
+      startOffset: 31,
+      endOffset: 36,
+      line: 3,
+      column: 9,
+    });
+  });
+
+  it('브라우저 안전 깊이를 넘는 YAML을 blocking 진단으로 거부한다', () => {
+    const result = parseYaml(nestedYaml(101));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('MAX_DEPTH_EXCEEDED');
+  });
+
+  it('직접 받은 DataNode에도 깊이와 출력 제한을 적용한다', () => {
+    let deepNode: DataNode = { kind: 'null' };
+    for (let depth = 0; depth < 101; depth += 1) deepNode = { kind: 'sequence', items: [deepNode] };
+    const deepResult = stringifyYaml(deepNode);
+    expect(deepResult.ok).toBe(false);
+    if (!deepResult.ok) expect(deepResult.diagnostic.code).toBe('MAX_DEPTH_EXCEEDED');
+
+    const largeResult = stringifyYaml({ kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES) });
+    expect(largeResult.ok).toBe(false);
+    if (!largeResult.ok) expect(largeResult.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
   });
 });

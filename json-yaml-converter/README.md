@@ -16,6 +16,7 @@
 - YAML 1.2 단일 문서만 지원합니다.
 - YAML 주석, anchor 이름, alias 표현과 원래 서식은 보존하지 않습니다.
 - 500KB부터 성능 안내를 표시하고 1MB를 초과하면 변환과 Pretty를 중단합니다.
+- JSON/YAML collection 중첩은 100단계, 생성 결과는 UTF-8 기준 2MB까지 지원합니다.
 
 ## 실행
 

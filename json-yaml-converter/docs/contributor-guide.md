@@ -20,6 +20,8 @@
 - Keep YAML limited to one YAML 1.2 document with string mapping keys.
 - Reject custom tags, duplicate mapping keys, circular aliases, and non-finite numbers.
 - Preserve mapping entry order and use two-space indentation.
+- Reject JSON/YAML collections deeper than 100 levels and generated UTF-8 output larger than 2MB.
+- Convert parser, normalizer, serializer, and debounced conversion exceptions into blocking diagnostics.
 - Do not store source or converted content in localStorage or send it to a server.
 
 ## Project Structure
@@ -38,7 +40,14 @@
 - Confirm syntax markers and line/column messages point to the same source location.
 - Confirm stale results cannot be copied, downloaded, or swapped.
 - Confirm 500KB warning and 1MB blocking behavior.
+- Confirm the 100-level nesting and 2MB generated-output limits return diagnostics without leaving conversion scheduled.
 - Confirm light and dark themes remain readable.
+
+## Complexity
+
+- Source changes take `O(n)` time and temporary `O(n)` space because whitespace classification and UTF-8 byte measurement scan/encode the full source.
+- Parsing and validation take `O(n)` time; serialization and Pretty take `O(n + m)` time and `O(n + m)` working space for input size `n` and output size `m`.
+- Recursive helpers are bounded by the 100-level product limit.
 
 ## Documentation Sync
 

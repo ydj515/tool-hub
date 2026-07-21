@@ -30,11 +30,12 @@
 .status-bar--valid { color: var(--success); }
 .status-bar--oversized, .status-bar--invalid { color: var(--danger); }
 .completion-badge { margin-left: 4px; color: var(--success); font-size: 12px; }
+.mobile-tabs button[aria-selected="true"] .completion-badge { color: inherit; }
 .mobile-tabs { display: none; }
 @media (max-width: 767px) {
   .converter-page { padding: 12px; }
-  .converter-grid { display: block; }
-  .converter-grid__swap { display: none; }
+  .converter-grid { display: flex; flex-direction: column; }
+  .converter-grid__swap { order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; }
   .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
   .mobile-tabs button { border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
   .mobile-tabs button[aria-selected="true"] { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }

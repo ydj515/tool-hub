@@ -1,6 +1,7 @@
 import { applyEdits, format, parseTree, printParseErrorCode, type Node, type ParseError } from 'jsonc-parser';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
+import { MAX_NESTING_DEPTH, outputWithinLimit, safetyDiagnostic, validateDataNode } from './safety';
 
 const JSON_OPTIONS = {
   disallowComments: true,
@@ -32,7 +33,13 @@ function parseDiagnostic(source: string, error: ParseError) {
   return diagnosticAt('json', code, JSON_MESSAGES[code] ?? 'JSON 형식이 올바르지 않습니다.', source, error.offset, error.length);
 }
 
-function nodeToDataNode(source: string, node: Node): OperationResult<DataNode> {
+function nodeToDataNode(source: string, node: Node, depth = 0): OperationResult<DataNode> {
+  if ((node.type === 'array' || node.type === 'object') && depth >= MAX_NESTING_DEPTH) {
+    return {
+      ok: false,
+      diagnostic: diagnosticAt('json', 'MAX_DEPTH_EXCEEDED', `중첩 깊이는 ${MAX_NESTING_DEPTH}단계까지 지원합니다.`, source, node.offset, node.length),
+    };
+  }
   switch (node.type) {
     case 'null':
       return { ok: true, value: { kind: 'null' } };
@@ -53,7 +60,7 @@ function nodeToDataNode(source: string, node: Node): OperationResult<DataNode> {
     case 'array': {
       const items: DataNode[] = [];
       for (const child of node.children ?? []) {
-        const converted = nodeToDataNode(source, child);
+        const converted = nodeToDataNode(source, child, depth + 1);
         if (!converted.ok) return converted;
         items.push(converted.value);
       }
@@ -73,7 +80,7 @@ function nodeToDataNode(source: string, node: Node): OperationResult<DataNode> {
           };
         }
         keys.add(key);
-        const converted = nodeToDataNode(source, valueNode);
+        const converted = nodeToDataNode(source, valueNode, depth + 1);
         if (!converted.ok) return converted;
         entries.push({ key, value: converted.value });
       }
@@ -88,16 +95,23 @@ function nodeToDataNode(source: string, node: Node): OperationResult<DataNode> {
 }
 
 export function parseJson(source: string): OperationResult<DataNode> {
-  const errors: ParseError[] = [];
-  const tree = parseTree(source, errors, JSON_OPTIONS);
-  if (errors.length > 0) return { ok: false, diagnostic: parseDiagnostic(source, errors[0]) };
-  if (!tree) {
+  try {
+    const errors: ParseError[] = [];
+    const tree = parseTree(source, errors, JSON_OPTIONS);
+    if (errors.length > 0) return { ok: false, diagnostic: parseDiagnostic(source, errors[0]) };
+    if (!tree) {
+      return {
+        ok: false,
+        diagnostic: diagnosticAt('json', 'ValueExpected', JSON_MESSAGES.ValueExpected, source, 0, 0),
+      };
+    }
+    return nodeToDataNode(source, tree);
+  } catch {
     return {
       ok: false,
-      diagnostic: diagnosticAt('json', 'ValueExpected', JSON_MESSAGES.ValueExpected, source, 0, 0),
+      diagnostic: safetyDiagnostic('json', 'UNEXPECTED_ERROR', 'JSON 처리 중 예상하지 못한 오류가 발생했습니다.', source),
     };
   }
-  return nodeToDataNode(source, tree);
 }
 
 function indent(depth: number): string {
@@ -122,14 +136,30 @@ function serialize(node: DataNode, depth: number): string {
   }
 }
 
-export function stringifyJson(node: DataNode): string {
-  return `${serialize(node, 0)}\n`;
+export function stringifyJson(node: DataNode): OperationResult<string> {
+  try {
+    const valid = validateDataNode(node, 'json');
+    if (!valid.ok) return valid;
+    return outputWithinLimit('json', `${serialize(node, 0)}\n`);
+  } catch {
+    return {
+      ok: false,
+      diagnostic: safetyDiagnostic('json', 'UNEXPECTED_ERROR', 'JSON 직렬화 중 예상하지 못한 오류가 발생했습니다.'),
+    };
+  }
 }
 
 export function prettyJson(source: string): OperationResult<string> {
-  const parsed = parseJson(source);
-  if (!parsed.ok) return parsed;
-  const edits = format(source, undefined, { insertSpaces: true, tabSize: 2, eol: '\n' });
-  const formatted = applyEdits(source, edits).replace(/\s*$/, '') + '\n';
-  return { ok: true, value: formatted };
+  try {
+    const parsed = parseJson(source);
+    if (!parsed.ok) return parsed;
+    const edits = format(source, undefined, { insertSpaces: true, tabSize: 2, eol: '\n' });
+    const formatted = applyEdits(source, edits).replace(/\s*$/, '') + '\n';
+    return outputWithinLimit('json', formatted);
+  } catch {
+    return {
+      ok: false,
+      diagnostic: safetyDiagnostic('json', 'UNEXPECTED_ERROR', 'JSON Pretty 중 예상하지 못한 오류가 발생했습니다.', source),
+    };
+  }
 }

@@ -21,6 +21,48 @@ function trackBrowserFailures(page: import('@playwright/test').Page) {
   return failures;
 }
 
+async function observeScheduledCopyState(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    type BrowserElement = { textContent: string | null };
+    type BrowserButton = BrowserElement & { disabled: boolean };
+    const browserGlobal = globalThis as typeof globalThis & {
+      __scheduledCopyDisabled?: Promise<boolean>;
+      document: {
+        body: object;
+        querySelector(selector: string): BrowserElement | null;
+        querySelectorAll(selector: string): { length: number; [index: number]: BrowserButton };
+      };
+      MutationObserver: new (callback: () => void) => {
+        disconnect(): void;
+        observe(target: object, options: { childList: boolean; characterData: boolean; subtree: boolean }): void;
+      };
+    };
+    browserGlobal.__scheduledCopyDisabled = new Promise((resolve) => {
+      const observer = new browserGlobal.MutationObserver(() => {
+        const status = browserGlobal.document.querySelector('.status-bar');
+        if (!status?.textContent?.includes('변환 준비 중')) return;
+        const buttons = browserGlobal.document.querySelectorAll('button');
+        for (let index = 0; index < buttons.length; index += 1) {
+          if (buttons[index].textContent?.includes('결과 복사')) {
+            resolve(buttons[index].disabled);
+            observer.disconnect();
+            return;
+          }
+        }
+      });
+      observer.observe(browserGlobal.document.body, { childList: true, characterData: true, subtree: true });
+    });
+  });
+}
+
+async function readScheduledCopyState(page: import('@playwright/test').Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const browserGlobal = globalThis as typeof globalThis & { __scheduledCopyDisabled?: Promise<boolean> };
+    if (!browserGlobal.__scheduledCopyDisabled) throw new Error('scheduled copy observer가 설치되지 않았습니다.');
+    return browserGlobal.__scheduledCopyDisabled;
+  });
+}
+
 test.beforeEach(async ({ context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
 });
@@ -38,15 +80,13 @@ test('JSON과 YAML을 양방향 변환하고 형식별 Pretty를 제공한다', 
   expect(failures).toEqual([]);
 });
 
-test('빈 화면에서 YAML → JSON 방향을 직접 선택하고 300ms 디바운스로 변환한다', async ({ page }) => {
+test('빈 화면에서 YAML → JSON 방향을 직접 선택하고 scheduled 상태를 거쳐 변환한다', async ({ page }) => {
   const failures = trackBrowserFailures(page);
-  await page.clock.install();
   await page.goto('/');
   await page.getByRole('radio', { name: 'YAML → JSON' }).click();
+  await observeScheduledCopyState(page);
   await fillMonaco(page, 'YAML 원본', 'name: tool-hub');
-  await page.clock.fastForward(299);
-  await expect(page.getByRole('button', { name: '결과 복사' })).toBeDisabled();
-  await page.clock.fastForward(1);
+  expect(await readScheduledCopyState(page)).toBe(true);
   await expect(page.getByRole('region', { name: '결과 편집기' }).locator('.view-lines')).toContainText('"name": "tool-hub"');
   await expect(page.getByRole('button', { name: '결과 복사' })).toBeEnabled();
   expect(failures).toEqual([]);

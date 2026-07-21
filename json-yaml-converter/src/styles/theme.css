@@ -16,7 +16,7 @@
   --line-subtle: rgba(112, 115, 124, 0.10);
   --control-border: #767b85;
   --text: #171717;
-  --muted: rgba(55, 56, 60, 0.66);
+  --muted: #5f6066;
   --primary: #3366ff;
   --primary-strong: #005eeb;
   --on-primary: #ffffff;
@@ -38,7 +38,7 @@
   --line-subtle: rgba(174, 176, 182, 0.14);
   --control-border: #747984;
   --text: #f7f7f7;
-  --muted: rgba(194, 196, 200, 0.72);
+  --muted: #c2c4c8;
   --primary: #3d6fe8;
   --primary-strong: #1a75ff;
   --success: #57c68a;

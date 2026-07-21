@@ -6,6 +6,7 @@ import {
   type ConverterDirection,
 } from '../lib/converter';
 import type { Diagnostic } from '../lib/diagnostics';
+import { safetyDiagnostic } from '../lib/safety';
 import { classifySize, utf8ByteLength, type SizeLevel } from '../lib/size';
 
 export type ConverterStatus = 'empty' | 'scheduled' | 'valid' | 'invalid' | 'oversized';
@@ -75,7 +76,7 @@ function sourceState(
   };
 }
 
-export function useConverter(): {
+export function useConverter(convert: typeof convertSource = convertSource): {
   state: ConverterState;
   setSource: (source: string) => void;
   selectDirection: (direction: ConverterDirection) => void;
@@ -83,6 +84,7 @@ export function useConverter(): {
   loadSample: () => void;
   clear: () => void;
   swap: () => void;
+  reportDiagnostic: (diagnostic: Diagnostic) => void;
 } {
   const [state, setState] = useState<ConverterState>(() => initialState(DEFAULT_DIRECTION));
   const [scheduledRevision, setScheduledRevision] = useState(0);
@@ -121,7 +123,20 @@ export function useConverter(): {
     const timer = setTimeout(() => {
       if (revision !== revisionRef.current || direction !== directionRef.current) return;
 
-      const converted = convertSource(source, direction);
+      let converted;
+      try {
+        converted = convert(source, direction);
+      } catch {
+        converted = {
+          ok: false as const,
+          diagnostic: safetyDiagnostic(
+            direction === 'json-to-yaml' ? 'json' : 'yaml',
+            'UNEXPECTED_ERROR',
+            '변환 중 예상하지 못한 오류가 발생했습니다.',
+            source,
+          ),
+        };
+      }
       if (revision !== revisionRef.current || direction !== directionRef.current) return;
 
       const current = stateRef.current;
@@ -153,7 +168,7 @@ export function useConverter(): {
       clearTimeout(timer);
       if (timerRef.current === timer) timerRef.current = null;
     };
-  }, [scheduledRevision, state.direction, state.source, state.status]);
+  }, [convert, scheduledRevision, state.direction, state.source, state.status]);
 
   return {
     state,
@@ -170,6 +185,10 @@ export function useConverter(): {
       const current = stateRef.current;
       if (!current.resultFresh || current.result.length === 0) return;
       replaceSource(oppositeDirection(current.direction), current.result);
+    },
+    reportDiagnostic: (diagnostic) => {
+      const current = stateRef.current;
+      replaceState({ ...current, status: 'invalid', diagnostic, resultFresh: false });
     },
   };
 }
