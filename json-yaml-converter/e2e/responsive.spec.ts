@@ -1,0 +1,34 @@
+import { expect, test } from '@playwright/test';
+
+test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  await expect(page.getByRole('region', { name: '원본 편집기' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '결과 편집기' })).toBeVisible();
+  await expect(page.getByRole('tablist')).toBeHidden();
+});
+
+test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.getByRole('tablist')).toBeVisible();
+  await expect(page.getByRole('tab', { name: /원본/ })).toHaveAttribute('aria-selected', 'true');
+
+  await page.getByLabel('JSON 원본')
+    .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
+    .locator('.view-lines')
+    .click();
+  await page.keyboard.type('{"mobile":true}');
+  await expect(page.getByRole('tab', { name: /원본/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: /결과/ })).toContainText('변환 완료');
+
+  await page.getByRole('tab', { name: /결과/ }).click();
+  await expect(page.getByRole('tabpanel', { name: '결과' })).toBeVisible();
+});
+
+test('테마 버튼이 data-theme을 전환한다', async ({ page }) => {
+  await page.goto('/');
+  const before = await page.locator('html').getAttribute('data-theme');
+  await page.getByRole('button', { name: '테마 전환' }).click();
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', before ?? 'light');
+});
