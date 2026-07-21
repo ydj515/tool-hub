@@ -353,4 +353,54 @@ describe('YAML domain', () => {
     if (!preflight.ok || !output.ok) return;
     expect(preflight.value).toBeGreaterThanOrEqual(new TextEncoder().encode(output.value).byteLength);
   });
+
+  it('깊게 중첩된 long multiline scalar의 실제 작은 출력을 허용한다', () => {
+    let node: DataNode = { kind: 'string', value: '\n'.repeat(12_000) };
+    for (let depth = 0; depth < 90; depth += 1) node = { kind: 'sequence', items: [node] };
+
+    const preflight = preflightYamlOutput(node);
+    const result = stringifyYaml(node);
+
+    expect(preflight.ok).toBe(true);
+    expect(result.ok).toBe(true);
+    if (!preflight.ok || !result.ok) return;
+    const actualBytes = new TextEncoder().encode(result.value).byteLength;
+    expect(actualBytes).toBeLessThan(24 * 1024);
+    expect(preflight.value).toBeGreaterThanOrEqual(actualBytes);
+  });
+
+  it('plain scalar의 정확한 2MB 출력을 허용하고 다음 1바이트는 거부한다', () => {
+    const exactNode: DataNode = { kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES - 1) };
+    const exactPreflight = preflightYamlOutput(exactNode);
+    const exact = stringifyYaml(exactNode);
+    expect(exactPreflight).toEqual({ ok: true, value: OUTPUT_LIMIT_BYTES });
+    expect(exact.ok).toBe(true);
+    if (exact.ok) expect(new TextEncoder().encode(exact.value).byteLength).toBe(OUTPUT_LIMIT_BYTES);
+
+    const oversizedNode: DataNode = { kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES) };
+    const preflight = preflightYamlOutput(oversizedNode);
+    expect(preflight.ok).toBe(false);
+    if (!preflight.ok) expect(preflight.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+    const oversized = stringifyYaml(oversizedNode);
+    expect(oversized.ok).toBe(false);
+    if (!oversized.ok) expect(oversized.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it.each([
+    ['plain', 'a'.repeat(5_000)],
+    ['quoted', 'a: b '.repeat(1_000)],
+    ['multiline', 'line\n'.repeat(1_000)],
+    ['unicode', '한글😀'.repeat(1_000)],
+    ['short control', '\0'.repeat(400_000)],
+    ['hex control', '\u001f'.repeat(5_000)],
+    ['invalid surrogate', '\ud800'.repeat(5_000)],
+  ])('long %s scalar preflight가 실제 emitter 바이트보다 작지 않다', (_label, value) => {
+    const node: DataNode = { kind: 'string', value };
+    const preflight = preflightYamlOutput(node);
+    const output = stringifyYaml(node);
+    expect(preflight.ok).toBe(true);
+    expect(output.ok).toBe(true);
+    if (!preflight.ok || !output.ok) return;
+    expect(preflight.value).toBeGreaterThanOrEqual(new TextEncoder().encode(output.value).byteLength);
+  });
 });
