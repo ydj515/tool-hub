@@ -1,5 +1,20 @@
 import { expect, test } from '@playwright/test';
 
+async function fillMonaco(page: import('@playwright/test').Page, label: string, value: string) {
+  const editor = page.getByLabel(label)
+    .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
+    .locator('.view-lines');
+  await editor.click();
+  await page.evaluate(async (source) => (globalThis as typeof globalThis & {
+    navigator: { clipboard: { writeText(text: string): Promise<void> } };
+  }).navigator.clipboard.writeText(source), value);
+  await page.keyboard.press('ControlOrMeta+V');
+}
+
+test.beforeEach(async ({ context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+});
+
 type Rgb = { red: number; green: number; blue: number; alpha: number };
 type BrowserElement = { parentElement: BrowserElement | null };
 type BrowserStyles = {
@@ -123,11 +138,10 @@ test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤�
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('tab', { name: /원본/ })).toHaveAttribute('aria-selected', 'true');
 
-  await page.getByLabel('JSON 원본')
+  await fillMonaco(page, 'JSON 원본', '{"mobile":true}');
+  await expect(page.getByLabel('JSON 원본')
     .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
-    .locator('.view-lines')
-    .click();
-  await page.keyboard.type('{"mobile":true}');
+    .locator('.view-lines')).toContainText('"mobile":true');
   await expect(page.getByRole('tab', { name: /원본/ })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tab', { name: /결과/ })).toContainText('변환 완료');
 
