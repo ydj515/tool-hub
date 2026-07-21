@@ -21,6 +21,8 @@ export function setupMonaco(): void {
     },
   };
   loader.config({ monaco });
+  (monaco.languages as unknown as { json: { jsonDefaults: { setDiagnosticsOptions(options: { validate: boolean }): void } } })
+    .json.jsonDefaults.setDiagnosticsOptions({ validate: false });
 
   if (!monaco.languages.getLanguages().some(({ id }) => id === 'yaml')) {
     monaco.languages.register({ id: 'yaml', extensions: ['.yaml', '.yml'] });

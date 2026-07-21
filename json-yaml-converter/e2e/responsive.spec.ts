@@ -8,6 +8,20 @@ test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ p
   await expect(page.getByRole('tablist')).toBeHidden();
 });
 
+test('768px에서 데스크톱 레이아웃을 유지한다', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 800 });
+  await page.goto('/');
+  await expect(page.getByRole('tablist')).toBeHidden();
+  await expect(page.getByRole('region', { name: '결과 편집기' })).toBeVisible();
+});
+
+test('767px에서 모바일 탭 레이아웃으로 전환한다', async ({ page }) => {
+  await page.setViewportSize({ width: 767, height: 800 });
+  await page.goto('/');
+  await expect(page.getByRole('tablist')).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '원본' })).toBeVisible();
+});
+
 test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
