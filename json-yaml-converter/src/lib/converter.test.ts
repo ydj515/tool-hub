@@ -49,4 +49,15 @@ describe('converter', () => {
     if (result.ok) return;
     expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
   });
+
+  it('JSON → YAML 변환에서 제한보다 작은 다수의 빈 문자열을 허용한다', () => {
+    const count = 120_000;
+    const source = `[${Array.from({ length: count }, () => '""').join(',')}]`;
+
+    const result = convertSource(source, 'json-to-yaml');
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(new TextEncoder().encode(result.value).byteLength).toBe(count * 5);
+  });
 });

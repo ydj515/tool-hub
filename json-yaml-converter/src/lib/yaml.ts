@@ -1,6 +1,7 @@
 import { LineCounter, Parser, isAlias, isCollection, isPair, isScalar, parseDocument, stringify, type YAMLError } from 'yaml';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
+import { utf8ByteLength } from './size';
 import {
   MAX_NESTING_DEPTH,
   OutputByteBudget,
@@ -31,6 +32,14 @@ const JSON_COMPATIBLE_TAGS = new Set([
   'tag:yaml.org,2002:float',
 ]);
 const MAX_ALIAS_EXPANSIONS = 100;
+const YAML_STRINGIFY_OPTIONS = {
+  blockQuote: false,
+  indent: 2,
+  lineWidth: 0,
+  sortMapEntries: false,
+} as const;
+const SCALAR_PREFLIGHT_LIMIT = 4096;
+const SCALAR_CACHE_LIMIT = 256;
 
 type TagRange = [number, number];
 type AttachedTag = { source?: string; range: TagRange };
@@ -334,17 +343,22 @@ function toYamlValue(node: DataNode): unknown {
   }
 }
 
-function addYamlStringUpperBound(value: string, depth: number, budget: OutputByteBudget): boolean {
-  // 따옴표뿐 아니라 block scalar 및 explicit key 표식까지 포함하는 고정 여유분이다.
-  if (!budget.addBytes(16)) return false;
+type ScalarMeasure = { bytes: number; lineBreaks: number };
+
+function addLargeYamlStringUpperBound(
+  value: string,
+  depth: number,
+  implicitKey: boolean,
+  budget: OutputByteBudget,
+): boolean {
+  // plain scalar는 이 값보다 짧고, blockQuote=false의 quoted scalar는 JSON escape보다 길어지지 않는다.
+  if (!budget.addBytes(2)) return false;
   for (let index = 0; index < value.length; index += 1) {
     const code = value.charCodeAt(index);
     let bytes: number;
-    if (code === 0x0a || code === 0x0d) bytes = Math.max(2, (depth + 1) * 2 + 1);
-    else if (code === 0x22 || code === 0x5c) bytes = 2;
-    else if (code <= 0x1f || code === 0x7f) bytes = 6;
+    if (code === 0x22 || code === 0x5c || code === 0x08 || code === 0x09 || code === 0x0a || code === 0x0c || code === 0x0d) bytes = 2;
+    else if (code <= 0x1f) bytes = 6;
     else if (code <= 0x7f) bytes = 1;
-    else if (code <= 0x9f) bytes = 6;
     else if (code <= 0x7ff) bytes = 2;
     else if (code >= 0xd800 && code <= 0xdbff && index + 1 < value.length) {
       const next = value.charCodeAt(index + 1);
@@ -352,35 +366,76 @@ function addYamlStringUpperBound(value: string, depth: number, budget: OutputByt
         bytes = 4;
         index += 1;
       } else bytes = 6;
-    } else if ((code >= 0xd800 && code <= 0xdfff) || code >= 0xfffe) bytes = 6;
+    } else if (code >= 0xd800 && code <= 0xdfff) bytes = 6;
     else bytes = 3;
     if (!budget.addBytes(bytes)) return false;
+    if (code === 0x0a && !implicitKey && !budget.addBytes(depth * 2)) return false;
   }
   return true;
 }
 
-function measureYamlNode(node: DataNode, depth: number, budget: OutputByteBudget): boolean {
+function addYamlStringBytes(
+  value: string,
+  depth: number,
+  implicitKey: boolean,
+  budget: OutputByteBudget,
+  scalarBytes: Map<string, ScalarMeasure>,
+): boolean {
+  const cacheKey = `${implicitKey ? 'key' : 'value'}\0${value}`;
+  const cached = scalarBytes.get(cacheKey);
+  if (cached !== undefined) {
+    return budget.addBytes(cached.bytes + (implicitKey ? 0 : cached.lineBreaks * depth * 2));
+  }
+  if (value.length > SCALAR_PREFLIGHT_LIMIT) {
+    return addLargeYamlStringUpperBound(value, depth, implicitKey, budget);
+  }
+
+  const scalar = implicitKey
+    ? stringify(new Map([[value, null]]), YAML_STRINGIFY_OPTIONS).slice(0, -': null\n'.length)
+    : stringify(value, YAML_STRINGIFY_OPTIONS).replace(/\n$/, '');
+  const measure = {
+    bytes: utf8ByteLength(scalar),
+    lineBreaks: implicitKey ? 0 : Array.from(scalar.matchAll(/\n/g)).length,
+  };
+  if (scalarBytes.size < SCALAR_CACHE_LIMIT) scalarBytes.set(cacheKey, measure);
+  return budget.addBytes(measure.bytes + measure.lineBreaks * depth * 2);
+}
+
+function endsWithLineBreak(node: DataNode): boolean {
+  return (node.kind === 'sequence' && node.items.length > 0)
+    || (node.kind === 'mapping' && node.entries.length > 0);
+}
+
+function measureYamlNode(
+  node: DataNode,
+  depth: number,
+  budget: OutputByteBudget,
+  scalarBytes: Map<string, ScalarMeasure>,
+): boolean {
   switch (node.kind) {
     case 'null':
       return budget.addBytes(4);
     case 'boolean':
       return budget.addBytes(node.value ? 4 : 5);
     case 'number':
-      return budget.addBytes(String(node.value).length + 1);
+      return budget.addBytes(Object.is(node.value, -0) ? 2 : String(node.value).length);
     case 'string':
-      return addYamlStringUpperBound(node.value, depth, budget);
+      return addYamlStringBytes(node.value, depth, false, budget, scalarBytes);
     case 'sequence':
       if (node.items.length === 0) return budget.addBytes(2);
       for (let index = 0; index < node.items.length; index += 1) {
-        if (!budget.addBytes(depth * 2 + 2) || !measureYamlNode(node.items[index], depth + 1, budget) || !budget.addBytes(1)) return false;
+        const item = node.items[index];
+        if (!budget.addBytes(depth * 2 + 2) || !measureYamlNode(item, depth + 1, budget, scalarBytes)) return false;
+        if (!endsWithLineBreak(item) && !budget.addBytes(1)) return false;
       }
       return true;
     case 'mapping':
       if (node.entries.length === 0) return budget.addBytes(2);
       for (let index = 0; index < node.entries.length; index += 1) {
         const entry = node.entries[index];
-        if (!budget.addBytes(depth * 2) || !addYamlStringUpperBound(entry.key, depth, budget) || !budget.addBytes(2)) return false;
-        if (!measureYamlNode(entry.value, depth + 1, budget) || !budget.addBytes(1)) return false;
+        if (!budget.addBytes(depth * 2) || !addYamlStringBytes(entry.key, depth, true, budget, scalarBytes) || !budget.addBytes(2)) return false;
+        if (!measureYamlNode(entry.value, depth + 1, budget, scalarBytes)) return false;
+        if (!endsWithLineBreak(entry.value) && !budget.addBytes(1)) return false;
       }
       return true;
   }
@@ -388,7 +443,8 @@ function measureYamlNode(node: DataNode, depth: number, budget: OutputByteBudget
 
 export function preflightYamlOutput(node: DataNode): OperationResult<number> {
   const budget = new OutputByteBudget();
-  if (!measureYamlNode(node, 0, budget) || !budget.addBytes(1)) return outputTooLarge('yaml');
+  if (!measureYamlNode(node, 0, budget, new Map<string, ScalarMeasure>())) return outputTooLarge('yaml');
+  if (!endsWithLineBreak(node) && !budget.addBytes(1)) return outputTooLarge('yaml');
   return outputPreflightResult('yaml', budget);
 }
 
@@ -398,12 +454,7 @@ export function stringifyYaml(node: DataNode): OperationResult<string> {
     if (!valid.ok) return valid;
     const preflight = preflightYamlOutput(node);
     if (!preflight.ok) return preflight;
-    const output = stringify(toYamlValue(node), {
-      blockQuote: false,
-      indent: 2,
-      lineWidth: 0,
-      sortMapEntries: false,
-    }).replace(/\n+$/, '\n');
+    const output = stringify(toYamlValue(node), YAML_STRINGIFY_OPTIONS).replace(/\n+$/, '\n');
     return outputWithinLimit('yaml', output);
   } catch {
     return {

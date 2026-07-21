@@ -297,12 +297,53 @@ describe('YAML domain', () => {
     if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
   });
 
+  it('실제 출력이 제한보다 작은 다수의 빈 문자열을 false reject하지 않는다', () => {
+    const count = 120_000;
+    const node: DataNode = {
+      kind: 'sequence',
+      items: Array.from({ length: count }, () => ({ kind: 'string', value: '' })),
+    };
+
+    const result = stringifyYaml(node);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(new TextEncoder().encode(result.value).byteLength).toBe(count * 5);
+  });
+
+  it('실제 출력이 제한을 넘는 다수의 빈 문자열은 full YAML 구성 전에 거부한다', () => {
+    const count = Math.floor(OUTPUT_LIMIT_BYTES / 5) + 1;
+    const items = new Proxy(
+      Array.from({ length: count }, (): DataNode => ({ kind: 'string', value: '' })),
+      {
+        get(target, property, receiver) {
+          if (property === 'map') throw new Error('toYamlValue()가 preflight보다 먼저 실행되었습니다.');
+          return Reflect.get(target, property, receiver) as unknown;
+        },
+      },
+    );
+
+    const result = stringifyYaml({ kind: 'sequence', items });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('YAML Pretty가 제한보다 작은 다수의 짧은 scalar를 보존한다', () => {
+    const source = '- ""\n'.repeat(120_000);
+
+    const result = prettyYaml(source);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) expect(result.diagnostic.code).not.toBe('OUTPUT_TOO_LARGE');
+  });
+
   it('YAML preflight 상한이 multiline과 유니코드 출력의 실제 UTF-8 크기보다 작지 않다', () => {
     const node: DataNode = {
       kind: 'mapping',
       entries: [
-        { key: 'multi\nkey', value: { kind: 'string', value: 'line1\nline2\n' } },
-        { key: 'unicode', value: { kind: 'string', value: '한글😀' } },
+        { key: 'multi\nkey', value: { kind: 'string', value: 'line1\n'.repeat(1_000) } },
+        { key: 'unicode', value: { kind: 'string', value: '한글😀'.repeat(1_500) } },
       ],
     };
     const preflight = preflightYamlOutput(node);

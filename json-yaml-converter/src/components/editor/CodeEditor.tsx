@@ -128,7 +128,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   }), [diagnostic]);
 
   return <Editor
-    path={`${ariaLabel}.${format}`}
+    path={readOnly ? 'converter-result' : 'converter-source'}
     value={value}
     language={format}
     theme={theme === 'dark' ? 'vs-dark' : 'vs'}

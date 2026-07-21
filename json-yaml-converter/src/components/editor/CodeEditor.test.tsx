@@ -29,6 +29,7 @@ const modelB = {
 let currentModel = modelA;
 let mountEditor: ((editor: unknown, monaco: unknown) => void) | undefined;
 let changeModel: (() => void) | undefined;
+const renderedModels: Array<{ path?: string; language?: string }> = [];
 
 const editor = {
   getModel: () => currentModel,
@@ -50,8 +51,9 @@ const monaco = {
 
 vi.mock('@monaco-editor/react', () => ({
   loader: { config: vi.fn() },
-  Editor: ({ onMount }: { onMount?: (editor: unknown, monaco: unknown) => void }) => {
+  Editor: ({ onMount, path, language }: { onMount?: (editor: unknown, monaco: unknown) => void; path?: string; language?: string }) => {
     mountEditor = onMount;
+    renderedModels.push({ path, language });
     return <div data-testid="monaco-editor" />;
   },
 }));
@@ -62,6 +64,7 @@ describe('CodeEditor', () => {
     currentModel = modelA;
     mountEditor = undefined;
     changeModel = undefined;
+    renderedModels.length = 0;
   });
 
   it('진단 범위를 Monaco marker로 등록하고 위치에 포커스한다', () => {
@@ -160,5 +163,20 @@ describe('CodeEditor', () => {
     act(() => mountEditor?.(editor, monaco));
 
     expect(setGlyphDecorations).toHaveBeenCalledWith([]);
+  });
+
+  it('format이 바뀌어도 editor model path를 유지하고 language만 전환한다', () => {
+    const { rerender } = render(
+      <CodeEditor ariaLabel="JSON 원본" value="{}" format="json" theme="light" readOnly={false} diagnostic={null} onChange={vi.fn()} />,
+    );
+
+    rerender(
+      <CodeEditor ariaLabel="YAML 원본" value="{}" format="yaml" theme="light" readOnly={false} diagnostic={null} onChange={vi.fn()} />,
+    );
+
+    expect(renderedModels).toEqual([
+      { path: 'converter-source', language: 'json' },
+      { path: 'converter-source', language: 'yaml' },
+    ]);
   });
 });
