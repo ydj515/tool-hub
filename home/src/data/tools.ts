@@ -74,6 +74,16 @@ export const tools: Tool[] = [
     github: 'https://github.com/ydj515/tool-hub/tree/main/webpage-capture-tool',
     status: 'coming-soon',
   },
+  {
+    id: 'json-yaml-converter',
+    name: 'JSON YAML Converter',
+    longDescription:
+      'JSON과 YAML을 양방향으로 변환하고, 두 형식을 보기 좋게 정리하며 문법 오류의 정확한 위치를 알려줍니다.',
+    tags: ['JSON', 'YAML', 'Converter', 'Formatter'],
+    url: null,
+    github: 'https://github.com/ydj515/tool-hub/tree/main/json-yaml-converter',
+    status: 'coming-soon',
+  },
     {
     id: 'class-diagram-generator',
     name: 'Class Diagram Generator',
