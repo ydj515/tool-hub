@@ -72,11 +72,11 @@ async function computedColors(locator: import('@playwright/test').Locator) {
   });
 }
 
-function firstOpaqueGradientColor(backgroundImage: string) {
+function firstGradientStop(backgroundImage: string) {
   const colors = backgroundImage.match(/rgba?\([^)]+\)/g) ?? [];
-  const opaque = colors.map(parseColor).find((color) => color.alpha > 0);
-  if (!opaque) throw new Error(`불투명 gradient 색상을 찾지 못했습니다: ${backgroundImage}`);
-  return opaque;
+  const first = colors.at(0);
+  if (!first) throw new Error(`gradient 색상을 찾지 못했습니다: ${backgroundImage}`);
+  return parseColor(first);
 }
 
 function compositeBackground(backgrounds: string[]) {
@@ -181,6 +181,8 @@ for (const theme of ['light', 'dark'] as const) {
     const glyph = await computedColors(gutterGlyph);
     const glyphMargin = await computedColors(sourceEditor.locator('.glyph-margin'));
     const glyphMarginBackground = compositeBackground(glyphMargin.backgrounds);
-    expect(contrast(firstOpaqueGradientColor(glyph.backgroundImage), glyphMarginBackground)).toBeGreaterThanOrEqual(3);
+    const glyphSolidStop = firstGradientStop(glyph.backgroundImage);
+    expect(glyphSolidStop.alpha).toBeCloseTo(1, 10);
+    expect(contrast(glyphSolidStop, glyphMarginBackground)).toBeGreaterThanOrEqual(3);
   });
 }
