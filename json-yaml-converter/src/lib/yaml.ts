@@ -1,7 +1,15 @@
 import { LineCounter, Parser, isAlias, isCollection, isPair, isScalar, parseDocument, stringify, type YAMLError } from 'yaml';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
-import { MAX_NESTING_DEPTH, outputWithinLimit, safetyDiagnostic, validateDataNode } from './safety';
+import {
+  MAX_NESTING_DEPTH,
+  OutputByteBudget,
+  outputPreflightResult,
+  outputTooLarge,
+  outputWithinLimit,
+  safetyDiagnostic,
+  validateDataNode,
+} from './safety';
 
 const YAML_MESSAGES: Record<string, string> = {
   BAD_INDENT: '이 위치의 들여쓰기가 올바르지 않습니다.',
@@ -204,31 +212,31 @@ function inspectYamlAst(
   return { ok: true, value: true };
 }
 
-function sequenceFrom(source: string, values: unknown[], active: WeakSet<object>): OperationResult<DataNode> {
+function sequenceFrom(source: string, values: unknown[], active: WeakSet<object>, depth: number): OperationResult<DataNode> {
   const items: DataNode[] = [];
   for (const value of values) {
-    const converted = fromYamlValue(source, value, active);
+    const converted = fromYamlValue(source, value, active, depth + 1);
     if (!converted.ok) return converted;
     items.push(converted.value);
   }
   return { ok: true, value: { kind: 'sequence', items } };
 }
 
-function mappingFrom(source: string, values: Map<unknown, unknown>, active: WeakSet<object>): OperationResult<DataNode> {
+function mappingFrom(source: string, values: Map<unknown, unknown>, active: WeakSet<object>, depth: number): OperationResult<DataNode> {
   const entries: Array<{ key: string; value: DataNode }> = [];
   const keys = new Set<string>();
   for (const [key, value] of values) {
     if (typeof key !== 'string') return failure(source, 'NON_STRING_KEY', 'YAML mapping 키는 문자열이어야 합니다.');
     if (keys.has(key)) return failure(source, 'DUPLICATE_KEY', '같은 mapping 키를 두 번 사용할 수 없습니다.');
     keys.add(key);
-    const converted = fromYamlValue(source, value, active);
+    const converted = fromYamlValue(source, value, active, depth + 1);
     if (!converted.ok) return converted;
     entries.push({ key, value: converted.value });
   }
   return { ok: true, value: { kind: 'mapping', entries } };
 }
 
-function fromYamlValue(source: string, value: unknown, active: WeakSet<object>): OperationResult<DataNode> {
+function fromYamlValue(source: string, value: unknown, active: WeakSet<object>, depth: number): OperationResult<DataNode> {
   if (value === null) return { ok: true, value: { kind: 'null' } };
   if (typeof value === 'string') return { ok: true, value: { kind: 'string', value } };
   if (typeof value === 'boolean') return { ok: true, value: { kind: 'boolean', value } };
@@ -239,11 +247,14 @@ function fromYamlValue(source: string, value: unknown, active: WeakSet<object>):
   }
   if (typeof value !== 'object') return failure(source, 'UNSUPPORTED_VALUE', 'JSON으로 표현할 수 없는 YAML 값입니다.');
   if (active.has(value)) return failure(source, 'CYCLIC_ALIAS', '순환 YAML alias는 지원하지 않습니다.');
+  if (depth > MAX_NESTING_DEPTH) {
+    return failure(source, 'MAX_DEPTH_EXCEEDED', `중첩 깊이는 ${MAX_NESTING_DEPTH}단계까지 지원합니다.`);
+  }
 
   active.add(value);
   try {
-    if (Array.isArray(value)) return sequenceFrom(source, value, active);
-    if (value instanceof Map) return mappingFrom(source, value, active);
+    if (Array.isArray(value)) return sequenceFrom(source, value, active, depth);
+    if (value instanceof Map) return mappingFrom(source, value, active, depth);
     return failure(source, 'UNSUPPORTED_VALUE', '지원하지 않는 YAML collection입니다.');
   } finally {
     active.delete(value);
@@ -299,7 +310,7 @@ export function parseYaml(source: string): OperationResult<DataNode> {
         diagnostic: safetyDiagnostic('yaml', 'UNEXPECTED_ERROR', 'YAML 정규화 중 예상하지 못한 오류가 발생했습니다.', source),
       };
     }
-    return fromYamlValue(source, value, new WeakSet<object>());
+    return fromYamlValue(source, value, new WeakSet<object>(), 1);
   } catch {
     return {
       ok: false,
@@ -323,10 +334,70 @@ function toYamlValue(node: DataNode): unknown {
   }
 }
 
+function addYamlStringUpperBound(value: string, depth: number, budget: OutputByteBudget): boolean {
+  // 따옴표뿐 아니라 block scalar 및 explicit key 표식까지 포함하는 고정 여유분이다.
+  if (!budget.addBytes(16)) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    let bytes: number;
+    if (code === 0x0a || code === 0x0d) bytes = Math.max(2, (depth + 1) * 2 + 1);
+    else if (code === 0x22 || code === 0x5c) bytes = 2;
+    else if (code <= 0x1f || code === 0x7f) bytes = 6;
+    else if (code <= 0x7f) bytes = 1;
+    else if (code <= 0x9f) bytes = 6;
+    else if (code <= 0x7ff) bytes = 2;
+    else if (code >= 0xd800 && code <= 0xdbff && index + 1 < value.length) {
+      const next = value.charCodeAt(index + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        bytes = 4;
+        index += 1;
+      } else bytes = 6;
+    } else if ((code >= 0xd800 && code <= 0xdfff) || code >= 0xfffe) bytes = 6;
+    else bytes = 3;
+    if (!budget.addBytes(bytes)) return false;
+  }
+  return true;
+}
+
+function measureYamlNode(node: DataNode, depth: number, budget: OutputByteBudget): boolean {
+  switch (node.kind) {
+    case 'null':
+      return budget.addBytes(4);
+    case 'boolean':
+      return budget.addBytes(node.value ? 4 : 5);
+    case 'number':
+      return budget.addBytes(String(node.value).length + 1);
+    case 'string':
+      return addYamlStringUpperBound(node.value, depth, budget);
+    case 'sequence':
+      if (node.items.length === 0) return budget.addBytes(2);
+      for (let index = 0; index < node.items.length; index += 1) {
+        if (!budget.addBytes(depth * 2 + 2) || !measureYamlNode(node.items[index], depth + 1, budget) || !budget.addBytes(1)) return false;
+      }
+      return true;
+    case 'mapping':
+      if (node.entries.length === 0) return budget.addBytes(2);
+      for (let index = 0; index < node.entries.length; index += 1) {
+        const entry = node.entries[index];
+        if (!budget.addBytes(depth * 2) || !addYamlStringUpperBound(entry.key, depth, budget) || !budget.addBytes(2)) return false;
+        if (!measureYamlNode(entry.value, depth + 1, budget) || !budget.addBytes(1)) return false;
+      }
+      return true;
+  }
+}
+
+export function preflightYamlOutput(node: DataNode): OperationResult<number> {
+  const budget = new OutputByteBudget();
+  if (!measureYamlNode(node, 0, budget) || !budget.addBytes(1)) return outputTooLarge('yaml');
+  return outputPreflightResult('yaml', budget);
+}
+
 export function stringifyYaml(node: DataNode): OperationResult<string> {
   try {
     const valid = validateDataNode(node, 'yaml');
     if (!valid.ok) return valid;
+    const preflight = preflightYamlOutput(node);
+    if (!preflight.ok) return preflight;
     const output = stringify(toYamlValue(node), {
       blockQuote: false,
       indent: 2,

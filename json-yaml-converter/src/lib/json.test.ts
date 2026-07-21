@@ -1,9 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import type { DataNode } from './data-node';
-import { parseJson, prettyJson, stringifyJson } from './json';
+import { parseJson, preflightJsonOutput, preflightPrettyJsonOutput, prettyJson, stringifyJson } from './json';
 import { OUTPUT_LIMIT_BYTES } from './safety';
 
 const nestedJson = (depth: number) => '['.repeat(depth) + '0' + ']'.repeat(depth);
+
+function amplifiedNode(onConstruction: () => never): DataNode {
+  const items = new Proxy(
+    Array.from({ length: 12_000 }, (): DataNode => ({ kind: 'number', value: 0 })),
+    {
+      get(target, property, receiver) {
+        if (property === 'map') return onConstruction;
+        return Reflect.get(target, property, receiver) as unknown;
+      },
+    },
+  );
+  let node: DataNode = { kind: 'sequence', items };
+  for (let depth = 0; depth < 89; depth += 1) node = { kind: 'sequence', items: [node] };
+  return node;
+}
 
 describe('JSON domain', () => {
   it.each(['null', 'true', '"text"', '3', '[1,2]'])('루트 값 %s를 허용한다', (source) => {
@@ -83,6 +98,48 @@ describe('JSON domain', () => {
     const largeResult = stringifyJson({ kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES) });
     expect(largeResult.ok).toBe(false);
     if (!largeResult.ok) expect(largeResult.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('출력 preflight가 증폭된 JSON을 문자열 구성 전에 거부한다', () => {
+    const node = amplifiedNode(() => {
+      throw new Error('serialize()가 출력 제한 판정보다 먼저 실행되었습니다.');
+    });
+
+    const preflight = preflightJsonOutput(node);
+    expect(preflight.ok).toBe(false);
+    if (!preflight.ok) expect(preflight.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+
+    const result = stringifyJson(node);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('Pretty preflight가 증폭된 JSON의 전체 출력 생성 전에 제한을 판정한다', () => {
+    const source = `${'['.repeat(90)}${Array.from({ length: 12_000 }, () => '0').join(',')}${']'.repeat(90)}`;
+
+    const preflight = preflightPrettyJsonOutput(source);
+
+    expect(preflight.ok).toBe(false);
+    if (!preflight.ok) expect(preflight.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+    const result = prettyJson(source);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('직렬화 preflight가 escape와 중첩 구조의 실제 UTF-8 출력 크기를 정확히 계산한다', () => {
+    const node: DataNode = {
+      kind: 'mapping',
+      entries: [
+        { key: '한글', value: { kind: 'string', value: '"\\\u0000😀' } },
+        { key: 'items', value: { kind: 'sequence', items: [{ kind: 'boolean', value: true }] } },
+      ],
+    };
+    const preflight = preflightJsonOutput(node);
+    const output = stringifyJson(node);
+    expect(preflight.ok).toBe(true);
+    expect(output.ok).toBe(true);
+    if (!preflight.ok || !output.ok) return;
+    expect(preflight.value).toBe(new TextEncoder().encode(output.value).byteLength);
   });
 
   it('escape 후 같은 키가 되면 두 번째 키 token 위치를 표시한다', () => {

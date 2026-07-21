@@ -1,9 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import type { DataNode } from './data-node';
-import { parseYaml, prettyYaml, stringifyYaml } from './yaml';
+import { parseYaml, preflightYamlOutput, prettyYaml, stringifyYaml } from './yaml';
 import { OUTPUT_LIMIT_BYTES } from './safety';
 
 const nestedYaml = (depth: number) => '['.repeat(depth) + '0' + ']'.repeat(depth);
+
+function amplifiedNode(onConstruction: () => never): DataNode {
+  const items = new Proxy(
+    Array.from({ length: 12_000 }, (): DataNode => ({ kind: 'number', value: 0 })),
+    {
+      get(target, property, receiver) {
+        if (property === 'map') return onConstruction;
+        return Reflect.get(target, property, receiver) as unknown;
+      },
+    },
+  );
+  let node: DataNode = { kind: 'sequence', items };
+  for (let depth = 0; depth < 89; depth += 1) node = { kind: 'sequence', items: [node] };
+  return node;
+}
 
 describe('YAML domain', () => {
   const aliases = (count: number) => Array.from({ length: count }, () => '  - *base').join('\n');
@@ -233,6 +248,22 @@ describe('YAML domain', () => {
     });
   });
 
+  it('얕은 anchor와 alias 조합이 정규화 깊이 제한을 우회하지 못한다', () => {
+    const wrapped = (value: string, depth: number) => '['.repeat(depth) + value + ']'.repeat(depth);
+    const source = [
+      `base: &base ${wrapped('0', 60)}`,
+      `combined: &combined ${wrapped('*base', 60)}`,
+      'result: *combined',
+      '',
+    ].join('\n');
+
+    const result = parseYaml(source);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostic.code).toBe('MAX_DEPTH_EXCEEDED');
+  });
+
   it('브라우저 안전 깊이를 넘는 YAML을 blocking 진단으로 거부한다', () => {
     const result = parseYaml(nestedYaml(101));
     expect(result.ok).toBe(false);
@@ -250,5 +281,35 @@ describe('YAML domain', () => {
     const largeResult = stringifyYaml({ kind: 'string', value: 'a'.repeat(OUTPUT_LIMIT_BYTES) });
     expect(largeResult.ok).toBe(false);
     if (!largeResult.ok) expect(largeResult.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('출력 preflight가 증폭된 YAML을 값 변환 전에 거부한다', () => {
+    const node = amplifiedNode(() => {
+      throw new Error('toYamlValue()가 출력 제한 판정보다 먼저 실행되었습니다.');
+    });
+
+    const preflight = preflightYamlOutput(node);
+    expect(preflight.ok).toBe(false);
+    if (!preflight.ok) expect(preflight.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+
+    const result = stringifyYaml(node);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
+  });
+
+  it('YAML preflight 상한이 multiline과 유니코드 출력의 실제 UTF-8 크기보다 작지 않다', () => {
+    const node: DataNode = {
+      kind: 'mapping',
+      entries: [
+        { key: 'multi\nkey', value: { kind: 'string', value: 'line1\nline2\n' } },
+        { key: 'unicode', value: { kind: 'string', value: '한글😀' } },
+      ],
+    };
+    const preflight = preflightYamlOutput(node);
+    const output = stringifyYaml(node);
+    expect(preflight.ok).toBe(true);
+    expect(output.ok).toBe(true);
+    if (!preflight.ok || !output.ok) return;
+    expect(preflight.value).toBeGreaterThanOrEqual(new TextEncoder().encode(output.value).byteLength);
   });
 });

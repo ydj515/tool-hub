@@ -1,7 +1,15 @@
 import { applyEdits, format, parseTree, printParseErrorCode, type Node, type ParseError } from 'jsonc-parser';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
-import { MAX_NESTING_DEPTH, outputWithinLimit, safetyDiagnostic, validateDataNode } from './safety';
+import {
+  MAX_NESTING_DEPTH,
+  OutputByteBudget,
+  outputPreflightResult,
+  outputTooLarge,
+  outputWithinLimit,
+  safetyDiagnostic,
+  validateDataNode,
+} from './safety';
 
 const JSON_OPTIONS = {
   disallowComments: true,
@@ -118,6 +126,98 @@ function indent(depth: number): string {
   return '  '.repeat(depth);
 }
 
+function addJsonStringBytes(value: string, budget: OutputByteBudget): boolean {
+  if (!budget.addBytes(2)) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code === 0x22 || code === 0x5c || code === 0x08 || code === 0x0c || code === 0x0a || code === 0x0d || code === 0x09) {
+      if (!budget.addBytes(2)) return false;
+    } else if (code <= 0x1f) {
+      if (!budget.addBytes(6)) return false;
+    } else if (code <= 0x7f) {
+      if (!budget.addBytes(1)) return false;
+    } else if (code <= 0x7ff) {
+      if (!budget.addBytes(2)) return false;
+    } else if (code >= 0xd800 && code <= 0xdbff && index + 1 < value.length) {
+      const next = value.charCodeAt(index + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        if (!budget.addBytes(4)) return false;
+        index += 1;
+      } else if (!budget.addBytes(6)) return false;
+    } else if (code >= 0xd800 && code <= 0xdfff) {
+      if (!budget.addBytes(6)) return false;
+    } else if (!budget.addBytes(3)) return false;
+  }
+  return true;
+}
+
+function measureJsonNode(node: DataNode, depth: number, budget: OutputByteBudget): boolean {
+  switch (node.kind) {
+    case 'null':
+      return budget.addBytes(4);
+    case 'boolean':
+      return budget.addBytes(node.value ? 4 : 5);
+    case 'number':
+      return budget.addBytes(String(node.value).length);
+    case 'string':
+      return addJsonStringBytes(node.value, budget);
+    case 'sequence':
+      if (node.items.length === 0) return budget.addBytes(2);
+      if (!budget.addBytes(2)) return false;
+      for (let index = 0; index < node.items.length; index += 1) {
+        if (!budget.addBytes((depth + 1) * 2) || !measureJsonNode(node.items[index], depth + 1, budget)) return false;
+        if (!budget.addBytes(index + 1 < node.items.length ? 2 : 1)) return false;
+      }
+      return budget.addBytes(depth * 2 + 1);
+    case 'mapping':
+      if (node.entries.length === 0) return budget.addBytes(2);
+      if (!budget.addBytes(2)) return false;
+      for (let index = 0; index < node.entries.length; index += 1) {
+        const entry = node.entries[index];
+        if (!budget.addBytes((depth + 1) * 2) || !addJsonStringBytes(entry.key, budget) || !budget.addBytes(2)) return false;
+        if (!measureJsonNode(entry.value, depth + 1, budget)) return false;
+        if (!budget.addBytes(index + 1 < node.entries.length ? 2 : 1)) return false;
+      }
+      return budget.addBytes(depth * 2 + 1);
+  }
+}
+
+export function preflightJsonOutput(node: DataNode): OperationResult<number> {
+  const budget = new OutputByteBudget();
+  if (!measureJsonNode(node, 0, budget) || !budget.addBytes(1)) return outputTooLarge('json');
+  return outputPreflightResult('json', budget);
+}
+
+function measurePrettyJsonNode(source: string, node: Node, depth: number, budget: OutputByteBudget): boolean {
+  if (node.type !== 'array' && node.type !== 'object') {
+    return budget.addUtf8(source.slice(node.offset, node.offset + node.length));
+  }
+  const children = node.children ?? [];
+  if (children.length === 0) return budget.addBytes(2);
+  if (!budget.addBytes(2)) return false;
+  for (let index = 0; index < children.length; index += 1) {
+    if (!budget.addBytes((depth + 1) * 2)) return false;
+    if (node.type === 'array') {
+      if (!measurePrettyJsonNode(source, children[index], depth + 1, budget)) return false;
+    } else {
+      const [key, value] = children[index].children ?? [];
+      if (!key || !value || !budget.addUtf8(source.slice(key.offset, key.offset + key.length)) || !budget.addBytes(2)) return false;
+      if (!measurePrettyJsonNode(source, value, depth + 1, budget)) return false;
+    }
+    if (!budget.addBytes(index + 1 < children.length ? 2 : 1)) return false;
+  }
+  return budget.addBytes(depth * 2 + 1);
+}
+
+export function preflightPrettyJsonOutput(source: string): OperationResult<number> {
+  const errors: ParseError[] = [];
+  const tree = parseTree(source, errors, JSON_OPTIONS);
+  if (!tree || errors.length > 0) return { ok: true, value: 0 };
+  const budget = new OutputByteBudget();
+  if (!measurePrettyJsonNode(source, tree, 0, budget) || !budget.addBytes(1)) return outputTooLarge('json');
+  return outputPreflightResult('json', budget);
+}
+
 function serialize(node: DataNode, depth: number): string {
   switch (node.kind) {
     case 'null':
@@ -140,6 +240,8 @@ export function stringifyJson(node: DataNode): OperationResult<string> {
   try {
     const valid = validateDataNode(node, 'json');
     if (!valid.ok) return valid;
+    const preflight = preflightJsonOutput(node);
+    if (!preflight.ok) return preflight;
     return outputWithinLimit('json', `${serialize(node, 0)}\n`);
   } catch {
     return {
@@ -153,6 +255,8 @@ export function prettyJson(source: string): OperationResult<string> {
   try {
     const parsed = parseJson(source);
     if (!parsed.ok) return parsed;
+    const preflight = preflightPrettyJsonOutput(source);
+    if (!preflight.ok) return preflight;
     const edits = format(source, undefined, { insertSpaces: true, tabSize: 2, eol: '\n' });
     const formatted = applyEdits(source, edits).replace(/\s*$/, '') + '\n';
     return outputWithinLimit('json', formatted);
