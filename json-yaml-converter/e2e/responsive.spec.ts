@@ -2,7 +2,15 @@ import { expect, test } from '@playwright/test';
 
 type Rgb = { red: number; green: number; blue: number; alpha: number };
 type BrowserElement = { parentElement: BrowserElement | null };
-type BrowserStyles = { color: string; backgroundColor: string; borderTopColor: string };
+type BrowserStyles = {
+  color: string;
+  backgroundColor: string;
+  borderTopColor: string;
+  outlineColor: string;
+  outlineStyle: string;
+  outlineWidth: string;
+  backgroundImage: string;
+};
 type BrowserWindow = { getComputedStyle(element: BrowserElement): BrowserStyles };
 
 function parseColor(color: string): Rgb {
@@ -53,9 +61,22 @@ async function computedColors(locator: import('@playwright/test').Locator) {
       color: styles.color,
       background: styles.backgroundColor,
       border: styles.borderTopColor,
+      outline: {
+        color: styles.outlineColor,
+        style: styles.outlineStyle,
+        width: styles.outlineWidth,
+      },
+      backgroundImage: styles.backgroundImage,
       backgrounds,
     };
   });
+}
+
+function firstOpaqueGradientColor(backgroundImage: string) {
+  const colors = backgroundImage.match(/rgba?\([^)]+\)/g) ?? [];
+  const opaque = colors.map(parseColor).find((color) => color.alpha > 0);
+  if (!opaque) throw new Error(`불투명 gradient 색상을 찾지 못했습니다: ${backgroundImage}`);
+  return opaque;
 }
 
 function compositeBackground(backgrounds: string[]) {
@@ -125,6 +146,22 @@ for (const theme of ['light', 'dark'] as const) {
   test(`${theme} 테마의 진단과 활성 control은 WCAG 대비를 충족한다`, async ({ page }) => {
     await page.goto('/');
     if (theme === 'dark') await page.getByRole('button', { name: '테마 전환' }).click();
+    const selectedDirection = await computedColors(page.getByRole('radio', { name: 'JSON → YAML', exact: true }));
+    const unselectedDirection = await computedColors(page.getByRole('radio', { name: 'YAML → JSON', exact: true }));
+    const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
+    const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
+    expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(selectedDirectionBackground, unselectedDirectionBackground)).toBeGreaterThanOrEqual(3);
+
+    if (theme === 'light') await page.keyboard.press('Tab');
+    await page.keyboard.press('Tab');
+    const selectedRadio = page.getByRole('radio', { name: 'JSON → YAML', exact: true });
+    await expect(selectedRadio).toBeFocused();
+    const focusedDirection = await computedColors(selectedRadio);
+    expect(focusedDirection.outline.style).toBe('solid');
+    expect(Number.parseFloat(focusedDirection.outline.width)).toBeGreaterThanOrEqual(2);
+    expect(contrast(parseColor(focusedDirection.outline.color), unselectedDirectionBackground)).toBeGreaterThanOrEqual(3);
+
     await enterInvalidJson(page);
 
     const diagnostic = await computedColors(page.getByTestId('diagnostic-banner'));
@@ -137,11 +174,13 @@ for (const theme of ['light', 'dark'] as const) {
     expect(contrast(parseColor(secondary.color), secondaryBackground)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(composite(parseColor(secondary.border), secondaryBackground), secondaryBackground)).toBeGreaterThanOrEqual(3);
 
-    const selectedDirection = await computedColors(page.getByRole('radio', { name: 'JSON → YAML', exact: true }));
-    const selector = await computedColors(page.getByRole('radiogroup', { name: '변환 방향', exact: true }));
-    const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
-    const selectorBackground = compositeBackground(selector.backgrounds);
-    expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(selectedDirectionBackground, selectorBackground)).toBeGreaterThanOrEqual(3);
+    const sourceEditor = page.getByLabel('JSON 원본')
+      .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]');
+    const gutterGlyph = sourceEditor.locator('.glyph-margin-widgets .json-yaml-converter-glyph-error');
+    await expect(gutterGlyph).toHaveCount(1);
+    const glyph = await computedColors(gutterGlyph);
+    const glyphMargin = await computedColors(sourceEditor.locator('.glyph-margin'));
+    const glyphMarginBackground = compositeBackground(glyphMargin.backgrounds);
+    expect(contrast(firstOpaqueGradientColor(glyph.backgroundImage), glyphMarginBackground)).toBeGreaterThanOrEqual(3);
   });
 }
