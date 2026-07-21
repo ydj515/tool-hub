@@ -11,10 +11,6 @@ async function fillMonaco(page: import('@playwright/test').Page, label: string, 
   await page.keyboard.press('ControlOrMeta+V');
 }
 
-test.beforeEach(async ({ context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
-});
-
 type Rgb = { red: number; green: number; blue: number; alpha: number };
 type BrowserElement = { parentElement: BrowserElement | null };
 type BrowserStyles = {
@@ -132,7 +128,8 @@ test('767px에서 모바일 탭 레이아웃으로 전환한다', async ({ page 
   await expect(page.getByRole('tabpanel', { name: '원본' })).toBeVisible();
 });
 
-test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ page }) => {
+test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ context, page }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await expect(page.getByRole('tablist')).toBeVisible();
