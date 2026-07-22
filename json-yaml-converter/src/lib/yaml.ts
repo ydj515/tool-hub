@@ -1,7 +1,6 @@
 import { LineCounter, Parser, isAlias, isCollection, isPair, isScalar, parseDocument, stringify, type YAMLError } from 'yaml';
 import type { DataNode, OperationResult } from './data-node';
 import { diagnosticAt } from './diagnostics';
-import { utf8ByteLength } from './size';
 import {
   MAX_NESTING_DEPTH,
   OutputByteBudget,
@@ -38,7 +37,6 @@ const YAML_STRINGIFY_OPTIONS = {
   lineWidth: 0,
   sortMapEntries: false,
 } as const;
-const SCALAR_PREFLIGHT_LIMIT = 4096;
 const SCALAR_CACHE_LIMIT = 256;
 
 type TagRange = [number, number];
@@ -345,69 +343,28 @@ function toYamlValue(node: DataNode): unknown {
 
 type ScalarMeasure = { bytes: number; indentPoints: number };
 
-const PLAIN_STRING_FORBIDDEN = /^[\n\t ,[\]{}#&*!|>'"%@`]|^[?-]$|^[?-][ \t]|[\n:][ \t]|[ \t]\n|[\n\t ]#|[\n\t :]$/;
-const YAML_CORE_VALUE = /^(?:~|null|true|false|[-+]?\.(?:inf|nan)|[-+]?(?:[0-9]+|0o[0-7]+|0x[0-9a-f]+)|[-+]?(?:\.[0-9]+|[0-9]+\.[0-9]*)(?:e[-+]?[0-9]+)?|[-+]?[0-9]+(?:\.[0-9]*)?e[-+]?[0-9]+)$/i;
-
-function isPlainYamlString(value: string): boolean {
-  if (value.length === 0 || value.includes('\n') || PLAIN_STRING_FORBIDDEN.test(value)) return false;
-  if (/^(?:%|---|\.\.\.)/.test(value) || YAML_CORE_VALUE.test(value)) return false;
-  for (let index = 0; index < value.length; index += 1) {
-    const code = value.charCodeAt(index);
-    if (code <= 0x08 || (code >= 0x0b && code <= 0x1f) || (code >= 0x7f && code <= 0x9f)) return false;
-    if (code >= 0xd800 && code <= 0xdbff) {
-      const next = value.charCodeAt(index + 1);
-      if (next < 0xdc00 || next > 0xdfff) return false;
-      index += 1;
-    } else if (code >= 0xdc00 && code <= 0xdfff) return false;
-  }
-  return true;
-}
-
-function countLineBreakRuns(value: string): number {
+function countLineBreakRuns(value: string, end = value.length): number {
   let runs = 0;
-  for (let index = 0; index < value.length; index += 1) {
+  for (let index = 0; index < end; index += 1) {
     if (value.charCodeAt(index) === 0x0a && (index === 0 || value.charCodeAt(index - 1) !== 0x0a)) runs += 1;
   }
   return runs;
 }
 
-function addQuotedYamlStringUpperBound(
-  value: string,
-  depth: number,
-  implicitKey: boolean,
-  budget: OutputByteBudget,
-): boolean {
-  // plain scalar는 이 값보다 짧고, blockQuote=false의 quoted scalar는 JSON escape보다 길어지지 않는다.
-  if (!budget.addBytes(2)) return false;
-  for (let index = 0; index < value.length; index += 1) {
-    const code = value.charCodeAt(index);
-    let bytes: number;
-    if (code === 0x22 || code === 0x5c || code === 0x00 || code === 0x07 || code === 0x08 || code === 0x09
-      || code === 0x0a || code === 0x0b || code === 0x0c || code === 0x0d || code === 0x1b) bytes = 2;
-    else if (code <= 0x1f) bytes = 4;
-    else if (code <= 0x7f) bytes = 1;
-    else if (code <= 0x7ff) bytes = 2;
-    else if (code >= 0xd800 && code <= 0xdbff && index + 1 < value.length) {
-      const next = value.charCodeAt(index + 1);
-      if (next >= 0xdc00 && next <= 0xdfff) {
-        bytes = 4;
-        index += 1;
-      } else bytes = 6;
-    } else if (code >= 0xd800 && code <= 0xdfff) bytes = 6;
-    else bytes = 3;
-    if (!budget.addBytes(bytes)) return false;
-  }
-  if (!implicitKey && !budget.addBytes(countLineBreakRuns(value) * depth * 2)) return false;
-  return true;
-}
+function scalarMeasure(value: string): ScalarMeasure | null {
+  const rawBudget = new OutputByteBudget();
+  if (!rawBudget.addUtf8(value)) return null;
 
-function scalarMeasure(value: string, implicitKey: boolean): ScalarMeasure {
-  const scalar = implicitKey
-    ? stringify(new Map([[value, null]]), YAML_STRINGIFY_OPTIONS).slice(0, -': null\n'.length)
-    : stringify(value, YAML_STRINGIFY_OPTIONS).replace(/\n$/, '');
+  // 여기까지 오는 scalar의 raw UTF-8은 최대 2MB다. public emitter는 scalar 하나만 처리하므로
+  // UTF-16 code unit당 최대 6바이트 수준의 escape만 생기며, collection 들여쓰기 증폭은 포함할 수 없다.
+  const scalar = stringify(value, YAML_STRINGIFY_OPTIONS);
+  const scalarBudget = new OutputByteBudget();
+  if (!scalarBudget.addUtf8(scalar)) return null;
+  const hasTrailingLineFeed = scalar.endsWith('\n');
+  const bodyEnd = hasTrailingLineFeed ? scalar.length - 1 : scalar.length;
   return {
-    bytes: utf8ByteLength(scalar),
-    indentPoints: implicitKey ? 0 : countLineBreakRuns(scalar),
+    bytes: scalarBudget.byteLength - (hasTrailingLineFeed ? 1 : 0),
+    indentPoints: countLineBreakRuns(scalar, bodyEnd),
   };
 }
 
@@ -418,23 +375,14 @@ function addYamlStringBytes(
   budget: OutputByteBudget,
   scalarBytes: Map<string, ScalarMeasure>,
 ): boolean {
-  const cacheKey = `${implicitKey ? 'key' : 'value'}\0${value}`;
-  const cached = scalarBytes.get(cacheKey);
+  const cached = scalarBytes.get(value);
   if (cached !== undefined) {
-    return budget.addBytes(cached.bytes + cached.indentPoints * depth * 2);
+    return budget.addBytes(cached.bytes + (implicitKey ? 0 : cached.indentPoints * depth * 2));
   }
-  if (value.length > SCALAR_PREFLIGHT_LIMIT) {
-    if (isPlainYamlString(value)) return budget.addUtf8(value);
-    const upperBound = new OutputByteBudget();
-    if (!addQuotedYamlStringUpperBound(value, depth, implicitKey, upperBound)) return false;
-    if (!upperBound.addBytes(1)) return false;
-    const measure = scalarMeasure(value, implicitKey);
-    return budget.addBytes(measure.bytes + measure.indentPoints * depth * 2);
-  }
-
-  const measure = scalarMeasure(value, implicitKey);
-  if (scalarBytes.size < SCALAR_CACHE_LIMIT) scalarBytes.set(cacheKey, measure);
-  return budget.addBytes(measure.bytes + measure.indentPoints * depth * 2);
+  const measure = scalarMeasure(value);
+  if (!measure) return false;
+  if (scalarBytes.size < SCALAR_CACHE_LIMIT) scalarBytes.set(value, measure);
+  return budget.addBytes(measure.bytes + (implicitKey ? 0 : measure.indentPoints * depth * 2));
 }
 
 function endsWithLineBreak(node: DataNode): boolean {
@@ -484,13 +432,20 @@ export function preflightYamlOutput(node: DataNode): OperationResult<number> {
   return outputPreflightResult('yaml', budget);
 }
 
+function normalizeTrailingLineFeed(value: string): string {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 0x0a) end -= 1;
+  if (end >= value.length - 1) return value;
+  return `${value.slice(0, end)}\n`;
+}
+
 export function stringifyYaml(node: DataNode): OperationResult<string> {
   try {
     const valid = validateDataNode(node, 'yaml');
     if (!valid.ok) return valid;
     const preflight = preflightYamlOutput(node);
     if (!preflight.ok) return preflight;
-    const output = stringify(toYamlValue(node), YAML_STRINGIFY_OPTIONS).replace(/\n+$/, '\n');
+    const output = normalizeTrailingLineFeed(stringify(toYamlValue(node), YAML_STRINGIFY_OPTIONS));
     return outputWithinLimit('yaml', output);
   } catch {
     return {
