@@ -155,6 +155,19 @@ test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ p
   await expect(page.getByRole('tablist')).toBeHidden();
 });
 
+test('Sign Maker 기준 셸과 control 크기를 사용한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('/');
+
+  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1400px');
+  await expect(page.getByRole('banner')).toHaveCSS('padding', '16px 20px');
+  await expect(page.getByTestId('converter-app-mark')).toHaveCSS('width', '40px');
+  await expect(page.getByTestId('converter-app-mark')).toHaveCSS('height', '40px');
+  await expect(page.getByRole('button', { name: '테마 전환' })).toHaveCSS('width', '36px');
+  await expect(page.getByRole('button', { name: '테마 전환' })).toHaveCSS('height', '36px');
+  await expect(page.locator('.studio-control-card')).toHaveCSS('border-radius', '16px');
+});
+
 test('Converter Studio가 desktop에서 topbar와 공통 workspace를 표시한다', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
