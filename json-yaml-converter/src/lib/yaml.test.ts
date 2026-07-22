@@ -501,6 +501,38 @@ describe('YAML domain', () => {
     });
   });
 
+  it('UTF-16 1,024단위 emoji key는 implicit로, 1,026단위 key는 explicit로 출력한다', () => {
+    const implicitKey = '😀'.repeat(512);
+    const implicitNode: DataNode = {
+      kind: 'mapping',
+      entries: [{ key: implicitKey, value: { kind: 'null' } }],
+    };
+    const implicit = stringifyYaml(implicitNode);
+    expect(implicit).toEqual({ ok: true, value: `${implicitKey}: null\n` });
+    if (implicit.ok) expect(parseYaml(implicit.value)).toEqual({ ok: true, value: implicitNode });
+
+    const explicitKey = '😀'.repeat(513);
+    const invalidImplicit = parseYaml(`${explicitKey}: null\n`);
+    expect(invalidImplicit.ok).toBe(false);
+    if (!invalidImplicit.ok) {
+      expect(invalidImplicit.diagnostic).toMatchObject({
+        code: 'KEY_OVER_1024_CHARS',
+        startOffset: 0,
+        endOffset: 1_026,
+      });
+    }
+
+    const explicitNode: DataNode = {
+      kind: 'mapping',
+      entries: [{ key: explicitKey, value: { kind: 'string', value: 'value' } }],
+    };
+    const explicit = stringifyYaml(explicitNode);
+    expect(explicit.ok).toBe(true);
+    if (!explicit.ok) return;
+    expect(parseYaml(explicit.value)).toEqual({ ok: true, value: explicitNode });
+    expect(explicit.value).toBe(`? ${explicitKey}\n: value\n`);
+  });
+
   it('600-LF quoted key를 explicit key로 출력하고 원래 값으로 reparse한다', () => {
     const node: DataNode = {
       kind: 'mapping',

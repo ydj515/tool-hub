@@ -74,4 +74,17 @@ describe('converter', () => {
     });
     expect(result.value).toBe(`? ${key}\n: 1\n`);
   });
+
+  it('JSON → YAML 변환의 UTF-16 1,026단위 emoji key를 valid explicit key로 출력한다', () => {
+    const key = '😀'.repeat(513);
+    const result = convertSource(JSON.stringify({ [key]: true }), 'json-to-yaml');
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(parseYaml(result.value)).toEqual({
+      ok: true,
+      value: { kind: 'mapping', entries: [{ key, value: { kind: 'boolean', value: true } }] },
+    });
+    expect(result.value).toBe(`? ${key}\n: true\n`);
+  });
 });

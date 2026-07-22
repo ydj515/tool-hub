@@ -80,9 +80,13 @@ function canUseImplicitKey(value: string): boolean {
       sourceCharacters += escape.text.length;
       index += escape.width - 1;
     } else {
-      sourceCharacters += 1;
       const code = value.charCodeAt(index);
-      if (code >= 0xd800 && code <= 0xdbff) index += 1;
+      if (code >= 0xd800 && code <= 0xdbff) {
+        sourceCharacters += 2;
+        index += 1;
+      } else {
+        sourceCharacters += 1;
+      }
     }
     if (sourceCharacters > 1_024) return false;
   }
