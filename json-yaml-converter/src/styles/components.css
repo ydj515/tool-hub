@@ -44,6 +44,11 @@
 .mobile-tabs { display: none; }
 @media (max-width: 767px) {
   .converter-page { gap: 12px; }
+  .converter-toolbar { flex-direction: column; align-items: stretch; }
+  .converter-toolbar__direction, .converter-toolbar__actions { width: 100%; }
+  .converter-toolbar__actions { justify-content: flex-start; }
+  .direction-selector { width: 100%; }
+  .direction-selector__option { flex: 1; white-space: nowrap; }
   .converter-workspace { padding: 8px; }
   .converter-grid { display: flex; flex-direction: column; }
   .converter-grid__swap { order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; border: 0; background: transparent; }

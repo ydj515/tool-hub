@@ -189,6 +189,7 @@ test('mobile Studio에서 swap을 유지한다', async ({ page }) => {
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('button', { name: '변환 방향 전환' })).toBeVisible();
   await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '8px');
+  await expect(page.getByRole('radio', { name: 'JSON → YAML' })).toHaveCSS('white-space', 'nowrap');
 });
 
 test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ context, page }) => {
