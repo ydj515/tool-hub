@@ -29,8 +29,7 @@ async function observeScheduledCopyState(page: import('@playwright/test').Page) 
       __scheduledCopyDisabled?: Promise<boolean>;
       document: {
         body: object;
-        querySelector(selector: string): BrowserElement | null;
-        querySelectorAll(selector: string): { length: number; [index: number]: BrowserButton };
+        querySelector(selector: string): BrowserButton | null;
       };
       MutationObserver: new (callback: () => void) => {
         disconnect(): void;
@@ -41,14 +40,10 @@ async function observeScheduledCopyState(page: import('@playwright/test').Page) 
       const observer = new browserGlobal.MutationObserver(() => {
         const status = browserGlobal.document.querySelector('.status-bar');
         if (!status?.textContent?.includes('변환 준비 중')) return;
-        const buttons = browserGlobal.document.querySelectorAll('button');
-        for (let index = 0; index < buttons.length; index += 1) {
-          if (buttons[index].textContent?.includes('결과 복사')) {
-            resolve(buttons[index].disabled);
-            observer.disconnect();
-            return;
-          }
-        }
+        const copyButton = browserGlobal.document.querySelector('button[aria-label="결과 복사"]');
+        if (!copyButton) return;
+        resolve(copyButton.disabled);
+        observer.disconnect();
       });
       observer.observe(browserGlobal.document.body, { childList: true, characterData: true, subtree: true });
     });
@@ -94,6 +89,18 @@ test('첨부 AsyncAPI 예제를 현재 방향에 맞게 불러온다', async ({ 
     .toContainText('title: Streetlights Kafka API');
   await expect(page.getByRole('region', { name: '결과 편집기' }).locator('.view-lines'))
     .toContainText('"title": "Streetlights Kafka API"');
+});
+
+test('편집기 액션을 접근 가능한 36px 아이콘 버튼으로 표시한다', async ({ page }) => {
+  await page.goto('/');
+
+  for (const name of ['JSON Pretty', '결과 복사', '결과 다운로드']) {
+    const action = page.getByRole('button', { name, exact: true });
+    await expect(action).toHaveAttribute('title', name);
+    await expect(action).toHaveCSS('width', '36px');
+    await expect(action).toHaveCSS('height', '36px');
+    await expect(action.locator('svg')).toHaveCount(1);
+  }
 });
 
 test('빈 화면에서 YAML → JSON 방향을 직접 선택하고 scheduled 상태를 거쳐 변환한다', async ({ page }) => {

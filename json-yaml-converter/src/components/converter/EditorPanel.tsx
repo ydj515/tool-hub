@@ -1,4 +1,5 @@
 import type { RefObject, ReactNode } from 'react';
+import { AlignLeft, Copy, Download } from 'lucide-react';
 import { CodeEditor, type CodeEditorHandle } from '../editor/CodeEditor';
 import type { DataFormat, Diagnostic } from '../../lib/diagnostics';
 import type { Theme } from '../../theme';
@@ -35,9 +36,27 @@ export function EditorPanel({
     <header className="editor-panel__header">
       <div><strong>{source ? '원본' : '결과'}</strong><span className="format-label">{format.toUpperCase()}</span></div>
       <div className="editor-panel__actions">
-        {source
-          ? <Button type="button" variant="ghost" onClick={onPretty} disabled={prettyDisabled}>{format.toUpperCase()} Pretty</Button>
-          : <><Button type="button" variant="ghost" onClick={onCopy} disabled={resultDisabled}>결과 복사</Button><Button type="button" variant="ghost" onClick={onDownload} disabled={resultDisabled}>결과 다운로드</Button></>}
+        {source ? (
+          <Button
+            type="button"
+            variant="icon"
+            aria-label={`${format.toUpperCase()} Pretty`}
+            title={`${format.toUpperCase()} Pretty`}
+            onClick={onPretty}
+            disabled={prettyDisabled}
+          >
+            <AlignLeft size={16} aria-hidden="true" />
+          </Button>
+        ) : (
+          <>
+            <Button type="button" variant="icon" aria-label="결과 복사" title="결과 복사" onClick={onCopy} disabled={resultDisabled}>
+              <Copy size={16} aria-hidden="true" />
+            </Button>
+            <Button type="button" variant="icon" aria-label="결과 다운로드" title="결과 다운로드" onClick={onDownload} disabled={resultDisabled}>
+              <Download size={16} aria-hidden="true" />
+            </Button>
+          </>
+        )}
       </div>
     </header>
     {children}
