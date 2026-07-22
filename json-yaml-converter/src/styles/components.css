@@ -12,7 +12,9 @@
 .direction-selector__option[aria-checked="true"] { color: var(--on-primary); background: var(--primary); }
 .btn { min-height: 36px; border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px 12px; color: var(--text); background: var(--surface-2); cursor: pointer; }
 .btn-primary { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
-.btn-icon { display: inline-grid; place-items: center; width: 40px; padding: 8px; }
+.btn-ghost { color: var(--muted); background: transparent; border-color: transparent; }
+.btn-ghost:hover { color: var(--text); background: var(--fill); border-color: var(--line); }
+.btn-icon { display: inline-grid; place-items: center; width: 38px; min-width: 38px; padding: 0; }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); gap: 12px; }
 .converter-grid__swap { display: grid; place-items: center; }
