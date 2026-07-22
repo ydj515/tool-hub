@@ -1,0 +1,9 @@
+logs
+*.log
+node_modules
+dist
+*.local
+test-results
+playwright-report
+.vite
+.DS_Store

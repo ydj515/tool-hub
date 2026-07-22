@@ -14,4 +14,13 @@ describe('tools metadata', () => {
 
     expect(liveTools.every((tool) => typeof tool.url === 'string' && tool.url.length > 0)).toBe(true);
   });
+
+  it('registers the JSON YAML converter as coming soon until deployment', () => {
+    expect(tools).toContainEqual(expect.objectContaining({
+      id: 'json-yaml-converter',
+      status: 'coming-soon',
+      url: null,
+      tags: expect.arrayContaining(['JSON', 'YAML', 'Converter']),
+    }));
+  });
 });
