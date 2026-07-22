@@ -117,9 +117,12 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
   return <>
     <Header theme={theme} direction={state.direction} onDirectionChange={handleDirectionChange} onToggleTheme={onToggleTheme} />
     <main className="converter-page" aria-label="변환기 작업 공간" data-testid="converter-studio">
-      <section className="studio-control-card">
-        <ConverterToolbar onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
-        <StatusBar state={state} />
+      <section className="studio-control-card" data-testid="converter-control-card">
+        <div className="studio-control-card__main">
+          <ConverterToolbar onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
+          <StatusBar state={state} />
+        </div>
+        <p className="control-card__privacy">자동 변환 · 모든 처리는 브라우저 안에서 완료됩니다.</p>
       </section>
       {message ? <p className="action-message" role="status">{message}</p> : null}
       {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}

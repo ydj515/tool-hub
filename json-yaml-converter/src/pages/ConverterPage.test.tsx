@@ -47,13 +47,18 @@ describe('ConverterPage', () => {
     const banner = screen.queryByTestId('converter-app-mark')?.closest('header') ?? null;
     const toolbar = screen.getByRole('region', { name: '변환 도구 모음' });
     const directionGroup = screen.getByRole('radiogroup', { name: '변환 방향' });
+    const controlCard = screen.getByTestId('converter-control-card');
+    const workspace = screen.getByTestId('converter-workspace');
 
     expect(screen.getByTestId('converter-studio')).toContainElement(toolbar);
     expect(banner).not.toBeNull();
     expect(banner).toContainElement(directionGroup);
     expect(toolbar).not.toContainElement(directionGroup);
-    expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
-    expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
+    expect(controlCard).toContainElement(toolbar);
+    expect(controlCard).toContainElement(screen.getByText(/모든 처리는 브라우저 안에서 완료됩니다/));
+    expect(workspace).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
+    expect(workspace).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
+    expect(workspace.querySelector('.converter-grid')?.children).toHaveLength(3);
     expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('btn-icon');
   });
 
