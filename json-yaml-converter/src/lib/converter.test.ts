@@ -18,11 +18,20 @@ describe('converter', () => {
     });
   });
 
-  it('현재 방향에 맞는 Pretty와 예제를 제공한다', () => {
+  it('현재 방향에 맞는 Pretty를 제공한다', () => {
     expect(prettySource('{"a":1}', 'json-to-yaml').ok).toBe(true);
     expect(prettySource('a: 1', 'yaml-to-json').ok).toBe(true);
-    expect(sampleFor('json-to-yaml')).toContain('"name"');
-    expect(sampleFor('yaml-to-json')).toContain('name:');
+  });
+
+  it('현재 방향에 맞는 동일한 AsyncAPI 예제를 제공한다', () => {
+    const jsonSample = sampleFor('json-to-yaml');
+    const yamlSample = sampleFor('yaml-to-json');
+
+    expect(jsonSample).toContain('"title": "Streetlights Kafka API"');
+    expect(jsonSample).toContain('"smartylighting.streetlights.1.0.event.{streetlightId}.lighting.measured"');
+    expect(yamlSample).toContain('title: Streetlights Kafka API');
+    expect(yamlSample).toContain('"smartylighting.streetlights.1.0.event.{streetlightId}.lighting.measured":');
+    expect(convertSource(yamlSample, 'yaml-to-json')).toEqual({ ok: true, value: jsonSample });
   });
 
   it('방향이 정한 입력 문법 오류를 그대로 반환한다', () => {

@@ -80,6 +80,22 @@ test('JSON과 YAML을 양방향 변환하고 형식별 Pretty를 제공한다', 
   expect(failures).toEqual([]);
 });
 
+test('첨부 AsyncAPI 예제를 현재 방향에 맞게 불러온다', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '예제 불러오기' }).click();
+  await expect(page.getByRole('region', { name: '원본 편집기' }).locator('.view-lines'))
+    .toContainText('"title": "Streetlights Kafka API"');
+  await expect(page.getByRole('region', { name: '결과 편집기' }).locator('.view-lines'))
+    .toContainText('title: Streetlights Kafka API');
+
+  await page.getByRole('radio', { name: 'YAML → JSON' }).click();
+  await page.getByRole('button', { name: '예제 불러오기' }).click();
+  await expect(page.getByRole('region', { name: '원본 편집기' }).locator('.view-lines'))
+    .toContainText('title: Streetlights Kafka API');
+  await expect(page.getByRole('region', { name: '결과 편집기' }).locator('.view-lines'))
+    .toContainText('"title": "Streetlights Kafka API"');
+});
+
 test('빈 화면에서 YAML → JSON 방향을 직접 선택하고 scheduled 상태를 거쳐 변환한다', async ({ page }) => {
   const failures = trackBrowserFailures(page);
   await page.goto('/');

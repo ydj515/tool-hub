@@ -1,3 +1,4 @@
+import { ASYNCAPI_JSON_SAMPLE, ASYNCAPI_YAML_SAMPLE } from '../data/asyncapiSample';
 import type { OperationResult } from './data-node';
 import { parseJson, prettyJson, stringifyJson } from './json';
 import { parseYaml, prettyYaml, stringifyYaml } from './yaml';
@@ -38,7 +39,5 @@ export function oppositeDirection(direction: ConverterDirection): ConverterDirec
 }
 
 export function sampleFor(direction: ConverterDirection): string {
-  return direction === 'json-to-yaml'
-    ? '{\n  "name": "tool-hub",\n  "enabled": true\n}\n'
-    : 'name: tool-hub\nenabled: true\n';
+  return direction === 'json-to-yaml' ? ASYNCAPI_JSON_SAMPLE : ASYNCAPI_YAML_SAMPLE;
 }
