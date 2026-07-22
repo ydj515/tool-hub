@@ -4,12 +4,18 @@ import { ConverterWorkspace } from '../components/converter/ConverterWorkspace';
 import { DiagnosticBanner } from '../components/converter/DiagnosticBanner';
 import { StatusBar } from '../components/converter/StatusBar';
 import type { CodeEditorHandle } from '../components/editor/CodeEditor';
+import { Header } from '../components/layout/Header';
 import { useConverter } from '../hooks/useConverter';
 import { prettySource } from '../lib/converter';
 import { downloadResult, readSourceFile } from '../lib/file';
 import type { Theme } from '../theme';
 
-export function ConverterPage({ theme }: { theme: Theme }) {
+interface ConverterPageProps {
+  theme: Theme;
+  onToggleTheme(): void;
+}
+
+export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
   const { state, setSource, selectDirection, setDirectionAndSource, loadSample, clear, swap, reportDiagnostic } = useConverter();
   const sourceEditorRef = useRef<CodeEditorHandle>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -108,15 +114,18 @@ export function ConverterPage({ theme }: { theme: Theme }) {
     setActiveTab(tab);
   };
 
-  return <main className="converter-page" aria-label="변환기 작업 공간" data-testid="converter-studio">
-    <section className="studio-control-card">
-      <ConverterToolbar direction={state.direction} onDirectionChange={handleDirectionChange} onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
-      <StatusBar state={state} />
-    </section>
-    {message ? <p className="action-message" role="status">{message}</p> : null}
-    {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
-    <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
-  </main>;
+  return <>
+    <Header theme={theme} direction={state.direction} onDirectionChange={handleDirectionChange} onToggleTheme={onToggleTheme} />
+    <main className="converter-page" aria-label="변환기 작업 공간" data-testid="converter-studio">
+      <section className="studio-control-card">
+        <ConverterToolbar onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
+        <StatusBar state={state} />
+      </section>
+      {message ? <p className="action-message" role="status">{message}</p> : null}
+      {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
+      <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
+    </main>
+  </>;
 }
 
 export default ConverterPage;

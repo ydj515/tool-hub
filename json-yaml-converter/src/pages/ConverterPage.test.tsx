@@ -3,6 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConverterPage } from './ConverterPage';
 
 const focusDiagnostic = vi.fn();
+const toggleTheme = vi.fn();
+
+function renderPage() {
+  return render(<ConverterPage theme="light" onToggleTheme={toggleTheme} />);
+}
 
 vi.mock('../components/editor/CodeEditor', async () => {
   const React = await import('react');
@@ -24,6 +29,7 @@ describe('ConverterPage', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     focusDiagnostic.mockReset();
+    toggleTheme.mockReset();
     window.matchMedia = vi.fn((query: string) => ({
       matches: query === '(max-width: 767px)', media: query, onchange: null,
       addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
@@ -36,16 +42,23 @@ describe('ConverterPage', () => {
       matches: false, media: query, onchange: null,
       addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
     }));
-    render(<ConverterPage theme="light" />);
+    renderPage();
 
-    expect(screen.getByTestId('converter-studio')).toContainElement(screen.getByRole('region', { name: '변환 도구 모음' }));
+    const banner = screen.queryByTestId('converter-app-mark')?.closest('header') ?? null;
+    const toolbar = screen.getByRole('region', { name: '변환 도구 모음' });
+    const directionGroup = screen.getByRole('radiogroup', { name: '변환 방향' });
+
+    expect(screen.getByTestId('converter-studio')).toContainElement(toolbar);
+    expect(banner).not.toBeNull();
+    expect(banner).toContainElement(directionGroup);
+    expect(toolbar).not.toContainElement(directionGroup);
     expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
     expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
     expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('btn-icon');
   });
 
   it('JSON 입력을 자동 변환하고 JSON Pretty를 제공한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     expect(screen.getByLabelText('YAML 결과')).toHaveValue('a: 1\n');
@@ -53,7 +66,7 @@ describe('ConverterPage', () => {
   });
 
   it('방향 전환 후 YAML Pretty와 JSON 결과를 표시한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: '변환 방향 전환' }));
@@ -63,7 +76,7 @@ describe('ConverterPage', () => {
   });
 
   it('빈 화면에서 YAML → JSON 방향을 직접 선택한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.click(screen.getByRole('radio', { name: 'YAML → JSON' }));
     fireEvent.change(screen.getByLabelText('YAML 원본'), { target: { value: 'a: 1' } });
     act(() => vi.advanceTimersByTime(300));
@@ -71,7 +84,7 @@ describe('ConverterPage', () => {
   });
 
   it('결과 탭에서 방향 선택기를 바꾸면 원본 탭으로 돌아간다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('tab', { name: /결과/ }));
@@ -82,7 +95,7 @@ describe('ConverterPage', () => {
   });
 
   it('오류 위치와 stale 결과를 표시하고 내보내기를 막는다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a" 1}' } });
@@ -94,7 +107,7 @@ describe('ConverterPage', () => {
   });
 
   it('파일 확장자에 맞춰 방향을 바꾼다', async () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     const input = screen.getByLabelText('JSON 또는 YAML 파일 열기');
     fireEvent.change(input, { target: { files: [new File(['name: tool-hub\n'], 'config.yaml', { type: 'application/yaml' })] } });
     await act(async () => Promise.resolve());
@@ -106,7 +119,7 @@ describe('ConverterPage', () => {
       configurable: true,
       value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
     });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
@@ -116,13 +129,13 @@ describe('ConverterPage', () => {
   });
 
   it('500KB 이상 입력을 변환 전에도 안내한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: 'a'.repeat(500 * 1024) } });
     expect(screen.getByText(/500KB 이상 입력입니다/)).toBeInTheDocument();
   });
 
   it('500KB valid 입력에서 크기 안내와 변환 상태를 함께 표시한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: `{"text":"${'a'.repeat(500 * 1024)}"}` } });
     act(() => vi.advanceTimersByTime(300));
     expect(screen.getByText(/500KB 이상 입력입니다/)).toBeInTheDocument();
@@ -134,7 +147,7 @@ describe('ConverterPage', () => {
     const fileA = new File([''], 'slow.json', { type: 'application/json' });
     Object.defineProperty(fileA, 'text', { value: () => new Promise<string>((resolve) => { resolveA = resolve; }) });
     const fileB = new File(['name: fast\n'], 'fast.yaml', { type: 'application/yaml' });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     const input = screen.getByLabelText('JSON 또는 YAML 파일 열기');
     fireEvent.change(input, { target: { files: [fileA] } });
     fireEvent.change(input, { target: { files: [fileB] } });
@@ -147,7 +160,7 @@ describe('ConverterPage', () => {
     let rejectA: (error: Error) => void = () => undefined;
     const fileA = new File([''], 'slow.json', { type: 'application/json' });
     Object.defineProperty(fileA, 'text', { value: () => new Promise<string>((_resolve, reject) => { rejectA = reject; }) });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 또는 YAML 파일 열기'), { target: { files: [fileA] } });
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"new":true}' } });
     await act(async () => { rejectA(new Error('failed')); });
@@ -157,7 +170,7 @@ describe('ConverterPage', () => {
 
   it('새 원본 mutation이 클립보드 오류 메시지를 지운다', async () => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
@@ -168,7 +181,7 @@ describe('ConverterPage', () => {
 
   it('결과 탭에서 진단 버튼을 누르면 원본 탭 선택 후 편집기에 focus한다', () => {
     focusDiagnostic.mockImplementation(() => expect(screen.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true'));
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.click(screen.getByRole('tab', { name: '결과' }));
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a" 1}' } });
     act(() => vi.advanceTimersByTime(300));
@@ -178,7 +191,7 @@ describe('ConverterPage', () => {
   });
 
   it('모바일 탭과 방향 선택기에 keyboard roving 패턴을 제공한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     const sourceTab = screen.getByRole('tab', { name: '원본' });
     const resultTab = screen.getByRole('tab', { name: '결과' });
     expect(sourceTab).toHaveAttribute('aria-controls', 'converter-source-panel');
@@ -197,7 +210,7 @@ describe('ConverterPage', () => {
   });
 
   it('진단 예약 뒤 사용자가 결과 탭을 선택하면 focus를 취소한다', () => {
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a" 1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: /1행 6열/ }));
@@ -210,7 +223,7 @@ describe('ConverterPage', () => {
   it('늦은 clipboard 실패가 새 원본 mutation 뒤 메시지를 되살리지 않는다', async () => {
     let rejectWrite: (error: Error) => void = () => undefined;
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => new Promise<void>((_resolve, reject) => { rejectWrite = reject; })) } });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
@@ -224,7 +237,7 @@ describe('ConverterPage', () => {
       matches: false, media: query, onchange: null,
       addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
     }));
-    render(<ConverterPage theme="light" />);
+    renderPage();
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument();
   });
@@ -233,7 +246,7 @@ describe('ConverterPage', () => {
     let resolveFile: (value: string) => void = () => undefined;
     const file = new File([''], 'slow.json', { type: 'application/json' });
     Object.defineProperty(file, 'text', { value: () => new Promise<string>((resolve) => { resolveFile = resolve; }) });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.change(screen.getByLabelText('JSON 또는 YAML 파일 열기'), { target: { files: [file] } });
@@ -249,7 +262,7 @@ describe('ConverterPage', () => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => new Promise<void>((resolve) => { resolveCopy = resolve; })) } });
     const file = new File([''], 'next.json', { type: 'application/json' });
     Object.defineProperty(file, 'text', { value: () => new Promise<string>((resolve) => { resolveFile = resolve; }) });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
@@ -266,7 +279,7 @@ describe('ConverterPage', () => {
     const fileB = new File([''], 'b.json', { type: 'application/json' });
     Object.defineProperty(fileA, 'text', { value: () => new Promise<string>((resolve) => { resolveA = resolve; }) });
     Object.defineProperty(fileB, 'text', { value: () => new Promise<string>((resolve) => { resolveB = resolve; }) });
-    render(<ConverterPage theme="light" />);
+    renderPage();
     const input = screen.getByLabelText('JSON 또는 YAML 파일 열기');
     fireEvent.change(input, { target: { files: [fileA] } });
     fireEvent.change(input, { target: { files: [fileB] } });
