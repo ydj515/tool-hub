@@ -18,6 +18,7 @@
 
 - Keep JSON strict: reject comments, trailing commas, and duplicate keys.
 - Keep YAML limited to one YAML 1.2 document with string mapping keys.
+- Emit ordered YAML mappings and sequences in deterministic two-space block form; quote ambiguous, special, multiline, control, and invalid-surrogate strings with JSON-compatible escapes.
 - Reject custom tags, duplicate mapping keys, circular aliases, and non-finite numbers.
 - Preserve mapping entry order and use two-space indentation.
 - Reject JSON/YAML collections deeper than 100 levels and generated UTF-8 output larger than 2MB.
