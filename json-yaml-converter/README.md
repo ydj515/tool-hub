@@ -26,6 +26,16 @@ npm install
 npm run dev
 ```
 
+## mise 사용
+
+```bash
+mise run setup
+mise run dev
+mise run check
+```
+
+`mise run check`는 unit test, lint, typecheck, build, Chromium E2E를 실행합니다.
+
 ## 검증
 
 ```bash
