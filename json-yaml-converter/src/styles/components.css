@@ -49,19 +49,25 @@
 .mobile-tabs button[aria-selected="true"] .completion-badge { color: inherit; }
 .mobile-tabs { display: none; }
 @media (max-width: 767px) {
-  .converter-page { gap: 12px; }
-  .converter-toolbar { flex-direction: column; align-items: stretch; }
-  .converter-toolbar__direction, .converter-toolbar__actions { width: 100%; }
-  .converter-toolbar__actions { justify-content: flex-start; }
-  .direction-selector { width: 100%; }
+  .app-main { gap: 12px; }
+  .studio-topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 8px; padding: 12px; }
+  .studio-brand { grid-column: 1; grid-row: 1; }
+  .studio-brand > div { min-width: 0; }
+  .privacy-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .theme-button { grid-column: 2; grid-row: 1; }
+  .direction-selector { grid-column: 1 / -1; grid-row: 2; width: 100%; margin: 0; }
   .direction-selector__option { flex: 1; white-space: nowrap; }
+  .converter-page { gap: 12px; }
+  .studio-control-card__main { align-items: flex-start; flex-direction: column; }
+  .converter-toolbar { width: 100%; }
+  .status-bar { width: 100%; justify-content: flex-start; flex-wrap: wrap; margin-left: 0; }
   .converter-workspace { padding: 8px; }
   .converter-grid { display: flex; flex-direction: column; }
-  .converter-grid__swap { order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; border: 0; background: transparent; }
+  .converter-grid__swap { position: static; order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; transform: none; }
   .editor-panel[data-kind="source"] { border-right: 0; }
-  .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
-  .mobile-tabs button { border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
-  .mobile-tabs button[aria-selected="true"] { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
+  .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; padding: 4px; background: var(--fill); border: 1px solid var(--line-subtle); border-radius: var(--radius-md); }
+  .mobile-tabs button { min-height: 36px; padding: 0 8px; color: var(--muted); background: transparent; border: 0; border-radius: var(--radius-sm); font-weight: 600; }
+  .mobile-tabs button[aria-selected="true"] { color: var(--primary); background: var(--surface); box-shadow: var(--shadow-sm); }
   .editor-panel[data-mobile-hidden="true"] { display: none; }
   .editor-frame { height: 52vh; min-height: 320px; }
 }

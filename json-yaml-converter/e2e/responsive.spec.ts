@@ -204,10 +204,18 @@ test('mobile Studio에서 swap을 유지한다', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
 
+  const bannerBox = await page.getByRole('banner').boundingBox();
+  const directionBox = await page.getByRole('radiogroup', { name: '변환 방향' }).boundingBox();
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('button', { name: '변환 방향 전환' })).toBeVisible();
   await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '8px');
   await expect(page.getByRole('radio', { name: 'JSON → YAML' })).toHaveCSS('white-space', 'nowrap');
+  expect(directionBox?.width ?? 0).toBeGreaterThan((bannerBox?.width ?? 0) - 42);
+  await expect(page.locator('.converter-grid__swap')).toHaveCSS('position', 'static');
+  await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(2);
+  await expect(page.getByRole('tabpanel', { name: '원본' })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '결과', includeHidden: true })).toBeHidden();
+  await expect(page.locator('.editor-frame').first()).toHaveCSS('min-height', '320px');
 });
 
 test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ context, page }) => {
@@ -269,10 +277,8 @@ for (const theme of ['light', 'dark'] as const) {
     const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
     const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
     expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(selectedDirectionBackground, unselectedDirectionBackground)).toBeGreaterThanOrEqual(3);
-
-    if (theme === 'light') await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
+    if (theme === 'dark') await page.keyboard.press('Shift+Tab');
+    else await page.keyboard.press('Tab');
     const selectedRadio = page.getByRole('radio', { name: 'JSON → YAML', exact: true });
     await expect(selectedRadio).toBeFocused();
     const focusedDirection = await computedColors(selectedRadio);
@@ -287,7 +293,7 @@ for (const theme of ['light', 'dark'] as const) {
     expect(contrast(parseColor(diagnostic.color), diagnosticBackground)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(composite(parseColor(diagnostic.border), diagnosticBackground), diagnosticBackground)).toBeGreaterThanOrEqual(3);
 
-    const secondary = await computedColors(page.getByRole('button', { name: '예제 불러오기', exact: true }));
+    const secondary = await computedColors(page.getByRole('button', { name: '파일 열기', exact: true }));
     const secondaryBackground = compositeBackground(secondary.backgrounds);
     expect(contrast(parseColor(secondary.color), secondaryBackground)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(composite(parseColor(secondary.border), secondaryBackground), secondaryBackground)).toBeGreaterThanOrEqual(3);

@@ -19,7 +19,7 @@
   --line: rgba(112, 115, 124, 0.22);
   --line-subtle: rgba(112, 115, 124, 0.08);
   --line-strong: rgba(112, 115, 124, 0.52);
-  --control-border: rgba(112, 115, 124, 0.52);
+  --control-border: #767b85;
   --text: rgb(23, 23, 23);
   --text-neutral: rgba(46, 47, 51, 0.88);
   --muted: rgba(55, 56, 60, 0.61);
@@ -54,7 +54,7 @@
   --line: rgba(112, 115, 124, 0.32);
   --line-subtle: rgba(112, 115, 124, 0.16);
   --line-strong: rgba(194, 196, 200, 0.52);
-  --control-border: rgba(194, 196, 200, 0.52);
+  --control-border: #747984;
   --text: rgb(247, 247, 247);
   --text-neutral: rgba(194, 196, 200, 0.88);
   --muted: rgba(174, 176, 182, 0.61);
