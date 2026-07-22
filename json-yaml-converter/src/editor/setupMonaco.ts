@@ -1,7 +1,7 @@
 import { loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
+import JsonWorker from 'monaco-editor/language/json/json.worker?worker';
 
 declare global {
   interface Window {
@@ -21,8 +21,7 @@ export function setupMonaco(): void {
     },
   };
   loader.config({ monaco });
-  (monaco.languages as unknown as { json: { jsonDefaults: { setDiagnosticsOptions(options: { validate: boolean }): void } } })
-    .json.jsonDefaults.setDiagnosticsOptions({ validate: false });
+  monaco.json.jsonDefaults.setDiagnosticsOptions({ validate: false });
 
   if (!monaco.languages.getLanguages().some(({ id }) => id === 'yaml')) {
     monaco.languages.register({ id: 'yaml', extensions: ['.yaml', '.yml'] });
