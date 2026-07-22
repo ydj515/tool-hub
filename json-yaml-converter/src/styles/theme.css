@@ -1,0 +1,73 @@
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("/fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+:root {
+  color-scheme: light;
+  --font-sans: "ToolHub Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f7f7f8;
+  --surface-3: rgba(112, 115, 124, 0.05);
+  --fill: rgba(112, 115, 124, 0.08);
+  --fill-subtle: rgba(112, 115, 124, 0.05);
+  --fill-bold: rgba(112, 115, 124, 0.16);
+  --line: rgba(112, 115, 124, 0.22);
+  --line-subtle: rgba(112, 115, 124, 0.08);
+  --line-strong: rgba(112, 115, 124, 0.52);
+  --control-border: #767b85;
+  --text: rgb(23, 23, 23);
+  --text-neutral: rgba(46, 47, 51, 0.88);
+  --muted: rgba(55, 56, 60, 0.61);
+  --soft: rgba(55, 56, 60, 0.28);
+  --primary: rgb(51, 102, 255);
+  --primary-strong: rgb(0, 94, 235);
+  --primary-heavy: rgb(0, 84, 209);
+  --primary-surface: rgb(234, 242, 254);
+  --on-primary: #ffffff;
+  --success: rgb(24, 121, 78);
+  --success-surface: rgba(24, 121, 78, 0.10);
+  --warning: rgb(161, 92, 0);
+  --danger: rgb(180, 35, 24);
+  --danger-surface: rgba(180, 35, 24, 0.08);
+  --editor-bg: #ffffff;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+  --shadow-md: 0 2px 8px rgba(23, 23, 25, 0.08), 0 1px 2px rgba(23, 23, 25, 0.06);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur: 160ms;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: rgb(15, 15, 16);
+  --surface: rgb(27, 28, 30);
+  --surface-2: rgb(33, 34, 37);
+  --surface-3: rgba(112, 115, 124, 0.12);
+  --fill: rgba(112, 115, 124, 0.22);
+  --fill-subtle: rgba(112, 115, 124, 0.12);
+  --fill-bold: rgba(112, 115, 124, 0.28);
+  --line: rgba(112, 115, 124, 0.32);
+  --line-subtle: rgba(112, 115, 124, 0.16);
+  --line-strong: rgba(194, 196, 200, 0.52);
+  --control-border: #747984;
+  --text: rgb(247, 247, 247);
+  --text-neutral: rgba(194, 196, 200, 0.88);
+  --muted: rgba(174, 176, 182, 0.61);
+  --soft: rgba(174, 176, 182, 0.28);
+  --primary: rgb(91, 132, 255);
+  --primary-strong: rgb(26, 117, 255);
+  --primary-heavy: rgb(0, 102, 255);
+  --primary-surface: rgba(91, 132, 255, 0.16);
+  --success: rgb(87, 198, 138);
+  --success-surface: rgba(87, 198, 138, 0.16);
+  --warning: rgb(240, 164, 75);
+  --danger: rgb(229, 92, 108);
+  --danger-surface: rgba(229, 92, 108, 0.08);
+  --editor-bg: #1e1e1e;
+}
