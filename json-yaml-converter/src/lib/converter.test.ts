@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { convertSource, prettySource, sampleFor } from './converter';
 import { OUTPUT_LIMIT_BYTES } from './safety';
+import { parseYaml } from './yaml';
 
 describe('converter', () => {
   it('JSON을 YAML로 변환한다', () => {
@@ -59,5 +60,18 @@ describe('converter', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(new TextEncoder().encode(result.value).byteLength).toBe(count * 5);
+  });
+
+  it('JSON → YAML 변환의 1,025자 object key를 valid explicit key로 출력한다', () => {
+    const key = 'k'.repeat(1_025);
+    const result = convertSource(JSON.stringify({ [key]: 1 }), 'json-to-yaml');
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(parseYaml(result.value)).toEqual({
+      ok: true,
+      value: { kind: 'mapping', entries: [{ key, value: { kind: 'number', value: 1 } }] },
+    });
+    expect(result.value).toBe(`? ${key}\n: 1\n`);
   });
 });

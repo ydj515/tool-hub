@@ -432,6 +432,26 @@ describe('YAML domain', () => {
     });
   });
 
+  it('직접 받은 mapping의 duplicate key를 거부하고 distinct key 순서는 보존한다', () => {
+    const duplicate = stringifyYaml({
+      kind: 'mapping',
+      entries: [
+        { key: 'same', value: { kind: 'number', value: 1 } },
+        { key: 'same', value: { kind: 'number', value: 2 } },
+      ],
+    });
+    expect(duplicate.ok).toBe(false);
+    if (!duplicate.ok) expect(duplicate.diagnostic.code).toBe('DUPLICATE_KEY');
+
+    expect(stringifyYaml({
+      kind: 'mapping',
+      entries: [
+        { key: 'first', value: { kind: 'number', value: 1 } },
+        { key: 'second', value: { kind: 'number', value: 2 } },
+      ],
+    })).toEqual({ ok: true, value: 'first: 1\nsecond: 2\n' });
+  });
+
   it.each([
     ['signed hex', '+0xaff', '"+0xaff"\n'],
     ['signed octal', '-0o77', '"-0o77"\n'],
@@ -449,23 +469,79 @@ describe('YAML domain', () => {
     expect(parseYaml(expected)).toEqual({ ok: true, value: { kind: 'string', value } });
   });
 
-  it('LF run으로 된 긴 mapping key를 inline quoted key로 정확히 2MB까지 쓴다', () => {
-    const lineFeeds = (OUTPUT_LIMIT_BYTES - 10) / 2;
-    const exactKey = `x${'\n'.repeat(lineFeeds)}`;
+  it('1,024자 key는 implicit로, 1,025자 key는 explicit로 출력하고 둘 다 reparse한다', () => {
+    const implicitNode: DataNode = {
+      kind: 'mapping',
+      entries: [{ key: 'k'.repeat(1_024), value: { kind: 'null' } }],
+    };
+    const implicit = stringifyYaml(implicitNode);
+    expect(implicit).toEqual({ ok: true, value: `${'k'.repeat(1_024)}: null\n` });
+    if (implicit.ok) expect(parseYaml(implicit.value)).toEqual({ ok: true, value: implicitNode });
+
+    const explicitNode: DataNode = {
+      kind: 'mapping',
+      entries: [{
+        key: 'outer',
+        value: {
+          kind: 'mapping',
+          entries: [{
+            key: 'k'.repeat(1_025),
+            value: { kind: 'sequence', items: [{ kind: 'boolean', value: true }] },
+          }],
+        },
+      }],
+    };
+    const explicit = stringifyYaml(explicitNode);
+    expect(explicit.ok).toBe(true);
+    if (!explicit.ok) return;
+    expect(parseYaml(explicit.value)).toEqual({ ok: true, value: explicitNode });
+    expect(explicit).toEqual({
+      ok: true,
+      value: `outer:\n  ? ${'k'.repeat(1_025)}\n  :\n    - true\n`,
+    });
+  });
+
+  it('600-LF quoted key를 explicit key로 출력하고 원래 값으로 reparse한다', () => {
+    const node: DataNode = {
+      kind: 'mapping',
+      entries: [{ key: '\n'.repeat(600), value: { kind: 'string', value: 'value' } }],
+    };
+
+    const output = stringifyYaml(node);
+
+    expect(output.ok).toBe(true);
+    if (!output.ok) return;
+    expect(parseYaml(output.value)).toEqual({ ok: true, value: node });
+    expect(output).toEqual({
+      ok: true,
+      value: `? "${'\\n'.repeat(600)}"\n: value\n`,
+    });
+  });
+
+  it('explicit long key를 정확히 2MB까지 쓰고 초과 뒤의 Proxy entry는 읽지 않는다', () => {
+    const exactKey = 'k'.repeat(OUTPUT_LIMIT_BYTES - 10);
     const exact = stringifyYaml({
       kind: 'mapping',
       entries: [{ key: exactKey, value: { kind: 'null' } }],
     });
-
     expect(exact.ok).toBe(true);
-    if (!exact.ok) return;
-    expect(new TextEncoder().encode(exact.value).byteLength).toBe(OUTPUT_LIMIT_BYTES);
-    expect(exact.value.startsWith('"x\\n')).toBe(true);
-    expect(exact.value.endsWith('": null\n')).toBe(true);
+    if (exact.ok) expect(new TextEncoder().encode(exact.value).byteLength).toBe(OUTPUT_LIMIT_BYTES);
 
+    const entries = new Proxy(
+      [
+        { key: `${exactKey}k`, value: { kind: 'null' } },
+        { key: 'unread', value: { kind: 'null' } },
+      ] satisfies Array<{ key: string; value: DataNode }>,
+      {
+        get(target, property, receiver) {
+          if (property === '1') throw new Error('출력 제한 뒤의 entry를 조회했습니다.');
+          return Reflect.get(target, property, receiver) as unknown;
+        },
+      },
+    );
     const oversized = stringifyYaml({
       kind: 'mapping',
-      entries: [{ key: `xa${'\n'.repeat(lineFeeds)}`, value: { kind: 'null' } }],
+      entries,
     });
     expect(oversized.ok).toBe(false);
     if (!oversized.ok) expect(oversized.diagnostic.code).toBe('OUTPUT_TOO_LARGE');

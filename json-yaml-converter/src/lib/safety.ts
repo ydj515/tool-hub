@@ -39,7 +39,7 @@ export class OutputByteBudget {
 
 export function safetyDiagnostic(
   format: DataFormat,
-  code: 'MAX_DEPTH_EXCEEDED' | 'OUTPUT_TOO_LARGE' | 'UNEXPECTED_ERROR' | 'NON_FINITE_NUMBER' | 'CYCLIC_DATA',
+  code: 'MAX_DEPTH_EXCEEDED' | 'OUTPUT_TOO_LARGE' | 'UNEXPECTED_ERROR' | 'NON_FINITE_NUMBER' | 'CYCLIC_DATA' | 'DUPLICATE_KEY',
   message: string,
   source = '',
   offset = 0,

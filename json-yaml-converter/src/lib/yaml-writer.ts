@@ -4,7 +4,7 @@ import { MAX_NESTING_DEPTH, OutputByteBudget, safetyDiagnostic } from './safety'
 const INDENT = '  ';
 const QUOTED_CHUNK_CODE_UNITS = 8 * 1024;
 
-type WriteFailure = 'MAX_DEPTH_EXCEEDED' | 'OUTPUT_TOO_LARGE' | 'NON_FINITE_NUMBER' | 'CYCLIC_DATA';
+type WriteFailure = 'MAX_DEPTH_EXCEEDED' | 'OUTPUT_TOO_LARGE' | 'NON_FINITE_NUMBER' | 'CYCLIC_DATA' | 'DUPLICATE_KEY';
 
 function isAsciiEqualIgnoreCase(value: string, expected: string): boolean {
   if (value.length !== expected.length) return false;
@@ -71,6 +71,24 @@ function quotedEscape(value: string, index: number): { text: string; width: numb
   return undefined;
 }
 
+function canUseImplicitKey(value: string): boolean {
+  const plain = isPlainString(value);
+  let sourceCharacters = plain ? 0 : 2;
+  for (let index = 0; index < value.length; index += 1) {
+    const escape = plain ? undefined : quotedEscape(value, index);
+    if (escape) {
+      sourceCharacters += escape.text.length;
+      index += escape.width - 1;
+    } else {
+      sourceCharacters += 1;
+      const code = value.charCodeAt(index);
+      if (code >= 0xd800 && code <= 0xdbff) index += 1;
+    }
+    if (sourceCharacters > 1_024) return false;
+  }
+  return true;
+}
+
 function failureMessage(code: WriteFailure): string {
   switch (code) {
     case 'MAX_DEPTH_EXCEEDED':
@@ -81,6 +99,8 @@ function failureMessage(code: WriteFailure): string {
       return '유한한 숫자만 사용할 수 있습니다.';
     case 'CYCLIC_DATA':
       return '순환 데이터는 직렬화할 수 없습니다.';
+    case 'DUPLICATE_KEY':
+      return '같은 mapping 키를 두 번 사용할 수 없습니다.';
   }
 }
 
@@ -224,9 +244,15 @@ class BoundedYamlWriter {
         return true;
       }
 
+      const keys = new Set<string>();
       for (let index = 0; index < node.entries.length; index += 1) {
         const entry = node.entries[index];
-        if (!this.appendIndent(indent) || !this.writeString(entry.key)) return false;
+        if (keys.has(entry.key)) return this.fail('DUPLICATE_KEY');
+        keys.add(entry.key);
+        const implicitKey = canUseImplicitKey(entry.key);
+        if (!this.appendIndent(indent)) return false;
+        if (!implicitKey && !this.append('? ')) return false;
+        if (!this.writeString(entry.key) || (!implicitKey && (!this.append('\n') || !this.appendIndent(indent)))) return false;
         if (this.isNonEmptyCollection(entry.value)) {
           if (!this.append(':\n') || !this.writeCollection(entry.value, indent + 1, depth + 1)) return false;
         } else if (!this.append(': ') || !this.writeInline(entry.value, depth + 1) || !this.append('\n')) return false;
