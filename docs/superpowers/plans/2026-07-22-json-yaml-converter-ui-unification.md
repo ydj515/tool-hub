@@ -447,10 +447,9 @@ Expected: converter unit/E2E와 home unit 모두 PASS, lint/typecheck/build exit
 ```bash
 git add json-yaml-converter/README.md
 git commit -m "docs(json-yaml-converter): document mise workflow"
-git push
 ```
 
-Expected: draft PR의 head branch가 UI 통일화 구현과 mise 안내 커밋을 포함한다.
+Expected: UI 통일화 구현과 mise 안내 커밋이 로컬 branch에 포함되고, publication은 PR workflow에서 수행한다.
 
 ---
 

@@ -168,6 +168,16 @@ test('Sign Maker 기준 셸과 control 크기를 사용한다', async ({ page })
   await expect(page.locator('.studio-control-card')).toHaveCSS('border-radius', '16px');
 });
 
+test('비활성 편집기 액션은 opacity가 아닌 token 스타일로 구분한다', async ({ page }) => {
+  await page.goto('/');
+
+  for (const name of ['JSON Pretty', '결과 복사', '결과 다운로드', '변환 방향 전환']) {
+    const action = page.getByRole('button', { name });
+    await expect(action).toBeDisabled();
+    await expect(action).toHaveCSS('opacity', '1');
+  }
+});
+
 test('Converter Studio가 desktop에서 topbar와 공통 workspace를 표시한다', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');

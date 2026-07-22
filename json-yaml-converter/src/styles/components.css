@@ -24,6 +24,9 @@
 .btn-ghost { color: var(--muted); background: transparent; border-color: transparent; }
 .btn-ghost:hover { color: var(--text); background: var(--fill); border-color: var(--line); }
 .btn-icon { display: inline-grid; place-items: center; width: 36px; min-width: 36px; height: 36px; padding: 0; }
+.btn:disabled, .btn:disabled:hover { color: var(--muted); background: var(--fill-subtle); border-color: var(--line); }
+.btn-primary:disabled, .btn-primary:disabled:hover { box-shadow: none; }
+.btn-ghost:disabled, .btn-ghost:disabled:hover { color: var(--soft); background: transparent; border-color: transparent; }
 .btn-icon[data-copied="true"], .btn-icon[data-copied="true"]:hover { color: var(--success); background: var(--success-surface); border-color: var(--success); }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .converter-workspace { overflow: hidden; }

@@ -66,13 +66,15 @@
 애플리케이션을 UI, 상태 오케스트레이션, 도메인 로직으로 분리한다.
 
 ```text
-SourceEditorPanel
+ConverterPage
   -> useConverter
   -> size validation
   -> JSON/YAML parser
   -> ordered data model validation
   -> opposite serializer
-  -> ResultEditorPanel or DiagnosticBanner
+  -> ConverterWorkspace
+      -> EditorPanel (원본/결과)
+      -> DiagnosticBanner
 ```
 
 ### 4.1 UI 계층
@@ -92,8 +94,7 @@ src/
 │   ├── converter/
 │   │   ├── ConverterToolbar.tsx
 │   │   ├── ConverterWorkspace.tsx
-│   │   ├── SourceEditorPanel.tsx
-│   │   ├── ResultEditorPanel.tsx
+│   │   ├── EditorPanel.tsx
 │   │   ├── DiagnosticBanner.tsx
 │   │   └── StatusBar.tsx
 │   └── ui/
