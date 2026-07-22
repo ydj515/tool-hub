@@ -10,6 +10,11 @@ describe('App shell', () => {
 
     expect(screen.getByRole('heading', { name: 'JSON YAML Converter' })).toBeInTheDocument();
     expect(screen.getByText('입력 내용은 브라우저에서만 처리됩니다.')).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toHaveClass('studio-topbar');
+    expect(screen.getByTestId('converter-app-mark')).toHaveClass('studio-brand__mark');
+    expect(screen.getByTestId('converter-app-mark').querySelector('svg')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '테마 전환' })).toHaveClass('btn-icon');
+    expect(screen.getByTestId('converter-studio-shell')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '테마 전환' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'light');
