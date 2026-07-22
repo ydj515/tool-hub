@@ -155,6 +155,19 @@ test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ p
   await expect(page.getByRole('tablist')).toBeHidden();
 });
 
+test('Converter Studio가 desktop에서 topbar와 공통 workspace를 표시한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+
+  await expect(page.getByTestId('converter-studio')).toBeVisible();
+  await expect(page.getByRole('banner')).toHaveClass(/studio-topbar/);
+  await expect(page.getByTestId('converter-workspace')).toBeVisible();
+  await expect(page.getByRole('region', { name: '원본 편집기' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '결과 편집기' })).toBeVisible();
+  await expect(page.locator('.converter-page')).toHaveCSS('display', 'grid');
+  await expect(page.locator('.converter-grid')).toHaveCSS('grid-template-columns', /56px/);
+});
+
 test('768px에서 데스크톱 레이아웃을 유지한다', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 800 });
   await page.goto('/');
@@ -167,6 +180,15 @@ test('767px에서 모바일 탭 레이아웃으로 전환한다', async ({ page 
   await page.goto('/');
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('tabpanel', { name: '원본' })).toBeVisible();
+});
+
+test('mobile Studio에서 swap을 유지한다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  await expect(page.getByRole('tablist')).toBeVisible();
+  await expect(page.getByRole('button', { name: '변환 방향 전환' })).toBeVisible();
+  await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '8px');
 });
 
 test('768px 미만에서 원본과 결과를 탭으로 전환하고 입력 뒤에도 원본 탭을 보존한다', async ({ context, page }) => {

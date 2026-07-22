@@ -4,7 +4,7 @@
 .app-title { margin: 0; font-size: 20px; line-height: 1.2; }
 .privacy-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
 .theme-button { color: var(--text); background: var(--surface-2); border-color: var(--control-border); }
-.converter-page { width: min(1440px, 100%); margin: 0 auto; padding: 24px; }
+.converter-page { display: grid; gap: 16px; width: 100%; margin: 0 auto; padding: 0; }
 .studio-control-card, .converter-workspace { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 .studio-control-card { overflow: hidden; }
 .converter-toolbar { display: flex; justify-content: space-between; gap: 12px; padding: 12px; margin: 0; }
@@ -20,12 +20,12 @@
 .btn-icon { display: inline-grid; place-items: center; width: 38px; min-width: 38px; padding: 0; }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .converter-workspace { overflow: hidden; }
-.converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); }
-.converter-grid__swap { display: grid; place-items: center; }
-.converter-grid__swap-button { position: relative; z-index: 1; }
+.converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); gap: 0; }
+.converter-grid__swap { display: grid; place-items: center; background: var(--surface-2); border-inline: 1px solid var(--line-subtle); }
+.converter-grid__swap-button { position: relative; z-index: 1; border-color: var(--line); background: var(--surface); }
 .editor-panel { min-width: 0; overflow: hidden; background: var(--surface); border: 0; border-radius: 0; box-shadow: none; }
 .editor-panel[data-kind="source"] { border-right: 1px solid var(--line); }
-.editor-panel__header { min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line-subtle); }
+.editor-panel__header { min-height: 52px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--line-subtle); }
 .editor-panel__header > div { display: flex; align-items: center; gap: 8px; }
 .editor-panel__actions { flex-wrap: wrap; justify-content: flex-end; }
 .format-label { color: var(--muted); font-size: 12px; }
@@ -34,16 +34,20 @@
 .diagnostic-banner button { color: inherit; background: transparent; border: 0; text-align: left; cursor: pointer; }
 .monaco-editor .json-yaml-converter-glyph-error { background-image: radial-gradient(circle, var(--danger) 0 4px, transparent 4.5px); background-position: center; background-repeat: no-repeat; }
 .stale-result { margin: 8px 12px; color: var(--warning); font-weight: 600; }
-.status-bar, .action-message { color: var(--muted); font-size: 13px; }
+.status-bar { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0 12px 12px; color: var(--muted); font-size: 13px; }
+.status-bar p { margin: 0; }
+.action-message { color: var(--muted); font-size: 13px; }
 .status-bar--valid { color: var(--success); }
 .status-bar--oversized, .status-bar--invalid { color: var(--danger); }
 .completion-badge { margin-left: 4px; color: var(--success); font-size: 12px; }
 .mobile-tabs button[aria-selected="true"] .completion-badge { color: inherit; }
 .mobile-tabs { display: none; }
 @media (max-width: 767px) {
-  .converter-page { padding: 12px; }
+  .converter-page { gap: 12px; }
+  .converter-workspace { padding: 8px; }
   .converter-grid { display: flex; flex-direction: column; }
-  .converter-grid__swap { order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; }
+  .converter-grid__swap { order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; border: 0; background: transparent; }
+  .editor-panel[data-kind="source"] { border-right: 0; }
   .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
   .mobile-tabs button { border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 8px; color: var(--text); background: var(--surface); }
   .mobile-tabs button[aria-selected="true"] { color: var(--on-primary); background: var(--primary); border-color: var(--primary); }
