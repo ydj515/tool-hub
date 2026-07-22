@@ -197,6 +197,38 @@ describe('ConverterPage', () => {
     expect(screen.queryByText('결과를 클립보드에 복사하지 못했습니다.')).not.toBeInTheDocument();
   });
 
+  it('복사 성공을 체크 버튼과 일시 알림으로 표시한 뒤 기본 상태로 돌린다', async () => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    renderPage();
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
+    await act(async () => Promise.resolve());
+
+    const copyButton = screen.getByRole('button', { name: '결과 복사' });
+    expect(copyButton).toHaveAttribute('data-copied', 'true');
+    expect(copyButton.querySelector('svg.lucide-check')).not.toBeNull();
+    expect(screen.getByText('결과를 클립보드에 복사했습니다.').closest('[role="status"]')).toHaveClass('copy-success-toast');
+
+    act(() => vi.advanceTimersByTime(2_000));
+    expect(copyButton).toHaveAttribute('data-copied', 'false');
+    expect(copyButton.querySelector('svg.lucide-copy')).not.toBeNull();
+    expect(screen.queryByText('결과를 클립보드에 복사했습니다.')).not.toBeInTheDocument();
+  });
+
+  it('새 원본 mutation은 표시 중인 복사 성공 피드백을 즉시 지운다', async () => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    renderPage();
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: '결과 복사' }));
+    await act(async () => Promise.resolve());
+    fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":2}' } });
+
+    expect(screen.getByRole('button', { name: '결과 복사' })).toHaveAttribute('data-copied', 'false');
+    expect(screen.queryByText('결과를 클립보드에 복사했습니다.')).not.toBeInTheDocument();
+  });
+
   it('결과 탭에서 진단 버튼을 누르면 원본 탭 선택 후 편집기에 focus한다', () => {
     focusDiagnostic.mockImplementation(() => expect(screen.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true'));
     renderPage();

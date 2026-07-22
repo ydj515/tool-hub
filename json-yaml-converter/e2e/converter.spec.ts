@@ -103,6 +103,19 @@ test('편집기 액션을 접근 가능한 36px 아이콘 버튼으로 표시한
   }
 });
 
+test('결과 복사 성공을 체크와 일시 알림으로 안내한다', async ({ page }) => {
+  await page.goto('/');
+  await fillMonaco(page, 'JSON 원본', '{"name":"tool-hub"}');
+  const copyButton = page.getByRole('button', { name: '결과 복사' });
+  await expect(copyButton).toBeEnabled();
+  await copyButton.click();
+
+  await expect(copyButton).toHaveAttribute('data-copied', 'true');
+  await expect(page.getByText('결과를 클립보드에 복사했습니다.')).toBeVisible();
+  await expect(page.getByText('결과를 클립보드에 복사했습니다.')).toBeHidden({ timeout: 3_000 });
+  await expect(copyButton).toHaveAttribute('data-copied', 'false');
+});
+
 test('빈 화면에서 YAML → JSON 방향을 직접 선택하고 scheduled 상태를 거쳐 변환한다', async ({ page }) => {
   const failures = trackBrowserFailures(page);
   await page.goto('/');

@@ -13,6 +13,7 @@ interface ConverterWorkspaceProps {
   sourceEditorRef: RefObject<CodeEditorHandle | null>;
   activeTab: 'source' | 'result';
   filePending: boolean;
+  copySucceeded: boolean;
   onTabChange(tab: 'source' | 'result'): void;
   onSourceChange(value: string): void;
   onPretty(): void;
@@ -22,7 +23,7 @@ interface ConverterWorkspaceProps {
   onDiagnosticFocus(): void;
 }
 
-export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, filePending, onTabChange, onSourceChange, onPretty, onCopy, onDownload, onSwap, onDiagnosticFocus }: ConverterWorkspaceProps) {
+export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, filePending, copySucceeded, onTabChange, onSourceChange, onPretty, onCopy, onDownload, onSwap, onDiagnosticFocus }: ConverterWorkspaceProps) {
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
   const sourceTabRef = useRef<HTMLButtonElement>(null);
   const resultTabRef = useRef<HTMLButtonElement>(null);
@@ -62,7 +63,7 @@ export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, f
     <div className="converter-grid">
       <EditorPanel kind="source" format={sourceFormat} value={state.source} theme={theme} diagnostic={state.diagnostic} editorRef={sourceEditorRef} onChange={onSourceChange} onPretty={onPretty} prettyDisabled={state.status !== 'valid'} mobileHidden={activeTab !== 'source'} panelId="converter-source-panel" tabId="converter-source-tab" isMobile={isMobile} />
       <div className="converter-grid__swap"><Button type="button" className="converter-grid__swap-button" variant="icon" aria-label="변환 방향 전환" disabled={disabled} onClick={switchAndSwap}>⇄</Button></div>
-      <EditorPanel kind="result" format={resultFormat} value={state.result} theme={theme} diagnostic={null} onCopy={onCopy} onDownload={onDownload} resultDisabled={disabled} mobileHidden={activeTab !== 'result'} panelId="converter-result-panel" tabId="converter-result-tab" isMobile={isMobile}>{!state.resultFresh && state.result.length > 0 ? <p className="stale-result" role="status">현재 입력과 동기화되지 않은 결과</p> : null}</EditorPanel>
+      <EditorPanel kind="result" format={resultFormat} value={state.result} theme={theme} diagnostic={null} onCopy={onCopy} onDownload={onDownload} resultDisabled={disabled} copySucceeded={copySucceeded} mobileHidden={activeTab !== 'result'} panelId="converter-result-panel" tabId="converter-result-tab" isMobile={isMobile}>{!state.resultFresh && state.result.length > 0 ? <p className="stale-result" role="status">현재 입력과 동기화되지 않은 결과</p> : null}</EditorPanel>
     </div>
     {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={onDiagnosticFocus} /> : null}
   </section>;

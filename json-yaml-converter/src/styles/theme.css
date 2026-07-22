@@ -30,6 +30,7 @@
   --primary-surface: rgb(234, 242, 254);
   --on-primary: #ffffff;
   --success: rgb(24, 121, 78);
+  --success-surface: rgba(24, 121, 78, 0.10);
   --warning: rgb(161, 92, 0);
   --danger: rgb(180, 35, 24);
   --danger-surface: rgba(180, 35, 24, 0.08);
@@ -64,6 +65,7 @@
   --primary-heavy: rgb(0, 102, 255);
   --primary-surface: rgba(91, 132, 255, 0.16);
   --success: rgb(87, 198, 138);
+  --success-surface: rgba(87, 198, 138, 0.16);
   --warning: rgb(240, 164, 75);
   --danger: rgb(229, 92, 108);
   --danger-surface: rgba(229, 92, 108, 0.08);

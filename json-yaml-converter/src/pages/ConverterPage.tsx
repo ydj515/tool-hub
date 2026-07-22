@@ -3,6 +3,7 @@ import { ConverterToolbar } from '../components/converter/ConverterToolbar';
 import { ConverterWorkspace } from '../components/converter/ConverterWorkspace';
 import { StatusBar } from '../components/converter/StatusBar';
 import type { CodeEditorHandle } from '../components/editor/CodeEditor';
+import { CopySuccessToast } from '../components/feedback/CopySuccessToast';
 import { Header } from '../components/layout/Header';
 import { useConverter } from '../hooks/useConverter';
 import { prettySource } from '../lib/converter';
@@ -18,18 +19,36 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
   const { state, setSource, selectDirection, setDirectionAndSource, loadSample, clear, swap, reportDiagnostic } = useConverter();
   const sourceEditorRef = useRef<CodeEditorHandle>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [copySucceeded, setCopySucceeded] = useState(false);
   const [activeTab, setActiveTab] = useState<'source' | 'result'>('source');
   const [filePending, setFilePending] = useState(false);
   const fileRequestRef = useRef(0);
   const clipboardRequestRef = useRef(0);
   const mountedRef = useRef(true);
   const diagnosticFocusTimerRef = useRef<number | null>(null);
+  const copyFeedbackTimerRef = useRef<number | null>(null);
+
+  const clearCopyFeedback = () => {
+    if (copyFeedbackTimerRef.current !== null) window.clearTimeout(copyFeedbackTimerRef.current);
+    copyFeedbackTimerRef.current = null;
+    setCopySucceeded(false);
+  };
+
+  const showCopyFeedback = () => {
+    clearCopyFeedback();
+    setCopySucceeded(true);
+    copyFeedbackTimerRef.current = window.setTimeout(() => {
+      copyFeedbackTimerRef.current = null;
+      if (mountedRef.current) setCopySucceeded(false);
+    }, 2_000);
+  };
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       if (diagnosticFocusTimerRef.current !== null) window.clearTimeout(diagnosticFocusTimerRef.current);
+      if (copyFeedbackTimerRef.current !== null) window.clearTimeout(copyFeedbackTimerRef.current);
     };
   }, []);
 
@@ -37,6 +56,7 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
     fileRequestRef.current += 1;
     clipboardRequestRef.current += 1;
     setFilePending(false);
+    clearCopyFeedback();
     setMessage(null);
     return fileRequestRef.current;
   };
@@ -72,6 +92,7 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
     } else setMessage(result.error.message);
   };
   const handleCopy = async () => {
+    clearCopyFeedback();
     const revision = fileRequestRef.current;
     const request = clipboardRequestRef.current + 1;
     const result = state.result;
@@ -79,7 +100,8 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
     try {
       await navigator.clipboard.writeText(result);
       if (!mountedRef.current || revision !== fileRequestRef.current || request !== clipboardRequestRef.current) return;
-      setMessage('결과를 클립보드에 복사했습니다.');
+      setMessage(null);
+      showCopyFeedback();
     } catch {
       if (!mountedRef.current || revision !== fileRequestRef.current || request !== clipboardRequestRef.current) return;
       setMessage('결과를 클립보드에 복사하지 못했습니다.');
@@ -124,7 +146,8 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
         <p className="control-card__privacy">자동 변환 · 모든 처리는 브라우저 안에서 완료됩니다.</p>
       </section>
       {message ? <p className="action-message" role="status">{message}</p> : null}
-      <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} onDiagnosticFocus={handleDiagnosticFocus} />
+      <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} copySucceeded={copySucceeded} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} onDiagnosticFocus={handleDiagnosticFocus} />
+      {copySucceeded ? <CopySuccessToast /> : null}
     </main>
   </>;
 }

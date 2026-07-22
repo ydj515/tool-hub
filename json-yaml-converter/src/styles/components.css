@@ -24,6 +24,7 @@
 .btn-ghost { color: var(--muted); background: transparent; border-color: transparent; }
 .btn-ghost:hover { color: var(--text); background: var(--fill); border-color: var(--line); }
 .btn-icon { display: inline-grid; place-items: center; width: 36px; min-width: 36px; height: 36px; padding: 0; }
+.btn-icon[data-copied="true"], .btn-icon[data-copied="true"]:hover { color: var(--success); background: var(--success-surface); border-color: var(--success); }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .converter-workspace { overflow: hidden; }
 .converter-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
@@ -43,6 +44,9 @@
 .status-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 0 0 0 auto; color: var(--text-neutral); font-size: 13px; }
 .status-bar p { margin: 0; }
 .action-message { margin: 0; padding: 10px 12px; color: var(--text-neutral); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); font-size: 13px; }
+.copy-success-toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; gap: 8px; padding: 12px 14px; color: var(--text-neutral); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); font-size: 13px; font-weight: 600; pointer-events: none; animation: copy-feedback-in var(--dur) var(--ease); }
+.copy-success-toast svg { flex: 0 0 auto; color: var(--success); }
+@keyframes copy-feedback-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .status-bar--valid { color: var(--success); }
 .status-bar--oversized, .status-bar--invalid { color: var(--danger); }
 .completion-badge { margin-left: 4px; color: var(--success); font-size: 12px; }
@@ -58,6 +62,7 @@
   .direction-selector { grid-column: 1 / -1; grid-row: 2; width: 100%; margin: 0; }
   .direction-selector__option { flex: 1; white-space: nowrap; }
   .converter-page { gap: 12px; }
+  .copy-success-toast { right: 12px; bottom: 12px; left: 12px; justify-content: center; }
   .studio-control-card__main { align-items: flex-start; flex-direction: column; }
   .converter-toolbar { width: 100%; }
   .status-bar { width: 100%; justify-content: flex-start; flex-wrap: wrap; margin-left: 0; }

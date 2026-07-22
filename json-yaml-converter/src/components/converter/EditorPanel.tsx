@@ -1,5 +1,5 @@
 import type { RefObject, ReactNode } from 'react';
-import { AlignLeft, Copy, Download } from 'lucide-react';
+import { AlignLeft, Check, Copy, Download } from 'lucide-react';
 import { CodeEditor, type CodeEditorHandle } from '../editor/CodeEditor';
 import type { DataFormat, Diagnostic } from '../../lib/diagnostics';
 import type { Theme } from '../../theme';
@@ -18,6 +18,7 @@ interface EditorPanelProps {
   onDownload?(): void;
   prettyDisabled?: boolean;
   resultDisabled?: boolean;
+  copySucceeded?: boolean;
   mobileHidden: boolean;
   panelId: string;
   tabId: string;
@@ -27,7 +28,7 @@ interface EditorPanelProps {
 
 export function EditorPanel({
   kind, format, value, theme, diagnostic, editorRef, onChange, onPretty, onCopy, onDownload,
-  prettyDisabled = false, resultDisabled = false, mobileHidden, panelId, tabId, isMobile, children,
+  prettyDisabled = false, resultDisabled = false, copySucceeded = false, mobileHidden, panelId, tabId, isMobile, children,
 }: EditorPanelProps) {
   const source = kind === 'source';
   const label = `${format.toUpperCase()} ${source ? '원본' : '결과'}`;
@@ -49,8 +50,8 @@ export function EditorPanel({
           </Button>
         ) : (
           <>
-            <Button type="button" variant="icon" aria-label="결과 복사" title="결과 복사" onClick={onCopy} disabled={resultDisabled}>
-              <Copy size={16} aria-hidden="true" />
+            <Button type="button" variant="icon" aria-label="결과 복사" title="결과 복사" data-copied={copySucceeded} onClick={onCopy} disabled={resultDisabled}>
+              {copySucceeded ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
             </Button>
             <Button type="button" variant="icon" aria-label="결과 다운로드" title="결과 다운로드" onClick={onDownload} disabled={resultDisabled}>
               <Download size={16} aria-hidden="true" />
