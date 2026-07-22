@@ -27,7 +27,7 @@
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .converter-workspace { overflow: hidden; }
 .converter-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
-.converter-grid__swap { position: absolute; z-index: 2; top: 50%; left: 50%; display: grid; place-items: center; transform: translate(-50%, -50%); }
+.converter-grid__swap { position: absolute; z-index: 2; top: 50px; left: 50%; display: grid; place-items: center; transform: translate(-50%, -50%); }
 .converter-grid__swap-button { position: relative; z-index: 1; border-color: var(--line); background: var(--surface); }
 .editor-panel { min-width: 0; overflow: hidden; background: var(--surface); border: 0; border-radius: 0; box-shadow: none; }
 .editor-panel[data-kind="source"] { border-right: 1px solid var(--line); }
