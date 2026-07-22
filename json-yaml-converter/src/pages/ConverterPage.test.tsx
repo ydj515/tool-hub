@@ -31,6 +31,19 @@ describe('ConverterPage', () => {
   });
   afterEach(() => vi.useRealTimers());
 
+  it('Converter Studio 안에 도구 모음과 공통 편집기 작업 공간을 구성한다', () => {
+    window.matchMedia = vi.fn((query: string) => ({
+      matches: false, media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }));
+    render(<ConverterPage theme="light" />);
+
+    expect(screen.getByTestId('converter-studio')).toContainElement(screen.getByRole('region', { name: '변환 도구 모음' }));
+    expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
+    expect(screen.getByTestId('converter-workspace')).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
+    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('btn-icon');
+  });
+
   it('JSON 입력을 자동 변환하고 JSON Pretty를 제공한다', () => {
     render(<ConverterPage theme="light" />);
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a":1}' } });

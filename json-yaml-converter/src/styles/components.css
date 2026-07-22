@@ -5,7 +5,11 @@
 .privacy-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
 .theme-button { color: var(--text); background: var(--surface-2); border-color: var(--control-border); }
 .converter-page { width: min(1440px, 100%); margin: 0 auto; padding: 24px; }
-.converter-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.studio-control-card, .converter-workspace { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.studio-control-card { overflow: hidden; }
+.converter-toolbar { display: flex; justify-content: space-between; gap: 12px; padding: 12px; margin: 0; }
+.converter-toolbar__direction, .converter-toolbar__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.converter-toolbar__actions { justify-content: flex-end; }
 .direction-selector { display: flex; border: 1px solid var(--control-border); border-radius: var(--radius-md); overflow: hidden; }
 .direction-selector__option { border: 0; padding: 8px 12px; color: var(--text); background: var(--surface); }
 .direction-selector__option[aria-checked="true"] { color: var(--on-primary); background: var(--primary); }
@@ -15,9 +19,12 @@
 .btn-ghost:hover { color: var(--text); background: var(--fill); border-color: var(--line); }
 .btn-icon { display: inline-grid; place-items: center; width: 38px; min-width: 38px; padding: 0; }
 .btn:focus-visible, .direction-selector__option:focus-visible, .mobile-tabs button:focus-visible, .diagnostic-banner button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); gap: 12px; }
+.converter-workspace { overflow: hidden; }
+.converter-grid { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); }
 .converter-grid__swap { display: grid; place-items: center; }
-.editor-panel { min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.converter-grid__swap-button { position: relative; z-index: 1; }
+.editor-panel { min-width: 0; overflow: hidden; background: var(--surface); border: 0; border-radius: 0; box-shadow: none; }
+.editor-panel[data-kind="source"] { border-right: 1px solid var(--line); }
 .editor-panel__header { min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line-subtle); }
 .editor-panel__header > div { display: flex; align-items: center; gap: 8px; }
 .editor-panel__actions { flex-wrap: wrap; justify-content: flex-end; }

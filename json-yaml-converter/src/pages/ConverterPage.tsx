@@ -108,11 +108,13 @@ export function ConverterPage({ theme }: { theme: Theme }) {
     setActiveTab(tab);
   };
 
-  return <main className="converter-page" aria-label="변환기 작업 공간">
-    <ConverterToolbar direction={state.direction} onDirectionChange={handleDirectionChange} onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
+  return <main className="converter-page" aria-label="변환기 작업 공간" data-testid="converter-studio">
+    <section className="studio-control-card">
+      <ConverterToolbar direction={state.direction} onDirectionChange={handleDirectionChange} onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
+      <StatusBar state={state} />
+    </section>
     {message ? <p className="action-message" role="status">{message}</p> : null}
     {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
-    <StatusBar state={state} />
     <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
   </main>;
 }

@@ -31,13 +31,13 @@ export function EditorPanel({
   const source = kind === 'source';
   const label = `${format.toUpperCase()} ${source ? '원본' : '결과'}`;
   const mobileTabPanelProps = isMobile ? { role: 'tabpanel', id: panelId, 'aria-labelledby': tabId, tabIndex: 0 } : {};
-  return <section className="editor-panel" {...mobileTabPanelProps} data-mobile-hidden={mobileHidden} aria-label={`${source ? '원본' : '결과'} 편집기`}>
+  return <section className="editor-panel" {...mobileTabPanelProps} data-kind={kind} data-mobile-hidden={mobileHidden} aria-label={`${source ? '원본' : '결과'} 편집기`}>
     <header className="editor-panel__header">
       <div><strong>{source ? '원본' : '결과'}</strong><span className="format-label">{format.toUpperCase()}</span></div>
       <div className="editor-panel__actions">
         {source
-          ? <Button type="button" onClick={onPretty} disabled={prettyDisabled}>{format.toUpperCase()} Pretty</Button>
-          : <><Button type="button" onClick={onCopy} disabled={resultDisabled}>결과 복사</Button><Button type="button" onClick={onDownload} disabled={resultDisabled}>결과 다운로드</Button></>}
+          ? <Button type="button" variant="ghost" onClick={onPretty} disabled={prettyDisabled}>{format.toUpperCase()} Pretty</Button>
+          : <><Button type="button" variant="ghost" onClick={onCopy} disabled={resultDisabled}>결과 복사</Button><Button type="button" variant="ghost" onClick={onDownload} disabled={resultDisabled}>결과 다운로드</Button></>}
       </div>
     </header>
     {children}
