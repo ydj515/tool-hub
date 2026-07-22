@@ -112,6 +112,12 @@ describe('ConverterPage', () => {
     act(() => vi.advanceTimersByTime(300));
     fireEvent.change(screen.getByLabelText('JSON 원본'), { target: { value: '{"a" 1}' } });
     act(() => vi.advanceTimersByTime(300));
+    const workspace = screen.getByTestId('converter-workspace');
+    const grid = workspace.querySelector('.converter-grid');
+    const diagnostic = screen.getByTestId('diagnostic-banner');
+    expect(workspace).toContainElement(diagnostic);
+    expect(grid).not.toContainElement(diagnostic);
+    expect(grid?.nextElementSibling).toBe(diagnostic);
     expect(screen.getByText(/1행 6열/)).toBeInTheDocument();
     expect(screen.getByText('현재 입력과 동기화되지 않은 결과')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '결과 복사' })).toBeDisabled();

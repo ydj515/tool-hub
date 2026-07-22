@@ -66,6 +66,6 @@
   --success: rgb(87, 198, 138);
   --warning: rgb(240, 164, 75);
   --danger: rgb(229, 92, 108);
-  --danger-surface: rgba(229, 92, 108, 0.12);
+  --danger-surface: rgba(229, 92, 108, 0.08);
   --editor-bg: #1e1e1e;
 }

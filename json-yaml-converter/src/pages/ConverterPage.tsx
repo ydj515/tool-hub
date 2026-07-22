@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ConverterToolbar } from '../components/converter/ConverterToolbar';
 import { ConverterWorkspace } from '../components/converter/ConverterWorkspace';
-import { DiagnosticBanner } from '../components/converter/DiagnosticBanner';
 import { StatusBar } from '../components/converter/StatusBar';
 import type { CodeEditorHandle } from '../components/editor/CodeEditor';
 import { Header } from '../components/layout/Header';
@@ -125,8 +124,7 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
         <p className="control-card__privacy">자동 변환 · 모든 처리는 브라우저 안에서 완료됩니다.</p>
       </section>
       {message ? <p className="action-message" role="status">{message}</p> : null}
-      {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={handleDiagnosticFocus} /> : null}
-      <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} />
+      <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} onDiagnosticFocus={handleDiagnosticFocus} />
     </main>
   </>;
 }
