@@ -1,4 +1,4 @@
-# OpenAPI Studio Contributor Guide
+# openapi-editor Contributor Guide
 
 ## 프로젝트 구조
 

@@ -15,21 +15,21 @@ describe('tools metadata', () => {
     expect(liveTools.every((tool) => typeof tool.url === 'string' && tool.url.length > 0)).toBe(true);
   });
 
-  it('registers the JSON YAML converter as coming soon until deployment', () => {
+  it('registers the JSON YAML converter as live', () => {
     expect(tools).toContainEqual(expect.objectContaining({
       id: 'json-yaml-converter',
-      status: 'coming-soon',
-      url: null,
+      status: 'live',
+      url: expect.any(String),
       tags: expect.arrayContaining(['JSON', 'YAML', 'Converter']),
     }));
   });
 
-  it('registers the current OpenAPI Studio capabilities until deployment', () => {
+  it('registers the current openapi-editor capabilities as live', () => {
     expect(tools).toContainEqual(expect.objectContaining({
       id: 'openapi-editor',
-      name: 'OpenAPI Studio',
-      status: 'coming-soon',
-      url: null,
+      name: 'openapi-editor',
+      status: 'live',
+      url: expect.any(String),
       longDescription: expect.stringContaining('버전별 YAML 샘플'),
       tags: expect.arrayContaining(['OpenAPI', 'Swagger', 'YAML', 'JSON', 'Sample']),
     }));

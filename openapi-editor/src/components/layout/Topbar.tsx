@@ -66,7 +66,7 @@ export function Topbar({ filename, format, sourceVersion, target, conversionEnab
       <div className="document-context">
         <div className="brand-block">
           <div className="brand-icon"><WandSparkles size={21} /></div>
-          <div><h1>OpenAPI Studio</h1><p>브라우저 안에서 편집 · 검증 · 변환합니다.</p></div>
+          <div><h1>openapi-editor</h1><p>브라우저 안에서 편집 · 검증 · 변환합니다.</p></div>
         </div>
         <div className="document-meta">
           <span className="file-chip" title={filename}>{filename ?? '새 문서'} · {format.toUpperCase()}</span>

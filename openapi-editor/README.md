@@ -1,4 +1,4 @@
-# OpenAPI Studio
+# openapi-editor
 
 Swagger 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, OpenAPI 3.2.x 단일 문서를 브라우저 안에서 편집·검증·변환하는 Vite + React 도구다. 입력한 명세는 서버나 브라우저 영구 저장소에 저장하지 않는다.
 

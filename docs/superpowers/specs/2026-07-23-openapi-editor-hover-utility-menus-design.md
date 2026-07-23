@@ -1,10 +1,10 @@
-# OpenAPI Studio Hover Utility Menus Design
+# openapi-editor Hover Utility Menus Design
 
 **Date:** 2026-07-23
 
 ## Goal
 
-OpenAPI Studio 상단 보조 작업의 조작 단계를 줄인다. 데스크톱에서는 메뉴 트리거에 포인터를 올리거나 키보드로 포커스하면 내용을 열고, 내보내기와 샘플의 항목 클릭은 즉시 다운로드를 실행한다.
+openapi-editor 상단 보조 작업의 조작 단계를 줄인다. 데스크톱에서는 메뉴 트리거에 포인터를 올리거나 키보드로 포커스하면 내용을 열고, 내보내기와 샘플의 항목 클릭은 즉시 다운로드를 실행한다.
 
 ## Scope
 

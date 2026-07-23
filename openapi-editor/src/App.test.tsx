@@ -11,11 +11,11 @@ vi.mock('./components/preview/SwaggerPreview', () => ({
   SwaggerPreview: () => <div aria-label="Swagger UI 미리보기" />,
 }));
 
-describe('OpenAPI Studio App', () => {
+describe('openapi-editor App', () => {
   it('renders the editor workspace shell', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'OpenAPI Studio' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'openapi-editor' })).toBeInTheDocument();
     expect(screen.getByLabelText('핵심 작업')).toBeInTheDocument();
     expect(screen.getByLabelText('보조 작업')).toBeInTheDocument();
     const formatMenu = screen.getByLabelText('형식 메뉴');

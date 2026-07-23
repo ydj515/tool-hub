@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 프로젝트 디렉터리 | `openapi-editor/` |
-| 제품 표시명 | OpenAPI Studio |
+| 제품 표시명 | openapi-editor |
 | 작성일 | 2026-07-21 |
 | 상태 | 사용자 승인, 구현 진행 |
 | 구현 방식 | Vite + React + TypeScript SPA, Web Worker |
@@ -689,7 +689,7 @@ npm run test:e2e
 구현 시 다음 문서를 함께 갱신한다.
 
 - 루트 `README.md` 도구 목록
-- `home/src/data/tools.ts`의 OpenAPI Studio 카드
+- `home/src/data/tools.ts`의 openapi-editor 카드
 - `home/src/data/tools.test.ts`
 - `openapi-editor/README.md`의 지원 범위와 손실 가능성
 - `openapi-editor/AGENTS.md`의 검증 명령 인덱스

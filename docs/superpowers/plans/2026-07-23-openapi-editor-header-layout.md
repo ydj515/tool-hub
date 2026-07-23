@@ -1,8 +1,8 @@
-# OpenAPI Studio Header Layout Implementation Plan
+# openapi-editor Header Layout Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** OpenAPI Studio의 데스크톱 헤더에서 문서 상태, 핵심 변환, 보조 도구를 의도적인 두 줄 구조로 분리한다.
+**Goal:** openapi-editor의 데스크톱 헤더에서 문서 상태, 핵심 변환, 보조 도구를 의도적인 두 줄 구조로 분리한다.
 
 **Architecture:** `Topbar`는 문서 컨텍스트와 핵심 변환 흐름을 첫 줄에 두고, 형식·다운로드·샘플·복원·테마 도구를 두 번째 줄의 보조 도구 막대로 이동한다. CSS Grid가 두 줄의 공통 열을 관리하며, 767px 이하의 기존 모바일 단일 열 동작은 유지한다.
 

@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Purpose
-OpenAPI Studio 기여자와 에이전트를 위한 짧은 인덱스다.
+openapi-editor 기여자와 에이전트를 위한 짧은 인덱스다.
 
 ## Required Verification
 - `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:e2e`를 실행한다.

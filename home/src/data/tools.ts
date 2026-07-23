@@ -86,13 +86,13 @@ export const tools: Tool[] = [
   },
   {
     id: 'openapi-editor',
-    name: 'OpenAPI Studio',
+    name: 'openapi-editor',
     longDescription:
       'Swagger 2.0과 OpenAPI 3.0/3.1/3.2 문서를 브라우저 안에서 편집·검증하고, 버전별 YAML 샘플 다운로드와 손실 경고를 제공하며 변환합니다.',
     tags: ['OpenAPI', 'Swagger', 'YAML', 'JSON', 'Sample', 'API'],
-    url: null,
+    url: 'https://tool-hub-openapi-editor-nine.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/openapi-editor',
-    status: 'coming-soon',
+    status: 'live',
   },
     {
     id: 'class-diagram-generator',
