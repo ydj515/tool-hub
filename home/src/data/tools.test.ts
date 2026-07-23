@@ -23,4 +23,15 @@ describe('tools metadata', () => {
       tags: expect.arrayContaining(['JSON', 'YAML', 'Converter']),
     }));
   });
+
+  it('registers the current OpenAPI Studio capabilities until deployment', () => {
+    expect(tools).toContainEqual(expect.objectContaining({
+      id: 'openapi-editor',
+      name: 'OpenAPI Studio',
+      status: 'coming-soon',
+      url: null,
+      longDescription: expect.stringContaining('버전별 YAML 샘플'),
+      tags: expect.arrayContaining(['OpenAPI', 'Swagger', 'YAML', 'JSON', 'Sample']),
+    }));
+  });
 });

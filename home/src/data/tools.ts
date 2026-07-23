@@ -80,8 +80,18 @@ export const tools: Tool[] = [
     longDescription:
       'JSON과 YAML을 양방향으로 변환하고, 두 형식을 보기 좋게 정리하며 문법 오류의 정확한 위치를 알려줍니다.',
     tags: ['JSON', 'YAML', 'Converter', 'Formatter'],
-    url: null,
+    url: 'https://tool-hub-json-yaml-converter.vercel.app/',
     github: 'https://github.com/ydj515/tool-hub/tree/main/json-yaml-converter',
+    status: 'live',
+  },
+  {
+    id: 'openapi-editor',
+    name: 'OpenAPI Studio',
+    longDescription:
+      'Swagger 2.0과 OpenAPI 3.0/3.1/3.2 문서를 브라우저 안에서 편집·검증하고, 버전별 YAML 샘플 다운로드와 손실 경고를 제공하며 변환합니다.',
+    tags: ['OpenAPI', 'Swagger', 'YAML', 'JSON', 'Sample', 'API'],
+    url: null,
+    github: 'https://github.com/ydj515/tool-hub/tree/main/openapi-editor',
     status: 'coming-soon',
   },
     {

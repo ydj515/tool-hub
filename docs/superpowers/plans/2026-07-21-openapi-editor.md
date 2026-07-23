@@ -13,9 +13,9 @@
 ## Global Constraints
 
 - 작업 디렉터리는 각 명령에 별도 표기가 없으면 `openapi-editor/`다.
-- 입력은 Swagger `2.0`, OpenAPI `3.0.0`~`3.0.4`, OpenAPI `3.1.0`~`3.1.2`만 허용한다.
-- 변환 출력은 Swagger `2.0`, OpenAPI `3.0.4`, OpenAPI `3.1.2`로 정규화한다.
-- OpenAPI 3.2, AsyncAPI, 다중 파일, 외부 `$ref` 해석, 실제 API 호출은 구현하지 않는다.
+- 입력은 Swagger `2.0`, OpenAPI `3.0.0`~`3.0.4`, OpenAPI `3.1.0`~`3.1.2`, OpenAPI `3.2.x`를 허용한다.
+- 변환 출력은 Swagger `2.0`, OpenAPI `3.0.4`, OpenAPI `3.1.2`, OpenAPI `3.2.0`으로 정규화한다.
+- AsyncAPI, 다중 파일, 외부 `$ref` 해석, 실제 API 호출은 구현하지 않는다.
 - 외부 URL·파일 `$ref`는 보존하고 `EXTERNAL_REF_NOT_RESOLVED` 경고를 생성하며 네트워크 요청은 하지 않는다.
 - Swagger UI의 `Try it out`은 비활성화하고 API 명세 본문은 브라우저 영구 저장소에 기록하지 않는다.
 - 5MB 초과 파일에는 경고를 표시하고 20MB 초과 파일은 열지 않는다.
@@ -23,6 +23,13 @@
 - 구현은 테스트 우선으로 진행하고 각 Task 끝에 관련 테스트, lint, typecheck를 실행한다.
 - 최종 완료 전 `openapi-editor/`와 `home/`에서 `test`, `lint`, `typecheck`, `build`를 모두 실행하고 OpenAPI Studio에서 `test:e2e`를 실행한다.
 - 기존 `.superpowers/` 미추적 파일은 수정·스테이징하지 않는다.
+
+### 2026-07-23 범위 확장
+
+- Topbar의 모든 직접 조작 요소는 36px 높이로 통일한다.
+- 사용자는 Swagger 2.0, OpenAPI 3.0.4, 3.1.2, 3.2.0 중 하나를 선택해 대응하는 YAML 예시 명세를 내려받을 수 있다.
+- OpenAPI 3.2를 3.1 이하로 하향 변환할 때는 `query`, `additionalOperations`, 확장 태그, 스트리밍 미디어 필드, OAuth Device Authorization Flow 등 지원 불가한 필드를 확장 필드와 `lossy: true` 진단으로 보존한다.
+- 아래 기존 계획의 OpenAPI 3.2 거부, 여섯 변환 방향 언급, 3.0/3.1 전용 완료 조건은 이 범위 확장으로 대체한다.
 
 ---
 

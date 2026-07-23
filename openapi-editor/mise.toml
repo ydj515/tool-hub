@@ -1,0 +1,56 @@
+[tools]
+node = "24.13.0"
+
+[tasks.default]
+description = "Default task (runs dev)"
+depends = ["dev"]
+
+[tasks.setup]
+alias = "s"
+description = "Install dependencies"
+depends = ["install"]
+
+[tasks.install]
+alias = "i"
+description = "Install dependencies from the lockfile"
+run = "npm ci"
+
+[tasks.dev]
+alias = "d"
+description = "Run the application"
+run = "npm run dev"
+
+[tasks.test]
+alias = "te"
+description = "Run unit and component tests"
+run = "npm run test"
+
+[tasks.test-e2e]
+alias = "e2e"
+description = "Run Chromium end-to-end tests"
+run = "npm run test:e2e"
+
+[tasks.lint]
+alias = "l"
+description = "Run lint checks"
+run = "npm run lint"
+
+[tasks.typecheck]
+alias = "tc"
+description = "Run TypeScript type checks"
+run = "npm run typecheck"
+
+[tasks.build]
+alias = "b"
+description = "Build the application"
+run = "npm run build"
+
+[tasks.preview]
+alias = "p"
+description = "Preview the production build"
+run = "npm run preview"
+
+[tasks.check]
+alias = "c"
+description = "Run the full local verification suite"
+depends = ["test", "lint", "typecheck", "build", "test-e2e"]

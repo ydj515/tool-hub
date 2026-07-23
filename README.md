@@ -9,3 +9,4 @@
 - config-diff-viewer : YAML/JSON/properties/.env 설정 파일을 비교하고, 누락 키·위험 설정·민감정보를 탐지하는 도구입니다.
 - class-diagram-generator : zip 파일을 업로드 하여 class 설계서(diagram 포함, xlsx, docx, md)를 받는 도구입니다.
 - json-yaml-converter : JSON과 YAML을 양방향으로 변환하고 Pretty formatting과 문법 오류 위치를 제공하는 도구입니다.
+- openapi-editor : Swagger 2.0과 OpenAPI 3.0/3.1/3.2 문서를 편집·검증하고 손실 경고와 함께 버전을 변환하는 도구입니다.

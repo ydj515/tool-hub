@@ -39,3 +39,4 @@ Web apps (Vite + Next.js) share a structure playbook — shell/content split, CS
 - `ddl-seed-generator/`: [ddl-seed-generator/docs/contributor-guide.md](../ddl-seed-generator/docs/contributor-guide.md)
 - `config-diff-viewer/`: [config-diff-viewer/docs/contributor-guide.md](../config-diff-viewer/docs/contributor-guide.md)
 - `webpage-capture-tool/`: [webpage-capture-tool/docs/contributor-guide.md](../webpage-capture-tool/docs/contributor-guide.md)
+- `openapi-editor/`: [openapi-editor/docs/contributor-guide.md](../openapi-editor/docs/contributor-guide.md)
