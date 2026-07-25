@@ -155,11 +155,12 @@ test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ p
   await expect(page.getByRole('tablist')).toBeHidden();
 });
 
-test('Sign Maker 기준 셸과 control 크기를 사용한다', async ({ page }) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
+test('정본 디자인 시스템의 셸과 control 크기를 사용한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1700, height: 900 });
   await page.goto('/');
 
-  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1400px');
+  // --ds-container-wide. 에디터·캔버스 도구의 최대폭이다.
+  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1600px');
   await expect(page.getByRole('banner')).toHaveCSS('padding', '16px 20px');
   await expect(page.getByTestId('converter-app-mark')).toHaveCSS('width', '40px');
   await expect(page.getByTestId('converter-app-mark')).toHaveCSS('height', '40px');
