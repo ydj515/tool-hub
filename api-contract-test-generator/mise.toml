@@ -1,6 +1,25 @@
 [tools]
 node = "24.13.0"
 
+[tasks.default]
+description = "Default task (runs dev)"
+depends = ["dev"]
+
+[tasks.setup]
+alias = "s"
+description = "Install dependencies"
+depends = ["install"]
+
+[tasks.install]
+alias = "i"
+description = "Install dependencies from the lockfile"
+run = "npm ci"
+
+[tasks.dev]
+alias = "d"
+description = "Run the application"
+run = "npm run dev"
+
 [tasks.test]
 run = "npm run test"
 

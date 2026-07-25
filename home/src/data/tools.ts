@@ -94,7 +94,17 @@ export const tools: Tool[] = [
     github: 'https://github.com/ydj515/tool-hub/tree/main/openapi-editor',
     status: 'live',
   },
-    {
+  {
+    id: 'api-contract-test-generator',
+    name: 'API Contract Test Generator',
+    longDescription:
+      'OpenAPI 3.0·3.1 명세를 분석해 정상·경계값·오류·인증 테스트 계획을 만들고 Markdown, JSON, Postman Collection으로 내보냅니다.',
+    tags: ['OpenAPI', 'API', 'Testing', 'Postman'],
+    url: null,
+    github: 'https://github.com/ydj515/tool-hub/tree/main/api-contract-test-generator',
+    status: 'coming-soon',
+  },
+  {
     id: 'class-diagram-generator',
     name: 'Class Diagram Generator',
     longDescription:

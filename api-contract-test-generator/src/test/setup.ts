@@ -1,4 +1,17 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+afterEach(cleanup);
+
+class TestWorker {
+  onmessage: ((event: MessageEvent) => void) | null = null;
+  onerror: ((event: ErrorEvent) => void) | null = null;
+  postMessage(): void {}
+  terminate(): void {}
+}
+
+Object.defineProperty(globalThis, 'Worker', { configurable: true, value: TestWorker });
 
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
@@ -12,4 +25,9 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: () => undefined,
     dispatchEvent: () => false,
   }),
+});
+
+Object.defineProperty(window, 'scrollTo', {
+  configurable: true,
+  value: () => undefined,
 });
