@@ -48,9 +48,11 @@
   color: var(--on-primary);
 }
 
+/* 자간은 정본 text-title 유틸리티가 --ds-tracking-title 로 준다.
+   여기서 letter-spacing 을 지정하면 안 된다 — 이 규칙은 레이어 밖이고
+   Tailwind 유틸리티는 @layer utilities 안이라 레이어 밖이 이긴다. */
 .app-title {
   color: var(--text);
-  letter-spacing: 0;
 }
 
 .app-subtitle,
