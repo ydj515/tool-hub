@@ -1,0 +1,17 @@
+[tools]
+node = "24.13.0"
+
+[tasks.test]
+run = "npm run test"
+
+[tasks.lint]
+run = "npm run lint"
+
+[tasks.typecheck]
+run = "npm run typecheck"
+
+[tasks.build]
+run = "npm run build"
+
+[tasks.e2e]
+run = "npm run test:e2e"

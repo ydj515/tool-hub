@@ -1,0 +1,49 @@
+@font-face {
+  font-family: 'ToolHub Sans';
+  src: url('/fonts/toolhub-sans.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f6;
+  --text: #171717;
+  --muted: rgba(55, 56, 60, 0.61);
+  --line: rgba(112, 115, 124, 0.22);
+  --primary: #3366ff;
+  --primary-strong: #005eeb;
+  --primary-surface: #eaf2fe;
+  --danger: #d92d20;
+  --danger-surface: #fef3f2;
+  --warning: #b54708;
+  --warning-surface: #fffaeb;
+  --success: #067647;
+  --success-surface: #ecfdf3;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-muted: #222631;
+  --text: #f5f6f8;
+  --muted: rgba(226, 229, 237, 0.62);
+  --line: rgba(214, 219, 232, 0.17);
+  --primary: #7092ff;
+  --primary-strong: #8eacff;
+  --primary-surface: #202c50;
+  --danger: #ff8a80;
+  --danger-surface: #442422;
+  --warning: #fdb022;
+  --warning-surface: #3b2f19;
+  --success: #47cd89;
+  --success-surface: #173a2b;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.32);
+}
