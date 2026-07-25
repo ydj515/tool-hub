@@ -173,7 +173,7 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
     return (
       <div
         ref={containerRef}
-        className="signature-stage w-full rounded-xl overflow-hidden relative"
+        className="signature-stage w-full rounded-md overflow-hidden relative"
       >
         <canvas
           ref={canvasRef}

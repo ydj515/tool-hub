@@ -32,4 +32,11 @@ describe("Sign Maker App UI", () => {
 
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
   });
+
+  it("브랜드 블록이 Tool Hub 로 돌아가는 링크다", () => {
+    render(<App />);
+
+    const hubLink = screen.getByRole("link", { name: /Tool Hub/ });
+    expect(hubLink).toHaveAttribute("href", "https://tool-hub-rho.vercel.app/");
+  });
 });

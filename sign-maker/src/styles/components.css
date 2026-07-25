@@ -3,6 +3,26 @@
 
 /* .ds-card 와 .ds-icon-btn 은 정본 primitives.css 가 소유한다. */
 
+/* 페이지 여백. 뷰포트 가장자리와 콘텐츠 사이 간격을 소유한다. */
+.ds-page {
+  min-height: 100vh;
+  padding: var(--ds-page-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .ds-page {
+    padding: var(--ds-page-padding);
+  }
+}
+
+/* 셸 컨테이너. 최대폭과 중앙정렬만 담당한다 — 여백은 .ds-page 가 갖는다.
+   에디터·캔버스 도구는 --ds-container-wide 를 쓴다. */
+.ds-shell {
+  width: 100%;
+  max-width: var(--ds-container-wide);
+  margin-inline: auto;
+}
+
 .btn-primary {
   background: var(--primary);
   color: var(--on-primary);

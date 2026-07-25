@@ -109,13 +109,13 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
         onDrop={handleDrop}
         onClick={!hasImage ? () => fileInputRef.current?.click() : undefined}
-        className="upload-dropzone w-full rounded-xl overflow-hidden relative flex items-center justify-center transition-all"
+        className="upload-dropzone w-full rounded-md overflow-hidden relative flex items-center justify-center transition-all"
         data-has-image={hasImage ? "true" : "false"}
         data-dragging={isDragging ? "true" : "false"}
       >
         {!hasImage && (
           <div className="absolute flex flex-col items-center gap-2 text-center pointer-events-none">
-            <div className="upload-icon-box w-12 h-12 rounded-2xl grid place-items-center">
+            <div className="upload-icon-box w-12 h-12 rounded-lg grid place-items-center">
               <Upload size={20} />
             </div>
             <p className="upload-title text-sm font-semibold">
