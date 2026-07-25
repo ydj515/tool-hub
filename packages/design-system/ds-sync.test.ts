@@ -38,12 +38,16 @@ describe('디자인 시스템 정본 동기화', () => {
 /**
  * 정본이 정의하지 않는 Tailwind radius/shadow 단계는 쓰지 않는다.
  *
- * 정본은 @theme inline 으로 --radius-sm/md/lg 와 --shadow-sm/md/lg/xl 만 덮는다.
- * 덮지 않은 단계는 Tailwind 기본값이 그대로 남아 조용히 다른 값이 적용되고,
- * 이름 순서가 값 순서와 역전된다 — rounded-xl 은 Tailwind 기본 12px 인데
- * 정본 rounded-lg 는 16px 이므로 xl < lg 가 된다.
+ * 정본은 @theme inline 으로 radius 의 sm/md/lg 와 shadow 의 sm/md/lg/xl 만
+ * 덮는다. 덮지 않은 단계는 Tailwind 기본값이 그대로 남아 조용히 다른 값이
+ * 적용되고, 이름 순서가 값 순서와 역전된다 — radius 의 xl 단계는 Tailwind
+ * 기본 12px 인데 정본의 lg 는 16px 이므로 xl < lg 가 된다.
  *
  * 1회 grep 은 이후 새로 추가되는 코드를 못 잡으므로 테스트로 상주시킨다.
+ *
+ * 아래 정규식과 이 주석에는 금지 클래스명을 리터럴로 적지 않는다. Tailwind 는
+ * .ts 파일까지 스캔하므로 리터럴이 있으면 그 유틸리티가 실제로 생성되어,
+ * 산출 CSS 를 감사할 때 규칙 위반처럼 보이는 죽은 CSS 가 남는다.
  */
 const FORBIDDEN = /\b(?:rounded-(?:xs|xl|2xl|3xl|4xl)|shadow-(?:xs|2xl|inner))\b/;
 
