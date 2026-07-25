@@ -1,0 +1,59 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Tool Hub Design System — 프리미티브 정본
+   변경 후 저장소 루트에서 `npm run tokens:sync` 를 실행한다.
+
+   전역 클래스를 공급하지만 각 앱은 이것을 얇은 React 컴포넌트로 감싼다
+   (docs/frontend-conventions.md 규칙 4·5). 바닐라 CSS 앱은 직접 쓴다.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 카드·패널 표면 */
+.ds-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+/* 아이콘 버튼.
+   36px 은 openapi-editor 헤더 계획의 전역 제약이며 E2E 가 강제한다.
+   hover 에서 테두리를 없다가 생기게 하지 않는다 — 버튼이 커진 것처럼 보인다. */
+.ds-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--ds-duration-fast) var(--ds-ease-standard),
+    color var(--ds-duration-fast) var(--ds-ease-standard),
+    border-color var(--ds-duration-fast) var(--ds-ease-standard);
+}
+
+.ds-icon-btn:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.ds-icon-btn:active {
+  background: var(--fill-bold);
+}
+
+/* disabled 는 opacity 로 표현하지 않는다. opacity 는 중첩되어 이미 --muted 인
+   텍스트를 2:1 대까지 떨어뜨리고 아이콘을 과도하게 사라지게 한다. */
+.ds-icon-btn:disabled,
+.ds-icon-btn:disabled:hover {
+  color: var(--disabled);
+  background: var(--fill-subtle);
+  cursor: not-allowed;
+}
+
+.ds-icon-btn > svg {
+  width: 16px;
+  height: 16px;
+}
