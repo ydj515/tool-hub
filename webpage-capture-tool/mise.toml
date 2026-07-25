@@ -7,8 +7,8 @@ depends = ["start"]
 
 [tasks.install]
 alias = "i"
-description = "Install dependencies for all workspaces"
-run = "npm install"
+description = "Install dependencies from the lockfile"
+run = "npm ci"
 
 [tasks.lib]
 alias = "l"

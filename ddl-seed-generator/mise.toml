@@ -12,8 +12,8 @@ depends = ["install"]
 
 [tasks.install]
 alias = "i"
-description = "Install dependencies"
-run = "npm install"
+description = "Install dependencies from the lockfile"
+run = "npm ci"
 
 [tasks.dev]
 alias = "d"
