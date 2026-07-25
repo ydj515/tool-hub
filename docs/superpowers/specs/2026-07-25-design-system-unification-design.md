@@ -45,7 +45,7 @@ WCAG 2.1 대비를 계산해 확인한 문제다. 프로젝트는 이미 "진단
 | `--danger: rgb(255,66,66)` (ddl·dummy) | — | 3.44:1 | 텍스트 사용 불가 |
 | `--positive: rgb(0,191,64)` (ddl) | — | 2.46:1 | 텍스트 사용 불가 |
 | `--warn: rgb(255,146,0)` (ddl) | — | 2.24:1 | 텍스트 사용 불가 |
-| `prefers-reduced-motion` | 8개 앱 전부 미처리 | — | 결함 |
+| `prefers-reduced-motion` | 5개 앱 미처리 (openapi-editor·ddl-seed-generator·config-diff-viewer만 처리) | — | 결함 |
 | drawer a11y (config-diff) | `role="dialog"`·`aria-modal`·Escape·포커스 트랩 없음 | — | 결함 |
 | z-index 체계 | 토스트 `z-10`, drawer `z-401` | — | drawer 위에 토스트 표시 불가 |
 
@@ -66,7 +66,24 @@ WCAG 2.1 대비를 계산해 확인한 문제다. 프로젝트는 이미 "진단
 | `dummy-file-generator` | Next.js | O | O |
 | `webpage-capture-tool` | Electron + 바닐라 CSS | O | **제외** |
 
-`webpage-capture-tool`은 바닐라 CSS라 토큰을 그대로 드롭인할 수 있고, 그 과정에서 현재 없는 다크모드가 생긴다. 데스크톱 앱이므로 허브 링크·푸터·헤더 슬롯은 적용하지 않는다.
+`webpage-capture-tool`은 바닐라 CSS라 정본 파일을 분기 없이 그대로 링크할 수 있다. 데스크톱 앱이므로 허브 링크·푸터·헤더 슬롯은 적용하지 않는다.
+
+**다크모드는 생기지 않는다.** 정본은 `[data-theme="dark"]` 속성 셀렉터를 쓰므로 그 속성을 설정하는 주체가 있어야 활성화된다. 이 앱에는 테마 토글도 `data-theme` 배선도 FOUC 스크립트도 없다. 다크모드는 토큰 마이그레이션이 아니라 **기능 추가**이므로 이 작업 범위에서 제외한다.
+
+그리고 이 앱은 드롭인이 아니다. 기존 `style.css`(682줄)가 정본과 **이름이 겹치면서 값이 다른** 토큰을 쓴다.
+
+| 기존 | 사용 | 이전 대상 | 값 변화 |
+|---|---|---|---|
+| `--border` | 26회 | `--line` | 불투명 `#e5e7eb` → 반투명 헤어라인 |
+| `--accent` | 22회 | `--primary` | `#2563eb` → `#3366ff` |
+| `--muted` | 16회 | `--muted` | `#6b7280` → `rgba(55,56,60,.72)` |
+| `--danger` | 9회 | `--danger` | `#ef4444` → `#d11f2e` |
+| `--panel` | 7회 | `--surface` | 동일(`#ffffff`) |
+| `--text` | 7회 | `--text` | `#1f2937` → `rgb(23,23,23)` |
+| `--bg` | 3회 | `--bg` | `#f0f2f7` → `#f7f7f8` |
+| `--sidebar-*`·`--topbar-h`·`--panel-w`·`--log-h` | 각 1회 | `theme.local.css` | 앱 고유 |
+
+여기에 토큰을 우회한 하드코딩 색상이 39회(고유 19개) 있다. 본문 `font-size: 13px`과 `"Helvetica Neue"` 폰트 스택도 정본과 어긋난다. 규모가 `dummy-file-generator`(282줄)보다 크므로 별도 단계로 다룬다.
 
 `class-diagram-generator`(Kotlin/Spring)는 전면 제외한다. 자체 `--mmu-*` 토큰 체계를 가진 서버 렌더 앱이다.
 
@@ -348,7 +365,9 @@ WCAG 1.4.11은 "UI 컴포넌트를 식별하는 데 필요한 시각 정보"에�
 --duration-slow    240ms   drawer 슬라이드
 ```
 
-정본 `base.css`에 `prefers-reduced-motion` 대응을 넣어 duration을 0으로 덮는다. 현재 8개 앱 중 이를 처리하는 앱이 하나도 없으므로 한 번에 전 앱이 대응된다.
+정본 `base.css`에 `prefers-reduced-motion` 대응을 넣어 duration을 0으로 덮는다. 현재 `openapi-editor`·`ddl-seed-generator`·`config-diff-viewer` 3개 앱만 자체 처리하고 있고 나머지 5개는 미처리다. 정본이 담으면 5개가 새로 대응되고, 3개는 자체 선언이 중복이 되므로 마이그레이션 시 제거한다.
+
+정본 규칙이 기존 3개 앱보다 강하다. 기존 선언은 `animation-duration`·`transition-duration`만 덮지만 정본은 `--ds-duration-*` 토큰까지 0으로 덮어 토큰 기반 transition도 함께 끈다.
 
 ### z-index
 
@@ -520,7 +539,7 @@ hover에서 테두리를 유지하는 것은 의도적이다. `home`은 현재 `
 | 2 | 전 앱 `mise.toml` | `check` task 추가, `typecheck` alias 통일 | 작음 |
 | 3 | `sign-maker` | 정본과 최근접. 파일럿으로 계약 검증 | 작음 |
 | 4 | `json-yaml-converter` | `--control-border`·`--editor-bg` → local, `--soft` 1곳 | 작음 |
-| 5 | `webpage-capture-tool` | 토큰 드롭인 + 폰트 경로 + 다크모드 신규 | 작음~중간 |
+| 5 | `webpage-capture-tool` | 682줄 CSS, 겹치는 이름의 값 전환 100곳 + 하드코딩 색상 39곳, 폰트 경로 | 큼 |
 | 6 | `ddl-seed-generator` | `--surface-3` 중복 제거, 상태색 이름 전환, 토글 40→36px | 중간 |
 | 7 | `openapi-editor` | 폰트 신규, shadow·radius·motion 토큰 도입, 하드코딩 radius 4종 흡수, 2행 헤더 보존 | 중간 |
 | 8 | `dummy-file-generator` | 텍스트 5단 이름 전환(282줄 전반), 토글 fixed → 헤더 | 중간~큼 |
