@@ -1,6 +1,3 @@
-/* 이 파일은 packages/design-system/ds-sync.test.ts 에서 생성되었다.
-   직접 편집하지 말고 정본을 고친 뒤 저장소 루트에서
-   `npm run tokens:sync` 를 실행한다. */
 /// <reference types="node" />
 // 앱마다 tsconfig 의 types 설정이 다르므로(sign-maker 는 ["vite/client"] 로
 // 제한한다) 이 파일을 8개 앱에서 동일하게 유지하기 위해 명시한다.

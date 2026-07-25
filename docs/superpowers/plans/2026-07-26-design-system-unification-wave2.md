@@ -87,14 +87,18 @@ Expected: FAIL — `ds-sync.test.ts 가 복사되어야 한다`. 그리고 기�
 
 - [ ] **Step 3: 기존 테스트의 기대 개수를 파일 수에서 derive 하도록 고친다**
 
-하드코딩된 `3`을 `Object.keys(FILES).length`로 바꿔 파일이 늘어도 깨지지 않게 한다. `scripts/sync-design-tokens.test.mjs`에서 세 곳을 고친다.
+하드코딩된 `3`을 derive 로 바꿔 파일이나 앱이 늘어도 깨지지 않게 한다. `sync()` 가 쓰는 파일 수는 **정본 파일 수 × 대상 앱 수**다 — 이 계획서에서 앱이 1개에서 4개로 늘어나므로 두 차원을 모두 곱해야 한다. `scripts/sync-design-tokens.test.mjs`에서 세 곳을 고친다.
 
 ```js
-    assert.equal(drifted.length, Object.keys(FILES).length, '모든 정본 파일이 새로 쓰여야 한다');
+    // 정본 파일 수 × 대상 앱 수. 임시 저장소는 sign-maker 만 미리 만들지만
+    // sync 가 나머지 앱의 styles 디렉터리도 생성한다.
+    const expected = Object.keys(FILES).length * Object.keys(TARGETS).length;
+    assert.equal(drifted.length, expected, '모든 정본 파일이 모든 대상 앱에 쓰여야 한다');
 ```
 
 ```js
-    assert.equal(drifted.length, Object.keys(FILES).length, '모든 정본 파일의 불일치를 보고해야 한다');
+    const expected = Object.keys(FILES).length * Object.keys(TARGETS).length;
+    assert.equal(drifted.length, expected, '모든 정본 파일의 불일치를 보고해야 한다');
 ```
 
 세 번째는 `TARGETS` 단정이다. 이 계획서에서 앱이 세 개 늘어나므로 이름 목록을 직접 적지 않고 순서만 확인한다.

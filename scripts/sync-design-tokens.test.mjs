@@ -28,11 +28,14 @@ describe('render', () => {
 });
 
 describe('sync', () => {
-  test('대상 앱에 정본 3파일을 복사하고 복사한 경로를 반환한다', () => {
+  test('대상 앱에 정본 파일을 전부 복사하고 복사한 경로를 반환한다', () => {
     const root = makeRepo();
     const drifted = sync({ root });
 
-    assert.equal(drifted.length, 3, '3개 파일이 새로 쓰여야 한다');
+    // 정본 파일 수 × 대상 앱 수. 임시 저장소는 sign-maker 만 미리 만들지만
+    // sync 가 나머지 앱의 styles 디렉터리도 생성한다.
+    const expected = Object.keys(FILES).length * Object.keys(TARGETS).length;
+    assert.equal(drifted.length, expected, '모든 정본 파일이 모든 대상 앱에 쓰여야 한다');
     for (const [source, target] of Object.entries(FILES)) {
       const path = join(root, 'sign-maker/src/styles', target);
       assert.ok(existsSync(path), `${target} 가 생성되어야 한다`);
@@ -50,7 +53,8 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root, check: true });
 
-    assert.equal(drifted.length, 3, '불일치 3건을 보고해야 한다');
+    const expected = Object.keys(FILES).length * Object.keys(TARGETS).length;
+    assert.equal(drifted.length, expected, '모든 정본 파일의 불일치를 보고해야 한다');
     assert.equal(
       existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')),
       false,
@@ -67,7 +71,21 @@ describe('sync', () => {
     assert.deepEqual(sync({ root, check: true }), ['sign-maker/src/styles/ds-tokens.css']);
   });
 
+  test('drift 테스트 파일도 동기화 대상이다', () => {
+    const root = makeRepo();
+    sync({ root });
+
+    const path = join(root, 'sign-maker/src/styles/ds-sync.test.ts');
+    assert.ok(existsSync(path), 'ds-sync.test.ts 가 복사되어야 한다');
+    assert.equal(readFileSync(path, 'utf8'), render('ds-sync.test.ts', root));
+  });
+
   test('TARGETS 는 마이그레이션된 앱만 담는다', () => {
-    assert.deepEqual(Object.keys(TARGETS), ['sign-maker']);
+    assert.deepEqual(Object.keys(TARGETS), [
+      'sign-maker',
+      'json-yaml-converter',
+      'ddl-seed-generator',
+      'openapi-editor',
+    ]);
   });
 });
