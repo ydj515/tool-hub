@@ -54,3 +54,8 @@ run = "npm run build:mac --workspace @webpage-capture/electron-app"
 alias = "bw"
 description = "Build Windows package"
 run = "npm run build:win --workspace @webpage-capture/electron-app"
+
+[tasks.check]
+alias = "ch"
+description = "Run the full local verification suite"
+depends = ["test", "lint"]

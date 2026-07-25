@@ -44,3 +44,8 @@ run = "npm run typecheck"
 alias = "b"
 description = "Build the application"
 run = "npm run build"
+
+[tasks.check]
+alias = "c"
+description = "Run the full local verification suite"
+depends = ["test", "lint", "typecheck", "build"]
