@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 1480px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto 16px;
   padding: 16px 20px;
   background: var(--surface);
@@ -18,6 +18,8 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .brandIcon {
@@ -34,18 +36,18 @@
 h1, h2, p { margin: 0; }
 
 h1 {
-  font-size: clamp(1.3rem, 2.4vw, 1.85rem);
-  line-height: 1.15;
+  font-size: var(--ds-font-size-title);
+  line-height: var(--ds-line-height-title);
+  letter-spacing: var(--ds-tracking-title);
   font-weight: 700;
-  letter-spacing: 0;
 }
 h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
 
 .brandBlock p, .panelHead p {
   margin-top: 4px;
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: var(--ds-font-size-body);
+  line-height: var(--ds-line-height-body);
 }
 
 .topActions {
@@ -92,20 +94,6 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 .secondaryBtn { min-width: 104px; padding: 0 14px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); }
 .secondaryBtn:hover, .tabs button:hover, .segmented button:hover { border-color: var(--line-strong); }
 
-.themeBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--ds-radius-md);
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: border-color var(--ds-duration-fast) var(--ds-ease-standard), color var(--ds-duration-fast) var(--ds-ease-standard);
-}
-.themeBtn:hover { border-color: var(--line-strong); color: var(--text); }
-
 .themeIconPlaceholder {
   display: block;
   width: 16px;
@@ -113,7 +101,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 }
 
 .workspace {
-  max-width: 1480px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 280px minmax(380px, 1fr) minmax(420px, 1fr);
