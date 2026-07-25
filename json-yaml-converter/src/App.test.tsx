@@ -26,7 +26,7 @@ describe('App shell', () => {
     expect(screen.getByText('입력 내용은 브라우저에서만 처리됩니다.')).toBeInTheDocument();
     expect(screen.getByTestId('converter-app-mark')).toHaveClass('studio-brand__mark');
     expect(screen.getByTestId('converter-app-mark').querySelector('svg')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '테마 전환' })).toHaveClass('btn-icon');
+    expect(screen.getByRole('button', { name: '테마 전환' })).toHaveClass('ds-icon-btn');
     expect(screen.getByTestId('converter-studio-shell')).toBeInTheDocument();
     const banner = screen.getByTestId('converter-app-mark').closest('header');
     const directionGroup = screen.getByRole('radiogroup', { name: '변환 방향' });
@@ -36,5 +36,12 @@ describe('App shell', () => {
 
     await user.click(screen.getByRole('button', { name: '테마 전환' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+  });
+
+  it('브랜드 블록이 Tool Hub 로 돌아가는 링크다', async () => {
+    render(<App />);
+
+    const hubLink = await screen.findByRole('link', { name: /Tool Hub/ }, { timeout: 5000 });
+    expect(hubLink).toHaveAttribute('href', 'https://tool-hub-rho.vercel.app/');
   });
 });

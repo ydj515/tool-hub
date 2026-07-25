@@ -289,9 +289,16 @@ for (const theme of ['light', 'dark'] as const) {
     const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
     const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
     expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
-    if (theme === 'dark') await page.keyboard.press('Shift+Tab');
-    else await page.keyboard.press('Tab');
     const selectedRadio = page.getByRole('radio', { name: 'JSON → YAML', exact: true });
+    if (theme === 'dark') {
+      // 테마 토글에서 뒤로 가면 유일하게 tabbable 한 선택된 라디오에 닿는다.
+      await page.keyboard.press('Shift+Tab');
+    } else {
+      // 헤더의 첫 tabbable 요소는 브랜드 블록의 Tool Hub 링크다.
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('link', { name: /Tool Hub/ })).toBeFocused();
+      await page.keyboard.press('Tab');
+    }
     await expect(selectedRadio).toBeFocused();
     const focusedDirection = await computedColors(selectedRadio);
     expect(focusedDirection.outline.style).toBe('solid');
