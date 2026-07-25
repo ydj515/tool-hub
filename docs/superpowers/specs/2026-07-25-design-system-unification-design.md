@@ -142,6 +142,47 @@ CI가 없다(`.github/workflows`에 Slack 알림 워크플로 하나뿐). 대신
 
 네이밍은 **다수 채택 원칙**을 따른다. 5~6개 앱이 이미 쓰는 이름을 정본으로 삼고 1개 앱만의 이름은 흡수한다. 단, **소수 의견이 접근성 근거를 가질 때는 그쪽을 승격한다**(`--control-border`, `--warn-fg`).
 
+### 네임스페이스 규칙: `--ds-` 접두사
+
+**Tailwind 테마 네임스페이스와 이름이 겹치는 토큰은 `:root`에서 `--ds-` 접두사를 쓰고 `@theme inline`으로 Tailwind 이름에 매핑한다.**
+
+접두사 없이 쓰면 유틸리티와 `var()`가 갈라진다. Tailwind 4.2.4에서 실측한 동작이다.
+
+| 토큰 | 접두사 없을 때의 실제 동작 |
+|---|---|
+| `--radius-md` | Tailwind가 `rounded-md` 사용 시 자기 기본값 `0.375rem`을 `:root`에 emit한다. 정본 정의가 나중에 와서 캐스케이드 순서로 이기지만 암묵적 의존이다 |
+| `--shadow-sm` | Tailwind는 shadow 값을 유틸리티에 인라인하고 `:root`를 읽지 않는다. `shadow-sm` 클래스와 `var(--shadow-sm)`이 **같은 이름의 서로 다른 그림자**가 된다 |
+
+부분 오버라이드는 **순서 역전**도 만든다. sm/md/lg만 정의하면 `rounded-xl`은 Tailwind 기본 `0.75rem`(12px)으로 남아 정본 `rounded-lg`(16px)보다 작아진다.
+
+접두사 방식의 실측 결과다.
+
+```css
+:root             { --ds-radius-md: 12px; --ds-shadow-sm: <라이트>; }
+[data-theme=dark] { --ds-shadow-sm: <다크>; }
+@theme inline     { --radius-md: var(--ds-radius-md); --shadow-sm: var(--ds-shadow-sm); }
+```
+
+```css
+/* 생성 결과 */
+.rounded-md { border-radius: var(--ds-radius-md); }
+.shadow-sm  { --tw-shadow: var(--ds-shadow-sm); }
+/* Tailwind 기본 --radius-md 는 emit 되지 않는다 */
+```
+
+유틸리티와 `var()`가 같은 값을 참조하고 Tailwind 기본값이 억제된다. 부수 효과로 **`shadow-sm` 유틸리티가 테마에 반응하게 된다** — 현재 Tailwind shadow 유틸리티는 라이트 그림자가 하드코딩되어 `home`의 `shadow-sm`이 다크에서 보이지 않는데, 이 패턴이 함께 고친다.
+
+| 구분 | 토큰 |
+|---|---|
+| **접두사 사용** (Tailwind 네임스페이스 충돌) | `--ds-font-sans`, `--ds-font-size-*`, `--ds-line-height-*`, `--ds-tracking-*`, `--ds-radius-*`, `--ds-shadow-*`, `--ds-ease-*`, `--ds-duration-*`, `--ds-z-*`, `--ds-container-*`, `--ds-page-padding*` |
+| **접두사 없음** (충돌 없고 기존 앱이 사용) | `--bg`, `--surface`, `--surface-2`, `--surface-3`, `--fill*`, `--line*`, `--control-border`, `--text`, `--text-neutral`, `--muted`, `--disabled`, `--primary*`, `--on-primary`, `--danger*`, `--success*`, `--warning*`, `--brand-gradient` |
+
+색 토큰까지 접두사를 붙이면 7개 앱의 사용처 200곳 가까이를 기계적으로 고쳐야 하고 얻는 것이 없다. 규칙은 "겹치는 것만 접두사"다.
+
+정의하지 않은 Tailwind radius/shadow 단계(`rounded-xl`·`rounded-2xl`·`shadow-md` 등)는 **사용을 금지**한다. `home`이 현재 `rounded-xl` 3곳, `rounded-2xl` 4곳을 쓰므로 마이그레이션 시 정본 스케일로 옮긴다.
+
+아래 토큰 표는 `--ds-` 접두사를 생략한 논리 이름으로 적는다. 실제 파일에서는 위 규칙을 적용한다.
+
 값은 전부 WCAG 2.1 대비를 실측해 확정했다. "최저 대비"는 `--bg`·`--surface`·`--surface-2`·`--surface-3` 네 표면 전부에서 측정한 최악값이다.
 
 ### 표면
@@ -507,3 +548,5 @@ hover에서 테두리를 유지하는 것은 의도적이다. `home`은 현재 `
 - **컨테이너 1600px 확대는 3개 앱의 레이아웃을 넓힌다.** 좌우 패널 비율과 최소 폭 제약을 각 앱에서 확인해야 한다.
 - **브레이크포인트는 토큰화할 수 없다.** 미디어 쿼리에서 커스텀 프로퍼티는 조용히 무시되므로 규칙으로만 관리한다.
 - 정본 파일은 생성물이지만 **커밋한다**. gitignore하면 clone 직후와 Vercel 빌드에서 깨진다.
+- **`--ds-` 접두사 도입으로 기존 사용처를 기계적으로 치환해야 한다.** `var(--radius-*)` 24곳, `var(--shadow-*)` 13곳, `var(--font-sans)`(앱별 `base.css`), `var(--dur)`·`var(--ease)`(sign-maker·json-yaml-converter)가 대상이다. 값이 바뀌지 않는 순수 이름 치환이므로 `sed`로 처리하고, 값 변경과 별도 커밋으로 분리한다.
+- **`sign-maker`가 Tailwind 유틸리티와 `var()`를 혼용하는 유일한 앱이다**(유틸리티 5곳 + `var()` 9곳). 파일럿으로 적합한 이유이기도 하다 — 두 경로가 같은 값을 참조하는지 여기서 검증된다.
