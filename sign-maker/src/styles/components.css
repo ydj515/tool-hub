@@ -1,12 +1,7 @@
 /* ── Component utilities ──
    인라인 스타일로는 hover/active를 표현할 수 없어 여기서 정의한다. */
 
-.ds-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
-  box-shadow: var(--ds-shadow-sm);
-}
+/* .ds-card 와 .ds-icon-btn 은 정본 primitives.css 가 소유한다. */
 
 .btn-primary {
   background: var(--primary);
@@ -27,15 +22,6 @@
   transition: background var(--ds-duration-fast) var(--ds-ease-standard);
 }
 .btn-secondary:hover { background: var(--fill); }
-
-.btn-icon {
-  background: var(--surface);
-  color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-md);
-  transition: background var(--ds-duration-fast) var(--ds-ease-standard), color var(--ds-duration-fast) var(--ds-ease-standard);
-}
-.btn-icon:hover { background: var(--fill); color: var(--text); }
 
 .app-mark {
   background: var(--primary);
@@ -135,14 +121,8 @@
   box-shadow: var(--ds-shadow-sm);
 }
 
-/* Focus ring — 2px primary outline, 2px offset */
-.btn-primary:focus-visible,
-.btn-secondary:focus-visible,
-.btn-icon:focus-visible,
-.seg-btn:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
+/* 포커스링은 정본 base.css 의 전역 :where(...):focus-visible 규칙이 담당한다.
+   컴포넌트별로 반복 선언하면 새로 만드는 컴포넌트가 커버되지 않는다. */
 
 @keyframes beautify-countdown-pulse {
   0%   { opacity: 0.7;  transform: scale(0.96); }

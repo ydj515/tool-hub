@@ -41,7 +41,7 @@ export default function Header({ theme, onToggleTheme, activeTab, onTabChange }:
       <button
         onClick={onToggleTheme}
         aria-label="테마 전환"
-        className="btn-icon w-9 h-9 grid place-items-center shrink-0"
+        className="ds-icon-btn"
       >
         {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
       </button>
