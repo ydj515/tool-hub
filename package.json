@@ -1,0 +1,15 @@
+{
+  "name": "tool-hub",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tool Hub 저장소 루트. 각 도구는 독립 패키지이며 여기에는 디자인 시스템 정본 동기화만 둔다.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "tokens:sync": "node scripts/sync-design-tokens.mjs",
+    "tokens:check": "node scripts/sync-design-tokens.mjs --check",
+    "tokens:test": "node --test 'scripts/**/*.test.mjs'"
+  }
+}

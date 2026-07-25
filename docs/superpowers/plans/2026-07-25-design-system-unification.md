@@ -735,10 +735,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   "scripts": {
     "tokens:sync": "node scripts/sync-design-tokens.mjs",
     "tokens:check": "node scripts/sync-design-tokens.mjs --check",
-    "tokens:test": "node --test scripts/"
+    "tokens:test": "node --test 'scripts/**/*.test.mjs'"
   }
 }
 ```
+
+`node --test scripts/` 는 쓰지 않는다. Node 24 는 디렉터리 인자를 탐색 대상이 아니라 파일 경로로 취급해 `MODULE_NOT_FOUND` 로 실패한다. 글롭을 따옴표로 넘겨 Node 내장 글롭이 처리하게 한다.
 
 - [ ] **Step 5: 테스트가 통과하는 것을 확인한다**
 
