@@ -48,11 +48,11 @@ export default function HomePage() {
           </p>
 
           {/* 인라인 통계 */}
-          <div className="flex items-center gap-3.5 text-sm mt-1">
+          <div className="flex items-center gap-3.5 text-body mt-1">
             <Stat value={tools.length} label="tools" />
-            <span className="text-disabled text-base select-none">/</span>
+            <span className="text-disabled text-subtitle select-none">/</span>
             <Stat value={liveCount} label="live" />
-            <span className="text-disabled text-base select-none">/</span>
+            <span className="text-disabled text-subtitle select-none">/</span>
             <Stat value="100%" label="free" tabular={false} />
           </div>
         </div>

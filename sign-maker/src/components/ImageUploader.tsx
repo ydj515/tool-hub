@@ -118,13 +118,13 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
             <div className="upload-icon-box w-12 h-12 rounded-lg grid place-items-center">
               <Upload size={20} />
             </div>
-            <p className="upload-title text-sm font-semibold">
+            <p className="upload-title text-body font-semibold">
               클릭하거나 드래그하여 업로드해요
             </p>
-            <p className="upload-hint text-xs">PNG, JPG, JPEG (최대 5MB)</p>
+            <p className="upload-hint text-caption">PNG, JPG, JPEG (최대 5MB)</p>
             <Button
               variant="secondary"
-              className="mt-1 px-4 h-9 text-xs font-semibold pointer-events-auto"
+              className="mt-1 px-4 h-9 text-caption font-semibold pointer-events-auto"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
             >
               파일 선택

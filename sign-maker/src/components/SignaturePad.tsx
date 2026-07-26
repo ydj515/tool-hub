@@ -185,7 +185,7 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
         {countdown > 0 && (
           <div
             key={countdown}
-            className="beautify-countdown-badge countdown-badge absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full text-xs font-semibold pointer-events-none"
+            className="beautify-countdown-badge countdown-badge absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full text-caption font-semibold pointer-events-none"
           >
             {countdown}초 후 정리…
           </div>

@@ -4,7 +4,7 @@
 .toolCard {
   --tool-gradient: linear-gradient(135deg, #64748b 0%, #475569 100%);
   --tool-accent-rgb: 100 116 139;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ds-shadow-sm);
   transition:
     transform 0.28s ease,
     box-shadow 0.28s ease,
@@ -61,6 +61,8 @@
 .toolCard[data-live="true"]:hover {
   transform: translateY(-5px);
   border-color: rgb(var(--tool-accent-rgb) / 0.27);
+  /* 정본 그림자 단계를 쓰지 않는다. 첫 레이어가 도구별 accent 색 글로우라
+     카드의 정체성이고, --ds-shadow-* 는 단일 중성 값이라 대체할 수 없다. */
   box-shadow:
     0 24px 56px -12px rgb(var(--tool-accent-rgb) / 0.19),
     0 8px 24px -6px rgba(0, 0, 0, 0.12);

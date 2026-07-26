@@ -14,6 +14,13 @@
   /* 코드 표면 */
   --code: #171717;
   --code-line: #2e2f33;
+  --code-text: #f0f4f2;
+  /* TYPE_CHANGED 배지. 정본에 없는 diff 분류 색이라 --coral/--green 과
+     같은 층위의 앱 고유 토큰으로 둔다. */
+  --violet: #6541f2;
+  /* 드로어 배경막. webpage-capture-tool 과 같은 값이지만 쓰는 앱이
+     둘뿐이라 아직 정본으로 승격하지 않는다(기준은 3개 앱). */
+  --scrim: rgba(23, 23, 25, 0.4);
 }
 
 [data-theme="dark"] {
@@ -22,4 +29,7 @@
   --green-dark: #1ea860;
   --code: #0f1010;
   --code-line: #2a2b2f;
+  --code-text: #f0f4f2;
+  --violet: #9b7cff;
+  --scrim: rgba(0, 0, 0, 0.56);
 }

@@ -28,7 +28,7 @@ export default function SegmentedTabs<T extends string>({
           key={opt.value}
           onClick={() => onChange(opt.value)}
           data-active={value === opt.value}
-          className="seg-btn flex items-center gap-1.5 px-3 h-8 text-sm font-semibold"
+          className="seg-btn flex items-center gap-1.5 px-3 h-8 text-body font-semibold"
         >
           {opt.icon}
           {opt.label}

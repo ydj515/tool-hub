@@ -24,7 +24,7 @@ export default function Panel({
   return (
     <Tag className={`ds-card flex flex-col ${className}`.trim()}>
       <div className={`panel-head px-5 py-3.5 border-b ${headClassName}`.trim()}>
-        <span className="panel-title text-sm font-semibold">{title}</span>
+        <span className="panel-title text-body font-semibold">{title}</span>
       </div>
       <div className={`p-5 ${bodyClassName}`.trim()}>{children}</div>
     </Tag>

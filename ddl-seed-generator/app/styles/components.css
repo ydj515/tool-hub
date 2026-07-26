@@ -41,7 +41,7 @@ h1 {
   letter-spacing: var(--ds-tracking-title);
   font-weight: 700;
 }
-h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 0; }
+h2 { font-size: var(--ds-font-size-subtitle); line-height: 1.25; font-weight: 600; letter-spacing: 0; }
 
 .brandBlock p, .panelHead p {
   margin-top: 4px;
@@ -138,7 +138,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 
 .fieldGroup label, .numberGrid span {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -201,12 +201,12 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 
 .miniStats span, .analysisStrip span, .orderBox span {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 600;
   letter-spacing: 0;
 }
 
-.miniStats strong, .analysisStrip strong { font-size: 1.25rem; font-weight: 700; letter-spacing: 0; }
+.miniStats strong, .analysisStrip strong { font-size: var(--ds-font-size-title); font-weight: 700; letter-spacing: 0; }
 
 .monacoWrapper {
   flex: 1;
@@ -229,7 +229,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 .validationPanel.ok { color: var(--success); }
 .validationPanel.error { color: var(--danger); background: color-mix(in srgb, var(--danger), transparent 94%); }
 
-.validationTitle { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; line-height: 1.3; font-weight: 600; }
+.validationTitle { display: flex; align-items: center; gap: 8px; font-size: var(--ds-font-size-body); line-height: 1.3; font-weight: 600; }
 .validationTitle svg { flex: 0 0 auto; }
 
 .validationList { display: grid; gap: 8px; margin-top: 10px; }
@@ -252,12 +252,12 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   margin-bottom: 4px;
   color: var(--danger);
   font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 600;
 }
 
-.validationList p { font-size: 0.9rem; line-height: 1.4; }
-.validationList small { display: block; margin-top: 4px; color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
+.validationList p { font-size: var(--ds-font-size-body); line-height: 1.4; }
+.validationList small { display: block; margin-top: 4px; color: var(--muted); font-size: var(--ds-font-size-body); line-height: 1.4; }
 
 .resultPanel { overflow: hidden; overflow-y: auto; }
 
@@ -287,7 +287,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   background: var(--warning-surface);
   border: 1px solid color-mix(in srgb, var(--warning), transparent 72%);
   border-radius: var(--ds-radius-md);
-  font-size: 0.86rem;
+  font-size: var(--ds-font-size-body);
   line-height: 1.45;
 }
 
@@ -306,7 +306,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   margin-top: 6px;
   color: var(--text);
   font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.84rem;
+  font-size: var(--ds-font-size-body);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -362,7 +362,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   border: none;
   background: var(--surface);
   color: var(--text);
-  font-size: 0.88rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 500;
   text-align: left;
   justify-content: flex-start;
@@ -386,7 +386,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   background: var(--warning-surface);
   border: 1px solid color-mix(in srgb, var(--warning), transparent 72%);
   border-radius: var(--ds-radius-md);
-  font-size: 0.85rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 500;
   animation: notice-in 0.2s var(--ds-ease-emphasized);
 }
@@ -408,7 +408,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   border: 1px solid var(--code-line);
   border-radius: var(--ds-radius-md);
   font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.79rem;
+  font-size: var(--ds-font-size-caption);
   line-height: 1.6;
   white-space: pre;
 }

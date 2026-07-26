@@ -37,7 +37,7 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  color: #ffffff;
+  color: var(--on-primary);
   background: var(--primary);
   border-radius: var(--ds-radius-md);
 }
@@ -74,7 +74,7 @@
 .primaryBtn {
   min-width: 118px;
   padding: 0 16px;
-  color: #ffffff;
+  color: var(--on-primary);
   background: var(--primary);
 }
 .primaryBtn:hover { background: var(--primary-strong); }
@@ -105,7 +105,7 @@
   color: var(--muted);
   background: transparent;
   border: 1px solid transparent;
-  font-size: 0.86rem;
+  font-size: var(--ds-font-size-body);
 }
 .ghostBtn:hover { border-color: var(--line); color: var(--text); background: var(--surface-2); }
 
@@ -147,7 +147,7 @@
 .editorHeaderSide + .editorHeaderSide { border-left: 1px solid var(--line); }
 
 .sideLabel {
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   text-transform: uppercase;
   color: var(--muted);
@@ -155,7 +155,7 @@
 }
 
 .filenameTag {
-  font-size: 0.8rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 600;
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -172,7 +172,7 @@
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text);
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   cursor: pointer;
 }
@@ -185,7 +185,7 @@
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -200,7 +200,7 @@
   background: color-mix(in srgb, var(--danger), transparent 92%);
   border-bottom: 1px solid color-mix(in srgb, var(--danger), transparent 80%);
   color: var(--danger);
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -223,12 +223,12 @@
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
-  font-size: 0.86rem;
+  font-size: var(--ds-font-size-body);
 }
 
 .statItem { display: flex; align-items: center; gap: 6px; }
-.statLabel { color: var(--muted); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; }
-.statValue { font-size: 1rem; font-weight: 800; }
+.statLabel { color: var(--muted); font-weight: 700; font-size: var(--ds-font-size-caption); text-transform: uppercase; }
+.statValue { font-size: var(--ds-font-size-subtitle); font-weight: 800; }
 .statValue.ok { color: var(--green); }
 .statValue.warn { color: var(--coral); }
 .statsDivider { width: 1px; height: 20px; background: var(--line); }
@@ -237,7 +237,7 @@
   margin-left: auto;
   padding: 3px 10px;
   border-radius: var(--ds-radius-sm);
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -271,7 +271,7 @@
   border-bottom: none;
   background: transparent;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -296,19 +296,19 @@
   height: 18px;
   padding: 0 5px;
   border-radius: var(--ds-radius-md);
-  font-size: 0.72rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   background: var(--surface-3);
   color: var(--muted);
 }
-.tabBtn.active .tabCount { background: var(--primary); color: #fff; }
+.tabBtn.active .tabCount { background: var(--primary); color: var(--on-primary); }
 .tabBtn.hasIssues .tabCount { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
 .tabBtn.disabledTab { color: var(--disabled); cursor: default; }
 .tabBtn.disabledTab:hover { color: var(--muted); background: transparent; }
 .tabCountOff {
   background: var(--line) !important;
   color: var(--muted) !important;
-  font-size: 0.66rem !important;
+  font-size: var(--ds-font-size-caption) !important;
   letter-spacing: 0;
 }
 
@@ -316,14 +316,14 @@
   margin-left: auto;
   align-self: center;
   color: var(--danger);
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
 }
 
 /* ── Issue table ── */
 .tableWrapper { overflow-x: auto; overflow-y: auto; max-height: 420px; }
 
-.issueTable { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.issueTable { width: 100%; border-collapse: collapse; font-size: var(--ds-font-size-body); }
 
 .issueTable th {
   position: sticky;
@@ -333,7 +333,7 @@
   background: var(--surface-2);
   border-bottom: 2px solid var(--line);
   text-align: left;
-  font-size: 0.73rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   text-transform: uppercase;
   color: var(--muted);
@@ -359,7 +359,7 @@
 
 .keyPath {
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   word-break: break-all;
 }
 
@@ -370,7 +370,7 @@
   background: var(--surface-3);
   border: 1px solid var(--line);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -384,8 +384,8 @@
 .valuePill.danger { background: color-mix(in srgb, var(--danger), transparent 92%); border-color: color-mix(in srgb, var(--danger), transparent 80%); color: var(--danger); }
 .valuePill.masked { color: var(--muted); font-style: italic; }
 
-.diffArrow { color: var(--muted); font-size: 0.8rem; padding: 0 4px; }
-.suggestionText { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+.diffArrow { color: var(--muted); font-size: var(--ds-font-size-caption); padding: 0 4px; }
+.suggestionText { font-size: var(--ds-font-size-caption); color: var(--muted); line-height: 1.4; }
 
 /* ── Severity badge ── */
 .badge {
@@ -393,7 +393,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--ds-radius-sm);
-  font-size: 0.72rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -406,7 +406,7 @@
 .badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
 .badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
 .badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
-.badge.TYPE_CHANGED { background: color-mix(in srgb, #6541f2, transparent 90%); color: #6541f2; }
+.badge.TYPE_CHANGED { background: color-mix(in srgb, var(--violet), transparent 90%); color: var(--violet); }
 
 /* ── Export bar ── */
 .exportBar {
@@ -427,7 +427,7 @@
   gap: 7px;
   min-height: 34px;
   padding: 0 13px;
-  font-size: 0.86rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   color: var(--text);
   background: var(--surface);
@@ -464,7 +464,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--ds-radius-md);
-  box-shadow: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
+  box-shadow: var(--ds-shadow-lg);
   overflow: hidden;
   z-index: 100;
   animation: fadeIn var(--ds-duration-fast) ease;
@@ -476,7 +476,7 @@
   gap: 8px;
   width: 100%;
   padding: 9px 14px;
-  font-size: 0.86rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 600;
   color: var(--text);
   background: transparent;
@@ -500,8 +500,8 @@
   text-align: center;
 }
 .emptyState svg { color: var(--line-strong); }
-.emptyState p { font-size: 0.9rem; font-weight: 700; }
-.emptyState small { font-size: 0.82rem; }
+.emptyState p { font-size: var(--ds-font-size-body); font-weight: 700; }
+.emptyState small { font-size: var(--ds-font-size-body); }
 
 /* ── Copy notice ── */
 .copyNotice {
@@ -509,7 +509,7 @@
   border-radius: var(--ds-radius-sm);
   background: color-mix(in srgb, var(--green), transparent 88%);
   color: var(--green);
-  font-size: 0.8rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
   animation: fadeIn var(--ds-duration-fast) ease;
 }
@@ -536,7 +536,7 @@
 }
 
 .optionsLabel {
-  font-size: 0.75rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   text-transform: uppercase;
   color: var(--muted);
@@ -551,7 +551,7 @@
   padding: 4px 12px;
   border-radius: var(--ds-radius-lg);
   border: 1px solid var(--line);
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   cursor: pointer;
   transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
@@ -583,10 +583,10 @@
   content: attr(data-tooltip);
   bottom: calc(100% + 9px);
   background: var(--code);
-  color: #f0f4f2;
+  color: var(--code-text);
   padding: 5px 10px;
   border-radius: var(--ds-radius-sm);
-  font-size: 0.75rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 500;
   white-space: nowrap;
   line-height: 1.4;
@@ -610,7 +610,7 @@
   transition: opacity var(--ds-duration-fast);
 }
 .optionToggle.on .toggleDot { opacity: 1; }
-.toggleLock { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-left: 2px; }
+.toggleLock { font-size: var(--ds-font-size-caption); font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-left: 2px; }
 
 .optionsRulesBtn {
   margin-left: auto;
@@ -622,7 +622,7 @@
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   cursor: pointer;
   transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
@@ -644,6 +644,8 @@
   border-left: 1px solid var(--line);
   background: var(--surface);
   color: var(--text);
+  /* 오른쪽 드로어라 그림자가 왼쪽으로 뻗는다. 정본 --ds-shadow-* 는 전부
+     아래 방향이라 방향성 단계가 없어 그대로 둔다. */
   box-shadow: -16px 0 48px rgba(23, 23, 25, 0.14), -4px 0 12px rgba(23, 23, 25, 0.08);
   animation: slideInRight var(--ds-duration-slow) var(--ds-ease-emphasized);
 }
@@ -656,7 +658,7 @@
 }
 
 .rulesDrawer::backdrop {
-  background: rgba(23, 23, 25, 0.4);
+  background: var(--scrim);
   animation: fadeIn var(--ds-duration-base) var(--ds-ease-standard);
 }
 
@@ -675,8 +677,8 @@
   flex: 0 0 auto;
 }
 
-.drawerHeader strong { display: block; font-size: 1rem; }
-.drawerSubtitle { display: block; margin-top: 2px; color: var(--muted); font-size: 0.82rem; }
+.drawerHeader strong { display: block; font-size: var(--ds-font-size-subtitle); }
+.drawerSubtitle { display: block; margin-top: 2px; color: var(--muted); font-size: var(--ds-font-size-body); }
 
 .drawerCloseBtn {
   display: grid;
@@ -709,7 +711,7 @@
   border-bottom: none;
   background: transparent;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -733,12 +735,12 @@
   height: 18px;
   padding: 0 5px;
   border-radius: var(--ds-radius-md);
-  font-size: 0.72rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   background: var(--surface-3);
   color: var(--muted);
 }
-.drawerTabBtn.active .drawerTabCount { background: var(--primary); color: #fff; }
+.drawerTabBtn.active .drawerTabCount { background: var(--primary); color: var(--on-primary); }
 
 .drawerFilterRow { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 
@@ -748,13 +750,13 @@
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
   cursor: pointer;
   transition: background var(--ds-duration-fast), color var(--ds-duration-fast), border-color var(--ds-duration-fast);
 }
 .filterChip:hover { border-color: var(--primary); color: var(--primary-text); }
-.filterChip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.filterChip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 
 .drawerBody { flex: 1; overflow-y: auto; padding: 14px 16px; }
 .drawerSection { }
@@ -765,12 +767,12 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
-  font-size: 0.84rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 800;
   color: var(--text);
 }
 
-.drawerSectionDesc { margin-bottom: 10px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.drawerSectionDesc { margin-bottom: 10px; font-size: var(--ds-font-size-body); color: var(--muted); line-height: 1.5; }
 
 .ruleList { display: flex; flex-direction: column; gap: 8px; }
 
@@ -791,20 +793,20 @@
   border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
-  font-size: 0.7rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
   color: var(--muted);
 }
 
-.ruleId { font-size: 0.76rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--muted); }
-.ruleMessage { font-size: 0.84rem; color: var(--text); line-height: 1.4; margin: 0; }
-.ruleMessage.valuePatternName { font-size: 0.86rem; }
+.ruleId { font-size: var(--ds-font-size-caption); font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--muted); }
+.ruleMessage { font-size: var(--ds-font-size-body); color: var(--text); line-height: 1.4; margin: 0; }
+.ruleMessage.valuePatternName { font-size: var(--ds-font-size-body); }
 
 .ruleCondition { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
-.ruleConditionLabel { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.ruleConditionLabel { font-size: var(--ds-font-size-caption); font-weight: 800; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 
 .ruleConditionCode {
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
   color: var(--text);
   background: var(--surface-2);
@@ -814,7 +816,7 @@
   word-break: break-all;
 }
 
-.ruleSuggestion { font-size: 0.8rem; color: var(--green); line-height: 1.4; padding-left: 2px; }
+.ruleSuggestion { font-size: var(--ds-font-size-caption); color: var(--green); line-height: 1.4; padding-left: 2px; }
 
 /* ── Input grid (two-side textarea) ── */
 .inputGrid { display: grid; grid-template-columns: 1fr 1fr; }
@@ -838,7 +840,7 @@
   background: transparent;
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   font-weight: 600;
   min-width: 80px;
   max-width: 200px;
@@ -865,13 +867,13 @@
   background: var(--surface-2);
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.82rem;
+  font-size: var(--ds-font-size-body);
   line-height: 1.65;
   resize: vertical;
   transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .codeTextarea:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%); }
-.codeTextarea::placeholder { color: var(--muted); font-style: italic; font-size: 0.8rem; }
+.codeTextarea::placeholder { color: var(--muted); font-style: italic; font-size: var(--ds-font-size-caption); }
 
 /* ── Diff view card ── */
 .diffViewCard {
@@ -893,8 +895,8 @@
   flex-wrap: wrap;
 }
 
-.diffViewLabel { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--muted); }
-.diffViewFiles { font-size: 0.82rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--text); }
+.diffViewLabel { font-size: var(--ds-font-size-caption); font-weight: 800; text-transform: uppercase; color: var(--muted); }
+.diffViewFiles { font-size: var(--ds-font-size-body); font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--text); }
 
 .diffDirtyBanner {
   margin-left: auto;
@@ -906,12 +908,12 @@
   background: color-mix(in srgb, var(--warning), transparent 90%);
   border: 1px solid color-mix(in srgb, var(--warning), transparent 75%);
   color: var(--warning);
-  font-size: 0.78rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 700;
 }
 
 .toggleStatusBadge {
-  font-size: 0.68rem;
+  font-size: var(--ds-font-size-caption);
   font-weight: 800;
   padding: 1px 5px;
   border-radius: var(--ds-radius-sm);
@@ -921,4 +923,4 @@
 .toggleStatusBadge.off { background: color-mix(in srgb, var(--muted), transparent 88%); color: var(--muted); }
 
 .optionsLeft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
-.optionsHint { font-size: 0.75rem; color: var(--muted); font-weight: 500; white-space: nowrap; margin-left: 4px; }
+.optionsHint { font-size: var(--ds-font-size-caption); color: var(--muted); font-weight: 500; white-space: nowrap; margin-left: 4px; }
