@@ -1,0 +1,42 @@
+/* api-contract-test-generator 고유 토큰. 정본 뒤에 로드되어 정본을 덮을 수 있다.
+   여기 있는 토큰이 3개 이상 앱에서 반복되면 정본으로 승격한다. */
+
+:root {
+  /* 랜딩 히어로 타이포. 정본 display(28px)는 이 자리에서 하한이라
+     그대로 쓰면 축소가 된다. 장식 타이포는 앱 고유로 둔다. */
+  --hero-size: clamp(28px, 5vw, 52px);
+  --section-hero-size: clamp(24px, 3vw, 34px);
+
+  /* TODO(Task 2 에서 제거): 값 변경을 이름 치환과 분리하기 위해
+     현재 값을 그대로 유지한다. Task 2 가 이 블록을 지우면 정본 값으로
+     넘어간다. */
+  --muted: rgba(55, 56, 60, 0.61);
+  --surface-2: #f1f3f6;
+  --danger: #d92d20;
+  --danger-surface: #fef3f2;
+  --warning: #b54708;
+  --warning-surface: #fffaeb;
+  --success: #067647;
+  --success-surface: #ecfdf3;
+  --ds-shadow-sm: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
+}
+
+[data-theme='dark'] {
+  /* TODO(Task 2 에서 제거): 위와 같은 이유. */
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-2: #222631;
+  --text: #f5f6f8;
+  --muted: rgba(226, 229, 237, 0.62);
+  --line: rgba(214, 219, 232, 0.17);
+  --primary: #7092ff;
+  --primary-strong: #8eacff;
+  --primary-surface: #202c50;
+  --danger: #ff8a80;
+  --danger-surface: #442422;
+  --warning: #fdb022;
+  --warning-surface: #3b2f19;
+  --success: #47cd89;
+  --success-surface: #173a2b;
+  --ds-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.32);
+}
