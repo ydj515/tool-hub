@@ -192,7 +192,7 @@ CI가 없다(`.github/workflows`에 Slack 알림 워크플로 하나뿐). 대신
 | 구분 | 토큰 |
 |---|---|
 | **접두사 사용** (Tailwind 네임스페이스 충돌) | `--ds-font-sans`, `--ds-font-size-*`, `--ds-line-height-*`, `--ds-tracking-*`, `--ds-radius-*`, `--ds-shadow-*`, `--ds-ease-*`, `--ds-duration-*`, `--ds-z-*`, `--ds-container-*`, `--ds-page-padding*` |
-| **접두사 없음** (충돌 없고 기존 앱이 사용) | `--bg`, `--surface`, `--surface-2`, `--surface-3`, `--fill*`, `--line*`, `--control-border`, `--text`, `--text-neutral`, `--muted`, `--disabled`, `--primary*`, `--on-primary`, `--danger*`, `--success*`, `--warning*`, `--brand-gradient` |
+| **접두사 없음** (충돌 없고 기존 앱이 사용) | `--bg`, `--surface`, `--surface-2`, `--surface-3`, `--fill*`, `--line*`, `--control-border`, `--text`, `--text-neutral`, `--muted`, `--disabled`, `--primary*`, `--on-primary`, `--danger*`, `--success*`, `--warning*` |
 
 색 토큰까지 접두사를 붙이면 7개 앱의 사용처 200곳 가까이를 기계적으로 고쳐야 하고 얻는 것이 없다. 규칙은 "겹치는 것만 접두사"다.
 
@@ -265,8 +265,9 @@ WCAG 1.4.11은 "UI 컴포넌트를 식별하는 데 필요한 시각 정보"에�
 --primary-heavy    #0054d1  →  #0066ff      pressed
 --primary-surface  #eaf2fe  →  rgba(91,132,255,.16)
 --on-primary       #ffffff  (양쪽 동일)
---brand-gradient   linear-gradient(...)      home 로고·히어로 장식 전용
 ```
+
+`--brand-gradient`는 **정본에 두지 않는다.** `home` 로고 마크와 히어로 텍스트에만 쓰이는 랜딩 장식이므로 2층 원칙("정본에는 여러 앱이 공유하는 토큰만 둔다")에 따라 `home/src/styles/theme.local.css`에 둔다.
 
 `--primary` 위 흰 글자는 4.68:1로 AA를 통과한다. `--primary` 자체를 텍스트로 쓸 때도 라이트 4.68:1 / 다크 5.03:1로 통과한다. 포커스링은 `--primary`를 쓰며 3:1을 넉넉히 넘는다.
 
