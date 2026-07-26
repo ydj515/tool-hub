@@ -44,9 +44,9 @@ describe('ConverterPage', () => {
     }));
     renderPage();
 
-    const banner = screen.queryByTestId('converter-app-mark')?.closest('header') ?? null;
+    const banner = screen.getByRole('heading', { name: 'JSON/YAML Converter' }).closest('header');
     const toolbar = screen.getByRole('region', { name: '변환 도구 모음' });
-    const directionGroup = screen.getByRole('radiogroup', { name: '변환 방향' });
+    const directionGroup = screen.getByRole('group', { name: '변환 방향' });
     const controlCard = screen.getByTestId('converter-control-card');
     const workspace = screen.getByTestId('converter-workspace');
 
@@ -59,10 +59,10 @@ describe('ConverterPage', () => {
     expect(workspace).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
     expect(workspace).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
     expect(workspace.querySelector('.converter-grid')?.children).toHaveLength(3);
-    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('ds-icon-btn');
+    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveAttribute('data-ds-button');
     for (const name of ['JSON Pretty', '결과 복사', '결과 다운로드']) {
       const action = screen.getByRole('button', { name });
-      expect(action).toHaveClass('ds-icon-btn');
+      expect(action).toHaveAttribute('data-ds-button');
       expect(action).toHaveAttribute('title', name);
       expect(action.querySelector('svg')).not.toBeNull();
       expect(action).toHaveTextContent('');
@@ -89,7 +89,7 @@ describe('ConverterPage', () => {
 
   it('빈 화면에서 YAML → JSON 방향을 직접 선택한다', () => {
     renderPage();
-    fireEvent.click(screen.getByRole('radio', { name: 'YAML → JSON' }));
+    fireEvent.click(screen.getByRole('button', { name: 'YAML → JSON' }));
     fireEvent.change(screen.getByLabelText('YAML 원본'), { target: { value: 'a: 1' } });
     act(() => vi.advanceTimersByTime(300));
     expect(screen.getByLabelText('JSON 결과')).toHaveValue('{\n  "a": 1\n}\n');
@@ -101,7 +101,7 @@ describe('ConverterPage', () => {
     act(() => vi.advanceTimersByTime(300));
     fireEvent.click(screen.getByRole('tab', { name: /결과/ }));
 
-    fireEvent.click(screen.getByRole('radio', { name: 'YAML → JSON' }));
+    fireEvent.click(screen.getByRole('button', { name: 'YAML → JSON' }));
 
     expect(screen.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true');
   });
@@ -240,7 +240,7 @@ describe('ConverterPage', () => {
     expect(focusDiagnostic).toHaveBeenCalledOnce();
   });
 
-  it('모바일 탭과 방향 선택기에 keyboard roving 패턴을 제공한다', () => {
+  it('모바일 탭은 roving pattern을 제공하고 방향 선택기는 일반 버튼 keyboard 동작을 따른다', () => {
     renderPage();
     const sourceTab = screen.getByRole('tab', { name: '원본' });
     const resultTab = screen.getByRole('tab', { name: '결과' });
@@ -250,12 +250,13 @@ describe('ConverterPage', () => {
     expect(resultTab).toHaveAttribute('aria-selected', 'true');
     fireEvent.keyDown(resultTab, { key: 'ArrowRight' });
     expect(sourceTab).toHaveAttribute('aria-selected', 'true');
-    const jsonDirection = screen.getByRole('radio', { name: 'JSON → YAML' });
+    const jsonDirection = screen.getByRole('button', { name: 'JSON → YAML' });
+    const yamlDirection = screen.getByRole('button', { name: 'YAML → JSON' });
+    expect(jsonDirection).toHaveAttribute('aria-pressed', 'true');
     fireEvent.keyDown(jsonDirection, { key: 'ArrowRight' });
-    const yamlDirection = screen.getByRole('radio', { name: 'YAML → JSON' });
-    expect(yamlDirection).toHaveAttribute('aria-checked', 'true');
-    fireEvent.keyDown(yamlDirection, { key: 'ArrowRight' });
-    expect(jsonDirection).toHaveAttribute('aria-checked', 'true');
+    expect(yamlDirection).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(yamlDirection);
+    expect(yamlDirection).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByLabelText('JSON 또는 YAML 파일 열기')).toHaveAttribute('tabindex', '-1');
   });
 

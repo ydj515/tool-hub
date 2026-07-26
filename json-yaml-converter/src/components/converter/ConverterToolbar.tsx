@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { ChangeEvent } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '../design-system/Button';
 
 interface ConverterToolbarProps {
   onLoadSample(): void;

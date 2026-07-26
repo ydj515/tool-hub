@@ -3,7 +3,7 @@ import type { KeyboardEvent, RefObject } from 'react';
 import type { ConverterState } from '../../hooks/useConverter';
 import type { CodeEditorHandle } from '../editor/CodeEditor';
 import type { Theme } from '../../theme';
-import { Button } from '../ui/Button';
+import { Button } from '../design-system/Button';
 import { DiagnosticBanner } from './DiagnosticBanner';
 import { EditorPanel } from './EditorPanel';
 

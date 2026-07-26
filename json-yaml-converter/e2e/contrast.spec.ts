@@ -10,9 +10,9 @@ import { collectSamples, contrastOf } from '../src/styles/ds-contrast-e2e';
  * 층위(역할색·보조 텍스트)만 정본 규격으로 검사한다.
  */
 const SELECTORS = [
-  '.privacy-note',
+  '.ds-tool-header__copy > span',
   '.format-label',
-  '.direction-selector__option',
+  '.ds-segmented button',
   '.status-bar--valid',
   '.diagnostic-banner',
   '.completion-badge',
@@ -23,10 +23,10 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/');
     // 조회 전에 앱이 마운트되기를 기다린다. 기다리지 않으면 라이트 테마는
     // 토글 클릭이 없어 더 빨리 실행되고 0건을 수집한다.
-    await expect(page.locator('.privacy-note').first()).toBeVisible();
+    await expect(page.locator('.ds-tool-header__copy > span').first()).toBeVisible();
 
     if (theme === 'dark') {
-      await page.getByRole('button', { name: '테마 전환' }).click();
+      await page.getByRole('button', { name: /테마로 전환/ }).click();
     }
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 

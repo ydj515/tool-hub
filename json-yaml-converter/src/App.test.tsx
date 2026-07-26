@@ -18,23 +18,24 @@ vi.mock('./components/editor/CodeEditor', async () => {
 });
 
 describe('App shell', () => {
-  it('도구 이름과 개인정보 안내를 표시하고 테마를 전환한다', async () => {
+  it('정본 제품명과 공통 페이지·컨트롤 셸을 표시하고 테마를 전환한다', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    const { container } = render(<App />);
 
-    expect(await screen.findByRole('heading', { name: 'JSON YAML Converter' }, { timeout: 5000 })).toBeInTheDocument();
-    expect(screen.getByText('입력 내용은 브라우저에서만 처리됩니다.')).toBeInTheDocument();
-    expect(screen.getByTestId('converter-app-mark')).toHaveClass('studio-brand__mark');
-    expect(screen.getByTestId('converter-app-mark').querySelector('svg')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '테마 전환' })).toHaveClass('ds-icon-btn');
-    expect(screen.getByTestId('converter-studio-shell')).toBeInTheDocument();
-    const banner = screen.getByTestId('converter-app-mark').closest('header');
-    const directionGroup = screen.getByRole('radiogroup', { name: '변환 방향' });
-    expect(banner).toHaveClass('studio-topbar');
+    const heading = await screen.findByRole('heading', { name: 'JSON/YAML Converter' }, { timeout: 5000 });
+    expect(heading).toBeInTheDocument();
+    expect(screen.getByText('JSON과 YAML을 변환하고 검증합니다.')).toBeInTheDocument();
+    const banner = heading.closest('header');
+    expect(banner?.querySelector('[data-ds-brand-mark] svg')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /테마로 전환/ })).toHaveAttribute('data-ds-theme-toggle');
+    expect(screen.getByTestId('converter-studio-shell')).toHaveAttribute('data-ds-page-shell');
+    expect(container.querySelector('[data-ds-page-shell]')).toBeInTheDocument();
+    const directionGroup = screen.getByRole('group', { name: '변환 방향' });
+    expect(banner).toHaveAttribute('data-ds-tool-header');
     expect(banner).toContainElement(directionGroup);
-    expect(screen.getByRole('radio', { name: 'JSON → YAML' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('button', { name: 'JSON → YAML' })).toHaveAttribute('aria-pressed', 'true');
 
-    await user.click(screen.getByRole('button', { name: '테마 전환' }));
+    await user.click(screen.getByRole('button', { name: /테마로 전환/ }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'light');
   });
 

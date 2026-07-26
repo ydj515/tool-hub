@@ -1,4 +1,4 @@
-# JSON YAML Converter
+# JSON/YAML Converter
 
 브라우저 안에서 JSON과 YAML을 양방향으로 변환하고 정리하는 Tool Hub 도구입니다.
 

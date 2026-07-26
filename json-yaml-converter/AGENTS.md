@@ -1,4 +1,4 @@
-# JSON YAML Converter Repository Guidelines
+# JSON/YAML Converter Repository Guidelines
 
 ## Purpose
 `json-yaml-converter/` is a Vite + React + TypeScript app for converting and formatting JSON and YAML in the browser.

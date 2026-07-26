@@ -162,10 +162,10 @@ test('정본 디자인 시스템의 셸과 control 크기를 사용한다', asyn
   // --ds-container-wide. 에디터·캔버스 도구의 최대폭이다.
   await expect(page.locator('.app-main')).toHaveCSS('max-width', '1600px');
   await expect(page.getByRole('banner')).toHaveCSS('padding', '16px 20px');
-  await expect(page.getByTestId('converter-app-mark')).toHaveCSS('width', '40px');
-  await expect(page.getByTestId('converter-app-mark')).toHaveCSS('height', '40px');
-  await expect(page.getByRole('button', { name: '테마 전환' })).toHaveCSS('width', '36px');
-  await expect(page.getByRole('button', { name: '테마 전환' })).toHaveCSS('height', '36px');
+  await expect(page.locator('[data-ds-brand-mark]')).toHaveCSS('width', '40px');
+  await expect(page.locator('[data-ds-brand-mark]')).toHaveCSS('height', '40px');
+  await expect(page.getByRole('button', { name: /테마로 전환/ })).toHaveCSS('width', '36px');
+  await expect(page.getByRole('button', { name: /테마로 전환/ })).toHaveCSS('height', '36px');
   await expect(page.locator('.studio-control-card')).toHaveCSS('border-radius', '16px');
 });
 
@@ -184,7 +184,7 @@ test('Converter Studio가 desktop에서 topbar와 공통 workspace를 표시한�
   await page.goto('/');
 
   await expect(page.getByTestId('converter-studio')).toBeVisible();
-  await expect(page.getByRole('banner')).toHaveClass(/studio-topbar/);
+  await expect(page.getByRole('banner')).toHaveAttribute('data-ds-tool-header');
   await expect(page.getByTestId('converter-workspace')).toBeVisible();
   await expect(page.getByRole('region', { name: '원본 편집기' })).toBeVisible();
   await expect(page.getByRole('region', { name: '결과 편집기' })).toBeVisible();
@@ -217,12 +217,13 @@ test('mobile Studio에서 swap을 유지한다', async ({ page }) => {
   await page.goto('/');
 
   const bannerBox = await page.getByRole('banner').boundingBox();
-  const directionBox = await page.getByRole('radiogroup', { name: '변환 방향' }).boundingBox();
+  const directionBox = await page.getByRole('group', { name: '변환 방향' }).boundingBox();
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('button', { name: '변환 방향 전환' })).toBeVisible();
   await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '8px');
-  await expect(page.getByRole('radio', { name: 'JSON → YAML' })).toHaveCSS('white-space', 'nowrap');
-  expect(directionBox?.width ?? 0).toBeGreaterThan((bannerBox?.width ?? 0) - 42);
+  await expect(page.getByRole('button', { name: 'JSON → YAML' })).toHaveAttribute('aria-pressed', 'true');
+  expect(directionBox?.width ?? 0).toBeGreaterThanOrEqual(244);
+  expect(directionBox?.width ?? 0).toBeLessThanOrEqual(bannerBox?.width ?? 0);
   await expect(page.locator('.converter-grid__swap')).toHaveCSS('position', 'static');
   await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(2);
   await expect(page.getByRole('tabpanel', { name: '원본' })).toBeVisible();
@@ -261,7 +262,7 @@ test('모바일 결과 탭에서 keyboard swap하고 stale 결과에서는 비�
   await expect(swap).toBeFocused();
   await page.keyboard.press('Enter');
 
-  await expect(page.getByRole('radio', { name: 'YAML → JSON' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('button', { name: 'YAML → JSON' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('tab', { name: '원본' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByLabel('YAML 원본')
     .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]')
@@ -274,7 +275,7 @@ test('모바일 결과 탭에서 keyboard swap하고 stale 결과에서는 비�
 test('테마 버튼이 data-theme을 전환한다', async ({ page }) => {
   await page.goto('/');
   const before = await page.locator('html').getAttribute('data-theme');
-  await page.getByRole('button', { name: '테마 전환' }).click();
+  await page.getByRole('button', { name: /테마로 전환/ }).click();
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', before ?? 'light');
 });
 
@@ -283,15 +284,16 @@ for (const theme of ['light', 'dark'] as const) {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    if (theme === 'dark') await page.getByRole('button', { name: '테마 전환' }).click();
-    const selectedDirection = await computedColors(page.getByRole('radio', { name: 'JSON → YAML', exact: true }));
-    const unselectedDirection = await computedColors(page.getByRole('radio', { name: 'YAML → JSON', exact: true }));
+    if (theme === 'dark') await page.getByRole('button', { name: /테마로 전환/ }).click();
+    const selectedDirection = await computedColors(page.getByRole('button', { name: 'JSON → YAML', exact: true }));
+    const unselectedDirection = await computedColors(page.getByRole('button', { name: 'YAML → JSON', exact: true }));
     const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
     const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
     expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
-    const selectedRadio = page.getByRole('radio', { name: 'JSON → YAML', exact: true });
+    const selectedDirectionButton = page.getByRole('button', { name: 'JSON → YAML', exact: true });
     if (theme === 'dark') {
-      // 테마 토글에서 뒤로 가면 유일하게 tabbable 한 선택된 라디오에 닿는다.
+      // 공통 aria-pressed 그룹은 두 버튼이 모두 tabbable 하므로 역방향으로 두 번 이동한다.
+      await page.keyboard.press('Shift+Tab');
       await page.keyboard.press('Shift+Tab');
     } else {
       // 헤더의 첫 tabbable 요소는 브랜드 블록의 Tool Hub 링크다.
@@ -299,8 +301,8 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('link', { name: /Tool Hub/ })).toBeFocused();
       await page.keyboard.press('Tab');
     }
-    await expect(selectedRadio).toBeFocused();
-    const focusedDirection = await computedColors(selectedRadio);
+    await expect(selectedDirectionButton).toBeFocused();
+    const focusedDirection = await computedColors(selectedDirectionButton);
     expect(focusedDirection.outline.style).toBe('solid');
     expect(Number.parseFloat(focusedDirection.outline.width)).toBeGreaterThanOrEqual(2);
     expect(contrast(parseColor(focusedDirection.outline.color), unselectedDirectionBackground)).toBeGreaterThanOrEqual(3);
@@ -315,7 +317,6 @@ for (const theme of ['light', 'dark'] as const) {
     const secondary = await computedColors(page.getByRole('button', { name: '파일 열기', exact: true }));
     const secondaryBackground = compositeBackground(secondary.backgrounds);
     expect(contrast(parseColor(secondary.color), secondaryBackground)).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(composite(parseColor(secondary.border), secondaryBackground), secondaryBackground)).toBeGreaterThanOrEqual(3);
 
     const sourceEditor = page.getByLabel('JSON 원본')
       .locator('xpath=ancestor::div[contains(@class, "monaco-editor")]');

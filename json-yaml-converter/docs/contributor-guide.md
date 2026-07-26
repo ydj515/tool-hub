@@ -1,4 +1,4 @@
-# JSON YAML Converter Contributor Guide
+# JSON/YAML Converter Contributor Guide
 
 ## Project Overview
 

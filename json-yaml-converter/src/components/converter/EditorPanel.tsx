@@ -1,9 +1,9 @@
 import type { RefObject, ReactNode } from 'react';
 import { AlignLeft, Check, Copy, Download } from 'lucide-react';
 import { CodeEditor, type CodeEditorHandle } from '../editor/CodeEditor';
+import { Button } from '../design-system/Button';
 import type { DataFormat, Diagnostic } from '../../lib/diagnostics';
 import type { Theme } from '../../theme';
-import { Button } from '../ui/Button';
 
 interface EditorPanelProps {
   kind: 'source' | 'result';
@@ -46,15 +46,15 @@ export function EditorPanel({
             onClick={onPretty}
             disabled={prettyDisabled}
           >
-            <AlignLeft size={16} aria-hidden="true" />
+            <AlignLeft size={16} strokeWidth={2} aria-hidden="true" />
           </Button>
         ) : (
           <>
             <Button type="button" variant="icon" aria-label="결과 복사" title="결과 복사" data-copied={copySucceeded} onClick={onCopy} disabled={resultDisabled}>
-              {copySucceeded ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+              {copySucceeded ? <Check size={16} strokeWidth={2} aria-hidden="true" /> : <Copy size={16} strokeWidth={2} aria-hidden="true" />}
             </Button>
             <Button type="button" variant="icon" aria-label="결과 다운로드" title="결과 다운로드" onClick={onDownload} disabled={resultDisabled}>
-              <Download size={16} aria-hidden="true" />
+              <Download size={16} strokeWidth={2} aria-hidden="true" />
             </Button>
           </>
         )}
