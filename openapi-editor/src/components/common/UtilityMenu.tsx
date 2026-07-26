@@ -1,7 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 
-const MENU_OPEN_EVENT = 'openapi-studio:utility-menu-open';
+const MENU_OPEN_EVENT = 'toolhub:popover-open';
 
 interface UtilityMenuProps {
   label: string;
