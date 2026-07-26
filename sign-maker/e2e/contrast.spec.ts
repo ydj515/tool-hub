@@ -1,24 +1,20 @@
 import { expect, test } from '@playwright/test';
-import { collectSamples, contrastOf } from '../app/styles/ds-contrast-e2e';
+import { collectSamples, contrastOf } from '../src/styles/ds-contrast-e2e';
 
 /**
- * 렌더된 요소의 대비를 정본 헬퍼로 검사한다.
- *
- * 토큰 층은 ds-contrast.test.ts 가 브라우저 없이 본다. 여기서는 그쪽이 못
- * 보는 것을 본다 — 부모 틴트 위에 겹친 알파 표면, background-image 로 칠한
- * 틴트처럼 렌더 시점에만 드러나는 합성이다.
+ * sign-maker 는 역할색(danger/warning/success)을 쓰지 않는다. 보조 텍스트와
+ * 활성 세그먼트의 강조 텍스트가 실제 배경 위에서 읽히는지 본다.
  */
 const SELECTORS = [
-  '.panelHead',
-  '.emptyState',
-  '.validationList li',
-  '.warningList li',
-  '.downloadNotice',
-  '.sqlPreview',
+  '.app-subtitle',
+  '.panel-copy',
+  '.setting-label',
+  '.upload-hint',
+  '.seg-btn',
 ];
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`${theme} 테마의 렌더된 역할색 요소가 WCAG AA 를 충족한다`, async ({ page }) => {
+  test(`${theme} 테마의 보조·강조 텍스트가 WCAG AA 를 충족한다`, async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('button', { name: '테마 전환' })).toBeVisible();
 

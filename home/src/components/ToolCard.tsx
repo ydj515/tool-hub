@@ -59,7 +59,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
         {/* 도구 이름 */}
         <div className="absolute bottom-3.5 left-4 right-4 z-[1]">
-          <h3 className="text-[17px] font-bold text-white leading-snug tracking-normal drop-shadow-sm">
+          <h3 className="text-subtitle font-bold text-white leading-snug tracking-normal drop-shadow-sm">
             {name}
           </h3>
         </div>
@@ -67,7 +67,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
       {/* 콘텐츠 영역 */}
       <div className="flex flex-col flex-1 p-4 gap-3">
-        <p className="text-[13px] leading-[1.65] text-muted line-clamp-3">
+        <p className="text-body leading-[1.65] text-muted line-clamp-3">
           {longDescription}
         </p>
 
@@ -96,13 +96,13 @@ export default function ToolCard({ tool }: ToolCardProps) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-lg"
+              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-caption font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-lg"
             >
               <ExternalLinkIcon />
               Visit Site
             </a>
           ) : (
-            <span className="flex-1 flex items-center justify-center py-2 rounded-sm text-[12px] font-semibold text-disabled bg-fill-subtle border border-line cursor-not-allowed">
+            <span className="flex-1 flex items-center justify-center py-2 rounded-sm text-caption font-semibold text-disabled bg-fill-subtle border border-line cursor-not-allowed">
               Coming Soon
             </span>
           )}

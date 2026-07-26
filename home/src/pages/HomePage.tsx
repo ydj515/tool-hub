@@ -41,7 +41,7 @@ export default function HomePage() {
           </h1>
 
           {/* 서브 텍스트 */}
-          <p className="text-[15px] text-muted leading-relaxed max-w-[420px]">
+          <p className="text-subtitle text-muted leading-relaxed max-w-[420px]">
             개발과 일상에서 자주 쓰는 소형 도구들.
             <br />
             브라우저에서 바로, 설치 없이 사용하세요.

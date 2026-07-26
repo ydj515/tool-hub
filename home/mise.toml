@@ -45,7 +45,11 @@ alias = "p"
 description = "Preview the production build"
 run = "npm run preview"
 
+[tasks.test-e2e]
+description = "Run Playwright end-to-end tests"
+run = "npm run test:e2e"
+
 [tasks.check]
 alias = "c"
 description = "Run the full local verification suite"
-depends = ["test", "lint", "typecheck", "build"]
+depends = ["test", "lint", "typecheck", "build", "test-e2e"]

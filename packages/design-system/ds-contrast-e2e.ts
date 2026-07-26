@@ -21,6 +21,8 @@ export interface Sample {
   label: string;
   color: string;
   backgrounds: string[];
+  /** 조상에 다중 스톱 gradient·이미지가 있어 단일 배경색으로 환원할 수 없다. */
+  unmeasurable: boolean;
 }
 
 interface Evaluatable {
@@ -107,7 +109,7 @@ export function contrastOf(sample: Sample): number {
  * 보면 틴트를 건너뛰고 밑판과 비교하게 된다 — 실제 4.73:1 을 11.71:1 로 읽었다.
  */
 export async function collectSamples(page: Evaluatable, selectors: string[]): Promise<Sample[]> {
-  return page.evaluate((list: string[]) => {
+  return page.evaluate(async (list: string[]) => {
     // 이 콜백은 브라우저에서 실행된다. DOM 타입을 쓰면 lib 이 프로젝트
     // 전역에 퍼져 다른 스펙의 타입 해석까지 바꾸므로, 필요한 것만 좁혀
     // 선언한다.
@@ -121,27 +123,81 @@ export async function collectSamples(page: Evaluatable, selectors: string[]): Pr
       textContent: string | null;
       getBoundingClientRect(): { width: number; height: number };
     }
+    // 테마를 막 바꾼 직후에는 색 트랜지션이 진행 중이라 중간값이 읽힌다.
+    // 실제로 라이트 값을 읽어 다크 배경과 비교하며 1.09:1 이 나온 적이 있다.
+    // 진행 중인 애니메이션이 끝나기를 기다리되, 무한 반복 애니메이션이 있으면
+    // 멈추지 않으므로 상한을 둔다.
+    const animated = globalThis as unknown as {
+      document: { getAnimations?: () => { finished: Promise<unknown> }[] };
+      setTimeout(fn: (...args: unknown[]) => void, ms: number): number;
+    };
+    await Promise.race([
+      Promise.allSettled((animated.document.getAnimations?.() ?? []).map((a) => a.finished)),
+      new Promise((resolve) => animated.setTimeout(resolve, 1000)),
+    ]);
+
+    interface Ctx {
+      clearRect(x: number, y: number, w: number, h: number): void;
+      fillRect(x: number, y: number, w: number, h: number): void;
+      fillStyle: string;
+      getImageData(x: number, y: number, w: number, h: number): { data: ArrayLike<number> };
+    }
     const env = globalThis as unknown as {
       getComputedStyle(el: Node): Styles;
-      document: { querySelectorAll(selector: string): ArrayLike<Node> };
+      document: {
+        querySelectorAll(selector: string): ArrayLike<Node>;
+        createElement(tag: string): {
+          width: number;
+          height: number;
+          getContext(kind: string, opts?: unknown): Ctx | null;
+        };
+      };
+    };
+
+    // 계산값은 authoring 방식에 따라 oklab()·color(srgb ...)·rgba() 등으로
+    // 나온다. Tailwind 4 는 bg-bg/85 같은 유틸리티를 oklab 으로 내보낸다.
+    // Node 쪽에서 문자열을 해석하려 들면 색 공간마다 파서가 필요하고 실제로
+    // oklab 을 거의 검정으로 읽어 대비가 1.2:1 로 나온 적이 있다.
+    // 브라우저에 1×1 캔버스로 칠하게 해 sRGB 바이트로 정규화한다.
+    const canvas = env.document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const normalize = (value: string): string => {
+      if (!ctx) return value;
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = value;
+      ctx.fillRect(0, 0, 1, 1);
+      const d = ctx.getImageData(0, 0, 1, 1).data;
+      return `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${d[3] / 255})`;
     };
 
     const collect = (el: Node) => {
       const backgrounds: string[] = [];
+      let unmeasurable = false;
       let node: Node | null = el;
       while (node) {
         const style = env.getComputedStyle(node);
-        const stops = style.backgroundImage.match(
+        const image = style.backgroundImage;
+        const stops = image.match(
           /^linear-gradient\((rgba?\([^)]*\)),\s*(rgba?\([^)]*\))\)$/,
         );
-        if (stops && stops[1] === stops[2]) backgrounds.push(stops[1]);
-        backgrounds.push(style.backgroundColor);
+        if (stops && stops[1] === stops[2]) {
+          // 두 정지점이 같은 단색 gradient 는 그 색을 칠한 레이어와 같다.
+          backgrounds.push(normalize(stops[1]));
+        } else if (image !== 'none') {
+          // 다중 스톱 gradient·이미지는 위치마다 색이 달라 한 값으로 못 줄인다.
+          // 조용히 흰 배경으로 falling back 하면 대비가 틀리게 나오므로
+          // 측정 불가로 표시해 호출부가 판단하게 한다.
+          unmeasurable = true;
+        }
+        backgrounds.push(normalize(style.backgroundColor));
         node = node.parentElement;
       }
-      return { color: env.getComputedStyle(el).color, backgrounds };
+      return { color: normalize(env.getComputedStyle(el).color), backgrounds, unmeasurable };
     };
 
-    const out: { label: string; color: string; backgrounds: string[] }[] = [];
+    const out: { label: string; color: string; backgrounds: string[]; unmeasurable: boolean }[] = [];
     for (const selector of list) {
       const found = env.document.querySelectorAll(selector);
       for (let i = 0; i < found.length; i += 1) {
