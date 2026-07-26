@@ -42,7 +42,7 @@ export default function ControlPanel({
   return (
     <aside className="controlPanel" aria-label="생성 옵션">
       <SelectField
-        label="Input DDL"
+        label="입력 DDL"
         id="inputDialect"
         value={inputDialect}
         onChange={(e) => onInputDialectChange(e.target.value as Dialect)}
@@ -53,7 +53,7 @@ export default function ControlPanel({
       </SelectField>
 
       <SelectField
-        label="Output DB"
+        label="출력 DB"
         id="outputDialect"
         value={outputDialect}
         onChange={(e) => onOutputDialectChange(e.target.value as Dialect)}
@@ -66,7 +66,7 @@ export default function ControlPanel({
 
       <div className="numberGrid">
         <label>
-          <span>Rows / table</span>
+          <span>테이블당 행 수</span>
           <input
             type="number"
             min="1"
@@ -76,7 +76,7 @@ export default function ControlPanel({
           />
         </label>
         <label>
-          <span>Seed</span>
+          <span>시드</span>
           <input type="number" value={seed} onChange={(event) => onSeedChange(event.target.value)} />
         </label>
       </div>
@@ -91,20 +91,20 @@ export default function ControlPanel({
       </label>
 
       <SelectField
-        label="Data Locale"
+        label="데이터 언어"
         id="dataLocale"
         value={locale}
         onChange={(e) => onLocaleChange(e.target.value as DataLocale)}
         spaced
       >
         <option value="ko">한국어</option>
-        <option value="en">English</option>
+        <option value="en">영어</option>
       </SelectField>
 
       <div className="miniStats" aria-label="생성 요약">
-        <Stat label="Tables" value={result?.summary.tableCount ?? "-"} />
-        <Stat label="Total rows" value={result?.summary.totalRows.toLocaleString() ?? "-"} />
-        <Stat label="Insert order" value={result ? result.analysis.insertOrder.length : "-"} />
+        <Stat label="테이블" value={result?.summary.tableCount ?? "-"} />
+        <Stat label="총 행" value={result?.summary.totalRows.toLocaleString() ?? "-"} />
+        <Stat label="삽입 순서" value={result ? result.analysis.insertOrder.length : "-"} />
       </div>
     </aside>
   );

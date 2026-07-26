@@ -277,7 +277,7 @@ export default function GeneratorClient() {
   }
 
   return (
-    <main className="appShell">
+    <main className="appShell" data-ds-page-shell>
       <Topbar
         canGenerate={canAttemptGenerate}
         onGenerate={onGenerate}
