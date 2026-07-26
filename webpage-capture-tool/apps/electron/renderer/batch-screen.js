@@ -33,7 +33,7 @@ function initBatchScreen() {
 
   if (btnSaveRecipe) {
     btnSaveRecipe.addEventListener("click", () => {
-      document.getElementById("modal-save-recipe").classList.remove("hidden");
+      document.getElementById("modal-save-recipe").showModal();
     });
   }
 

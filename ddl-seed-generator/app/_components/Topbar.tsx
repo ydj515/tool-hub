@@ -1,4 +1,5 @@
 import { Database, Moon, Sparkles, Sun } from "lucide-react";
+import { TOOL_HUB_URL } from "@/app/_lib/constants";
 
 /**
  * 상단 바: 브랜드 + 샘플 불러오기 + Generate + 테마 토글.
@@ -23,7 +24,7 @@ export default function Topbar({
 }: TopbarProps) {
   return (
     <section className="topbar" aria-label="도구 헤더">
-      <div className="brandBlock">
+      <a href={TOOL_HUB_URL} className="brandBlock" aria-label="Tool Hub 로 이동">
         <div className="brandIcon" aria-hidden="true">
           <Database size={22} />
         </div>
@@ -31,7 +32,7 @@ export default function Topbar({
           <h1>DDL Seed Generator</h1>
           <p>DDL에서 관계를 읽고 realistic seed SQL을 생성합니다.</p>
         </div>
-      </div>
+      </a>
       <div className="topActions">
         <select
           className="sampleSelect"
@@ -53,7 +54,7 @@ export default function Topbar({
           <Sparkles size={17} />
           Generate
         </button>
-        <button className="themeBtn" type="button" onClick={onToggleTheme} aria-label="테마 전환">
+        <button className="ds-icon-btn" type="button" onClick={onToggleTheme} aria-label="테마 전환">
           {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span className="themeIconPlaceholder" />}
         </button>
       </div>

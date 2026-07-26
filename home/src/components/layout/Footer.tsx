@@ -5,16 +5,16 @@ import { GITHUB_REPO } from '../../constants';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-black/[0.07] dark:border-white/[0.06] py-5 px-6">
-      <div className="max-w-[1120px] mx-auto flex items-center justify-between">
-        <p className="text-[12px] text-gray-400 dark:text-white/25">
+    <footer className="border-t border-line py-5">
+      <div className="ds-shell flex items-center justify-between">
+        <p className="text-caption text-muted">
           Built with React &amp; Tailwind CSS
         </p>
         <a
           href={GITHUB_REPO}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[12px] text-gray-400 dark:text-white/25 hover:text-primary dark:hover:text-primary-light transition-colors"
+          className="text-caption text-muted hover:text-primary transition-colors no-underline"
         >
           View on GitHub
         </a>

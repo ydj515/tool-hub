@@ -4,6 +4,7 @@
  */
 import { PenTool, Image as ImageIcon, Moon, Sun, Pencil } from "lucide-react";
 import SegmentedTabs from "../ui/SegmentedTabs";
+import { TOOL_HUB_URL } from "../../constants";
 
 interface HeaderProps {
   theme: "light" | "dark";
@@ -14,18 +15,25 @@ interface HeaderProps {
 
 export default function Header({ theme, onToggleTheme, activeTab, onTabChange }: HeaderProps) {
   return (
-    <header className="ds-card flex items-center gap-3 max-w-[1400px] mx-auto mb-5 px-5 py-4">
-      <div className="app-mark w-10 h-10 rounded-xl grid place-items-center shrink-0">
-        <Pencil size={18} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h1 className="app-title text-xl font-bold leading-tight">
-          Signature &amp; Trace Studio
-        </h1>
-        <p className="app-subtitle text-sm mt-0.5">
-          서명을 직접 그리거나 이미지에서 추출해요.
-        </p>
-      </div>
+    <header className="ds-card ds-shell flex items-center gap-3 mb-5 px-5 py-4">
+      {/* 브랜드 슬롯 — 전체가 허브로 돌아가는 링크다. */}
+      <a
+        href={TOOL_HUB_URL}
+        className="flex items-center gap-3 flex-1 min-w-0 no-underline"
+        aria-label="Tool Hub 로 이동"
+      >
+        <div className="app-mark w-10 h-10 rounded-md grid place-items-center shrink-0">
+          <Pencil size={18} />
+        </div>
+        <div className="min-w-0">
+          <h1 className="app-title text-title font-bold">
+            Signature &amp; Trace Studio
+          </h1>
+          <p className="app-subtitle text-body mt-0.5">
+            서명을 직접 그리거나 이미지에서 추출해요.
+          </p>
+        </div>
+      </a>
 
       {/* Tab switcher — segmented control */}
       <SegmentedTabs
@@ -41,7 +49,7 @@ export default function Header({ theme, onToggleTheme, activeTab, onTabChange }:
       <button
         onClick={onToggleTheme}
         aria-label="테마 전환"
-        className="btn-icon w-9 h-9 grid place-items-center shrink-0"
+        className="ds-icon-btn"
       >
         {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
       </button>

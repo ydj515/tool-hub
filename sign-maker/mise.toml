@@ -12,8 +12,8 @@ depends = ["install"]
 
 [tasks.install]
 alias = "i"
-description = "Install dependencies"
-run = "npm install"
+description = "Install dependencies from the lockfile"
+run = "npm ci"
 
 [tasks.dev]
 alias = "d"
@@ -44,3 +44,8 @@ run = "npm run build"
 alias = "p"
 description = "Preview the production build"
 run = "npm run preview"
+
+[tasks.check]
+alias = "c"
+description = "Run the full local verification suite"
+depends = ["test", "lint", "typecheck", "build"]

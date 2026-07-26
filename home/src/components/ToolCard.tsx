@@ -34,12 +34,12 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
   return (
     <article
-      className={`toolCard relative flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-surface-dark border border-black/[0.08] dark:border-white/[0.07] ${!isLive ? 'cursor-default' : ''}`}
+      className={`toolCard relative flex flex-col rounded-lg overflow-hidden bg-surface border border-line ${!isLive ? 'cursor-default' : ''}`}
       data-tool-id={id}
       data-live={isLive ? 'true' : 'false'}
     >
       {/* accent 링 오버레이 — pointer-events-none이므로 상호작용에 영향 없음 */}
-      <div className="toolCardAccentRing absolute inset-0 rounded-2xl pointer-events-none z-[3]" />
+      <div className="toolCardAccentRing absolute inset-0 rounded-lg pointer-events-none z-[3]" />
 
       {/* 그라디언트 배너 */}
       <div className="toolCardHero h-[148px] relative shrink-0">
@@ -49,7 +49,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
         {/* 상태 뱃지 — z-[1]: 그라디언트 위, stretched link와 동일 레벨(DOM 순서상 ::after가 위) */}
         <div className="absolute top-3.5 right-3.5 z-[1]">
           <span
-            className={`text-[10px] font-bold tracking-normal uppercase px-2.5 py-1 rounded-full backdrop-blur-sm ${
+            className={`text-caption font-bold tracking-normal uppercase px-2.5 py-1 rounded-full backdrop-blur-sm ${
               isLive ? 'bg-white/22 text-white' : 'bg-black/28 text-white/58'
             }`}
           >
@@ -67,7 +67,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
       {/* 콘텐츠 영역 */}
       <div className="flex flex-col flex-1 p-4 gap-3">
-        <p className="text-[13px] leading-[1.65] text-gray-500 dark:text-white/48 line-clamp-3">
+        <p className="text-[13px] leading-[1.65] text-muted line-clamp-3">
           {longDescription}
         </p>
 
@@ -76,7 +76,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="toolTag text-[11px] font-medium px-2 py-0.5 rounded-md tracking-normal"
+              className="toolTag text-caption font-medium px-2 py-0.5 rounded-sm tracking-normal"
             >
               {tag}
             </span>
@@ -84,7 +84,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
         </div>
 
         {/* 액션 버튼 */}
-        <div className="flex gap-2 mt-auto pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex gap-2 mt-auto pt-3 border-t border-line">
           {isLive && url ? (
             /*
              * Stretched Link 패턴:
@@ -96,13 +96,13 @@ export default function ToolCard({ tool }: ToolCardProps) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-2xl focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+              className="toolVisitButton relative z-[1] flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-[12px] font-semibold transition-opacity hover:opacity-70 after:absolute after:inset-0 after:z-[1] after:content-[''] after:rounded-lg"
             >
               <ExternalLinkIcon />
               Visit Site
             </a>
           ) : (
-            <span className="flex-1 flex items-center justify-center py-2 rounded-lg text-[12px] font-semibold text-gray-300 dark:text-white/22 bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] cursor-not-allowed">
+            <span className="flex-1 flex items-center justify-center py-2 rounded-sm text-[12px] font-semibold text-disabled bg-fill-subtle border border-line cursor-not-allowed">
               Coming Soon
             </span>
           )}
@@ -111,7 +111,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
             href={github}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative z-[2] flex items-center justify-center w-9 rounded-lg text-gray-500 dark:text-white/42 bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:text-gray-800 dark:hover:text-white/80 hover:bg-gray-100 dark:hover:bg-white/[0.08] hover:border-gray-200 dark:hover:border-white/[0.14] transition-all"
+            className="relative z-[2] flex items-center justify-center w-9 rounded-sm text-muted bg-fill-subtle border border-line hover:text-tx hover:bg-fill hover:border-line-strong transition-all no-underline"
             aria-label={`${name} GitHub 저장소`}
           >
             <GitHubIcon />

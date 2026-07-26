@@ -2,6 +2,7 @@ import { Download, FileUp, Moon, RotateCcw, Sun, WandSparkles } from 'lucide-rea
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { UtilityMenu } from '../common/UtilityMenu';
 import type { DocumentFormat, SpecFamily } from '../../domain/document';
+import { TOOL_HUB_URL } from '../../constants';
 import type { Theme } from '../../theme';
 
 type UtilityMenuName = 'export' | 'sample';
@@ -64,10 +65,10 @@ export function Topbar({ filename, format, sourceVersion, target, conversionEnab
   return <header className="topbar">
     <div className="topbar-main-row">
       <div className="document-context">
-        <div className="brand-block">
+        <a href={TOOL_HUB_URL} className="brand-block" aria-label="Tool Hub 로 이동">
           <div className="brand-icon"><WandSparkles size={21} /></div>
           <div><h1>openapi-editor</h1><p>브라우저 안에서 편집 · 검증 · 변환합니다.</p></div>
-        </div>
+        </a>
         <div className="document-meta">
           <span className="file-chip" title={filename}>{filename ?? '새 문서'} · {format.toUpperCase()}</span>
           <span className="version-chip">{sourceVersion ? versionLabel[sourceVersion] : '버전 미감지'}</span>
@@ -84,7 +85,7 @@ export function Topbar({ filename, format, sourceVersion, target, conversionEnab
           <button className="secondary-btn compact" type="button" aria-label="파일 업로드" onClick={() => inputRef.current?.click()} disabled={reviewing}><FileUp size={15} />업로드</button>
           <button className="primary-btn" type="button" aria-label="변환" onClick={onConvert} disabled={!conversionEnabled || reviewing}><WandSparkles size={15} />변환</button>
         </div>
-        <button className="theme-btn topbar-theme-btn" type="button" aria-label="테마 전환" onClick={onToggleTheme}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}</button>
+        <button className="ds-icon-btn topbar-theme-btn" type="button" aria-label="테마 전환" onClick={onToggleTheme}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}</button>
       </div>
     </div>
     <div ref={menuAreaRef} className="topbar-secondary-row" role="group" aria-label="보조 작업">
@@ -95,7 +96,7 @@ export function Topbar({ filename, format, sourceVersion, target, conversionEnab
       <UtilityMenu label="샘플" isOpen={openMenu === 'sample'} onOpen={() => setOpenMenu('sample')} onClose={() => closeMenu('sample')}>
         {sampleVersions.map((version) => <button key={version} className="secondary-btn compact" type="button" role="menuitem" aria-label={`${sampleLabel[version]} 샘플 다운로드`} onClick={() => runMenuAction(() => onDownloadSample(version))} disabled={reviewing}><Download size={15} />{sampleLabel[version]}</button>)}
       </UtilityMenu>
-      <button className="icon-btn" type="button" aria-label="원본 복원" title="원본 복원" onClick={onRestore} disabled={!canRestore || reviewing}><RotateCcw size={16} /></button>
+      <button className="ds-icon-btn" type="button" aria-label="원본 복원" title="원본 복원" onClick={onRestore} disabled={!canRestore || reviewing}><RotateCcw size={16} /></button>
     </div>
   </header>;
 }

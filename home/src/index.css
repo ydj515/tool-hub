@@ -1,8 +1,14 @@
 /* 스타일 진입점.
-   CSS 스펙상 @import는 최상단에만 올 수 있으므로 이 파일은 import만 담는다.
-   import 순서 = 캐스케이드 순서이므로 base → background → tool-card 순으로 둔다. */
+   CSS 스펙상 @import 는 최상단에만 올 수 있으므로 이 파일은 import 만 담는다.
+   import 순서 = 캐스케이드 순서다.
+
+   ds-*.css 는 packages/design-system 의 생성물이다. 직접 편집하지 말고
+   정본을 고친 뒤 저장소 루트에서 `npm run tokens:sync` 를 실행한다. */
 @import "tailwindcss";
-@import "./styles/theme.css";
+@import "./styles/ds-tokens.css";
+@import "./styles/ds-base.css";
+@import "./styles/ds-primitives.css";
+@import "./styles/theme.local.css";
 @import "./styles/base.css";
 @import "./styles/background.css";
 @import "./styles/tool-card.css";

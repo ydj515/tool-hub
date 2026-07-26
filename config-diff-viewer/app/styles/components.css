@@ -1,7 +1,7 @@
 /* ── App shell ── */
 .appShell {
   min-height: 100vh;
-  padding: 18px;
+  padding: var(--ds-page-padding);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -13,13 +13,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 1600px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto;
   width: 100%;
   padding: 14px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
 }
 
 .brandBlock {
@@ -27,6 +27,8 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .brandIcon {
@@ -37,14 +39,14 @@
   flex: 0 0 auto;
   color: #ffffff;
   background: var(--primary);
-  border-radius: 12px;
+  border-radius: var(--ds-radius-md);
 }
 
 .brandBlock p {
   margin-top: 4px;
   color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.4;
+  font-size: var(--ds-font-size-body);
+  line-height: var(--ds-line-height-body);
 }
 
 .topActions {
@@ -58,7 +60,7 @@
 /* ── Buttons ── */
 .primaryBtn, .secondaryBtn, .ghostBtn {
   min-height: 38px;
-  border-radius: 10px;
+  border-radius: var(--ds-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +68,7 @@
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.16s, border-color 0.16s, color 0.16s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 
 .primaryBtn {
@@ -77,7 +79,7 @@
 }
 .primaryBtn:hover { background: var(--primary-strong); }
 .primaryBtn:active { background: var(--primary-heavy); }
-.primaryBtn:disabled { cursor: not-allowed; opacity: 0.48; }
+.primaryBtn:disabled { cursor: not-allowed; color: var(--disabled); background: var(--fill-subtle); }
 
 .secondaryBtn {
   min-width: 100px;
@@ -87,20 +89,6 @@
   border: 1px solid var(--line);
 }
 .secondaryBtn:hover { border-color: var(--line-strong); background: var(--surface-3); }
-
-.themeBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: border-color 0.14s, color 0.14s;
-}
-.themeBtn:hover { border-color: var(--line-strong); color: var(--text); }
 
 .themeIconPlaceholder {
   display: block;
@@ -123,7 +111,7 @@
 
 /* ── Main workspace ── */
 .workspace {
-  max-width: 1600px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -135,7 +123,7 @@
 .editorCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -180,7 +168,7 @@
 .controlSelect {
   height: 30px;
   padding: 0 8px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text);
@@ -193,7 +181,7 @@
 .uploadBtn {
   height: 30px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -203,7 +191,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .uploadBtn:hover { border-color: var(--primary); color: var(--primary); }
 
@@ -230,7 +218,7 @@
   padding: 10px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -248,7 +236,7 @@
 .statusBadge {
   margin-left: auto;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -261,7 +249,7 @@
 .resultCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
 }
 
@@ -278,7 +266,7 @@
 
 .tabBtn {
   padding: 6px 14px;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--ds-radius-sm) 6px 0 0;
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
@@ -287,7 +275,7 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.14s, background 0.14s;
+  transition: color var(--ds-duration-fast), background var(--ds-duration-fast);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -307,7 +295,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--ds-radius-md);
   font-size: 0.72rem;
   font-weight: 800;
   background: var(--surface-3);
@@ -315,7 +303,7 @@
 }
 .tabBtn.active .tabCount { background: var(--primary); color: #fff; }
 .tabBtn.hasIssues .tabCount { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.tabBtn.disabledTab { opacity: 0.45; cursor: default; }
+.tabBtn.disabledTab { color: var(--disabled); cursor: default; }
 .tabBtn.disabledTab:hover { color: var(--muted); background: transparent; }
 .tabCountOff {
   background: var(--line) !important;
@@ -378,7 +366,7 @@
 .valuePill {
   display: inline-block;
   padding: 2px 7px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -392,7 +380,7 @@
 
 .valuePill.placeholder { color: var(--green); background: color-mix(in srgb, var(--green), transparent 92%); border-color: color-mix(in srgb, var(--green), transparent 75%); }
 .valuePill.missing { color: var(--muted); background: none; border: none; font-style: italic; }
-.valuePill.changed { background: color-mix(in srgb, var(--yellow), transparent 90%); border-color: color-mix(in srgb, var(--yellow), transparent 75%); }
+.valuePill.changed { background: color-mix(in srgb, var(--warning), transparent 90%); border-color: color-mix(in srgb, var(--warning), transparent 75%); }
 .valuePill.danger { background: color-mix(in srgb, var(--danger), transparent 92%); border-color: color-mix(in srgb, var(--danger), transparent 80%); color: var(--danger); }
 .valuePill.masked { color: var(--muted); font-style: italic; }
 
@@ -404,7 +392,7 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -413,11 +401,11 @@
 }
 .badge.CRITICAL { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
 .badge.HIGH     { background: color-mix(in srgb, var(--coral),  transparent 88%); color: var(--coral); }
-.badge.MEDIUM   { background: color-mix(in srgb, var(--yellow), transparent 88%); color: var(--yellow); }
+.badge.MEDIUM   { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
 .badge.LOW      { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
 .badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
 .badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.badge.CHANGED  { background: color-mix(in srgb, var(--yellow), transparent 88%); color: var(--yellow); }
+.badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
 .badge.TYPE_CHANGED { background: color-mix(in srgb, #6541f2, transparent 90%); color: #6541f2; }
 
 /* ── Export bar ── */
@@ -445,9 +433,9 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-right: none;
-  border-radius: 8px 0 0 8px;
+  border-radius: var(--ds-radius-md) 0 0 8px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast);
 }
 .exportSplitMain:hover { background: var(--surface-3); border-color: var(--line-strong); }
 
@@ -462,10 +450,10 @@
   border: 1px solid var(--line);
   border-radius: 0 8px 8px 0;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .exportSplitChevron:hover { background: var(--surface-3); border-color: var(--line-strong); color: var(--text); }
-.exportSplitChevron svg { transition: transform 0.15s; }
+.exportSplitChevron svg { transition: transform var(--ds-duration-fast); }
 .exportSplitChevron.open svg { transform: rotate(180deg); }
 
 .exportDropdown {
@@ -475,11 +463,11 @@
   min-width: 190px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--ds-radius-md);
   box-shadow: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
   overflow: hidden;
   z-index: 100;
-  animation: fadeIn 0.1s ease;
+  animation: fadeIn var(--ds-duration-fast) ease;
 }
 
 .exportDropdownItem {
@@ -496,7 +484,7 @@
   border-bottom: 1px solid var(--line);
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s;
+  transition: background var(--ds-duration-fast);
 }
 .exportDropdownItem:last-child { border-bottom: none; }
 .exportDropdownItem:hover { background: var(--surface-2); }
@@ -518,12 +506,12 @@
 /* ── Copy notice ── */
 .copyNotice {
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   background: color-mix(in srgb, var(--green), transparent 88%);
   color: var(--green);
   font-size: 0.8rem;
   font-weight: 700;
-  animation: fadeIn 0.15s ease;
+  animation: fadeIn var(--ds-duration-fast) ease;
 }
 
 @keyframes fadeIn {
@@ -543,7 +531,7 @@
   padding: 8px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   flex-wrap: wrap;
 }
 
@@ -561,12 +549,12 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-lg);
   border: 1px solid var(--line);
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
   background: var(--surface-2);
   color: var(--muted);
   user-select: none;
@@ -585,7 +573,7 @@
 .optionToggle[data-tooltip]::after {
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--ds-duration-fast);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -597,7 +585,7 @@
   background: var(--code);
   color: #f0f4f2;
   padding: 5px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
@@ -619,7 +607,7 @@
   background: currentColor;
   opacity: 0.5;
   flex: 0 0 auto;
-  transition: opacity 0.14s;
+  transition: opacity var(--ds-duration-fast);
 }
 .optionToggle.on .toggleDot { opacity: 1; }
 .toggleLock { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-left: 2px; }
@@ -630,37 +618,46 @@
   align-items: center;
   gap: 5px;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .optionsRulesBtn:hover { border-color: var(--primary); color: var(--primary); }
 
-/* ── Rules drawer ── */
-.drawerBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(23, 23, 25, 0.4);
-  z-index: 400;
-  animation: fadeIn 0.18s ease;
-}
-
+/* ── Rules drawer (<dialog> 기반 모달) ──
+   top layer 에 렌더되므로 z-index 가 필요 없다. */
 .rulesDrawer {
   position: fixed;
-  top: 0; right: 0; bottom: 0;
+  inset: 0 0 0 auto;              /* 우측 정렬 */
   width: min(600px, 92vw);
-  background: var(--surface);
+  max-width: none;                /* dialog 기본 max-width 해제 */
+  max-height: none;               /* dialog 기본 max-height 해제 */
+  height: 100%;
+  margin: 0;                      /* dialog 기본 margin: auto 해제 */
+  padding: 0;
+  border: 0;
   border-left: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
   box-shadow: -16px 0 48px rgba(23, 23, 25, 0.14), -4px 0 12px rgba(23, 23, 25, 0.08);
-  z-index: 401;
+  animation: slideInRight var(--ds-duration-slow) var(--ds-ease-emphasized);
+}
+
+/* display 는 [open] 에만 준다. 무조건 주면 닫힌 상태의 UA 기본값
+   display: none 을 덮어 dialog 가 항상 보인다. */
+.rulesDrawer[open] {
   display: flex;
   flex-direction: column;
-  animation: slideInRight 0.22s ease;
+}
+
+.rulesDrawer::backdrop {
+  background: rgba(23, 23, 25, 0.4);
+  animation: fadeIn var(--ds-duration-base) var(--ds-ease-standard);
 }
 
 @keyframes slideInRight {
@@ -686,13 +683,13 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
   cursor: pointer;
   flex: 0 0 auto;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .drawerCloseBtn:hover { border-color: var(--danger); color: var(--danger); }
 
@@ -707,7 +704,7 @@
 
 .drawerTabBtn {
   padding: 6px 14px;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--ds-radius-sm) 6px 0 0;
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
@@ -718,7 +715,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.14s, background 0.14s;
+  transition: color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .drawerTabBtn:hover { color: var(--text); background: var(--surface); }
 .drawerTabBtn.active {
@@ -735,7 +732,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--ds-radius-md);
   font-size: 0.72rem;
   font-weight: 800;
   background: var(--surface-3);
@@ -747,14 +744,14 @@
 
 .filterChip {
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-lg);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background var(--ds-duration-fast), color var(--ds-duration-fast), border-color var(--ds-duration-fast);
 }
 .filterChip:hover { border-color: var(--primary); color: var(--primary); }
 .filterChip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -780,7 +777,7 @@
 .ruleCard {
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--ds-radius-md);
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -791,7 +788,7 @@
 
 .ruleCategoryChip {
   padding: 1px 7px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
   font-size: 0.7rem;
@@ -799,7 +796,7 @@
   color: var(--muted);
 }
 
-.ruleId { font-size: 0.76rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--soft); }
+.ruleId { font-size: 0.76rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--muted); }
 .ruleMessage { font-size: 0.84rem; color: var(--text); line-height: 1.4; margin: 0; }
 .ruleMessage.valuePatternName { font-size: 0.86rem; }
 
@@ -812,7 +809,7 @@
   color: var(--text);
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: var(--ds-radius-sm);
   padding: 1px 5px;
   word-break: break-all;
 }
@@ -837,7 +834,7 @@
   height: 28px;
   padding: 0 8px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--ds-radius-sm);
   background: transparent;
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -845,7 +842,7 @@
   font-weight: 600;
   min-width: 80px;
   max-width: 200px;
-  transition: border-color 0.12s, background 0.12s;
+  transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .filenameInput:hover { border-color: var(--line); background: var(--surface-2); }
 .filenameInput:focus { outline: none; border-color: var(--primary); background: var(--surface); }
@@ -864,14 +861,14 @@
   min-height: 300px;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-2);
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
   font-size: 0.82rem;
   line-height: 1.65;
   resize: vertical;
-  transition: border-color 0.14s, background 0.14s;
+  transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .codeTextarea:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%); }
 .codeTextarea::placeholder { color: var(--muted); font-style: italic; font-size: 0.8rem; }
@@ -880,7 +877,7 @@
 .diffViewCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -905,10 +902,10 @@
   align-items: center;
   gap: 5px;
   padding: 3px 10px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--yellow), transparent 90%);
-  border: 1px solid color-mix(in srgb, var(--yellow), transparent 75%);
-  color: var(--yellow);
+  border-radius: var(--ds-radius-sm);
+  background: color-mix(in srgb, var(--warning), transparent 90%);
+  border: 1px solid color-mix(in srgb, var(--warning), transparent 75%);
+  color: var(--warning);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -917,7 +914,7 @@
   font-size: 0.68rem;
   font-weight: 800;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--ds-radius-sm);
   letter-spacing: 0;
 }
 .toggleStatusBadge.on { background: color-mix(in srgb, var(--primary), transparent 82%); color: var(--primary); }

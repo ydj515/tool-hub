@@ -8,5 +8,5 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return <div className="min-h-screen p-4 md:p-6">{children}</div>;
+  return <div className="ds-page">{children}</div>;
 }

@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
   const { theme, toggle } = useTheme();
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas dark:bg-canvas-dark text-gray-900 dark:text-ink-dark">
+    <div className="min-h-screen flex flex-col bg-bg text-tx">
       <Background />
       <Header theme={theme} onToggle={toggle} />
       <main className="flex-1 relative">{children}</main>

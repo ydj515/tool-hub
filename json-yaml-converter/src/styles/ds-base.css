@@ -1,0 +1,40 @@
+/* 이 파일은 packages/design-system/base.css 에서 생성되었다.
+   직접 편집하지 말고 정본을 고친 뒤 저장소 루트에서
+   `npm run tokens:sync` 를 실행한다. */
+/* ─────────────────────────────────────────────────────────────────────────
+   Tool Hub Design System — 전역 base 규칙 정본
+   변경 후 저장소 루트에서 `npm run tokens:sync` 를 실행한다.
+
+   앱의 base.css 를 대체하지 않는다. box-sizing, html/body, 페이지 배경처럼
+   앱마다 다른 규칙은 각 앱의 base.css 가 계속 소유한다.
+   여기에는 8개 앱이 동일해야 하는 규칙만 둔다.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 전역 포커스링.
+   :where() 로 특성도 0 을 유지하므로 컴포넌트가 필요하면 덮을 수 있다.
+   컴포넌트별로 focus-visible 을 반복 선언하지 않는다 — 새로 만드는
+   컴포넌트가 자동으로 커버되지 않기 때문이다. */
+:where(button, a, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 모션 축소 선호.
+   토큰을 0 으로 덮어 토큰 기반 transition 을 끄고, 토큰을 쓰지 않는
+   애니메이션까지 잡기 위해 전역 규칙을 함께 둔다. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ds-duration-fast: 0ms;
+    --ds-duration-base: 0ms;
+    --ds-duration-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

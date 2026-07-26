@@ -1,0 +1,11 @@
+/* json-yaml-converter 고유 토큰. 정본 뒤에 로드되어 정본을 덮을 수 있다.
+   여기 있는 토큰이 3개 이상 앱에서 반복되면 정본으로 승격한다. */
+
+:root {
+  /* Monaco 에디터 표면. 에디터 내부 테마와 맞춰야 하므로 --surface 와 분리한다. */
+  --editor-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --editor-bg: #1e1e1e;   /* Monaco vs-dark 기본 배경 */
+}

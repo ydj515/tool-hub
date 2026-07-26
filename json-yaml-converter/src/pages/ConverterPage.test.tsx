@@ -59,10 +59,10 @@ describe('ConverterPage', () => {
     expect(workspace).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
     expect(workspace).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
     expect(workspace.querySelector('.converter-grid')?.children).toHaveLength(3);
-    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('btn-icon');
+    expect(screen.getByRole('button', { name: '변환 방향 전환' })).toHaveClass('ds-icon-btn');
     for (const name of ['JSON Pretty', '결과 복사', '결과 다운로드']) {
       const action = screen.getByRole('button', { name });
-      expect(action).toHaveClass('btn-icon');
+      expect(action).toHaveClass('ds-icon-btn');
       expect(action).toHaveAttribute('title', name);
       expect(action.querySelector('svg')).not.toBeNull();
       expect(action).toHaveTextContent('');

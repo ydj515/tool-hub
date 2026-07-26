@@ -4,6 +4,7 @@ import { Braces, Moon, Sun } from 'lucide-react';
 import type { ConverterDirection } from '../../lib/converter';
 import type { Theme } from '../../theme';
 import { Button } from '../ui/Button';
+import { TOOL_HUB_URL } from '../../constants';
 
 interface HeaderProps {
   theme: Theme;
@@ -32,7 +33,7 @@ export function Header({ theme, direction, onDirectionChange, onToggleTheme }: H
 
   return (
     <header className="studio-topbar">
-      <div className="studio-brand">
+      <a href={TOOL_HUB_URL} className="studio-brand" aria-label="Tool Hub 로 이동">
         <span className="studio-brand__mark" data-testid="converter-app-mark" aria-hidden="true">
           <Braces size={18} />
         </span>
@@ -40,7 +41,7 @@ export function Header({ theme, direction, onDirectionChange, onToggleTheme }: H
           <h1 className="app-title">JSON YAML Converter</h1>
           <p className="privacy-note">입력 내용은 브라우저에서만 처리됩니다.</p>
         </div>
-      </div>
+      </a>
       <div role="radiogroup" aria-label="변환 방향" className="direction-selector">
         {([
           ['json-to-yaml', 'JSON → YAML'],

@@ -155,11 +155,12 @@ test('데스크톱에서 원본과 결과를 동시에 표시한다', async ({ p
   await expect(page.getByRole('tablist')).toBeHidden();
 });
 
-test('Sign Maker 기준 셸과 control 크기를 사용한다', async ({ page }) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
+test('정본 디자인 시스템의 셸과 control 크기를 사용한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1700, height: 900 });
   await page.goto('/');
 
-  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1400px');
+  // --ds-container-wide. 에디터·캔버스 도구의 최대폭이다.
+  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1600px');
   await expect(page.getByRole('banner')).toHaveCSS('padding', '16px 20px');
   await expect(page.getByTestId('converter-app-mark')).toHaveCSS('width', '40px');
   await expect(page.getByTestId('converter-app-mark')).toHaveCSS('height', '40px');
@@ -288,9 +289,16 @@ for (const theme of ['light', 'dark'] as const) {
     const selectedDirectionBackground = compositeBackground(selectedDirection.backgrounds);
     const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
     expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
-    if (theme === 'dark') await page.keyboard.press('Shift+Tab');
-    else await page.keyboard.press('Tab');
     const selectedRadio = page.getByRole('radio', { name: 'JSON → YAML', exact: true });
+    if (theme === 'dark') {
+      // 테마 토글에서 뒤로 가면 유일하게 tabbable 한 선택된 라디오에 닿는다.
+      await page.keyboard.press('Shift+Tab');
+    } else {
+      // 헤더의 첫 tabbable 요소는 브랜드 블록의 Tool Hub 링크다.
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('link', { name: /Tool Hub/ })).toBeFocused();
+      await page.keyboard.press('Tab');
+    }
     await expect(selectedRadio).toBeFocused();
     const focusedDirection = await computedColors(selectedRadio);
     expect(focusedDirection.outline.style).toBe('solid');

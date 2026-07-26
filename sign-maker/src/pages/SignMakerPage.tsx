@@ -30,7 +30,7 @@ export default function SignMakerPage() {
         onTabChange={setActiveTab}
       />
 
-      <div className="max-w-[1400px] mx-auto grid gap-5 grid-cols-1 md:grid-cols-[1fr_320px]">
+      <div className="ds-shell grid gap-5 grid-cols-1 md:grid-cols-[1fr_320px]">
         {/* Canvas panel */}
         <Panel
           title="캔버스"

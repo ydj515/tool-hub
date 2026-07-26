@@ -11,10 +11,10 @@ interface StatProps {
 export default function Stat({ value, label, tabular = true }: StatProps) {
   return (
     <span>
-      <span className={`font-bold text-gray-900 dark:text-white${tabular ? ' tabular-nums' : ''}`}>
+      <span className={`font-bold text-tx${tabular ? ' tabular-nums' : ''}`}>
         {value}
       </span>
-      <span className="text-gray-400 dark:text-white/30 ml-1">{label}</span>
+      <span className="text-muted ml-1">{label}</span>
     </span>
   );
 }

@@ -14,7 +14,7 @@ describe('Button', () => {
 
     expect(screen.getByRole('button', { name: '보조' })).toHaveClass('btn', 'btn-secondary');
     expect(screen.getByRole('button', { name: '고스트' })).toHaveClass('btn', 'btn-ghost');
-    expect(screen.getByRole('button', { name: '아이콘' })).toHaveClass('btn', 'btn-icon');
+    expect(screen.getByRole('button', { name: '아이콘' })).toHaveClass('ds-icon-btn');
     expect(screen.getByRole('button', { name: '아이콘' })).toBeDisabled();
   });
 });

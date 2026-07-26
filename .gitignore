@@ -5,5 +5,7 @@
 .antigravitycli
 
 # DesignSystem
-design-system
+# 최상위의 외부 브랜드 DS 스킬 폴더만 무시한다.
+# 선행 슬래시가 없으면 모든 깊이에 매칭되어 packages/design-system 정본까지 무시된다.
+/design-system
 .superpowers/

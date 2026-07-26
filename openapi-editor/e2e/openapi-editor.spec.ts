@@ -13,38 +13,45 @@ async function downloadSample(page: Page, label: string): Promise<{ filename: st
   return { filename: download.suggestedFilename(), document: parse(Buffer.concat(chunks).toString('utf8')) as Record<string, unknown> };
 }
 
-async function enterValidYaml(page: Page): Promise<void> {
-  await page.locator('.monaco-editor').click();
-  await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.insertText('openapi: 3.1.2');
-  await page.keyboard.press('Enter');
-  await page.keyboard.insertText('info:');
-  await page.keyboard.press('Enter');
-  await page.keyboard.press('Tab');
-  await page.keyboard.insertText('title: Pets');
-  await page.keyboard.press('Enter');
-  await page.keyboard.insertText('version: 1.0.0');
-  await page.keyboard.press('Enter');
-  await page.keyboard.press('Shift+Tab');
-  await page.keyboard.insertText('paths: {}');
+const VALID_YAML = ['openapi: 3.1.2', 'info:', '  title: Pets', '  version: 1.0.0', 'paths: {}'].join('\n');
+
+/**
+ * 파일 업로드로 유효 문서를 주입한다.
+ *
+ * Monaco 에 키보드로 여러 줄을 입력하면 자동 들여쓰기와 경합해 들여쓰기가
+ * 어긋나고 문서가 무효해진다. Topbar 의 파일 입력은 hidden 이지만
+ * setInputFiles 는 hidden 입력에도 동작하므로 결정적이다.
+ */
+async function loadValidYaml(page: Page): Promise<void> {
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'openapi.yaml',
+    mimeType: 'application/yaml',
+    buffer: Buffer.from(VALID_YAML, 'utf8'),
+  });
   await expect(page.getByText('검증 완료')).toBeVisible();
+}
+
+/**
+ * 뷰가 렌더된 뒤 에디터를 포커스한다.
+ *
+ * 포커스 대상을 DOM 요소로 잡지 않는다. 이 Monaco 버전은 EditContext API 를
+ * 쓰므로 입력용 textarea 도 contenteditable 도 없고, 에디터 안의 유일한
+ * textarea 는 IME 보조 요소(ime-text-area, tabindex=-1, readonly)라 절대
+ * 포커스되지 않는다. 대신 Monaco 가 루트에 붙이는 focused 클래스를 본다.
+ */
+async function focusEditor(page: Page): Promise<void> {
+  const editor = page.locator('.monaco-editor').first();
+  await editor.locator('.view-lines').waitFor();
+  await editor.click();
+  await expect(editor).toHaveClass(/\bfocused\b/);
 }
 
 test('edits a YAML OpenAPI document and keeps the browser-only workspace visible', async ({ page }) => {
   await page.goto('/');
-  await page.locator('.monaco-editor').click();
+  await focusEditor(page);
   await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.insertText('openapi: 3.1.2');
-  await page.keyboard.press('Enter');
-  await page.keyboard.insertText('info:');
-  await page.keyboard.press('Enter');
-  await page.keyboard.press('Tab');
-  await page.keyboard.insertText('title: Pets');
-  await page.keyboard.press('Enter');
-  await page.keyboard.insertText('version: 1.0.0');
-  await page.keyboard.press('Enter');
-  await page.keyboard.press('Shift+Tab');
-  await page.keyboard.insertText('paths: {}');
+  // flow 매핑은 한 줄이라 Monaco 의 자동 들여쓰기가 개입할 여지가 없다.
+  await page.keyboard.insertText('{openapi: 3.1.2, info: {title: Pets, version: 1.0.0}, paths: {}}');
   await expect(page.getByText('검증 완료')).toBeVisible();
   await expect(page.getByText('문서는 브라우저 밖으로 전송되지 않습니다.')).toBeVisible();
 });
@@ -102,7 +109,7 @@ test('keeps the editor format menu inside the mobile viewport', async ({ page })
 
 test('opens the export menu on hover and downloads YAML directly', async ({ page }) => {
   await page.goto('/');
-  await enterValidYaml(page);
+  await loadValidYaml(page);
 
   await page.getByLabel('내보내기 메뉴', { exact: true }).hover();
   await expect(page.getByRole('menu', { name: '내보내기 작업' })).toBeVisible();
@@ -201,7 +208,7 @@ test('keeps the sample menu open while moving the pointer to its items', async (
 
 test('converts a valid document to JSON from the format menu', async ({ page }) => {
   await page.goto('/');
-  await enterValidYaml(page);
+  await loadValidYaml(page);
 
   await page.getByLabel('형식 메뉴', { exact: true }).hover();
   await page.getByRole('menuitem', { name: 'JSON으로 변환', exact: true }).click();
