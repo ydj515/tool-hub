@@ -38,6 +38,7 @@ export const TARGETS = {
   'home': 'src/styles',
   // Electron 앱은 렌더러가 워크스페이스 안쪽에 있어 경로가 깊다.
   'webpage-capture-tool': 'apps/electron/renderer/styles',
+  'api-contract-test-generator': 'src/styles',
 };
 
 /** 복사본 맨 앞에 붙는 경고 배너. */

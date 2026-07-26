@@ -90,6 +90,7 @@ describe('sync', () => {
       'config-diff-viewer',
       'home',
       'webpage-capture-tool',
+      'api-contract-test-generator',
     ]);
   });
 });

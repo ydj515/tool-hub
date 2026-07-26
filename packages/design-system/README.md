@@ -81,6 +81,32 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 
 `--disabled` 는 WCAG 1.4.3 이 비활성 컨트롤을 면제하므로 낮은 대비를 의도적으로 허용한다. 비활성이 아닌 텍스트에 쓰지 않는다.
 
+#### 강조 텍스트는 `--primary-text`
+
+`--primary` 는 버튼 배경·테두리·활성 표시용이다. **텍스트로 쓰지 않는다** — 라이트에서 `--bg` 위 4.37:1, `--surface-2` 위 4.26:1 로 AA 에 못 미친다.
+
+`--primary-strong`(hover)·`--primary-heavy`(pressed)는 라이트에서는 통과하지만 다크에서 더 어두워져 역전된다.
+
+| 표면 | `--primary` | `--primary-strong` | `--primary-heavy` |
+|---|---|---|---|
+| light `--bg` / `--surface` / `--surface-2` | 4.37 / 4.68 / 4.26 | 5.16 / 5.53 / 5.03 | 6.15 / 6.59 / 5.99 |
+| dark `--bg` / `--surface` / `--surface-2` | 5.65 / 5.03 / 4.69 | 4.59 / 4.09 / 3.81 | 3.96 / 3.53 / 3.29 |
+
+방향이 테마별로 반대이므로 `--primary-text` 를 따로 둔다. 라이트는 `--primary-strong` 값, 다크는 `--primary` 값이다.
+
+#### 역할 표면 위의 텍스트
+
+`--danger`/`--warning`/`--success` 는 각자의 `-surface` 위에서 AA 를 만족한다. 단 `-surface` 는 다크에서 **알파 기반**이라 `--surface` 위를 전제한다. 다른 틴트 위에 겹치면 대비가 떨어지므로, 틴트된 부모 안의 배지는 합성 기준을 고정한다.
+
+```css
+.badge {
+  background-color: var(--surface);
+  background-image: linear-gradient(var(--badge-surface), var(--badge-surface));
+}
+```
+
+`--primary-surface` 위의 텍스트는 예외다. `--primary` 계열 중 두 테마 모두에서 이 표면 위 AA 를 넘는 토큰이 없으므로 `--text-neutral` 을 쓴다.
+
 ### 모달과 층위
 
 `--ds-z-*` 는 비모달 오버레이용이다. 모달은 `<dialog>` + `showModal()` 로 만들어 브라우저 top layer 를 쓴다 — 포커스 트랩·Escape·`role="dialog"`·백드롭을 모두 제공하고 z-index 경쟁에서 빠진다.
