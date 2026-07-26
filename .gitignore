@@ -9,3 +9,6 @@
 # 선행 슬래시가 없으면 모든 깊이에 매칭되어 packages/design-system 정본까지 무시된다.
 /design-system
 .superpowers/
+
+# 루트 의존성은 디자인 시스템 정적 렌더링 테스트에서만 사용한다.
+/node_modules/
