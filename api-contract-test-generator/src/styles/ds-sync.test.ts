@@ -23,6 +23,20 @@ import { describe, expect, it } from 'vitest';
  */
 const STYLES_DIR = dirname(__filename);
 const CANONICAL_DIR = resolve(process.cwd(), '../packages/design-system');
+const COMPONENT_DIR = ['src/components/design-system', 'app/_components/design-system']
+  .map((path) => resolve(process.cwd(), path))
+  .find(existsSync);
+
+const COMPONENTS = [
+  'BrandMark.tsx',
+  'ThemeToggle.tsx',
+  'Button.tsx',
+  'SegmentedControl.tsx',
+  'EmptyState.tsx',
+  'Badge.tsx',
+  'ToolHeader.tsx',
+  'components.test.tsx',
+] as const;
 
 const CASES = [
   ['tokens.css', 'ds-tokens.css'],
@@ -42,6 +56,17 @@ describe('디자인 시스템 정본 동기화', () => {
     expect(copy.endsWith(canonical)).toBe(true);
   });
 });
+
+if (COMPONENT_DIR) {
+  describe('생성 컴포넌트 정본 동기화', () => {
+    it.each(COMPONENTS)('%s가 정본과 일치한다', (name) => {
+      const canonical = readFileSync(join(CANONICAL_DIR, 'components', name), 'utf8');
+      const copy = readFileSync(join(COMPONENT_DIR, name), 'utf8');
+
+      expect(copy.endsWith(canonical)).toBe(true);
+    });
+  });
+}
 
 /**
  * 정본이 정의하지 않는 Tailwind radius/shadow 단계는 쓰지 않는다.

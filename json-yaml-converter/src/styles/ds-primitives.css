@@ -20,9 +20,12 @@
 /* 아이콘 버튼.
    36px 은 openapi-editor 헤더 계획의 전역 제약이며 E2E 가 강제한다.
    hover 에서 테두리를 없다가 생기게 하지 않는다 — 버튼이 커진 것처럼 보인다. */
+.ds-button--icon,
 .ds-icon-btn {
   width: 36px;
+  min-width: 36px;
   height: 36px;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -59,4 +62,250 @@
 .ds-icon-btn > svg {
   width: 16px;
   height: 16px;
+}
+
+[data-ds-brand-mark] {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  color: var(--on-primary);
+  background: var(--primary);
+  border-radius: var(--ds-radius-md);
+}
+
+[data-ds-brand-mark] svg,
+[data-ds-icon] {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.ds-button {
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--ds-radius-md);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ds-button--primary {
+  color: var(--on-primary);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.ds-button--secondary {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.ds-button--ghost {
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.ds-button--danger {
+  color: var(--danger);
+  background: var(--danger-surface);
+  border-color: var(--danger);
+}
+
+.ds-button:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-3);
+  border-color: var(--line-strong);
+}
+
+.ds-button--primary:hover:not(:disabled) {
+  color: var(--on-primary);
+  background: var(--primary-strong);
+  border-color: var(--primary-strong);
+}
+
+.ds-button:disabled,
+.ds-segmented button:disabled,
+[data-ds-control][aria-disabled="true"] {
+  opacity: 1;
+  color: var(--disabled);
+  cursor: not-allowed;
+}
+
+.ds-segmented {
+  height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-2);
+  border: 0;
+  border-radius: var(--ds-radius-md);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.ds-segmented button {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  font: inherit;
+  font-weight: 700;
+}
+
+.ds-segmented button[aria-pressed="true"] {
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+.ds-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.ds-empty-state__icon,
+.ds-empty-state__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ds-empty-state p {
+  margin: 0;
+}
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 7px;
+  border-radius: var(--ds-radius-pill);
+  font-size: var(--ds-font-size-caption);
+  font-weight: 800;
+}
+
+.ds-badge--neutral {
+  color: var(--text-neutral);
+  background: var(--surface-2);
+}
+
+.ds-badge--primary {
+  color: var(--primary-text);
+  background: var(--primary-surface);
+}
+
+.ds-badge--success {
+  color: var(--success);
+  background: var(--success-surface);
+}
+
+.ds-badge--warning {
+  color: var(--warning);
+  background: var(--warning-surface);
+}
+
+.ds-badge--danger {
+  color: var(--danger);
+  background: var(--danger-surface);
+}
+
+.ds-tool-header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+.ds-tool-header__brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ds-tool-header__copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.ds-tool-header__copy strong {
+  overflow: hidden;
+  font-size: var(--ds-font-size-title);
+  line-height: var(--ds-line-height-title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-tool-header__copy > span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--ds-font-size-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-tool-header__actions,
+.ds-tool-header__utilities {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 767px) {
+  .ds-tool-header {
+    grid-template-columns: minmax(0, 1fr) 36px;
+    grid-template-areas: "brand utilities" "actions actions";
+    padding: 12px;
+  }
+
+  .ds-tool-header__brand {
+    grid-area: brand;
+  }
+
+  .ds-tool-header__actions {
+    grid-area: actions;
+    width: 100%;
+  }
+
+  .ds-tool-header__utilities {
+    grid-area: utilities;
+  }
+
+  .ds-tool-header__utilities > :not([data-ds-theme-toggle]) {
+    display: none;
+  }
+
+  .ds-tool-header__copy > span {
+    display: none;
+  }
 }

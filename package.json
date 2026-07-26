@@ -8,9 +8,12 @@
     "node": ">=24"
   },
   "scripts": {
-    "tokens:sync": "node scripts/sync-design-tokens.mjs",
-    "tokens:check": "node scripts/sync-design-tokens.mjs --check",
-    "tokens:test": "node --test 'scripts/**/*.test.mjs'"
+    "design-system:sync": "node scripts/sync-design-system.mjs",
+    "design-system:check": "node scripts/sync-design-system.mjs --check",
+    "design-system:test": "node --test 'scripts/**/*.test.mjs'",
+    "tokens:sync": "npm run design-system:sync",
+    "tokens:check": "npm run design-system:check",
+    "tokens:test": "npm run design-system:test"
   },
   "devDependencies": {
     "lucide-react": "1.14.0",
