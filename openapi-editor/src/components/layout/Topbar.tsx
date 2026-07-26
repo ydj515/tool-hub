@@ -65,7 +65,7 @@ export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, on
   };
 
   const actions = <div ref={menuAreaRef} className="openapi-header-actions">
-    <label className="select-label">대상 버전
+    <label className="select-label"><span className="select-label-text">대상 버전</span>
       <select aria-label="대상 버전" value={target} onChange={(event) => onTarget(event.target.value as SpecFamily)} disabled={reviewing}>
         <option value="swagger-2.0">Swagger 2.0</option>
         <option value="openapi-3.0">OpenAPI 3.0.4</option>

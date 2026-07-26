@@ -83,20 +83,43 @@ test('keeps mobile header controls on intentional rows', async ({ page }) => {
   expect(uploadBox.height).toBe(36);
 });
 
-test('keeps the compact action grid on one row on narrow mobile screens', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 844 });
-  await page.goto('/');
-  const target = page.getByLabel('대상 버전', { exact: true });
-  const upload = page.getByLabel('파일 업로드', { exact: true });
-  const convert = page.getByRole('button', { name: '문서 변환', exact: true });
-  const moreMenu = page.getByLabel('더보기 메뉴', { exact: true });
-  const [targetBox, uploadBox, convertBox, moreBox] = await Promise.all([target.boundingBox(), upload.boundingBox(), convert.boundingBox(), moreMenu.boundingBox()]);
-  if (!targetBox || !uploadBox || !convertBox || !moreBox) throw new Error('좁은 모바일 헤더의 위치를 읽을 수 없습니다.');
+for (const viewportWidth of [360, 375, 390]) {
+  test(`keeps the ${viewportWidth}px mobile action grid inside the header without overlap`, async ({ page }) => {
+    await page.setViewportSize({ width: viewportWidth, height: 844 });
+    await page.goto('/');
+    const header = page.locator('[data-ds-tool-header]');
+    const actionRow = page.locator('.openapi-header-actions');
+    const target = page.getByLabel('대상 버전', { exact: true });
+    const upload = page.getByLabel('파일 업로드', { exact: true });
+    const convert = page.getByRole('button', { name: '문서 변환', exact: true });
+    const moreMenu = page.getByLabel('더보기 메뉴', { exact: true });
+    const [headerBox, targetBox, uploadBox, convertBox, moreBox] = await Promise.all([
+      header.boundingBox(), target.boundingBox(), upload.boundingBox(), convert.boundingBox(), moreMenu.boundingBox(),
+    ]);
+    if (!headerBox || !targetBox || !uploadBox || !convertBox || !moreBox) throw new Error('좁은 모바일 헤더의 위치를 읽을 수 없습니다.');
 
-  expect(uploadBox.y).toBe(targetBox.y);
-  expect(convertBox.y).toBe(targetBox.y);
-  expect(moreBox.y).toBe(targetBox.y);
-});
+    const controls = [
+      ['대상 버전', targetBox],
+      ['파일 업로드', uploadBox],
+      ['문서 변환', convertBox],
+      ['더보기', moreBox],
+    ] as const;
+    for (const [[leftLabel, left], [rightLabel, right]] of controls.slice(0, -1).map((control, index) => [control, controls[index + 1]] as const)) {
+      expect(left.x + left.width, `${viewportWidth}px에서 ${leftLabel}과 ${rightLabel}이 겹치지 않아야 합니다.`).toBeLessThanOrEqual(right.x);
+    }
+    for (const [label, box] of controls) {
+      expect(box.x, `${viewportWidth}px에서 ${label}의 왼쪽 경계가 header 안에 있어야 합니다.`).toBeGreaterThanOrEqual(headerBox.x);
+      expect(box.x + box.width, `${viewportWidth}px에서 ${label}의 오른쪽 경계가 header 안에 있어야 합니다.`).toBeLessThanOrEqual(headerBox.x + headerBox.width);
+      expect(box.height).toBe(36);
+      expect(box.y).toBe(targetBox.y);
+    }
+
+    for (const region of [header, actionRow]) {
+      const { clientWidth, scrollWidth } = await region.evaluate((element) => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
+      expect(scrollWidth, `${viewportWidth}px header에 가로 overflow가 없어야 합니다.`).toBeLessThanOrEqual(clientWidth);
+    }
+  });
+}
 
 test('keeps the editor format menu inside the mobile viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
