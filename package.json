@@ -11,5 +11,10 @@
     "tokens:sync": "node scripts/sync-design-tokens.mjs",
     "tokens:check": "node scripts/sync-design-tokens.mjs --check",
     "tokens:test": "node --test 'scripts/**/*.test.mjs'"
+  },
+  "devDependencies": {
+    "lucide-react": "1.14.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   }
 }
