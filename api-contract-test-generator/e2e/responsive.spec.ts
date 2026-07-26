@@ -7,7 +7,7 @@ async function openReview(page: Page) {
   await expect(page.getByRole('heading', { name: '테스트 검토' })).toBeVisible();
 }
 
-for (const width of [320, 375, 768, 1024, 1440]) {
+for (const width of [320, 375, 768, 1024, 1200, 1279, 1280, 1440]) {
   test(`${width}px에서 콘텐츠가 겹치거나 가로로 넘치지 않는다`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await openReview(page);
@@ -15,7 +15,7 @@ for (const width of [320, 375, 768, 1024, 1440]) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
 
-    if (width >= 1200) {
+    if (width >= 1280) {
       const endpoint = await page.getByRole('region', { name: '엔드포인트 목록' }).boundingBox();
       const list = await page.getByRole('region', { name: '테스트 목록' }).boundingBox();
       const detail = await page.getByRole('region', { name: '테스트 상세' }).boundingBox();
@@ -24,7 +24,7 @@ for (const width of [320, 375, 768, 1024, 1440]) {
       expect(list!.x + list!.width).toBeLessThanOrEqual(detail!.x + 0.5);
     }
 
-    if (width >= 768 && width < 1200) {
+    if (width >= 768 && width < 1280) {
       const endpoint = await page.getByRole('region', { name: '엔드포인트 목록' }).boundingBox();
       const list = await page.getByRole('region', { name: '테스트 목록' }).boundingBox();
       const detail = await page.getByRole('region', { name: '테스트 상세' }).boundingBox();

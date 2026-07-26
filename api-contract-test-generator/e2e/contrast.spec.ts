@@ -108,7 +108,7 @@ for (const theme of ['light', 'dark'] as const) {
       '.eyebrow',
       '.request-preview pre',
       '.method',
-      '.status-badge',
+      '[data-ds-badge]',
     ]);
 
     // 헤더의 보조/강조 텍스트와 배지가 모두 잡혀야 한다. 토큰 층 검사만
@@ -118,7 +118,7 @@ for (const theme of ['light', 'dark'] as const) {
       expect(selectorsFound, `${selector} 가 렌더되지 않았다`).toContain(selector);
     }
     // 예제 명세가 어떤 메서드를 담든 배지는 최소 하나 렌더된다.
-    expect(selectorsFound.filter((v) => v === '.method' || v === '.status-badge').length)
+    expect(selectorsFound.filter((v) => v === '.method' || v === '[data-ds-badge]').length)
       .toBeGreaterThan(0);
 
     // 다중 스톱 gradient 위의 글자는 위치마다 배경색이 달라 단일 값으로
@@ -145,8 +145,10 @@ test.describe('셸 계약', () => {
 
     // 테마 토글은 정본 프리미티브를 쓰고 36px 를 유지한다.
     const toggle = page.getByRole('button', { name: /테마로 전환/ });
-    await expect(toggle).toHaveClass(/\bds-icon-btn\b/);
+    await expect(toggle).toHaveAttribute('data-ds-theme-toggle', 'true');
+    await expect(toggle).toHaveClass(/\bds-button--icon\b/);
     await expect(toggle).toHaveCSS('width', '36px');
     await expect(toggle).toHaveCSS('height', '36px');
+    await expect(page.locator('[data-ds-tool-utilities] > :last-child')).toHaveAttribute('data-ds-theme-toggle', 'true');
   });
 });

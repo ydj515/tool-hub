@@ -2,7 +2,7 @@ import { FileCode2, Play } from 'lucide-react';
 import type { Diagnostic } from '../../domain/diagnostic';
 import { sampleDocumentFor } from '../../data/samples';
 import type { Theme } from '../../theme';
-import { Button } from '../ui/Button';
+import { Button } from '../design-system/Button';
 import { FileDropzone } from './FileDropzone';
 import { SpecEditor } from './SpecEditor';
 
@@ -33,7 +33,7 @@ export function SpecInputStep({
     <section className="ds-card step-panel input-step" aria-labelledby="input-heading">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Step 1</p>
+          <p className="eyebrow">1단계</p>
           <h2 id="input-heading">OpenAPI 명세 입력</h2>
           <p>YAML 또는 JSON을 붙여 넣거나 브라우저에서 파일을 여세요.</p>
         </div>
@@ -46,8 +46,8 @@ export function SpecInputStep({
       <FileDropzone disabled={disabled} onFile={onFile} />
       <div className="editor-card">
         <div className="editor-toolbar">
-          <span><FileCode2 size={16} aria-hidden="true" /> {filename ?? '새 명세'}</span>
-          <span>{new TextEncoder().encode(source).byteLength.toLocaleString()} bytes</span>
+          <span><FileCode2 size={16} strokeWidth={2} aria-hidden="true" /> {filename ?? '새 명세'}</span>
+          <span>{new TextEncoder().encode(source).byteLength.toLocaleString()} B</span>
         </div>
         <SpecEditor value={source} filename={filename} diagnostics={diagnostics} theme={theme} disabled={disabled} onChange={onSourceChange} />
       </div>
@@ -61,7 +61,7 @@ export function SpecInputStep({
       <div className="step-actions">
         <p>분석은 버튼을 누를 때만 시작합니다.</p>
         <Button variant="primary" disabled={!canAnalyze || disabled} onClick={onAnalyze}>
-          <Play size={16} aria-hidden="true" /> 테스트 생성
+          <Play size={16} strokeWidth={2} aria-hidden="true" /> 테스트 생성
         </Button>
       </div>
     </section>

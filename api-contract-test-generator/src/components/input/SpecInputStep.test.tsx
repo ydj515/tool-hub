@@ -15,7 +15,7 @@ describe('SpecInputStep', () => {
     const user = userEvent.setup();
     const onSourceChange = vi.fn();
     const onAnalyze = vi.fn();
-    render(
+    const { container } = render(
       <SpecInputStep
         source=""
         diagnostics={[]}
@@ -27,6 +27,11 @@ describe('SpecInputStep', () => {
       />,
     );
 
+    expect(screen.getByText('1단계')).toBeInTheDocument();
+    expect(screen.getByText('0 B')).toBeInTheDocument();
+    expect(screen.queryByText('Step 1')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '테스트 생성' })).toHaveAttribute('data-ds-button');
+    expect(container.querySelector('.button')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'OpenAPI 3.1 예제' }));
     expect(onSourceChange).toHaveBeenCalledWith(expect.stringContaining('openapi: 3.1'));
     await user.click(screen.getByRole('button', { name: '테스트 생성' }));

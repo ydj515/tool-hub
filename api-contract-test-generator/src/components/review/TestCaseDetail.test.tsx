@@ -5,6 +5,13 @@ import { selectionFixture, testCase } from '../../test/factories';
 import { TestCaseDetail } from './TestCaseDetail';
 
 describe('TestCaseDetail', () => {
+  it('테스트가 선택되지 않으면 공통 빈 상태를 표시한다', () => {
+    const { container } = render(<TestCaseDetail onSelectionChange={vi.fn()} />);
+
+    expect(screen.getByText('테스트를 선택해 주세요.')).toBeInTheDocument();
+    expect(container.querySelector('[data-ds-empty-state]')).toBeInTheDocument();
+  });
+
   it('쉼표 구분 숫자 상태만 검토 완료로 저장한다', async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
@@ -26,7 +33,7 @@ describe('TestCaseDetail', () => {
   it('범위 상태를 저장하고 기대 상태 근거와 검토 사유를 표시한다', async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
-    render(
+    const { container } = render(
       <TestCaseDetail
         testCase={testCase({ expected: { statuses: [], needsReview: true, rationale: '명세에 오류 응답이 없습니다.' } })}
         selection={{ included: true, reviewed: false }}
@@ -36,6 +43,10 @@ describe('TestCaseDetail', () => {
 
     expect(screen.getByText('명세에 오류 응답이 없습니다.')).toBeInTheDocument();
     expect(screen.getByText('검토 필요 사유')).toBeInTheDocument();
+    expect(screen.getByText('선택한 테스트')).toBeInTheDocument();
+    expect(screen.queryByText('Selected test')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '상태 코드 검토 완료' })).toHaveAttribute('data-ds-button');
+    expect(container.querySelector('[data-ds-badge]')).toBeInTheDocument();
     await user.type(screen.getByRole('textbox', { name: '기대 상태 코드' }), '4XX');
     await user.click(screen.getByRole('button', { name: '상태 코드 검토 완료' }));
 

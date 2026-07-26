@@ -1,7 +1,7 @@
 import { ArrowLeft, Braces, Download, FileText, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import type { ExportFormat, TestCaseSelection, TestPlan } from '../../domain/test-case';
-import { Button } from '../ui/Button';
+import { Button } from '../design-system/Button';
 
 interface ExportStepProps {
   plan: TestPlan;
@@ -48,8 +48,8 @@ export function ExportStep({
   return (
     <section className="ds-card step-panel export-step" aria-labelledby="export-heading">
       <div className="section-heading">
-        <div><p className="eyebrow">Step 3</p><h2 id="export-heading">테스트 계획 내보내기</h2><p>{plan.title}에서 선택한 테스트를 원하는 형식으로 저장합니다.</p></div>
-        <Button onClick={onBack}><ArrowLeft size={16} aria-hidden="true" /> 테스트 검토로 돌아가기</Button>
+        <div><p className="eyebrow">3단계</p><h2 id="export-heading">테스트 계획 내보내기</h2><p>{plan.title}에서 선택한 테스트를 원하는 형식으로 저장합니다.</p></div>
+        <Button onClick={onBack}><ArrowLeft size={16} strokeWidth={2} aria-hidden="true" /> 테스트 검토로 돌아가기</Button>
       </div>
 
       <div className="export-summary" aria-label="내보내기 요약">
@@ -65,7 +65,7 @@ export function ExportStep({
           return (
             <label key={item.id} className={`format-card ${format === item.id ? 'is-selected' : ''}`}>
               <input type="radio" name="export-format" value={item.id} aria-label={item.title} checked={format === item.id} onChange={() => setFormat(item.id)} />
-              <Icon size={22} aria-hidden="true" />
+              <Icon size={16} strokeWidth={2} aria-hidden="true" />
               <span><strong>{item.title}</strong><small>{item.description}</small></span>
             </label>
           );
@@ -87,7 +87,7 @@ export function ExportStep({
       <div className="export-actions">
         <p>선택 상태와 상태 코드 검토 결과가 현재 파일에 반영됩니다. ({Object.keys(selections).length}개 선택 기록)</p>
         <Button variant="primary" disabled={exporting || includedCount === 0} onClick={download}>
-          <Download size={16} aria-hidden="true" /> {exporting ? '파일 생성 중' : '선택한 형식으로 다운로드'}
+          <Download size={16} strokeWidth={2} aria-hidden="true" /> {exporting ? '파일 생성 중' : '선택한 형식으로 다운로드'}
         </Button>
       </div>
     </section>

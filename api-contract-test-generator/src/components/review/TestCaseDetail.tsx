@@ -1,7 +1,8 @@
 import { ArrowLeft, Check } from 'lucide-react';
 import { useState } from 'react';
 import type { ExpectedStatus, GeneratedTestCase, TestCaseSelection } from '../../domain/test-case';
-import { Button } from '../ui/Button';
+import { Button } from '../design-system/Button';
+import { EmptyState } from '../design-system/EmptyState';
 import { StatusBadge } from '../ui/StatusBadge';
 
 interface TestCaseDetailProps {
@@ -18,7 +19,7 @@ export function TestCaseDetail({ testCase, selection, onSelectionChange, onBack 
   const [error, setError] = useState<string>();
 
   if (!testCase) {
-    return <section className="review-column detail-column" aria-label="테스트 상세"><p className="empty-state">테스트를 선택해 주세요.</p></section>;
+    return <section className="review-column detail-column" aria-label="테스트 상세"><EmptyState title="테스트를 선택해 주세요." /></section>;
   }
 
   const displayedStatuses = selection?.expectedStatuses ?? testCase.expected.statuses;
@@ -36,9 +37,9 @@ export function TestCaseDetail({ testCase, selection, onSelectionChange, onBack 
 
   return (
     <section className="review-column detail-column" aria-label="테스트 상세">
-      {onBack && <button className="text-button mobile-only detail-back" type="button" onClick={onBack}><ArrowLeft size={16} aria-hidden="true" /> 테스트 목록으로 돌아가기</button>}
+      {onBack && <button className="text-button mobile-only detail-back" type="button" onClick={onBack}><ArrowLeft size={16} strokeWidth={2} aria-hidden="true" /> 테스트 목록으로 돌아가기</button>}
       <div className="detail-heading">
-        <p className="eyebrow">Selected test</p>
+        <p className="eyebrow">선택한 테스트</p>
         <h3>선택한 테스트: {testCase.title}</h3>
         <div className="badge-row"><StatusBadge status={testCase.category} /><StatusBadge status={testCase.confidence} /></div>
       </div>
@@ -56,7 +57,7 @@ export function TestCaseDetail({ testCase, selection, onSelectionChange, onBack 
       <div className="status-review">
         <label htmlFor={`status-${testCase.id}`}>기대 상태 코드</label>
         <input id={`status-${testCase.id}`} value={statusText} onChange={(event) => setStatusText(event.target.value)} placeholder="예: 400, 422 또는 4XX" />
-        <Button onClick={saveStatuses}><Check size={15} aria-hidden="true" /> 상태 코드 검토 완료</Button>
+        <Button onClick={saveStatuses}><Check size={16} strokeWidth={2} aria-hidden="true" /> 상태 코드 검토 완료</Button>
         <Button onClick={() => onSelectionChange(testCase.id, { included: !(selection?.included ?? false) })}>
           {selection?.included ? '내보내기에서 제외' : '내보내기에 포함'}
         </Button>

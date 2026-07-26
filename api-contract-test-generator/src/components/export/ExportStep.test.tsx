@@ -21,6 +21,12 @@ describe('ExportStep', () => {
       />,
     );
 
+    expect(screen.getByText('3단계')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '선택한 형식으로 다운로드' })).toHaveAttribute('data-ds-button');
+    const formatIcon = screen.getByRole('radio', { name: 'Markdown 테스트 계획' }).parentElement?.querySelector('svg');
+    expect(formatIcon).toHaveAttribute('width', '16');
+    expect(formatIcon).toHaveAttribute('height', '16');
+    expect(formatIcon).toHaveAttribute('stroke-width', '2');
     await user.click(screen.getByRole('radio', { name: 'Postman Collection 2.1' }));
     await user.click(screen.getByRole('button', { name: '선택한 형식으로 다운로드' }));
     expect(screen.getByRole('alert')).toHaveTextContent('검토하지 않은 테스트 2개');

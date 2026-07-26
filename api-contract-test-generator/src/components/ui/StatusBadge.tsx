@@ -1,4 +1,5 @@
 import type { Confidence, TestCategory } from '../../domain/test-case';
+import { Badge, type BadgeVariant } from '../design-system/Badge';
 
 type Status = Confidence | TestCategory | 'included' | 'excluded';
 
@@ -14,6 +15,18 @@ const labels: Record<Status, string> = {
   excluded: '제외',
 };
 
+const variants: Record<Status, BadgeVariant> = {
+  explicit: 'success',
+  derived: 'neutral',
+  'review-required': 'warning',
+  valid: 'success',
+  validation: 'danger',
+  boundary: 'warning',
+  authentication: 'danger',
+  included: 'primary',
+  excluded: 'neutral',
+};
+
 export function StatusBadge({ status }: { status: Status }) {
-  return <span className={`status-badge status-badge--${status}`}>{labels[status]}</span>;
+  return <Badge variant={variants[status]}>{labels[status]}</Badge>;
 }

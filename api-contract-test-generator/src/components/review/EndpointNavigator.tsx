@@ -13,7 +13,7 @@ export function EndpointNavigator({ endpoints, testCases, selections, selectedId
   return (
     <section className="review-column endpoint-column" aria-label="엔드포인트 목록">
       <div className="column-heading">
-        <p className="eyebrow">Endpoints</p>
+        <p className="eyebrow">엔드포인트</p>
         <strong>{endpoints.length}개</strong>
       </div>
       <div className="endpoint-list">

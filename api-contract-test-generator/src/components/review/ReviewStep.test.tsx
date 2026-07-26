@@ -28,13 +28,27 @@ describe('ReviewStep', () => {
   it('테스트를 검색하고 포함 상태를 바꾼다', async () => {
     const user = userEvent.setup();
     const values = props();
-    render(<ReviewStep {...values} />);
+    const { container } = render(<ReviewStep {...values} />);
 
+    expect(screen.getByText('2단계')).toBeInTheDocument();
+    expect(container.querySelector('.endpoint-column .eyebrow')).toHaveTextContent('엔드포인트');
+    expect(screen.getByRole('button', { name: '내보내기 단계로' })).toHaveAttribute('data-ds-button');
+    expect(container.querySelector('[data-ds-badge]')).toBeInTheDocument();
     await user.type(screen.getByRole('searchbox', { name: '테스트 검색' }), 'email');
     expect(screen.getByText('필수 email 필드 누락')).toBeInTheDocument();
     expect(screen.queryByText('인증 토큰 누락')).not.toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: '필수 email 필드 누락 포함' }));
     expect(values.onSelectionChange).toHaveBeenCalledWith('required-email-id', { included: false });
+  });
+
+  it('검색 결과가 없으면 공통 빈 상태를 표시한다', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<ReviewStep {...props()} />);
+
+    await user.type(screen.getByRole('searchbox', { name: '테스트 검색' }), '없는 테스트');
+
+    expect(screen.getByText('조건에 맞는 테스트가 없습니다.')).toBeInTheDocument();
+    expect(container.querySelector('[data-ds-empty-state]')).toBeInTheDocument();
   });
 
   it('모바일에서 목록과 상세를 별도 화면으로 전환한다', async () => {

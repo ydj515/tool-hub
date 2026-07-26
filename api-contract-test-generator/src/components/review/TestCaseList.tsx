@@ -1,6 +1,7 @@
 import { ChevronRight, Search } from 'lucide-react';
 import { useMemo } from 'react';
 import type { Confidence, GeneratedTestCase, TestCaseSelection, TestCategory } from '../../domain/test-case';
+import { EmptyState } from '../design-system/EmptyState';
 import { StatusBadge } from '../ui/StatusBadge';
 
 export interface TestCaseFilters {
@@ -45,7 +46,7 @@ export function TestCaseList({
         <div>{onBack && <button className="text-button mobile-only" type="button" onClick={onBack}>엔드포인트</button>}<strong>{filtered.length}개 테스트</strong></div>
       </div>
       <div className="test-filters">
-        <label className="search-field"><Search size={15} aria-hidden="true" /><input type="search" aria-label="테스트 검색" value={query} onChange={(event) => onFiltersChange({ query: event.target.value })} placeholder="제목, 규칙 검색" /></label>
+        <label className="search-field"><Search size={16} strokeWidth={2} aria-hidden="true" /><input type="search" aria-label="테스트 검색" value={query} onChange={(event) => onFiltersChange({ query: event.target.value })} placeholder="제목, 규칙 검색" /></label>
         <select aria-label="테스트 분류" value={category} onChange={(event) => onFiltersChange({ category: event.target.value as TestCategory | 'all' })}>
           <option value="all">모든 분류</option><option value="valid">정상</option><option value="validation">오류</option><option value="boundary">경계값</option><option value="authentication">인증</option>
         </select>
@@ -68,13 +69,13 @@ export function TestCaseList({
                   />
                 </label>
                 <div><strong>{testCase.title}</strong><p>{testCase.ruleId}</p></div>
-                <button type="button" className="detail-button" aria-label={`${testCase.title} 상세`} onClick={(event) => { event.stopPropagation(); onShowDetail(testCase.id); }}><ChevronRight size={18} aria-hidden="true" /></button>
+                <button type="button" className="detail-button" aria-label={`${testCase.title} 상세`} onClick={(event) => { event.stopPropagation(); onShowDetail(testCase.id); }}><ChevronRight size={16} strokeWidth={2} aria-hidden="true" /></button>
               </div>
               <div className="badge-row"><StatusBadge status={testCase.category} /><StatusBadge status={testCase.confidence} /></div>
             </article>
           );
         })}
-        {filtered.length === 0 && <p className="empty-state">조건에 맞는 테스트가 없습니다.</p>}
+        {filtered.length === 0 && <EmptyState title="조건에 맞는 테스트가 없습니다." />}
       </div>
     </section>
   );
