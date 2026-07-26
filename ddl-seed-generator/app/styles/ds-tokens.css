@@ -75,6 +75,10 @@
   --primary-strong: #005eeb;              /* hover */
   --primary-heavy: #0054d1;               /* pressed */
   --primary-surface: #eaf2fe;
+  /* 강조 텍스트 전용. --primary 는 라이트에서 --bg 4.37:1 · --surface-2 4.26:1 로
+     AA 에 못 미치고, 다크에서는 반대로 -strong/-heavy 가 어두워져 역전된다.
+     테마별로 방향이 달라 별도 토큰을 둔다. 라이트 5.16/5.53/5.03(bg/surface/surface-2) */
+  --primary-text: #005eeb;
   --on-primary: #ffffff;
 
   /* ── 상태 ── */
@@ -146,6 +150,7 @@
   --primary-strong: #1a75ff;
   --primary-heavy: #0066ff;
   --primary-surface: rgba(91, 132, 255, 0.16);
+  --primary-text: #5b84ff;               /*  5.65/5.03/4.69 (bg/surface/surface-2) */
 
   --danger: #ff6464;                      /*  5.89:1 AA */
   --danger-surface: rgba(255, 100, 100, 0.14);
@@ -200,6 +205,7 @@
   --color-primary-strong: var(--primary-strong);
   --color-primary-heavy: var(--primary-heavy);
   --color-primary-surface: var(--primary-surface);
+  --color-primary-text: var(--primary-text);
   --color-on-primary: var(--on-primary);
   --color-danger: var(--danger);
   --color-danger-surface: var(--danger-surface);

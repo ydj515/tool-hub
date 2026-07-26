@@ -7,36 +7,9 @@
   --hero-size: clamp(28px, 5vw, 52px);
   --section-hero-size: clamp(24px, 3vw, 34px);
 
-  /* TODO(Task 2 에서 제거): 값 변경을 이름 치환과 분리하기 위해
-     현재 값을 그대로 유지한다. Task 2 가 이 블록을 지우면 정본 값으로
-     넘어간다. */
-  --muted: rgba(55, 56, 60, 0.61);
-  --surface-2: #f1f3f6;
-  --danger: #d92d20;
-  --danger-surface: #fef3f2;
-  --warning: #b54708;
-  --warning-surface: #fffaeb;
-  --success: #067647;
-  --success-surface: #ecfdf3;
-  --ds-shadow-sm: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
-}
-
-[data-theme='dark'] {
-  /* TODO(Task 2 에서 제거): 위와 같은 이유. */
-  --bg: #111318;
-  --surface: #1a1d24;
-  --surface-2: #222631;
-  --text: #f5f6f8;
-  --muted: rgba(226, 229, 237, 0.62);
-  --line: rgba(214, 219, 232, 0.17);
-  --primary: #7092ff;
-  --primary-strong: #8eacff;
-  --primary-surface: #202c50;
-  --danger: #ff8a80;
-  --danger-surface: #442422;
-  --warning: #fdb022;
-  --warning-surface: #3b2f19;
-  --success: #47cd89;
-  --success-surface: #173a2b;
-  --ds-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.32);
+  /* 요청 미리보기 코드 블록 — 라이트 테마 안에 상시 배치되는 다크 영역.
+     정본 다크 팔레트를 끌어 쓸 수 없으므로(테마와 무관하게 고정) 기존
+     값을 그대로 토큰화한다. webpage-capture-tool 의 로그 패널과 같은 사정이다. */
+  --code-bg: #15171c;
+  --code-text: #eef1f6;
 }
