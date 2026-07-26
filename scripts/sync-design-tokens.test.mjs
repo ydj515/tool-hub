@@ -89,6 +89,7 @@ describe('sync', () => {
       'dummy-file-generator',
       'config-diff-viewer',
       'home',
+      'webpage-capture-tool',
     ]);
   });
 });

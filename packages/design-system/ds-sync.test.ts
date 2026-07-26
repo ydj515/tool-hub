@@ -2,7 +2,7 @@
 // 앱마다 tsconfig 의 types 설정이 다르므로(sign-maker 는 ["vite/client"] 로
 // 제한한다) 이 파일을 8개 앱에서 동일하게 유지하기 위해 명시한다.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -13,9 +13,12 @@ import { describe, expect, it } from 'vitest';
  * CI 가 없으므로 검증이 이미 일어나는 곳(각 앱의 vitest)에 감지를 둔다.
  */
 
-/** 앱마다 소스 루트가 src(Vite) 또는 app(Next.js)이다. */
-const SOURCE_ROOT = existsSync(resolve(process.cwd(), 'src')) ? 'src' : 'app';
-const STYLES_DIR = resolve(process.cwd(), SOURCE_ROOT, 'styles');
+/**
+ * 이 파일은 언제나 복사 대상 styles 디렉터리 안에 놓이므로 자기 위치가 곧
+ * 검사 경로다. styles 위치는 앱마다 src(Vite) · app(Next.js) ·
+ * apps/electron/renderer(Electron)로 다르므로 경로를 추론하지 않는다.
+ */
+const STYLES_DIR = dirname(__filename);
 const CANONICAL_DIR = resolve(process.cwd(), '../packages/design-system');
 
 const CASES = [
@@ -51,6 +54,12 @@ describe('디자인 시스템 정본 동기화', () => {
  */
 const FORBIDDEN = /\b(?:rounded-(?:xs|xl|2xl|3xl|4xl)|shadow-(?:xs|2xl|inner))\b/;
 
+/**
+ * Tailwind 를 쓰는 앱의 소스 루트. 바닐라 CSS 앱(webpage-capture-tool)은
+ * 둘 다 없어 스캔 대상이 0건이 되고, 유틸리티 자체가 없으므로 그게 정상이다.
+ */
+const SCAN_ROOTS = ['src', 'app'].filter((dir) => existsSync(resolve(process.cwd(), dir)));
+
 function collectSourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -61,11 +70,17 @@ function collectSourceFiles(dir: string): string[] {
 
 describe('금지된 Tailwind 단계', () => {
   it('정본이 정의하지 않는 radius/shadow 유틸리티를 쓰지 않는다', () => {
-    const root = resolve(process.cwd(), SOURCE_ROOT);
-    const offenders = collectSourceFiles(root)
-      .map((path) => ({ path, source: readFileSync(path, 'utf8') }))
-      .filter(({ path, source }) => path !== __filename && FORBIDDEN.test(source))
-      .map(({ path }) => path.slice(root.length + 1));
+    const files = SCAN_ROOTS.flatMap((root) =>
+      collectSourceFiles(resolve(process.cwd(), root)),
+    ).filter((path) => path !== __filename);
+
+    // 소스 루트가 있는데 0건이면 루트 이름이 바뀐 것이다. 스캔이 조용히
+    // 무력화되는 것을 막는다.
+    if (SCAN_ROOTS.length > 0) expect(files.length).toBeGreaterThan(0);
+
+    const offenders = files
+      .filter((path) => FORBIDDEN.test(readFileSync(path, 'utf8')))
+      .map((path) => relative(process.cwd(), path));
 
     expect(offenders).toEqual([]);
   });
