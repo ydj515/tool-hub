@@ -22,6 +22,7 @@ export const FILES = {
   'base.css': 'ds-base.css',
   'primitives.css': 'ds-primitives.css',
   'ds-sync.test.ts': 'ds-sync.test.ts',
+  'ds-contrast.test.ts': 'ds-contrast.test.ts',
 };
 
 /**
