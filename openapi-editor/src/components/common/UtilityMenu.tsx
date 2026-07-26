@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { Button } from '../design-system/Button';
 
 const MENU_OPEN_EVENT = 'toolhub:popover-open';
 
@@ -46,7 +47,7 @@ export function UtilityMenu({ label, isOpen, onOpen, onClose, children }: Utilit
       onClose();
     }
   }}>
-    <button className="secondary-btn compact utility-menu-trigger" type="button" aria-label={`${label} 메뉴`} aria-haspopup="menu" aria-expanded={isOpen} onClick={openMenuFromPointerOrFocus}>{label}<ChevronDown size={14} /></button>
+    <Button variant="secondary" className="utility-menu-trigger" aria-label={`${label} 메뉴`} aria-haspopup="menu" aria-expanded={isOpen} onClick={openMenuFromPointerOrFocus}>{label}<ChevronDown size={16} strokeWidth={2} /></Button>
     {isOpen && <div className="utility-menu-popover" role="menu" aria-label={`${label} 작업`}>{children}</div>}
   </div>;
 }

@@ -1,11 +1,14 @@
-import { Download, FileUp, Moon, RotateCcw, Sun, WandSparkles } from 'lucide-react';
+import { FileUp, RotateCcw, WandSparkles } from 'lucide-react';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { UtilityMenu } from '../common/UtilityMenu';
 import type { DocumentFormat, SpecFamily } from '../../domain/document';
 import { TOOL_HUB_URL } from '../../constants';
 import type { Theme } from '../../theme';
+import { Button } from '../design-system/Button';
+import { ToolHeader } from '../design-system/ToolHeader';
+import { PRODUCT, ProductIcon } from '../design-system/product.generated';
 
-type UtilityMenuName = 'export' | 'sample';
+type UtilityMenuName = 'more';
 
 interface TopbarProps {
   filename?: string;
@@ -27,11 +30,10 @@ interface TopbarProps {
   onToggleTheme(): void;
 }
 
-const versionLabel: Record<SpecFamily, string> = { 'swagger-2.0': 'Swagger 2.0', 'openapi-3.0': 'OpenAPI 3.0', 'openapi-3.1': 'OpenAPI 3.1', 'openapi-3.2': 'OpenAPI 3.2' };
 const sampleLabel: Record<SpecFamily, string> = { 'swagger-2.0': 'Swagger 2.0', 'openapi-3.0': 'OpenAPI 3.0.4', 'openapi-3.1': 'OpenAPI 3.1.2', 'openapi-3.2': 'OpenAPI 3.2.0' };
 const sampleVersions: SpecFamily[] = ['swagger-2.0', 'openapi-3.0', 'openapi-3.1', 'openapi-3.2'];
 
-export function Topbar({ filename, format, sourceVersion, target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
+export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const menuAreaRef = useRef<HTMLDivElement>(null);
   const [openMenu, setOpenMenu] = useState<UtilityMenuName | null>(null);
@@ -62,41 +64,40 @@ export function Topbar({ filename, format, sourceVersion, target, conversionEnab
     closeMenu();
   };
 
-  return <header className="topbar">
-    <div className="topbar-main-row">
-      <div className="document-context">
-        <a href={TOOL_HUB_URL} className="brand-block" aria-label="Tool Hub 로 이동">
-          <div className="brand-icon"><WandSparkles size={21} /></div>
-          <div><h1>openapi-editor</h1><p>브라우저 안에서 편집 · 검증 · 변환합니다.</p></div>
-        </a>
-        <div className="document-meta">
-          <span className="file-chip" title={filename}>{filename ?? '새 문서'} · {format.toUpperCase()}</span>
-          <span className="version-chip">{sourceVersion ? versionLabel[sourceVersion] : '버전 미감지'}</span>
-        </div>
-      </div>
-      <div className="topbar-action-group">
-        <div className="primary-actions" role="group" aria-label="핵심 작업">
-          <label className="select-label">대상 버전
-            <select aria-label="대상 버전" value={target} onChange={(event) => onTarget(event.target.value as SpecFamily)} disabled={reviewing}>
-              <option value="swagger-2.0">Swagger 2.0</option><option value="openapi-3.0">OpenAPI 3.0.4</option><option value="openapi-3.1">OpenAPI 3.1.2</option><option value="openapi-3.2">OpenAPI 3.2.0</option>
-            </select>
-          </label>
-          <input ref={inputRef} className="hidden-file-input" type="file" accept=".yaml,.yml,.json" onChange={chooseFile} />
-          <button className="secondary-btn compact" type="button" aria-label="파일 업로드" onClick={() => inputRef.current?.click()} disabled={reviewing}><FileUp size={15} />업로드</button>
-          <button className="primary-btn" type="button" aria-label="변환" onClick={onConvert} disabled={!conversionEnabled || reviewing}><WandSparkles size={15} />변환</button>
-        </div>
-        <button className="ds-icon-btn topbar-theme-btn" type="button" aria-label="테마 전환" onClick={onToggleTheme}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}</button>
-      </div>
-    </div>
-    <div ref={menuAreaRef} className="topbar-secondary-row" role="group" aria-label="보조 작업">
-      <UtilityMenu label="내보내기" isOpen={openMenu === 'export'} onOpen={() => setOpenMenu('export')} onClose={() => closeMenu('export')}>
-        <button className="secondary-btn compact" type="button" role="menuitem" aria-label="YAML 다운로드" onClick={() => runMenuAction(() => onDownload('yaml'))} disabled={!canDownloadYaml}><Download size={15} />YAML 다운로드</button>
-        <button className="secondary-btn compact" type="button" role="menuitem" aria-label="JSON 다운로드" onClick={() => runMenuAction(() => onDownload('json'))} disabled={!canDownloadJson}><Download size={15} />JSON 다운로드</button>
-      </UtilityMenu>
-      <UtilityMenu label="샘플" isOpen={openMenu === 'sample'} onOpen={() => setOpenMenu('sample')} onClose={() => closeMenu('sample')}>
-        {sampleVersions.map((version) => <button key={version} className="secondary-btn compact" type="button" role="menuitem" aria-label={`${sampleLabel[version]} 샘플 다운로드`} onClick={() => runMenuAction(() => onDownloadSample(version))} disabled={reviewing}><Download size={15} />{sampleLabel[version]}</button>)}
-      </UtilityMenu>
-      <button className="ds-icon-btn" type="button" aria-label="원본 복원" title="원본 복원" onClick={onRestore} disabled={!canRestore || reviewing}><RotateCcw size={16} /></button>
-    </div>
-  </header>;
+  const actions = <div ref={menuAreaRef} className="openapi-header-actions">
+    <label className="select-label">대상 버전
+      <select aria-label="대상 버전" value={target} onChange={(event) => onTarget(event.target.value as SpecFamily)} disabled={reviewing}>
+        <option value="swagger-2.0">Swagger 2.0</option>
+        <option value="openapi-3.0">OpenAPI 3.0.4</option>
+        <option value="openapi-3.1">OpenAPI 3.1.2</option>
+        <option value="openapi-3.2">OpenAPI 3.2.0</option>
+      </select>
+    </label>
+    <input ref={inputRef} className="hidden-file-input" type="file" accept=".yaml,.yml,.json" onChange={chooseFile} />
+    <Button variant="secondary" className="openapi-upload" aria-label="파일 업로드" onClick={() => inputRef.current?.click()} disabled={reviewing}>
+      <FileUp size={16} strokeWidth={2} />
+      <span className="openapi-action-label">업로드</span>
+    </Button>
+    <Button variant="primary" aria-label="문서 변환" onClick={onConvert} disabled={!conversionEnabled || reviewing}>
+      <WandSparkles size={16} strokeWidth={2} />
+      변환
+    </Button>
+    <UtilityMenu label="더보기" isOpen={openMenu === 'more'} onOpen={() => setOpenMenu('more')} onClose={() => closeMenu('more')}>
+      <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('yaml'))} disabled={!canDownloadYaml}>YAML 다운로드</Button>
+      <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('json'))} disabled={!canDownloadJson}>JSON 다운로드</Button>
+      {sampleVersions.map((version) => <Button key={version} variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownloadSample(version))} disabled={reviewing}>{sampleLabel[version]} 샘플</Button>)}
+      <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(onRestore)} disabled={!canRestore || reviewing}>
+        <RotateCcw size={16} strokeWidth={2} />
+        원본 복원
+      </Button>
+    </UtilityMenu>
+  </div>;
+
+  return <ToolHeader
+    product={{ ...PRODUCT, icon: ProductIcon }}
+    homeHref={TOOL_HUB_URL}
+    theme={theme}
+    onThemeToggle={onToggleTheme}
+    actions={actions}
+  />;
 }

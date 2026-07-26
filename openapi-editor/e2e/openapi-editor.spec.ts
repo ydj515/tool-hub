@@ -2,9 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 import { parse } from 'yaml';
 
 async function downloadSample(page: Page, label: string): Promise<{ filename: string; document: Record<string, unknown> }> {
-  await page.getByLabel('샘플 메뉴', { exact: true }).hover();
+  await page.getByLabel('더보기 메뉴', { exact: true }).hover();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('menuitem', { name: `${label} 샘플 다운로드` }).click();
+  await page.getByRole('menuitem', { name: `${label} 샘플` }).click();
   const download = await downloadPromise;
   const stream = await download.createReadStream();
   if (!stream) throw new Error('샘플 다운로드 스트림을 만들 수 없습니다.');
@@ -66,34 +66,36 @@ test('uses mobile workspace tabs', async ({ page }) => {
 test('keeps mobile header controls on intentional rows', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const theme = page.getByLabel('테마 전환', { exact: true });
+  const theme = page.getByRole('button', { name: /테마로 전환/ });
   const target = page.getByLabel('대상 버전', { exact: true });
   const upload = page.getByLabel('파일 업로드', { exact: true });
-  const convert = page.getByRole('button', { name: '변환', exact: true });
-  const exportMenu = page.getByLabel('내보내기 메뉴', { exact: true });
-  const [themeBox, targetBox, uploadBox, convertBox, exportBox] = await Promise.all([
-    theme.boundingBox(), target.boundingBox(), upload.boundingBox(), convert.boundingBox(), exportMenu.boundingBox(),
+  const convert = page.getByRole('button', { name: '문서 변환', exact: true });
+  const moreMenu = page.getByLabel('더보기 메뉴', { exact: true });
+  const [themeBox, targetBox, uploadBox, convertBox, moreBox] = await Promise.all([
+    theme.boundingBox(), target.boundingBox(), upload.boundingBox(), convert.boundingBox(), moreMenu.boundingBox(),
   ]);
-  if (!themeBox || !targetBox || !uploadBox || !convertBox || !exportBox) throw new Error('모바일 헤더의 위치를 읽을 수 없습니다.');
+  if (!themeBox || !targetBox || !uploadBox || !convertBox || !moreBox) throw new Error('모바일 헤더의 위치를 읽을 수 없습니다.');
 
   expect(themeBox.y).toBeLessThan(targetBox.y);
   expect(uploadBox.y).toBe(targetBox.y);
   expect(convertBox.y).toBe(targetBox.y);
+  expect(moreBox.y).toBe(targetBox.y);
   expect(uploadBox.height).toBe(36);
-  expect(exportBox.y).toBeGreaterThan(targetBox.y + targetBox.height);
 });
 
-test('moves the target selector above action buttons on narrow mobile screens', async ({ page }) => {
+test('keeps the compact action grid on one row on narrow mobile screens', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 844 });
   await page.goto('/');
   const target = page.getByLabel('대상 버전', { exact: true });
   const upload = page.getByLabel('파일 업로드', { exact: true });
-  const convert = page.getByRole('button', { name: '변환', exact: true });
-  const [targetBox, uploadBox, convertBox] = await Promise.all([target.boundingBox(), upload.boundingBox(), convert.boundingBox()]);
-  if (!targetBox || !uploadBox || !convertBox) throw new Error('좁은 모바일 헤더의 위치를 읽을 수 없습니다.');
+  const convert = page.getByRole('button', { name: '문서 변환', exact: true });
+  const moreMenu = page.getByLabel('더보기 메뉴', { exact: true });
+  const [targetBox, uploadBox, convertBox, moreBox] = await Promise.all([target.boundingBox(), upload.boundingBox(), convert.boundingBox(), moreMenu.boundingBox()]);
+  if (!targetBox || !uploadBox || !convertBox || !moreBox) throw new Error('좁은 모바일 헤더의 위치를 읽을 수 없습니다.');
 
-  expect(targetBox.y).toBeLessThan(uploadBox.y);
-  expect(uploadBox.y).toBe(convertBox.y);
+  expect(uploadBox.y).toBe(targetBox.y);
+  expect(convertBox.y).toBe(targetBox.y);
+  expect(moreBox.y).toBe(targetBox.y);
 });
 
 test('keeps the editor format menu inside the mobile viewport', async ({ page }) => {
@@ -107,12 +109,12 @@ test('keeps the editor format menu inside the mobile viewport', async ({ page })
   expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(390);
 });
 
-test('opens the export menu on hover and downloads YAML directly', async ({ page }) => {
+test('opens the more menu on hover and downloads YAML directly', async ({ page }) => {
   await page.goto('/');
   await loadValidYaml(page);
 
-  await page.getByLabel('내보내기 메뉴', { exact: true }).hover();
-  await expect(page.getByRole('menu', { name: '내보내기 작업' })).toBeVisible();
+  await page.getByLabel('더보기 메뉴', { exact: true }).hover();
+  await expect(page.getByRole('menu', { name: '더보기 작업' })).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('menuitem', { name: 'YAML 다운로드' }).click();
@@ -137,27 +139,20 @@ for (const [label, filename, versionKey, expectedVersion] of sampleVersions) {
   });
 }
 
-test('separates desktop topbar actions into primary and secondary rows', async ({ page }) => {
+test('keeps desktop header controls in the common single-row shell', async ({ page }) => {
   await page.goto('/');
-  const primaryActions = page.getByLabel('핵심 작업');
-  const secondaryActions = page.getByLabel('보조 작업');
-  const primaryBox = await primaryActions.boundingBox();
-  const secondaryBox = await secondaryActions.boundingBox();
-
-  expect(primaryBox).not.toBeNull();
-  expect(secondaryBox).not.toBeNull();
-  expect(secondaryBox!.y).toBeGreaterThan(primaryBox!.y + primaryBox!.height);
+  const header = page.locator('[data-ds-tool-header]');
+  const actions = header.locator('[data-ds-tool-actions]');
+  const utilities = header.locator('[data-ds-tool-utilities]');
+  await expect(header).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'OpenAPI Editor' })).toBeVisible();
 
   const controls = [
-    page.locator('.document-meta .file-chip'),
-    page.locator('.document-meta .version-chip'),
     page.getByLabel('대상 버전', { exact: true }),
     page.getByLabel('파일 업로드', { exact: true }),
-    page.getByRole('button', { name: '변환', exact: true }),
-    page.getByLabel('테마 전환', { exact: true }),
-    page.getByLabel('내보내기 메뉴', { exact: true }),
-    page.getByLabel('샘플 메뉴', { exact: true }),
-    page.getByLabel('원본 복원', { exact: true }),
+    page.getByRole('button', { name: '문서 변환', exact: true }),
+    page.getByLabel('더보기 메뉴', { exact: true }),
+    page.getByRole('button', { name: /테마로 전환/ }),
   ];
 
   for (const control of controls) {
@@ -165,45 +160,43 @@ test('separates desktop topbar actions into primary and secondary rows', async (
     expect(box?.height).toBe(36);
   }
 
-  await expect(page.getByLabel('테마 전환', { exact: true })).toBeVisible();
-  expect(await primaryActions.getByLabel('테마 전환', { exact: true }).count()).toBe(0);
+  await expect(page.getByRole('button', { name: /테마로 전환/ })).toBeVisible();
+  expect(await actions.getByRole('button', { name: /테마로 전환/ }).count()).toBe(0);
+  expect(await utilities.getByRole('button', { name: /테마로 전환/ }).count()).toBe(1);
   await expect(page.getByLabel('형식 메뉴', { exact: true }).locator('xpath=ancestor::header[contains(@class, "editor-header")]')).toBeVisible();
 });
 
-test('reveals utility actions from the format, export, and sample menus', async ({ page }) => {
+test('reveals utility actions from the format and combined more menus', async ({ page }) => {
   await page.goto('/');
 
   await page.getByLabel('형식 메뉴', { exact: true }).hover();
   await expect(page.getByRole('menuitem', { name: 'YAML로 변환', exact: true })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: 'YAML로 읽기', exact: true })).toBeVisible();
 
-  await page.getByLabel('내보내기 메뉴', { exact: true }).hover();
+  await page.getByLabel('더보기 메뉴', { exact: true }).hover();
   await expect(page.getByRole('menuitem', { name: 'YAML로 변환', exact: true })).not.toBeVisible();
   await expect(page.getByRole('menuitem', { name: 'YAML 다운로드', exact: true })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: 'JSON 다운로드', exact: true })).toBeVisible();
-
-  await page.getByLabel('샘플 메뉴', { exact: true }).hover();
-  await expect(page.getByRole('menuitem', { name: 'YAML 다운로드', exact: true })).not.toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'Swagger 2.0 샘플 다운로드', exact: true })).toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플 다운로드', exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Swagger 2.0 샘플', exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플', exact: true })).toBeVisible();
 });
 
-test('keeps the sample menu open while moving the pointer to its items', async ({ page }) => {
+test('keeps the more menu open while moving the pointer to its items', async ({ page }) => {
   await page.goto('/');
-  const trigger = page.getByLabel('샘플 메뉴', { exact: true });
-  const menu = page.getByRole('menu', { name: '샘플 작업' });
+  const trigger = page.getByLabel('더보기 메뉴', { exact: true });
+  const menu = page.getByRole('menu', { name: '더보기 작업' });
 
   await trigger.hover();
   await expect(menu).toBeVisible();
   const triggerBox = await trigger.boundingBox();
   const menuBox = await menu.boundingBox();
-  if (!triggerBox || !menuBox) throw new Error('샘플 메뉴 위치를 읽을 수 없습니다.');
+  if (!triggerBox || !menuBox) throw new Error('더보기 메뉴 위치를 읽을 수 없습니다.');
 
   await page.mouse.move(triggerBox.x + triggerBox.width / 2, triggerBox.y + triggerBox.height / 2);
   await page.mouse.move(menuBox.x + menuBox.width / 2, menuBox.y + 8, { steps: 12 });
 
   await expect(menu).toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'Swagger 2.0 샘플 다운로드' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Swagger 2.0 샘플' })).toBeVisible();
 });
 
 test('converts a valid document to JSON from the format menu', async ({ page }) => {
@@ -235,9 +228,9 @@ test('resizes the preview panel from its divider', async ({ page }) => {
 test('opens a utility menu by tap on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.getByLabel('샘플 메뉴', { exact: true }).click();
+  await page.getByLabel('더보기 메뉴', { exact: true }).click();
 
-  await expect(page.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플 다운로드', exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플', exact: true })).toBeVisible();
 });
 
 for (const [closeLabel, openLabel] of [['탐색기 접기', '탐색기 열기'], ['미리보기 접기', '미리보기 열기']]) {

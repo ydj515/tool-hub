@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { ConversionCandidate, Diagnostic, DocumentFormat } from '../../domain/document';
 import type { Theme } from '../../theme';
 import { UtilityMenu } from '../common/UtilityMenu';
+import { Button } from '../design-system/Button';
 import { CodeEditor, type CodeEditorHandle } from './CodeEditor';
 
 interface DocumentEditorProps {
@@ -56,12 +57,12 @@ export function DocumentEditor({ source, format, theme, diagnostics, candidate, 
       <div className="editor-header-actions">
         <div ref={formatMenuRef}>
           <UtilityMenu label="형식" isOpen={formatMenuOpen} onOpen={() => setFormatMenuOpen(true)} onClose={() => setFormatMenuOpen(false)}>
-            <button className="secondary-btn compact" type="button" role="menuitem" aria-label="YAML로 변환" onClick={() => runFormatAction(() => onConvertFormat('yaml'))} disabled={!formatConversionEnabled || format === 'yaml' || reviewing}>YAML로 변환</button>
-            <button className="secondary-btn compact" type="button" role="menuitem" aria-label="JSON으로 변환" onClick={() => runFormatAction(() => onConvertFormat('json'))} disabled={!formatConversionEnabled || format === 'json' || reviewing}>JSON으로 변환</button>
+            <Button variant="secondary" role="menuitem" aria-label="YAML로 변환" onClick={() => runFormatAction(() => onConvertFormat('yaml'))} disabled={!formatConversionEnabled || format === 'yaml' || reviewing}>YAML로 변환</Button>
+            <Button variant="secondary" role="menuitem" aria-label="JSON으로 변환" onClick={() => runFormatAction(() => onConvertFormat('json'))} disabled={!formatConversionEnabled || format === 'json' || reviewing}>JSON으로 변환</Button>
             <span className="utility-menu-separator" role="separator" />
-            <button className="secondary-btn compact" type="button" role="menuitem" aria-label="형식 다시 감지" onClick={() => runFormatAction(onRedetect)} disabled={reviewing}><RefreshCcw size={15} />형식 다시 감지</button>
-            <button className="secondary-btn compact" type="button" role="menuitem" aria-label="YAML로 읽기" onClick={() => runFormatAction(() => onForceFormat('yaml'))} disabled={reviewing}>YAML로 읽기</button>
-            <button className="secondary-btn compact" type="button" role="menuitem" aria-label="JSON으로 읽기" onClick={() => runFormatAction(() => onForceFormat('json'))} disabled={reviewing}>JSON으로 읽기</button>
+            <Button variant="secondary" role="menuitem" aria-label="형식 다시 감지" onClick={() => runFormatAction(onRedetect)} disabled={reviewing}><RefreshCcw size={16} strokeWidth={2} />형식 다시 감지</Button>
+            <Button variant="secondary" role="menuitem" aria-label="YAML로 읽기" onClick={() => runFormatAction(() => onForceFormat('yaml'))} disabled={reviewing}>YAML로 읽기</Button>
+            <Button variant="secondary" role="menuitem" aria-label="JSON으로 읽기" onClick={() => runFormatAction(() => onForceFormat('json'))} disabled={reviewing}>JSON으로 읽기</Button>
           </UtilityMenu>
         </div>
         {candidate ? <div className="editor-tabs" role="tablist" aria-label="변환 문서 보기">

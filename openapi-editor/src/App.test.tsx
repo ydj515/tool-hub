@@ -15,18 +15,17 @@ describe('openapi-editor App', () => {
   it('renders the editor workspace shell', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'openapi-editor' })).toBeInTheDocument();
-    expect(screen.getByLabelText('핵심 작업')).toBeInTheDocument();
-    expect(screen.getByLabelText('보조 작업')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'OpenAPI Editor' })).toBeInTheDocument();
+    expect(document.querySelector('[data-ds-page-shell]')).toHaveClass('app-shell');
+    expect(document.querySelector('[data-ds-tool-header]')).toBeInTheDocument();
     const formatMenu = screen.getByLabelText('형식 메뉴');
     expect(formatMenu.closest('.editor-header')).not.toBeNull();
-    expect(formatMenu.closest('.topbar-secondary-row')).toBeNull();
-    expect(screen.getByLabelText('내보내기 메뉴')).toBeInTheDocument();
-    expect(screen.getByLabelText('샘플 메뉴')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '테마 전환' }).closest('.topbar-main-row')).not.toBeNull();
-    expect(screen.getByRole('button', { name: '테마 전환' }).closest('.primary-actions')).toBeNull();
+    expect(formatMenu.closest('[data-ds-tool-header]')).toBeNull();
+    expect(screen.getByLabelText('더보기 메뉴')).toBeInTheDocument();
+    const utilities = document.querySelector('[data-ds-tool-utilities]');
+    expect(utilities?.lastElementChild).toBe(screen.getByRole('button', { name: /테마로 전환/ }));
     expect(screen.getByRole('button', { name: '파일 업로드' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '변환' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '문서 변환' })).toBeDisabled();
     expect(screen.getAllByRole('option', { name: 'OpenAPI 3.2.0' })).toHaveLength(1);
     expect(screen.getByLabelText('문서 탐색기')).toBeInTheDocument();
     expect(screen.getByLabelText('문서 편집기')).toBeInTheDocument();
@@ -37,7 +36,7 @@ describe('openapi-editor App', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: '테마 전환' }));
+    await user.click(screen.getByRole('button', { name: /테마로 전환/ }));
 
     expect(document.documentElement).toHaveAttribute('data-theme', 'light');
   });
@@ -67,10 +66,10 @@ describe('openapi-editor App', () => {
     expect(screen.queryByLabelText('샘플 버전')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '샘플 다운로드' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('샘플 메뉴'));
+    await user.click(screen.getByLabelText('더보기 메뉴'));
 
-    expect(screen.getByRole('menuitem', { name: 'Swagger 2.0 샘플 다운로드' })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플 다운로드' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Swagger 2.0 샘플' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플' })).toBeInTheDocument();
   });
 
   it.each([

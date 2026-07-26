@@ -40,7 +40,7 @@ export default function App() {
     return () => window.removeEventListener('beforeunload', preventLoss);
   }, [state.source]);
 
-  return <div className="app-shell">
+  return <div className="app-shell" data-ds-page-shell>
     <Topbar
       filename={state.filename}
       format={state.format}
