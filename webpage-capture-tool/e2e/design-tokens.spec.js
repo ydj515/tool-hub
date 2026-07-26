@@ -64,6 +64,52 @@ test.describe("디자인 토큰 — 정본 소비", () => {
     expect(tokens.sidebarW).toBe("140px");
   });
 
+  test("상시 다크 영역의 글자가 배경과 충분히 대비된다", async ({ page }) => {
+    // 로그 패널·사이드바는 라이트 테마 안의 다크 영역이라 정본의 --text 를
+    // 그대로 쓰면 배경과 구별되지 않는다. 실제로 그렇게 깨진 적이 있어
+    // 계산값으로 못박는다.
+    const ratios = await page.evaluate(() => {
+      const luminance = (color) => {
+        const [r, g, b] = color
+          .match(/[\d.]+/g)
+          .slice(0, 3)
+          .map(Number)
+          .map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+          });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const contrast = (fg, bg) => {
+        const a = luminance(fg);
+        const b = luminance(bg);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      };
+
+      const logBg = getComputedStyle(document.querySelector(".log-panel")).backgroundColor;
+      const sidebarBg = getComputedStyle(document.querySelector(".sidebar")).backgroundColor;
+
+      return {
+        logAction: contrast(
+          getComputedStyle(document.getElementById("btn-clear-log")).color,
+          logBg,
+        ),
+        logTab: contrast(
+          getComputedStyle(document.querySelector(".log-tab:not(.active)")).color,
+          logBg,
+        ),
+        navLabel: contrast(
+          getComputedStyle(document.querySelector(".nav-item:not(.active)")).color,
+          sidebarBg,
+        ),
+      };
+    });
+
+    expect(ratios.logAction).toBeGreaterThanOrEqual(4.5);
+    expect(ratios.logTab).toBeGreaterThanOrEqual(4.5);
+    expect(ratios.navLabel).toBeGreaterThanOrEqual(4.5);
+  });
+
   test("ToolHub Sans 가 file:// 에서 실제로 로드된다", async ({ page }) => {
     // 실패한 폰트 요청이 하나라도 있으면 경로가 깨진 것이다.
     const failed = [];

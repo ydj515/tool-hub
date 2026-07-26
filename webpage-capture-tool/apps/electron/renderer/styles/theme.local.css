@@ -37,11 +37,4 @@
   --sidebar-w: 140px;
   --panel-w: 240px;
   --log-h: 180px;
-
-  /* TODO(Task 3 에서 제거): 참조부를 개명하기 전까지만 유지하는 별칭. */
-  --panel: var(--surface);
-  --accent: var(--primary);
-  --accent-hover: var(--primary-strong);
-  --border: var(--line);
-  --warn: var(--warning);
 }
