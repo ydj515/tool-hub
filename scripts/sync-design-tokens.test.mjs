@@ -88,6 +88,7 @@ describe('sync', () => {
       'openapi-editor',
       'dummy-file-generator',
       'config-diff-viewer',
+      'home',
     ]);
   });
 });

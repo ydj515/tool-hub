@@ -35,6 +35,7 @@ export const TARGETS = {
   'openapi-editor': 'src/styles',
   'dummy-file-generator': 'app/styles',
   'config-diff-viewer': 'app/styles',
+  'home': 'src/styles',
 };
 
 /** 복사본 맨 앞에 붙는 경고 배너. */
