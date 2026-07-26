@@ -39,7 +39,7 @@ export default function EditorPanel({
   return (
     <section className="editorPanel" aria-label="DDL 입력">
       <PanelHead
-        title="DDL Input"
+        title="DDL 입력"
         description="CREATE TABLE 또는 ALTER TABLE ... ADD FOREIGN KEY 문을 붙여넣으세요."
         icon={<FileCode2 size={20} />}
       />
@@ -73,7 +73,7 @@ export default function EditorPanel({
                   onClick={() => onFocusIssue(issue)}
                 >
                   <span>
-                    Line {issue.line}, Col {issue.column}
+                    {issue.line}행, {issue.column}열
                   </span>
                   <p>{issue.message}</p>
                   {issue.hint ? <small>{issue.hint}</small> : null}
@@ -89,7 +89,7 @@ export default function EditorPanel({
         ) : (
           <div className="validationTitle">
             <Check size={16} />
-            <strong>DDL syntax looks good</strong>
+            <strong>DDL 구문이 올바릅니다.</strong>
           </div>
         )}
       </div>

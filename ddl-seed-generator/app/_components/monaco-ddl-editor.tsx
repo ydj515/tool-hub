@@ -197,21 +197,21 @@ export default function MonacoDdlEditor({
             label: quoteSnippet,
             kind: monaco.languages.CompletionItemKind.Snippet,
             insertText: quoteSnippet,
-            detail: `${currentDialect} quoted identifier`,
+            detail: `${currentDialect} 인용 식별자`,
             range,
           },
           ...tableNamesRef.current.map((name) => ({
             label: name,
             kind: monaco.languages.CompletionItemKind.Class,
             insertText: name,
-            detail: "table",
+            detail: "테이블",
             range,
           })),
           ...columnNamesRef.current.map((name) => ({
             label: name,
             kind: monaco.languages.CompletionItemKind.Field,
             insertText: name,
-            detail: "column",
+            detail: "열",
             range,
           })),
         ];
@@ -234,6 +234,7 @@ export default function MonacoDdlEditor({
         onChange={(val) => onChange(val ?? "")}
         onMount={handleMount}
         options={{
+          ariaLabel: "DDL 편집기",
           minimap: { enabled: false },
           fontSize: 13,
           lineHeight: 20,

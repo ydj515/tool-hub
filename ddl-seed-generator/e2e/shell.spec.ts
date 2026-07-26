@@ -64,6 +64,24 @@ test("SQL 생성 후 INSERT와 ROLLBACK panel을 실제로 전환한다", async 
   );
 });
 
+test("DDL 편집기의 접근성 이름과 자동완성 보조 문구를 한국어로 표시한다", async ({ page }) => {
+  await page.goto("/");
+
+  const editor = page.getByRole("textbox", { name: "DDL 편집기" });
+  await expect(editor).toHaveAttribute("aria-label", "DDL 편집기");
+  await page.locator(".monaco-editor").click();
+  await page.keyboard.press("Control+End");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("use");
+  await page.keyboard.press("Control+Space");
+
+  const suggestions = page.locator(".suggest-widget");
+  await expect(suggestions).toBeVisible();
+  await expect(suggestions).toContainText("users");
+  await expect(suggestions).toContainText("테이블");
+  await expect(suggestions).not.toContainText("table");
+});
+
 test("767px에서 헤더 action이 브랜드와 테마 다음 행에 배치된다", async ({ page }) => {
   await page.setViewportSize({ width: 767, height: 900 });
   await page.goto("/");

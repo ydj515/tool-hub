@@ -28,6 +28,10 @@ function formatBytes(bytes: number): string {
 
 type OutputTab = "insert" | "rollback";
 
+export function getInvalidGenerationOptionsMessage(): string {
+  return "DDL, 행 수, 시드 값을 확인해 주세요. 행 수는 1부터 10000까지 지원합니다.";
+}
+
 export default function GeneratorClient() {
   const { theme, toggle: toggleTheme, mounted } = useTheme();
 
@@ -103,7 +107,7 @@ export default function GeneratorClient() {
     }
 
     if (!canAttemptGenerate) {
-      setError("DDL, row 수, seed 값을 확인해 주세요. row 수는 1부터 10000까지 지원합니다.");
+      setError(getInvalidGenerationOptionsMessage());
       return;
     }
 
