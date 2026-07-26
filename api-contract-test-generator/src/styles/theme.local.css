@@ -6,10 +6,4 @@
      그대로 쓰면 축소가 된다. 장식 타이포는 앱 고유로 둔다. */
   --hero-size: clamp(28px, 5vw, 52px);
   --section-hero-size: clamp(24px, 3vw, 34px);
-
-  /* 요청 미리보기 코드 블록 — 라이트 테마 안에 상시 배치되는 다크 영역.
-     정본 다크 팔레트를 끌어 쓸 수 없으므로(테마와 무관하게 고정) 기존
-     값을 그대로 토큰화한다. webpage-capture-tool 의 로그 패널과 같은 사정이다. */
-  --code-bg: #15171c;
-  --code-text: #eef1f6;
 }

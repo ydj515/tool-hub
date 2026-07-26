@@ -165,7 +165,7 @@ for (const theme of ['light', 'dark'] as const) {
       };
 
       const out: { label: string; color: string; backgrounds: string[] }[] = [];
-      for (const selector of ['.privacy-note', '.eyebrow']) {
+      for (const selector of ['.privacy-note', '.eyebrow', '.request-preview pre']) {
         const el = document.querySelector(selector);
         if (el) out.push({ label: selector, ...collect(el) });
       }
@@ -181,6 +181,8 @@ for (const theme of ['light', 'dark'] as const) {
     // 두면 앱이 다른 토큰을 쓰고 있어도 통과하므로 실제 요소로 못박는다.
     expect(samples.map((s) => s.label)).toContain('.privacy-note');
     expect(samples.map((s) => s.label)).toContain('.eyebrow');
+    // 코드 블록은 정본 --inverse-* 를 쓰고 테마를 따라간다.
+    expect(samples.map((s) => s.label)).toContain('.request-preview pre');
     expect(samples.filter((s) => s.label.startsWith('배지')).length).toBeGreaterThan(0);
 
     for (const sample of samples) {
