@@ -6,6 +6,14 @@ React는 세 단계 화면과 사용자 선택을 관리합니다. 파싱·내�
 
 입력 원문이나 생성 요청을 로그에 기록하지 마세요. 네트워크 클라이언트, 원격 `$ref` 로더, 입력 영구 저장소를 추가하면 현재 개인정보 경계가 깨집니다.
 
+## OpenAPI Specification References
+
+OpenAPI 관련 기능을 구현하거나 검토할 때는 다음 공식 사양을 참고합니다.
+
+- [OpenAPI Specification 3.2](https://spec.openapis.org/oas/v3.2)
+- [OpenAPI Specification 3.1](https://spec.openapis.org/oas/v3.1)
+- [OpenAPI Specification 3.0](https://spec.openapis.org/oas/v3.0)
+
 ## Generation Rules
 
 규칙은 `src/lib/generation/rules.ts`에 작은 분기 단위로 추가합니다.
