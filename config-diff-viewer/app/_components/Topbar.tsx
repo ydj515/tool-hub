@@ -1,4 +1,5 @@
 import { ArrowLeftRight, FileSearch, Loader2, Moon, RotateCcw, Sun } from "lucide-react";
+import { TOOL_HUB_URL } from "@/app/_lib/constants";
 
 /**
  * 상단 바: 브랜드 + 초기화 + 비교 + 테마 토글.
@@ -25,15 +26,15 @@ export default function Topbar({
 }: TopbarProps) {
   return (
     <header className="topbar">
-      <div className="brandBlock">
-        <div className="brandIcon">
+      <a href={TOOL_HUB_URL} className="brandBlock" aria-label="Tool Hub 로 이동">
+        <div className="brandIcon" aria-hidden="true">
           <FileSearch size={22} />
         </div>
         <div>
           <h1>Config Diff Viewer</h1>
           <p>설정 파일 비교 · 누락 키 · 민감정보 · 위험 설정 탐지</p>
         </div>
-      </div>
+      </a>
       <div className="topActions">
         <button className="secondaryBtn" onClick={onReset}>
           <RotateCcw size={14} />
@@ -48,7 +49,7 @@ export default function Topbar({
           {isComparing ? <Loader2 size={15} className="spinning" /> : <ArrowLeftRight size={15} />}
           비교
         </button>
-        <button className="themeBtn" type="button" onClick={onToggleTheme} aria-label="테마 전환">
+        <button className="ds-icon-btn" type="button" onClick={onToggleTheme} aria-label="테마 전환">
           {mounted ? (theme === "dark" ? <Sun size={16} /> : <Moon size={16} />) : <span className="themeIconPlaceholder" />}
         </button>
       </div>

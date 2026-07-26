@@ -1,7 +1,7 @@
 /* ── App shell ── */
 .appShell {
   min-height: 100vh;
-  padding: 18px;
+  padding: var(--ds-page-padding);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 1600px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto;
   width: 100%;
   padding: 14px 16px;
@@ -27,6 +27,8 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .brandIcon {
@@ -43,8 +45,8 @@
 .brandBlock p {
   margin-top: 4px;
   color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.4;
+  font-size: var(--ds-font-size-body);
+  line-height: var(--ds-line-height-body);
 }
 
 .topActions {
@@ -77,7 +79,7 @@
 }
 .primaryBtn:hover { background: var(--primary-strong); }
 .primaryBtn:active { background: var(--primary-heavy); }
-.primaryBtn:disabled { cursor: not-allowed; opacity: 0.48; }
+.primaryBtn:disabled { cursor: not-allowed; color: var(--disabled); background: var(--fill-subtle); }
 
 .secondaryBtn {
   min-width: 100px;
@@ -87,20 +89,6 @@
   border: 1px solid var(--line);
 }
 .secondaryBtn:hover { border-color: var(--line-strong); background: var(--surface-3); }
-
-.themeBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--ds-radius-md);
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
-}
-.themeBtn:hover { border-color: var(--line-strong); color: var(--text); }
 
 .themeIconPlaceholder {
   display: block;
@@ -123,7 +111,7 @@
 
 /* ── Main workspace ── */
 .workspace {
-  max-width: 1600px;
+  max-width: var(--ds-container-wide);
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -315,7 +303,7 @@
 }
 .tabBtn.active .tabCount { background: var(--primary); color: #fff; }
 .tabBtn.hasIssues .tabCount { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.tabBtn.disabledTab { opacity: 0.45; cursor: default; }
+.tabBtn.disabledTab { color: var(--disabled); cursor: default; }
 .tabBtn.disabledTab:hover { color: var(--muted); background: transparent; }
 .tabCountOff {
   background: var(--line) !important;
