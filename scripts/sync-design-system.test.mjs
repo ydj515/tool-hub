@@ -33,6 +33,49 @@ const TOKEN_SOURCES = [
   'ds-contrast-e2e.ts',
 ];
 
+const TOKEN_FILES_EXPECTED = [
+  'ds-tokens.css',
+  'ds-base.css',
+  'ds-primitives.css',
+  'ds-sync.test.ts',
+  'ds-contrast.test.ts',
+  'ds-contrast-e2e.ts',
+];
+
+const TOKEN_TARGETS_EXPECTED = [
+  ['sign-maker', 'src/styles'],
+  ['json-yaml-converter', 'src/styles'],
+  ['ddl-seed-generator', 'app/styles'],
+  ['openapi-editor', 'src/styles'],
+  ['dummy-file-generator', 'app/styles'],
+  ['config-diff-viewer', 'app/styles'],
+  ['home', 'src/styles'],
+  ['webpage-capture-tool', 'apps/electron/renderer/styles'],
+  ['api-contract-test-generator', 'src/styles'],
+];
+
+const COMPONENT_FILES_EXPECTED = [
+  'BrandMark.tsx',
+  'ThemeToggle.tsx',
+  'Button.tsx',
+  'SegmentedControl.tsx',
+  'EmptyState.tsx',
+  'Badge.tsx',
+  'ToolHeader.tsx',
+  'components.test.tsx',
+  'product.generated.ts',
+];
+
+const COMPONENT_TARGETS_EXPECTED = [
+  ['sign-maker', 'src/components/design-system'],
+  ['json-yaml-converter', 'src/components/design-system'],
+  ['openapi-editor', 'src/components/design-system'],
+  ['api-contract-test-generator', 'src/components/design-system'],
+  ['ddl-seed-generator', 'app/_components/design-system'],
+  ['config-diff-viewer', 'app/_components/design-system'],
+  ['dummy-file-generator', 'app/_components/design-system'],
+];
+
 const APP_PATHS = [
   'sign-maker',
   'json-yaml-converter',
@@ -66,22 +109,18 @@ describe('buildOperations', () => {
   test('9개 토큰 대상과 7개 React 대상의 생성 operation을 모두 메모리에서 만든다', () => {
     const root = makeRepo();
     const operations = buildOperations({ root });
+    const expectedTargets = [
+      ...TOKEN_TARGETS_EXPECTED.flatMap(([app, stylesDir]) =>
+        TOKEN_FILES_EXPECTED.map((name) => `${app}/${stylesDir}/${name}`),
+      ),
+      ...COMPONENT_TARGETS_EXPECTED.flatMap(([app, componentDir]) =>
+        COMPONENT_FILES_EXPECTED.map((name) => `${app}/${componentDir}/${name}`),
+      ),
+    ].sort();
 
-    assert.equal(operations.length, 117);
-    assert.equal(new Set(operations.map(({ targetPath }) => targetPath)).size, 117);
-    assert.ok(
-      operations.some(
-        ({ sourcePath, targetPath }) =>
-          sourcePath === 'packages/design-system/primitives.css' &&
-          targetPath === 'home/src/styles/ds-primitives.css',
-      ),
-    );
-    assert.ok(
-      operations.some(
-        ({ sourcePath, targetPath }) =>
-          sourcePath === 'packages/design-system/components/ToolHeader.tsx' &&
-          targetPath === 'dummy-file-generator/app/_components/design-system/ToolHeader.tsx',
-      ),
+    assert.deepEqual(
+      operations.map(({ targetPath }) => targetPath).sort(),
+      expectedTargets,
     );
 
     const product = operations.find(
@@ -177,6 +216,17 @@ describe('sync', () => {
     writeFileSync(join(root, 'dummy-file-generator/app'), '생성 디렉터리가 아님');
 
     assert.throws(() => sync({ root }), /대상 부모가 디렉터리가 아니다/);
+    assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
+  });
+
+  test('후반의 기존 대상이 디렉터리면 어떤 대상도 쓰지 않는다', () => {
+    const root = makeRepo();
+    mkdirSync(
+      join(root, 'dummy-file-generator/app/styles/ds-tokens.css'),
+      { recursive: true },
+    );
+
+    assert.throws(() => sync({ root }), /생성 대상이 일반 파일이 아니다/);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
   });
 

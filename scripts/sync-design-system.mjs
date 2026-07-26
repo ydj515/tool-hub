@@ -171,6 +171,9 @@ export function validateOperations(operations, { root = DEFAULT_ROOT } = {}) {
     if (absolute !== appRoot && !absolute.startsWith(`${appRoot}${sep}`)) {
       throw new Error(`생성 대상이 앱 밖이다: ${operation.targetPath}`);
     }
+    if (existsSync(absolute) && !statSync(absolute).isFile()) {
+      throw new Error(`생성 대상이 일반 파일이 아니다: ${operation.targetPath}`);
+    }
     if (!existsSync(appRoot)) throw new Error(`대상 앱이 없다: ${app}`);
     if (!statSync(appRoot).isDirectory()) {
       throw new Error(`대상 앱이 디렉터리가 아니다: ${app}`);
