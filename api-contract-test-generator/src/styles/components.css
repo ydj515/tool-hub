@@ -21,7 +21,13 @@
   align-items: center;
 }
 
-.brand-block { gap: 12px; }
+/* 브랜드 블록 전체가 허브 링크다. 링크 기본 장식을 지우고 색은 물려받는다. */
+.brand-block {
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+.brand-block:hover h1 { color: var(--primary-text); }
 .header-actions { gap: 16px; }
 .privacy-note { gap: 6px; color: var(--muted); font-size: 13px; }
 
@@ -64,7 +70,6 @@
 .button--primary:hover:not(:disabled) { background: var(--primary-strong); }
 .button--ghost { border-color: transparent; background: transparent; }
 .button--secondary:hover:not(:disabled), .button--ghost:hover:not(:disabled) { background: var(--surface-2); }
-.icon-button { width: 36px; padding: 0; display: grid; place-items: center; }
 
 .step-navigator {
   border: 1px solid var(--line);

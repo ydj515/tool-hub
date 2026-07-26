@@ -178,3 +178,22 @@ for (const theme of ['light', 'dark'] as const) {
     }
   });
 }
+
+test.describe('셸 계약', () => {
+  test('첫 Tab 이 허브 브랜드 링크에 닿고 테마 토글이 마지막 유틸리티다', async ({ page }) => {
+    await page.goto('/');
+
+    // 브랜드 블록 전체가 허브 링크다.
+    const brand = page.getByRole('link', { name: /Tool Hub/ });
+    await expect(brand).toHaveAttribute('href', 'https://tool-hub-rho.vercel.app/');
+
+    await page.keyboard.press('Tab');
+    await expect(brand).toBeFocused();
+
+    // 테마 토글은 정본 프리미티브를 쓰고 36px 를 유지한다.
+    const toggle = page.getByRole('button', { name: /테마로 전환/ });
+    await expect(toggle).toHaveClass(/\bds-icon-btn\b/);
+    await expect(toggle).toHaveCSS('width', '36px');
+    await expect(toggle).toHaveCSS('height', '36px');
+  });
+});
