@@ -113,6 +113,12 @@ const BODY_TEXT = ['--text', '--text-neutral', '--muted', '--primary-text'] as c
  * `--primary-surface` 위의 글자는 `--primary` 계열이 두 테마 모두에서 AA 를
  * 넘기지 못해 `--text-neutral` 을 쓴다.
  */
+/**
+ * 반전 표면 — 밝은 페이지 안의 어두운 영역(코드 블록·다크 툴팁·에디터 프레임).
+ * 페이지 표면 위가 아니라 자기 배경 위에서만 검사한다.
+ */
+const INVERSE_PAIR = ['--inverse-text', '--inverse-bg'] as const;
+
 const ROLE_PAIRS = [
   ['--danger', '--danger-surface'],
   ['--success', '--success-surface'],
@@ -138,6 +144,17 @@ describe.each(THEMES)('%s 테마의 정본 대비 계약', (_theme, tokens) => {
   it.each(ROLE_PAIRS)('%s 가 %s 위에서 4.5:1 이상이다', (token, roleSurface) => {
     const background = composite(read(roleSurface), read('--surface'));
     expect(contrast(read(token), background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('--inverse-text 가 --inverse-bg 위에서 4.5:1 이상이다', () => {
+    expect(contrast(read(INVERSE_PAIR[0]), read(INVERSE_PAIR[1]))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('--inverse-line 이 --inverse-bg 와 구별된다', () => {
+    // --line* 과 같은 장식용 헤어라인이라 3:1 을 요구하지 않는다. 영역을
+    // 식별하는 것은 어두운 배경 자체다(정본 --line 도 --surface 위 1.31:1).
+    // 값이 배경과 같아져 선이 사라지는 회귀만 막는다.
+    expect(contrast(read('--inverse-line'), read('--inverse-bg'))).toBeGreaterThan(1.2);
   });
 
   it('--on-primary 가 --primary 위에서 4.5:1 이상이다', () => {

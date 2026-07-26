@@ -53,8 +53,8 @@ npm run tokens:check
 
 | 구분 | 토큰 |
 |---|---|
-| 접두사 사용 | `--ds-font-sans`, `--ds-font-size-*`, `--ds-line-height-*`, `--ds-tracking-*`, `--ds-radius-*`, `--ds-shadow-*`, `--ds-ease-*`, `--ds-duration-*`, `--ds-z-*`, `--ds-container-*`, `--ds-page-padding*` |
-| 접두사 없음 | `--bg`, `--surface`, `--surface-2`, `--surface-3`, `--fill*`, `--line*`, `--control-border`, `--text`, `--text-neutral`, `--muted`, `--disabled`, `--primary*`, `--on-primary`, `--danger*`, `--success*`, `--warning*` |
+| 접두사 사용 | `--ds-font-sans`, `--ds-font-mono`, `--ds-font-size-*`, `--ds-line-height-*`, `--ds-tracking-*`, `--ds-radius-*`, `--ds-shadow-*`, `--ds-ease-*`, `--ds-duration-*`, `--ds-z-*`, `--ds-container-*`, `--ds-page-padding*` |
+| 접두사 없음 | `--bg`, `--surface`, `--surface-2`, `--surface-3`, `--fill*`, `--line*`, `--control-border`, `--text`, `--text-neutral`, `--muted`, `--disabled`, `--primary*`, `--on-primary`, `--danger*`, `--success*`, `--warning*`, `--inverse-*` |
 
 정본이 정의하지 않은 Tailwind 단계(`rounded-xl`, `rounded-2xl`, `shadow-2xl` 등)는 **사용하지 않는다.** 부분 오버라이드는 순서 역전을 만든다 — `rounded-xl`(Tailwind 기본 12px)이 `rounded-lg`(정본 16px)보다 작아진다.
 
@@ -123,6 +123,20 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 ```
 
 `--primary-surface` 위의 텍스트는 예외다. `--primary` 계열 중 두 테마 모두에서 이 표면 위 AA 를 넘는 토큰이 없으므로 `--text-neutral` 을 쓴다.
+
+#### 반전 표면
+
+`--inverse-bg` · `--inverse-text` · `--inverse-line` 은 **밝은 페이지 안의 어두운 영역**용이다 — 코드 블록, 다크 툴팁, 두 테마 모두 어두운 에디터 프레임. 라이트에서도 어두운 배경을 쓰고, 페이지가 다크일 때 한 단계 더 내려 영역 경계를 유지한다.
+
+값은 다크 팔레트에서 파생했다. 라이트 배경은 다크 `--surface`, 다크 배경은 다크 `--bg` 와 `--surface` 사이다. 대비는 라이트 14.05:1, 다크 14.62:1 로 `ds-contrast.test.ts` 가 검사한다.
+
+`--inverse-line` 은 `--line*` 과 같은 장식용 헤어라인이라 3:1 을 요구하지 않는다. 영역을 식별하는 것은 어두운 배경 자체다.
+
+**테마를 따라가는** 서드파티 에디터 배경은 이 토큰을 쓰지 않는다. 라이트에서 흰색이 되어야 하므로 앱 고유 토큰으로 둔다.
+
+### 등폭 글꼴
+
+`var(--ds-font-mono)` 를 쓴다. `--font-mono` 는 Tailwind 네임스페이스라 `:root` 에서는 `--ds-` 접두사를 쓰고 `@theme inline` 에서만 Tailwind 이름으로 매핑한다.
 
 ### 모달과 층위
 

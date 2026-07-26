@@ -28,6 +28,9 @@
   /* ── 타이포 ── */
   --ds-font-sans: "ToolHub Sans", -apple-system, BlinkMacSystemFont, system-ui,
     "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* 코드·수치 정렬용 등폭. 'SF Mono' 는 macOS 사용자 설치본, SFMono-Regular 는
+     시스템, Consolas 는 Windows, Liberation Mono 는 Linux 를 덮는다. */
+  --ds-font-mono: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', monospace;
 
   --ds-font-size-caption: 0.75rem;   /* 12px — 배지·칩·힌트·상태바 */
   --ds-line-height-caption: 1.4;
@@ -85,6 +88,15 @@
   --success-surface: rgba(24, 121, 78, 0.10);
   --warning: #a15c00;                     /*  5.19:1 AA */
   --warning-surface: rgba(161, 92, 0, 0.10);
+
+  /* ── 반전 표면 ── */
+  /* 밝은 페이지 안의 어두운 영역 — 코드 블록·다크 툴팁·에디터 프레임.
+     페이지가 다크일 때 한 단계 더 내려 영역 경계를 유지한다. 값은 다크
+     팔레트에서 파생했다 — 라이트 배경은 다크 --surface, 다크 배경은
+     다크 --bg 와 --surface 사이. 대비 14.05:1 (라이트) · 14.62:1 (다크) */
+  --inverse-bg: rgb(27, 28, 30);
+  --inverse-text: rgb(232, 233, 236);
+  --inverse-line: rgb(55, 56, 60);
 
   /* ── 반경 ── */
   --ds-radius-sm: 8px;                    /* 칩·배지·내부 요소 */
@@ -162,6 +174,10 @@
   --warning: #e0a93a;                     /*  8.04:1 AAA */
   --warning-surface: rgba(224, 169, 58, 0.16);
 
+  --inverse-bg: rgb(20, 20, 21);
+  --inverse-text: rgb(228, 229, 232);
+  --inverse-line: rgb(46, 47, 51);
+
   /* 다크에서는 중립 그림자가 보이지 않으므로 검정 기반으로 교체한다 */
   --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.36);
   --ds-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.30);
@@ -175,6 +191,7 @@
    [data-theme=dark] 오버라이드에 반응한다. */
 @theme inline {
   --font-sans: var(--ds-font-sans);
+  --font-mono: var(--ds-font-mono);
 
   --text-caption: var(--ds-font-size-caption);
   --text-caption--line-height: var(--ds-line-height-caption);
@@ -216,6 +233,9 @@
   --color-success-surface: var(--success-surface);
   --color-warning: var(--warning);
   --color-warning-surface: var(--warning-surface);
+  --color-inverse-bg: var(--inverse-bg);
+  --color-inverse-text: var(--inverse-text);
+  --color-inverse-line: var(--inverse-line);
 
   --radius-sm: var(--ds-radius-sm);
   --radius-md: var(--ds-radius-md);
