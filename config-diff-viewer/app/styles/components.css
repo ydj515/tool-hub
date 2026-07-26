@@ -242,8 +242,8 @@
   text-transform: uppercase;
   letter-spacing: 0;
 }
-.statusBadge.passed { background: color-mix(in srgb, var(--green), transparent 90%); color: var(--green); }
-.statusBadge.failed { background: color-mix(in srgb, var(--danger), transparent 90%); color: var(--danger); }
+.statusBadge.passed { background: color-mix(in srgb, var(--green), transparent 92%); color: var(--green); }
+.statusBadge.failed { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
 
 /* ── Result panel ── */
 .resultCard {
@@ -302,7 +302,7 @@
   color: var(--muted);
 }
 .tabBtn.active .tabCount { background: var(--primary); color: var(--on-primary); }
-.tabBtn.hasIssues .tabCount { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
+.tabBtn.hasIssues .tabCount { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
 .tabBtn.disabledTab { color: var(--disabled); cursor: default; }
 .tabBtn.disabledTab:hover { color: var(--muted); background: transparent; }
 .tabCountOff {
@@ -380,7 +380,7 @@
 
 .valuePill.placeholder { color: var(--green); background: color-mix(in srgb, var(--green), transparent 92%); border-color: color-mix(in srgb, var(--green), transparent 75%); }
 .valuePill.missing { color: var(--muted); background: none; border: none; font-style: italic; }
-.valuePill.changed { background: color-mix(in srgb, var(--warning), transparent 90%); border-color: color-mix(in srgb, var(--warning), transparent 75%); }
+.valuePill.changed { background: color-mix(in srgb, var(--warning), transparent 92%); border-color: color-mix(in srgb, var(--warning), transparent 75%); }
 .valuePill.danger { background: color-mix(in srgb, var(--danger), transparent 92%); border-color: color-mix(in srgb, var(--danger), transparent 80%); color: var(--danger); }
 .valuePill.masked { color: var(--muted); font-style: italic; }
 
@@ -399,14 +399,14 @@
   letter-spacing: 0;
   white-space: nowrap;
 }
-.badge.CRITICAL { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.badge.HIGH     { background: color-mix(in srgb, var(--coral),  transparent 88%); color: var(--coral); }
-.badge.MEDIUM   { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
-.badge.LOW      { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
-.badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
-.badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
-.badge.TYPE_CHANGED { background: color-mix(in srgb, var(--violet), transparent 90%); color: var(--violet); }
+.badge.CRITICAL { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
+.badge.HIGH     { background: color-mix(in srgb, var(--coral),  transparent 92%); color: var(--coral); }
+.badge.MEDIUM   { background: color-mix(in srgb, var(--warning), transparent 92%); color: var(--warning); }
+.badge.LOW      { background: color-mix(in srgb, var(--green),  transparent 92%); color: var(--green); }
+.badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 92%); color: var(--green); }
+.badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
+.badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 92%); color: var(--warning); }
+.badge.TYPE_CHANGED { background: color-mix(in srgb, var(--violet), transparent 92%); color: var(--violet); }
 
 /* ── Export bar ── */
 .exportBar {
@@ -507,7 +507,7 @@
 .copyNotice {
   padding: 4px 10px;
   border-radius: var(--ds-radius-sm);
-  background: color-mix(in srgb, var(--green), transparent 88%);
+  background: color-mix(in srgb, var(--green), transparent 92%);
   color: var(--green);
   font-size: var(--ds-font-size-caption);
   font-weight: 700;
@@ -872,7 +872,7 @@
   resize: vertical;
   transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
-.codeTextarea:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%); }
+.codeTextarea:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 92%); }
 .codeTextarea::placeholder { color: var(--muted); font-style: italic; font-size: var(--ds-font-size-caption); }
 
 /* ── Diff view card ── */
@@ -905,7 +905,7 @@
   gap: 5px;
   padding: 3px 10px;
   border-radius: var(--ds-radius-sm);
-  background: color-mix(in srgb, var(--warning), transparent 90%);
+  background: color-mix(in srgb, var(--warning), transparent 92%);
   border: 1px solid color-mix(in srgb, var(--warning), transparent 75%);
   color: var(--warning);
   font-size: var(--ds-font-size-caption);
@@ -920,7 +920,7 @@
   letter-spacing: 0;
 }
 .toggleStatusBadge.on { background: color-mix(in srgb, var(--primary), transparent 82%); color: var(--text-neutral); }
-.toggleStatusBadge.off { background: color-mix(in srgb, var(--muted), transparent 88%); color: var(--muted); }
+.toggleStatusBadge.off { background: color-mix(in srgb, var(--muted), transparent 92%); color: var(--muted); }
 
 .optionsLeft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
 .optionsHint { font-size: var(--ds-font-size-caption); color: var(--muted); font-weight: 500; white-space: nowrap; margin-left: 4px; }

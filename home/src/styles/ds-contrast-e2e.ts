@@ -48,6 +48,14 @@ export function parseColor(value: string): Rgba {
   const parts = text.match(/[\d.]+/g);
   if (!parts || parts.length < 3) throw new Error(`색을 해석할 수 없다: ${value}`);
   const [r, g, b, a = '1'] = parts;
+
+  // color-mix() 의 계산값은 color(srgb r g b / a) 로 직렬화되고 채널이
+  // 0~1 이다. rgb()/rgba() 의 0~255 와 섞이면 거의 검정으로 읽혀 대비가
+  // 실제보다 낮게 나온다.
+  if (text.startsWith('color(')) {
+    return { r: Number(r) * 255, g: Number(g) * 255, b: Number(b) * 255, a: Number(a) };
+  }
+
   return { r: Number(r), g: Number(g), b: Number(b), a: Number(a) };
 }
 

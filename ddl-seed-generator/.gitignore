@@ -2,3 +2,7 @@
 node_modules
 *.tgz
 tsconfig.tsbuildinfo
+
+# Playwright
+test-results/
+playwright-report/

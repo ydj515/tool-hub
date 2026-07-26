@@ -45,7 +45,14 @@ alias = "tc"
 description = "Run TypeScript type checks"
 run = "npm run typecheck"
 
+[tasks.test-e2e]
+description = "Run Playwright end-to-end tests"
+# 프로덕션 빌드 산출물로 검사한다. build 와 병렬로 돌면 .next 를 두고
+# next build 가 충돌하므로 의존을 걸어 순서를 강제한다.
+depends = ["build"]
+run = "npm run test:e2e"
+
 [tasks.check]
 alias = "c"
 description = "Run the full local verification suite"
-depends = ["test", "lint", "typecheck", "build"]
+depends = ["test", "lint", "typecheck", "build", "test-e2e"]
