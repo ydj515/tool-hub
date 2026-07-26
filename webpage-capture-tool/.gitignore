@@ -142,3 +142,5 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+# Playwright 산출물. 앱 루트가 아닌 곳에서 실행하면 여기에도 생긴다.
+apps/electron/test-results/
