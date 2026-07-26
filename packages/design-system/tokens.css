@@ -98,6 +98,10 @@
   --inverse-text: rgb(232, 233, 236);
   --inverse-line: rgb(55, 56, 60);
 
+  /* 모달·드로어 배경막. 승격 기준은 3개 앱이지만 오버레이는 정의가 명확하고
+     두 앱의 라이트 값이 이미 같아 예외로 올린다. */
+  --scrim: rgba(23, 23, 25, 0.4);
+
   /* ── 반경 ── */
   --ds-radius-sm: 8px;                    /* 칩·배지·내부 요소 */
   --ds-radius-md: 12px;                   /* 컨트롤·팝오버 */
@@ -177,6 +181,7 @@
   --inverse-bg: rgb(20, 20, 21);
   --inverse-text: rgb(228, 229, 232);
   --inverse-line: rgb(46, 47, 51);
+  --scrim: rgba(0, 0, 0, 0.56);
 
   /* 다크에서는 중립 그림자가 보이지 않으므로 검정 기반으로 교체한다 */
   --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.36);
@@ -236,6 +241,7 @@
   --color-inverse-bg: var(--inverse-bg);
   --color-inverse-text: var(--inverse-text);
   --color-inverse-line: var(--inverse-line);
+  --color-scrim: var(--scrim);
 
   --radius-sm: var(--ds-radius-sm);
   --radius-md: var(--ds-radius-md);

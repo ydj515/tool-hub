@@ -14,16 +14,11 @@
   /* 코드 표면 */
   /* TYPE_CHANGED 배지. 정본에 없는 diff 분류 색이라 --coral/--green 과
      같은 층위의 앱 고유 토큰으로 둔다. */
-  --violet: #6541f2;
-  /* 드로어 배경막. webpage-capture-tool 과 같은 값이지만 쓰는 앱이
-     둘뿐이라 아직 정본으로 승격하지 않는다(기준은 3개 앱). */
-  --scrim: rgba(23, 23, 25, 0.4);
-}
+  --violet: #6541f2;}
 
 [data-theme="dark"] {
   --coral: #ff8a5c;
   --green: #34c77b;
   --green-dark: #1ea860;
   --violet: #9b7cff;
-  --scrim: rgba(0, 0, 0, 0.56);
 }

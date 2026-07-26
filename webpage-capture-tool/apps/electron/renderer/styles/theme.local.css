@@ -36,9 +36,4 @@
   --topbar-h: 52px;
   --sidebar-w: 140px;
   --panel-w: 240px;
-  --log-h: 180px;
-
-  /* 모달 ::backdrop. config-diff-viewer 의 값과 같지만 쓰는 앱이
-     둘뿐이라 아직 정본으로 승격하지 않는다(기준은 3개 앱). */
-  --scrim: rgba(23, 23, 25, 0.4);
-}
+  --log-h: 180px;}
