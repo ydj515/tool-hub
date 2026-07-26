@@ -43,6 +43,11 @@
   --tool-accent-rgb: 59 130 246;
 }
 
+.toolCard[data-tool-id="api-contract-test-generator"] {
+  --tool-gradient: #3366ff;
+  --tool-accent-rgb: 51 102 255;
+}
+
 .toolCard[data-tool-id="class-diagram-generator"] {
   --tool-gradient: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
   --tool-accent-rgb: 249 115 22;

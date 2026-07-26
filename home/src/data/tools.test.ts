@@ -34,4 +34,14 @@ describe('tools metadata', () => {
       tags: expect.arrayContaining(['OpenAPI', 'Swagger', 'YAML', 'JSON', 'Sample']),
     }));
   });
+
+  it('registers the API contract test generator independently', () => {
+    expect(tools).toContainEqual(expect.objectContaining({
+      id: 'api-contract-test-generator',
+      name: 'API Contract Test Generator',
+      status: 'coming-soon',
+      url: null,
+      tags: expect.arrayContaining(['OpenAPI', 'API', 'Testing']),
+    }));
+  });
 });
