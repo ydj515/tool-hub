@@ -165,3 +165,57 @@ test.describe("디자인 토큰 — 정본 소비", () => {
     expect(loaded).toBe(true);
   });
 });
+
+test.describe("타이포 — 고정 폭 영역이 넘치지 않는다", () => {
+  test("사이드바 항목이 한 줄을 유지한다", async ({ page }) => {
+    const labels = await page.evaluate(() => {
+      const sidebar = document.querySelector(".sidebar");
+      return [...document.querySelectorAll(".nav-label")].map((el) => ({
+        text: el.textContent,
+        // 한 줄이면 높이가 line-height 한 배수다. 두 줄이면 두 배가 된다.
+        lines: Math.round(
+          el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight),
+        ),
+        overflowsSidebar:
+          el.getBoundingClientRect().right > sidebar.getBoundingClientRect().right,
+      }));
+    });
+
+    expect(labels.length).toBeGreaterThan(0);
+    expect(labels.filter((o) => o.lines > 1)).toEqual([]);
+    expect(labels.filter((o) => o.overflowsSidebar)).toEqual([]);
+  });
+
+  test("상단 바가 고정 높이 안에 들어간다", async ({ page }) => {
+    const fits = await page.evaluate(() => {
+      const bar = document.querySelector(".topbar");
+      const children = [...bar.querySelectorAll("button, span")];
+      return {
+        barHeight: bar.getBoundingClientRect().height,
+        tallest: Math.max(...children.map((c) => c.getBoundingClientRect().height)),
+      };
+    });
+
+    expect(fits.barHeight).toBe(52);
+    expect(fits.tallest).toBeLessThanOrEqual(52);
+  });
+
+  test("우측 속성 패널이 가로로 넘치지 않는다", async ({ page }) => {
+    await page.locator('.nav-item[data-screen="capture"]').click();
+    const overflowing = await page.evaluate(() => {
+      // 우측 패널의 클래스는 .properties-panel 이고 그 안의 .panel-content
+      // 가 화면별로 hidden 을 토글한다.
+      const panel = document.querySelector(".properties-panel");
+      return panel.scrollWidth > panel.clientWidth ? ["가로 스크롤 발생"] : [];
+    });
+
+    expect(overflowing).toEqual([]);
+  });
+
+  test("로그 패널이 고정 높이를 유지한다", async ({ page }) => {
+    const h = await page.evaluate(
+      () => document.querySelector(".log-panel").getBoundingClientRect().height,
+    );
+    expect(h).toBe(180);
+  });
+});
