@@ -1,0 +1,47 @@
+/* webpage-capture-tool 고유 토큰. 정본 뒤에 로드되어 정본을 덮을 수 있다.
+   여기 있는 토큰이 3개 이상 앱에서 반복되면 정본으로 승격한다. */
+
+/* Electron 은 렌더러를 file:// 로 로드하므로 정본의 절대 경로
+   url("/fonts/toolhub-sans.woff2") 가 파일시스템 루트로 해석되어 실패한다.
+   같은 family 를 상대 경로로 다시 선언하면 나중 @font-face 가 매칭에서
+   이기고, 정본 쪽 절대 경로는 요청조차 발생하지 않는다. */
+@font-face {
+  font-family: "ToolHub Sans";
+  src: url("../fonts/toolhub-sans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  /* 사이드바 — 라이트 테마 안에 상시 배치되는 다크 영역.
+     정본 다크 팔레트는 중성 회색이지만 이쪽은 남색 계열이라
+     앱의 인상을 유지하기 위해 기존 값을 그대로 둔다. */
+  --sidebar-bg: #1e2130;
+  --sidebar-text: #a0aec0;
+  --sidebar-active: #ffffff;
+  --sidebar-active-bg: #2d3a5e;
+  --sidebar-hover-fill: rgba(255, 255, 255, 0.05);
+  --sidebar-icon-fill: rgba(255, 255, 255, 0.08);
+
+  /* 로그 패널 — 사이드바와 같은 이유의 상시 다크 영역. */
+  --log-bg: #111827;
+  --log-line: #374151;
+  --log-text: #9ca3af;
+  --log-content-text: #d1d5db;
+  --log-active-bg: #1f2937;
+  --log-active-text: #f9fafb;
+
+  /* 워크벤치 고정 치수. 창 크기와 무관하게 고정되는 구조값이라
+     정본의 컨테이너 토큰(--ds-container-*)과 역할이 다르다. */
+  --topbar-h: 52px;
+  --sidebar-w: 140px;
+  --panel-w: 240px;
+  --log-h: 180px;
+
+  /* TODO(Task 3 에서 제거): 참조부를 개명하기 전까지만 유지하는 별칭. */
+  --panel: var(--surface);
+  --accent: var(--primary);
+  --accent-hover: var(--primary-strong);
+  --border: var(--line);
+  --warn: var(--warning);
+}

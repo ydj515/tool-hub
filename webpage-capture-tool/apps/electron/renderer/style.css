@@ -1,31 +1,21 @@
+/* ds-*.css 는 packages/design-system 의 생성물이다. 직접 편집하지 말고
+   정본을 고친 뒤 저장소 루트에서 `npm run tokens:sync` 를 실행한다.
+   import 순서 = 캐스케이드 순서다. */
+@import url("./styles/ds-tokens.css");
+@import url("./styles/ds-base.css");
+@import url("./styles/ds-primitives.css");
+@import url("./styles/theme.local.css");
+
 /* ============================================================
    Variables
    ============================================================ */
-:root {
-  --bg: #f0f2f7;
-  --panel: #ffffff;
-  --sidebar-bg: #1e2130;
-  --sidebar-text: #a0aec0;
-  --sidebar-active: #ffffff;
-  --sidebar-active-bg: #2d3a5e;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --danger: #ef4444;
-  --success: #22c55e;
-  --warn: #f59e0b;
-  --border: #e5e7eb;
-  --topbar-h: 52px;
-  --sidebar-w: 140px;
-  --panel-w: 240px;
-  --log-h: 180px;
-}
+/* 색상·타이포·radius·shadow·모션 토큰은 정본(ds-tokens.css)에서 온다.
+   앱 고유 토큰은 styles/theme.local.css 에 있다. */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", sans-serif;
+  font-family: var(--ds-font-sans);
   font-size: 13px;
   color: var(--text);
   background: var(--bg);
