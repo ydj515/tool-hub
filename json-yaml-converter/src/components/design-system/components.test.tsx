@@ -151,6 +151,7 @@ describe('생성 디자인 시스템 컴포넌트', () => {
     expect(html).toContain('data-ds-tool-header="true"');
     expect(html).toContain('href="https://example.com"');
     expect(html).toContain('Tool Hub로 이동');
+    expect(html).toContain('<h1>Sign Maker</h1>');
     expect(html).toContain('data-ds-tool-actions="true"');
     expect(html).toContain('data-ds-tool-utilities="true"');
     expect(html.indexOf('도움말')).toBeLessThan(html.indexOf('data-ds-theme-toggle'));

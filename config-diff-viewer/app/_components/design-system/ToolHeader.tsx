@@ -39,7 +39,7 @@ export function ToolHeader({
       >
         <BrandMark icon={product.icon} />
         <span className="ds-tool-header__copy">
-          <strong>{product.name}</strong>
+          <h1>{product.name}</h1>
           <span>{product.description}</span>
         </span>
       </a>

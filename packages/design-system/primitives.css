@@ -14,8 +14,43 @@
   box-shadow: var(--ds-shadow-sm);
 }
 
+[data-ds-brand-mark] {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  color: var(--on-primary);
+  background: var(--primary);
+  border-radius: var(--ds-radius-md);
+}
+
+[data-ds-brand-mark] svg,
+[data-ds-icon] {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  stroke-width: 2;
+}
+
+.ds-button {
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--ds-radius-md);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* 아이콘 버튼.
-   36px 은 openapi-editor 헤더 계획의 전역 제약이며 E2E 가 강제한다.
+   일반 Button 선언 뒤에 두어 icon variant의 정사각형 배치가 cascade에서 유지된다.
    hover 에서 테두리를 없다가 생기게 하지 않는다 — 버튼이 커진 것처럼 보인다. */
 .ds-button--icon,
 .ds-icon-btn {
@@ -59,40 +94,6 @@
 .ds-icon-btn > svg {
   width: 16px;
   height: 16px;
-}
-
-[data-ds-brand-mark] {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  display: grid;
-  place-items: center;
-  color: var(--on-primary);
-  background: var(--primary);
-  border-radius: var(--ds-radius-md);
-}
-
-[data-ds-brand-mark] svg,
-[data-ds-icon] {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2;
-}
-
-.ds-button {
-  height: 36px;
-  min-height: 36px;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-md);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .ds-button--primary {
@@ -254,7 +255,8 @@
   gap: 2px;
 }
 
-.ds-tool-header__copy strong {
+.ds-tool-header__copy h1 {
+  margin: 0;
   overflow: hidden;
   font-size: var(--ds-font-size-title);
   line-height: var(--ds-line-height-title);
