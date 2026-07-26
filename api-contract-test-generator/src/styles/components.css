@@ -237,7 +237,7 @@
 .text-button { border: 0; padding: 0; background: transparent; color: var(--primary-text); cursor: pointer; font-weight: 700; }
 .mobile-only { display: none; }
 
-.export-step { max-width: 980px; margin-inline: auto; }
+.export-step { max-width: var(--wizard-width); margin-inline: auto; }
 .export-step .section-heading .button { display: inline-flex; align-items: center; gap: 6px; }
 .export-summary { display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--ds-radius-md); background: var(--surface-2); }
 .export-summary > div { display: grid; place-items: center; gap: 3px; padding: 18px; }
