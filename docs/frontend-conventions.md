@@ -6,10 +6,10 @@
 
 | 스택 | 앱 |
 |---|---|
-| Vite + React SPA | `home`, `sign-maker` |
+| Vite + React SPA | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor` |
 | Next.js App Router | `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |
 
-> `webpage-capture-tool`(Electron), `class-diagram-generator`(Kotlin)는 대상 외.
+> `webpage-capture-tool`(Electron)은 정본 토큰만 소비하고 셸 계약은 적용하지 않는다. `class-diagram-generator`(Kotlin)는 대상 외.
 
 ## 5대 규칙
 
@@ -18,18 +18,22 @@
    - Next.js: `app/layout.tsx`(서버 루트, html/body/FOUC/메타데이터)는 그대로 두고, **셸은 클라이언트 오케스트레이터가 렌더**한다. 상단 바(Topbar)가 Generate·비교 같은 **페이지 액션을 품기** 때문에 서버 `layout.tsx`에 넣지 않는다.
 2. **CSS 주제별 분리** — `styles/`에 토픽 파일을 두고 진입 CSS는 `@import`만 담는다.
    - 진입 파일은 `@import "tailwindcss";` + 하위 파일 import만. CSS 스펙상 `@import`는 최상단에만 올 수 있다.
-   - import 순서 = 캐스케이드 순서이므로 `theme → base → components` 순.
+   - import 순서 = 캐스케이드 순서이므로 `ds-tokens → ds-base → ds-primitives → theme.local → base → components` 순.
    - 콤마 그룹(`.a, .b { ... }`)이 컴포넌트 경계를 넘나들면 무리하게 쪼개지 말고 `theme / base / components` 3토픽으로 둔다.
-3. **토큰 체계** — 흩어진 값(특히 브랜드 컬러)을 의미 토큰으로 중앙화한다. **각 앱이 자기 토큰을 독립적으로** 관리한다(`@theme` / `@theme inline`).
+3. **토큰 체계** — 공통 토큰은 `packages/design-system/`의 정본이 단일 출처다. 각 앱의 `styles/ds-tokens.css`·`ds-base.css`·`ds-primitives.css`·`ds-sync.test.ts`는 **생성물이며 직접 편집하지 않는다.** 앱 고유 토큰만 `styles/theme.local.css`에 둔다. 정본을 고친 뒤 저장소 루트에서 `npm run tokens:sync`를 실행한다.
+   - 동기화를 잊으면 각 앱의 `ds-sync.test.ts`가 실패한다. CI가 없으므로 검증이 이미 일어나는 곳에 drift 감지를 둔다.
+   - Tailwind 테마 네임스페이스와 겹치는 토큰은 `--ds-` 접두사를 쓴다. 접두사가 없으면 유틸리티(`rounded-md`, `shadow-sm`)와 `var()`가 서로 다른 값을 참조한다.
+   - `theme.local.css`에 같은 토큰이 3개 이상 앱에서 반복되면 정본으로 승격한다.
+   - 자세한 규칙은 [packages/design-system/README.md](../packages/design-system/README.md)에 있다.
 4. **반복 UI는 React 컴포넌트** — 재사용 단위는 외워야 하는 전역 CSS 클래스가 아니라 타입이 있는 컴포넌트다. 단, **1회용은 컴포넌트로 빼지 않는다**(죽은 추상화 금지).
 5. **유틸리티 우선** — 레이아웃은 Tailwind 유틸리티로. 토큰·데이터 구동 복잡 상태(hover/active, `data-*` 셀렉터)만 의미 클래스로 둔다. 의미 클래스를 쓸 땐 React 컴포넌트로 감싸 재사용 단위를 컴포넌트로 만든다.
 
-## 테마 컨벤션 (5개 앱 공통)
+## 테마 컨벤션 (7개 앱 공통)
 
 - **메커니즘: `[data-theme]` 속성** (`.dark` 클래스 아님). `@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *))`.
 - **`theme.ts`**: `resolveInitialTheme()` — `matchMedia` + `localStorage`로 초기 테마 결정(순수 함수, 테스트 가능).
 - **`useTheme` 훅**: 테마 상태 + `data-theme` 동기화 effect + `toggle`. Next.js는 SSR 하이드레이션 불일치를 피하려 `mounted`(rAF 한 프레임)를 추가로 반환한다.
-- **FOUC 인라인 스크립트**: `index.html`(Vite) 또는 `app/layout.tsx`(Next.js)에서 페인트 전에 실행. 5개 앱 모두 동일:
+- **FOUC 인라인 스크립트**: `index.html`(Vite) 또는 `app/layout.tsx`(Next.js)에서 페인트 전에 실행. 7개 앱 모두 동일:
   ```js
   (function () {
     try {
@@ -42,6 +46,25 @@
   })();
   ```
 
+## 셸 계약 (7개 앱 공통)
+
+헤더는 세 슬롯으로 구성한다. 컴포넌트를 공유하지 않고 계약만 공유한다.
+
+| 슬롯 | 규칙 |
+|---|---|
+| 브랜드 | 마크 40px · `--ds-radius-md` · `--primary` 배경 / `h1`은 `--ds-font-size-title` / 설명문은 `--ds-font-size-body` + `--muted`. **전체가 허브로 가는 링크**(`home`은 허브 자신이라 링크가 아니다) |
+| 페이지 액션 | 앱 고유. 비어 있어도 된다 |
+| 유틸리티 | 항상 최우측. **테마 토글이 마지막 요소**. 그 앞에만 앱별 유틸을 둔다 |
+
+- 페이지 액션이 많은 앱은 2행 구조를 쓴다(`openapi-editor`). 유틸리티 슬롯은 그때도 1행의 끝이다.
+- 푸터는 `home` 전용이다. 도구 앱은 full-height 워크스페이스라 세로 공간을 먹는다. 허브 복귀는 헤더 브랜드 링크가 담당한다.
+- 컨테이너는 `--ds-container-narrow`(560px, 단일 폼) / `--ds-container-page`(1120px, 랜딩) / `--ds-container-wide`(1600px, 에디터) 중 하나를 쓴다.
+- 아이콘 버튼은 정본 `.ds-icon-btn`(36px)을 쓰고 앱에서 얇은 컴포넌트로 감싼다. 모든 직접 조작 요소는 36px 높이를 유지한다.
+- disabled는 `opacity`로 표현하지 않고 `--disabled` + `--fill-subtle` 토큰을 쓴다. `opacity`는 중첩되어 대비를 예측할 수 없게 만든다.
+- 포커스링은 정본 `ds-base.css`의 전역 `:where(...):focus-visible`이 담당한다. 컴포넌트별로 반복 선언하지 않는다.
+- 모달은 `<dialog>` + `showModal()`을 쓴다. 포커스 트랩·Escape·`::backdrop`·포커스 복귀를 브라우저가 제공하고 top layer에 렌더되어 z-index 경쟁에서 빠진다. `display`는 `[open]`에만 준다 — 무조건 주면 닫힌 상태의 UA 기본값 `display: none`을 덮어 항상 보인다.
+- **타이포는 Tailwind 유틸리티가 아니라 CSS에서 토큰으로 쓴다.** Tailwind v4는 유틸리티를 `@layer utilities`에 넣고 CSS 캐스케이드 레이어 규칙상 레이어 밖 스타일이 이긴다. `font-size`나 `letter-spacing`을 지정하는 기존 클래스가 있으면 유틸리티가 조용히 무시된다.
+
 ## 디렉터리 구조
 
 **Vite (`src/`)**
@@ -52,8 +75,13 @@ pages/*.tsx               페이지 콘텐츠
 components/layout/*       Layout, Header, Footer, Background
 components/ui/*           재사용 프리미티브 (Button 등)
 components/icons/         인라인 SVG 모음 (있을 경우)
-styles/theme.css·base.css·…
-index.css                @import 진입점
+styles/ds-tokens.css      정본 복사본 (생성물, 편집 금지)
+styles/ds-base.css        정본 복사본
+styles/ds-primitives.css  정본 복사본
+styles/ds-sync.test.ts    정본 복사본 (drift 검증)
+styles/theme.local.css    앱 고유 토큰
+styles/base.css·…         앱 고유 스타일
+index.css                 @import 진입점
 ```
 
 **Next.js (`app/`)**
@@ -64,8 +92,13 @@ _lib/*                    상수·도메인 헬퍼 (samples, report 등)
 _components/*-client.tsx  클라이언트 오케스트레이터 (상태·핸들러 소유)
 _components/*             Topbar, 패널 등 구조 컴포넌트
 _components/ui/*          재사용 프리미티브
-styles/theme.css·base.css·components.css
-globals.css              @import 진입점
+styles/ds-tokens.css      정본 복사본 (생성물, 편집 금지)
+styles/ds-base.css        정본 복사본
+styles/ds-primitives.css  정본 복사본
+styles/ds-sync.test.ts    정본 복사본 (drift 검증)
+styles/theme.local.css    앱 고유 토큰
+styles/base.css·components.css   앱 고유 스타일
+globals.css               @import 진입점
 ```
 
 ## 검증: 동작 보존 리팩토링
@@ -75,13 +108,15 @@ globals.css              @import 진입점
 - **className·구조·텍스트를 바꾸지 않고 위치만 옮긴다** → 렌더 결과가 같아 회귀가 없다.
 - 큰 CSS/데이터 블록은 손으로 옮기지 말고 `sed -n '시작,끝p'`로 **byte-exact 추출**한다(전사 오타 방지).
 - UI 테스트가 없는 앱은 가드가 약하므로 **빌드 산출 CSS에 컴포넌트 클래스가 보존됐는지**를 `grep`으로 확인한다.
-- 토큰을 도입할 땐 기존 값과 동일한 값으로 정의해 색상 회귀를 막는다(예: 브랜드 토큰을 Tailwind 팔레트의 컴파일 값과 동일하게).
+- 토큰을 도입할 땐 기존 값과 동일한 값으로 정의해 색상 회귀를 막는다. 값 변경은 이름 치환과 별도 커밋으로 분리해 되돌리기 쉽게 둔다.
+- 산출 CSS 에서 유틸리티가 정본 토큰을 참조하는지 확인한다. `rounded-md` 가 `var(--ds-radius-md)` 를 참조해야 하며, Tailwind 기본 리터럴이 나오면 `--ds-` 매핑이 빠진 것이다.
 
 ## 새 도구에 적용하는 체크리스트
 
-1. green baseline 확인 (`test`/`lint`/`typecheck`/`build`).
-2. `theme.ts` + `useTheme` 추출, 다크모드 `data-theme`로 통일.
-3. `styles/` 주제별 CSS 분리 (`@import` 진입점).
-4. 셸(Layout/Topbar)과 페이지 콘텐츠 분리.
-5. 반복 UI를 컴포넌트로 (1회용 제외).
-6. 검증 + 클래스 보존 확인.
+1. green baseline 확인 (`mise run check`).
+2. `scripts/sync-design-tokens.mjs` 의 `TARGETS` 에 앱을 추가하고 `npm run tokens:sync`.
+3. 진입 CSS 를 정본 import 순서로 교체하고 앱 고유 토큰만 `theme.local.css` 로.
+4. `theme.ts` + `useTheme` 추출, 다크모드 `data-theme`로 통일.
+5. 셸(Layout/Topbar)을 헤더 슬롯 계약에 맞추고 페이지 콘텐츠 분리.
+6. 반복 UI를 컴포넌트로 (1회용 제외). 아이콘 버튼은 정본 `.ds-icon-btn` 을 감싼다.
+7. `mise run check` + 산출 CSS 확인.
