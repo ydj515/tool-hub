@@ -12,9 +12,6 @@
   --green-dark: #0b6e36;
 
   /* 코드 표면 */
-  --code: #171717;
-  --code-line: #2e2f33;
-  --code-text: #f0f4f2;
   /* TYPE_CHANGED 배지. 정본에 없는 diff 분류 색이라 --coral/--green 과
      같은 층위의 앱 고유 토큰으로 둔다. */
   --violet: #6541f2;
@@ -27,9 +24,6 @@
   --coral: #ff8a5c;
   --green: #34c77b;
   --green-dark: #1ea860;
-  --code: #0f1010;
-  --code-line: #2a2b2f;
-  --code-text: #f0f4f2;
   --violet: #9b7cff;
   --scrim: rgba(0, 0, 0, 0.56);
 }

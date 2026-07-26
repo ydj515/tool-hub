@@ -158,7 +158,7 @@
   font-size: var(--ds-font-size-caption);
   font-weight: 600;
   color: var(--text);
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -358,7 +358,7 @@
 .issueTable tbody tr:hover td { background: var(--surface-3); }
 
 .keyPath {
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-body);
   word-break: break-all;
 }
@@ -369,7 +369,7 @@
   border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-caption);
   max-width: 220px;
   overflow: hidden;
@@ -582,8 +582,8 @@
 .optionToggle[data-tooltip]::after {
   content: attr(data-tooltip);
   bottom: calc(100% + 9px);
-  background: var(--code);
-  color: var(--code-text);
+  background: var(--inverse-bg);
+  color: var(--inverse-text);
   padding: 5px 10px;
   border-radius: var(--ds-radius-sm);
   font-size: var(--ds-font-size-caption);
@@ -595,7 +595,7 @@
   content: "";
   bottom: calc(100% + 4px);
   border: 5px solid transparent;
-  border-top-color: var(--code);
+  border-top-color: var(--inverse-bg);
 }
 .optionToggle[data-tooltip]:hover::before,
 .optionToggle[data-tooltip]:hover::after { opacity: 1; }
@@ -798,7 +798,7 @@
   color: var(--muted);
 }
 
-.ruleId { font-size: var(--ds-font-size-caption); font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--muted); }
+.ruleId { font-size: var(--ds-font-size-caption); font-family: var(--ds-font-mono); color: var(--muted); }
 .ruleMessage { font-size: var(--ds-font-size-body); color: var(--text); line-height: 1.4; margin: 0; }
 .ruleMessage.valuePatternName { font-size: var(--ds-font-size-body); }
 
@@ -807,7 +807,7 @@
 
 .ruleConditionCode {
   font-size: var(--ds-font-size-caption);
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   color: var(--text);
   background: var(--surface-2);
   border: 1px solid var(--line);
@@ -839,7 +839,7 @@
   border-radius: var(--ds-radius-sm);
   background: transparent;
   color: var(--text);
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-body);
   font-weight: 600;
   min-width: 80px;
@@ -866,7 +866,7 @@
   border-radius: var(--ds-radius-sm);
   background: var(--surface-2);
   color: var(--text);
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-body);
   line-height: 1.65;
   resize: vertical;
@@ -896,7 +896,7 @@
 }
 
 .diffViewLabel { font-size: var(--ds-font-size-caption); font-weight: 800; text-transform: uppercase; color: var(--muted); }
-.diffViewFiles { font-size: var(--ds-font-size-body); font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--text); }
+.diffViewFiles { font-size: var(--ds-font-size-body); font-family: var(--ds-font-mono); color: var(--text); }
 
 .diffDirtyBanner {
   margin-left: auto;
