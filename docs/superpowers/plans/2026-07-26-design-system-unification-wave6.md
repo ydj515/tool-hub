@@ -309,6 +309,13 @@ Task 1 이 유지한 임시 값을 걷어내 정본 팔레트로 넘어간다. *
 
 **Files:**
 - Modify: `api-contract-test-generator/src/styles/theme.local.css` (임시 블록 제거)
+- Create: `api-contract-test-generator/e2e/contrast.spec.ts` (**실행 중 추가**)
+
+> **실행 중 정정.** 이 계획서는 "이 앱에 이미 WCAG 대비 검사가 있다"고 적었으나 사실이 아니었다 — 그 테스트는 `json-yaml-converter` 것이다. 이 앱의 `responsive.spec.ts` 는 넘침·겹침만 본다. 그래서 `e2e/contrast.spec.ts` 를 새로 만들어 토큰 층·요소 층·셸 계약을 검사한다. 검증 명령은 아래와 같다.
+>
+> ```bash
+> cd api-contract-test-generator && npm run test:e2e -- e2e/contrast.spec.ts
+> ```
 
 - [ ] **Step 1: 변경 전 대비를 기록한다**
 
@@ -659,6 +666,8 @@ git add docs/ CLAUDE.md && git commit -m "docs(design-system): mark api-contract
 - [ ] `components.css` 에 색·radius·shadow·font-size 리터럴이 남지 않음 (히어로 clamp 는 `theme.local.css` 의 토큰으로 이동)
 - [ ] `theme.local.css` 에 랜딩 히어로 토큰 2개만 남음
 - [ ] 헤더 브랜드가 허브 링크이고 테마 토글이 유틸리티 슬롯 마지막
+- [ ] `e2e/contrast.spec.ts` 통과 — 역할 색이 자기 표면 위에서, 그리고 `--muted`·`--primary-text` 가 네 표면(`--bg`/`--surface`/`--surface-2`/`--surface-3`) 전부에서 4.5:1 이상
+- [ ] 배지 대비를 **렌더된 배경 기준**으로 검사 — `background-image` 로 칠한 틴트를 합성해야 하며, `backgroundColor` 만 읽으면 불투명 밑판과 비교해 통과한다
 
 ## 이번 파도에서 하지 않는 것
 

@@ -310,7 +310,9 @@ describe('YAML domain', () => {
     if (!result.ok) expect(result.diagnostic.code).toBe('OUTPUT_TOO_LARGE');
   });
 
-  it('YAML Pretty가 제한보다 작은 다수의 짧은 scalar를 보존한다', () => {
+  // 120,000줄을 실제로 처리하는 대용량 한계 테스트다. 기본 5초는 이 입력에
+  // 맞지 않아 병렬 실행(mise run check)에서 5.4~6.1초로 넘긴다.
+  it('YAML Pretty가 제한보다 작은 다수의 짧은 scalar를 보존한다', { timeout: 20_000 }, () => {
     const source = '- ""\n'.repeat(120_000);
 
     const result = prettyYaml(source);

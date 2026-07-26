@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 /**
  * 정본 팔레트로 넘어가면서 색 대비가 깨지지 않는지 계산값으로 확인한다.
@@ -45,32 +45,22 @@ function contrast(foreground: Rgba, background: Rgba): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-/** 조상 체인을 올라가며 불투명해질 때까지 배경을 합성한다. */
-async function effectiveBackground(target: Locator): Promise<Rgba> {
-  const stack = await target.evaluate((el) => {
-    const backgrounds: string[] = [];
-    let node: Element | null = el;
-    while (node) {
-      backgrounds.push(getComputedStyle(node).backgroundColor);
-      node = node.parentElement;
-    }
-    return backgrounds;
-  });
-
+/**
+ * 조상 체인에서 모은 배경 레이어를 불투명해질 때까지 합성한다.
+ *
+ * background-image 도 포함해야 한다. 배지는 눈에 보이는 틴트를 단색
+ * linear-gradient 로 칠하고 background-color 에는 불투명한 --surface 만
+ * 깔아 두므로, backgroundColor 만 보면 틴트를 건너뛰고 흰 바탕과 비교하게
+ * 된다 — 실측에서 4.73:1 인 배지를 11.71:1 로 읽었다.
+ */
+function flatten(layers: string[]): Rgba {
   let result: Rgba = { r: 0, g: 0, b: 0, a: 0 };
-  for (const layer of stack) {
+  for (const layer of layers) {
     result = composite(result, parseColor(layer));
-    if (result.a >= 1) break;
+    if (result.a >= 1) return result;
   }
-  // 최종 폴백은 캔버스 흰색이 아니라 --bg 다. 위 루프가 불투명에 닿지 못하면
-  // html 배경이 투명이라는 뜻이므로 그 경우만 흰색으로 본다.
-  return result.a >= 1 ? result : composite(result, { r: 255, g: 255, b: 255, a: 1 });
-}
-
-async function textContrast(target: Locator): Promise<number> {
-  const color = parseColor(await target.evaluate((el) => getComputedStyle(el).color));
-  const background = await effectiveBackground(target);
-  return contrast(composite(color, background), background);
+  // 어느 레이어도 불투명하지 않으면 캔버스 흰색이 밑바탕이다.
+  return composite(result, { r: 255, g: 255, b: 255, a: 1 });
 }
 
 async function openReview(page: Page) {
@@ -117,6 +107,7 @@ for (const theme of ['light', 'dark'] as const) {
           surface: read('--surface'),
           bg: read('--bg'),
         surface2: read('--surface-2'),
+        surface3: read('--surface-3'),
           muted: read('--muted'),
         accent: read('--primary-text'),
           pairs: [
@@ -139,7 +130,7 @@ for (const theme of ['light', 'dark'] as const) {
     }
 
     // 보조 텍스트와 강조 텍스트는 두 평면 표면 모두에서 읽혀야 한다.
-    for (const base of [tokens.surface, tokens.bg, tokens.surface2]) {
+    for (const base of [tokens.bg, tokens.surface, tokens.surface2, tokens.surface3]) {
       const background = parseColor(base);
       for (const [name, value] of [['--muted', tokens.muted], ['--primary-text', tokens.accent]] as const) {
         const ratio = contrast(composite(parseColor(value), background), background);
@@ -157,24 +148,45 @@ for (const theme of ['light', 'dark'] as const) {
     }
     await openReview(page);
 
-    // 헤더의 보조 텍스트와 강조 텍스트는 --bg 위에 있다. 토큰 층 검사만
+    // 대상마다 evaluate 를 돌리면 왕복이 대상 수에 비례해 늘어나고 병렬
+    // 부하에서 테스트 타임아웃을 넘긴다. 한 번에 모아 온다.
+    const samples = await page.evaluate(() => {
+      const collect = (el: Element) => {
+        const backgrounds: string[] = [];
+        let node: Element | null = el;
+        while (node) {
+          const style = getComputedStyle(node);
+          const stops = style.backgroundImage.match(/^linear-gradient\((rgba?\([^)]*\)),\s*(rgba?\([^)]*\))\)$/);
+          if (stops && stops[1] === stops[2]) backgrounds.push(stops[1]);
+          backgrounds.push(style.backgroundColor);
+          node = node.parentElement;
+        }
+        return { color: getComputedStyle(el).color, backgrounds };
+      };
+
+      const out: { label: string; color: string; backgrounds: string[] }[] = [];
+      for (const selector of ['.privacy-note', '.eyebrow']) {
+        const el = document.querySelector(selector);
+        if (el) out.push({ label: selector, ...collect(el) });
+      }
+      for (const el of document.querySelectorAll('.method, .status-badge')) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        out.push({ label: `배지 "${el.textContent?.trim() ?? ''}"`, ...collect(el) });
+      }
+      return out;
+    });
+
+    // 헤더의 보조/강조 텍스트와 배지가 모두 잡혀야 한다. 토큰 층 검사만
     // 두면 앱이 다른 토큰을 쓰고 있어도 통과하므로 실제 요소로 못박는다.
-    for (const selector of ['.privacy-note', '.eyebrow']) {
-      const ratio = await textContrast(page.locator(selector).first());
-      expect(ratio, `${selector} 대비 미달`).toBeGreaterThanOrEqual(4.5);
-    }
+    expect(samples.map((s) => s.label)).toContain('.privacy-note');
+    expect(samples.map((s) => s.label)).toContain('.eyebrow');
+    expect(samples.filter((s) => s.label.startsWith('배지')).length).toBeGreaterThan(0);
 
-    // 메서드 배지와 상태 배지는 역할 표면 위에 있다. 예제 명세가 어떤
-    // 메서드를 담든 최소 하나는 렌더된다.
-    const badges = page.locator('.method, .status-badge');
-    const count = await badges.count();
-    expect(count).toBeGreaterThan(0);
-
-    for (let i = 0; i < count; i += 1) {
-      const badge = badges.nth(i);
-      if (!(await badge.isVisible())) continue;
-      const label = (await badge.textContent())?.trim() ?? `#${i}`;
-      expect(await textContrast(badge), `배지 "${label}" 대비 미달`).toBeGreaterThanOrEqual(4.5);
+    for (const sample of samples) {
+      const background = flatten(sample.backgrounds);
+      const ratio = contrast(composite(parseColor(sample.color), background), background);
+      expect(ratio, `${sample.label} 대비 미달`).toBeGreaterThanOrEqual(4.5);
     }
   });
 }
