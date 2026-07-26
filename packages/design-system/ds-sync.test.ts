@@ -27,6 +27,7 @@ const CASES = [
   ['primitives.css', 'ds-primitives.css'],
   ['ds-sync.test.ts', 'ds-sync.test.ts'],
   ['ds-contrast.test.ts', 'ds-contrast.test.ts'],
+  ['ds-contrast-e2e.ts', 'ds-contrast-e2e.ts'],
 ] as const;
 
 describe('디자인 시스템 정본 동기화', () => {
