@@ -85,6 +85,7 @@ describe('sync', () => {
       'sign-maker',
       'json-yaml-converter',
       'ddl-seed-generator',
+      'openapi-editor',
     ]);
   });
 });
