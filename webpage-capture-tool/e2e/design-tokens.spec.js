@@ -78,20 +78,6 @@ test.describe("디자인 토큰 — 정본 소비", () => {
     expect(style.color).toBe("rgba(55, 56, 60, 0.38)");
   });
 
-  test("모달 z-index 가 정본 스케일과 겹치지 않는다", async ({ page }) => {
-    const z = await page.evaluate(() => {
-      const cs = getComputedStyle(document.documentElement);
-      return {
-        modal: cs.getPropertyValue("--z-modal-fallback").trim(),
-        toast: cs.getPropertyValue("--ds-z-toast").trim(),
-        sticky: cs.getPropertyValue("--ds-z-sticky").trim(),
-      };
-    });
-
-    expect(Number(z.modal)).toBeGreaterThan(Number(z.toast));
-    expect(z.modal).not.toBe(z.sticky);
-  });
-
   test("상시 다크 영역의 글자가 배경과 충분히 대비된다", async ({ page }) => {
     // 로그 패널·사이드바는 라이트 테마 안의 다크 영역이라 정본의 --text 를
     // 그대로 쓰면 배경과 구별되지 않는다. 실제로 그렇게 깨진 적이 있어

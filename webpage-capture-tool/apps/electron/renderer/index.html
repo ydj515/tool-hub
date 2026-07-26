@@ -489,9 +489,8 @@
     </footer>
 
     <!-- 새 프로젝트 모달 -->
-    <div class="modal-overlay hidden" id="modal-new-project">
-      <div class="modal">
-        <h3>새 프로젝트 만들기</h3>
+    <dialog class="modal" id="modal-new-project" aria-labelledby="modal-new-project-title">
+        <h3 id="modal-new-project-title">새 프로젝트 만들기</h3>
         <div class="form-group">
           <label class="form-label">프로젝트 이름</label>
           <input type="text" id="modal-project-name" placeholder="회원관리 매뉴얼" />
@@ -515,13 +514,11 @@
           <button class="btn secondary" id="modal-cancel-project">취소</button>
           <button class="btn primary" id="modal-create-project">생성</button>
         </div>
-      </div>
-    </div>
+      </dialog>
 
     <!-- 레시피 저장 모달 -->
-    <div class="modal-overlay hidden" id="modal-save-recipe">
-      <div class="modal">
-        <h3>레시피 저장</h3>
+    <dialog class="modal" id="modal-save-recipe" aria-labelledby="modal-save-recipe-title">
+        <h3 id="modal-save-recipe-title">레시피 저장</h3>
         <div class="form-group">
           <label class="form-label">레시피 이름</label>
           <input type="text" id="modal-recipe-name" placeholder="기본 레시피" />
@@ -536,8 +533,7 @@
           <button class="btn secondary" id="modal-cancel-recipe">취소</button>
           <button class="btn primary" id="modal-save-recipe-confirm">저장</button>
         </div>
-      </div>
-    </div>
+      </dialog>
 
     <script src="./shared-state.js"></script>
     <script src="./capture-screen.js"></script>

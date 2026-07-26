@@ -66,7 +66,7 @@ function initProjectScreen() {
   // 새 프로젝트 모달 열기
   if (btnNewProject) {
     btnNewProject.addEventListener("click", () => {
-      document.getElementById("modal-new-project").classList.remove("hidden");
+      document.getElementById("modal-new-project").showModal();
       document.getElementById("modal-project-name").focus();
     });
   }
@@ -98,7 +98,7 @@ function initProjectScreen() {
 
   // 새 프로젝트 모달
   document.getElementById("modal-cancel-project").addEventListener("click", () => {
-    document.getElementById("modal-new-project").classList.add("hidden");
+    document.getElementById("modal-new-project").close();
   });
 
   document.getElementById("modal-create-project").addEventListener("click", async () => {
@@ -125,7 +125,7 @@ function initProjectScreen() {
     AppState.exportResults = { outputDir: "", markdownPath: "", wordPath: "", pptPath: "", exportedAt: "" };
     syncProjectExportProfiles();
 
-    document.getElementById("modal-new-project").classList.add("hidden");
+    document.getElementById("modal-new-project").close();
     document.getElementById("project-name").textContent = name;
     document.getElementById("project-name-input").value = name;
 
@@ -137,7 +137,7 @@ function initProjectScreen() {
 
   // 레시피 저장 모달
   document.getElementById("modal-cancel-recipe").addEventListener("click", () => {
-    document.getElementById("modal-save-recipe").classList.add("hidden");
+    document.getElementById("modal-save-recipe").close();
   });
 
   document.getElementById("modal-save-recipe-confirm").addEventListener("click", async () => {
@@ -161,7 +161,7 @@ function initProjectScreen() {
     if (filePath) {
       appendLog("app", `레시피 저장 완료: ${filePath}`);
     }
-    document.getElementById("modal-save-recipe").classList.add("hidden");
+    document.getElementById("modal-save-recipe").close();
   });
 
   // 프로젝트 이름 입력 실시간 반영

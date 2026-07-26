@@ -662,22 +662,28 @@ kbd {
 /* ============================================================
    Modal
    ============================================================ */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: var(--scrim);
-  display: flex; align-items: center; justify-content: center;
-  z-index: var(--z-modal-fallback);
-}
-.modal-overlay.hidden { display: none; }
+/* <dialog> 는 top layer 에 렌더되므로 z-index 도 position: fixed 도 필요
+   없다. display 는 [open] 에만 준다 — 무조건 주면 닫힌 상태의 UA 기본값
+   display: none 을 덮어 모달이 항상 보인다. */
 .modal {
-  background: var(--surface);
-  border-radius: var(--ds-radius-md);
+  border: none;
+  /* <dialog> 는 UA 기본값 margin: auto 로 중앙 정렬되는데 최상단의
+     * { margin: 0 } 리셋이 그걸 지운다. 여기서 되살린다. */
+  margin: auto;
   padding: 24px;
   width: 360px;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--ds-radius-md);
+  box-shadow: var(--ds-shadow-xl);
+}
+.modal[open] {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: var(--ds-shadow-xl);
+}
+.modal::backdrop {
+  background: var(--scrim);
 }
 .modal h3 { font-size: var(--ds-font-size-subtitle); font-weight: 700; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
