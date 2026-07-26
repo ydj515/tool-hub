@@ -1,5 +1,10 @@
 # Design System Unification Implementation Plan (2/3: 기계적 마이그레이션 3개 앱)
 
+> **실행 결과 (2026-07-26):** Task 1~5 완료. **Task 6~7(`openapi-editor`)은 3차로 미뤘다.**
+> 이 앱의 E2E 가 정본 도입 이전부터 5회 중 3회 실패하고, Task 6 이 폰트를 새로
+> 로드해 Monaco 초기화 타이밍에 영향을 줄 수 있어 회귀 판별이 불가능했다.
+> 아래 「openapi-editor 이관 메모」에 조사 결과를 남긴다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** drift 테스트를 정본으로 승격하고, `json-yaml-converter`·`ddl-seed-generator`·`openapi-editor` 세 앱을 정본 디자인 시스템 소비자로 전환한다.
@@ -1377,3 +1382,77 @@ Task 7 이후 다음이 성립해야 한다. 3차 계획서를 쓰기 전 게이
 - **`sed` 치환 순서가 중요한 곳이 두 곳 있다.** Task 4 Step 7 의 `--warn-fg` → `--warning` 은 `--warn` → `--warning` 보다 **먼저** 실행되어야 한다. Task 4 Step 9 의 radius 치환은 `8px` 을 먼저 처리해도 무해하지만 `10px`·`12px` 이 같은 결과로 가므로 순서 무관하다.
 - **`ddl-seed-generator` 의 테스트가 `lib/graph.test.ts` 하나뿐이다.** 시각 회귀 가드가 가장 약한 앱이므로 산출 CSS `grep` 과 육안 확인에 의존한다.
 - **`json-yaml-converter` 의 `Button` variant 유니온 변경이 타입 오류를 낼 수 있다.** `variant="icon"` 사용처가 남아 있으면 Task 3 Step 8 의 grep 이 잡는다.
+
+---
+
+## openapi-editor 이관 메모 (3차 계획서용)
+
+Task 6~7 을 3차로 미룬 이유와, 그때 다시 조사하지 않도록 남기는 실측 결과다.
+
+### 선행 조건: E2E flake 를 먼저 고쳐야 한다
+
+정본 도입 **이전** 코드로 5회 실행해 **3회 실패**를 확인했다. 실패하는 테스트는 모두
+`enterValidYaml` 헬퍼를 쓴다.
+
+- `edits a YAML OpenAPI document and keeps the browser-only workspace visible`
+- `opens the export menu on hover and downloads YAML directly`
+- `converts a valid document to JSON from the format menu`
+
+**근본 원인 (실측 확인).** 헬퍼가 Enter·Tab 을 눌러 한 줄씩 입력하는데 Monaco 의
+자동 들여쓰기와 경합한다. 실패한 실행에서 캡처한 실제 에디터 내용이다.
+
+```
+openapi: 3.1.2
+info:
+    title: Pets      ← 2칸이어야 하는데 4칸
+    version: 1.0.0
+  paths: {}          ← 0칸이어야 하는데 2칸
+```
+
+`info:` 다음 Enter 에서 Monaco 가 2칸을 넣는데, 그게 적용되기 전에 명시적 `Tab` 이
+도착하면 4칸이 된다. 이어지는 `Shift+Tab` 이 2칸만 빼서 `paths` 가 `info` 의 자식이
+되고 문서가 무효해져 `검증 완료` 가 뜨지 않는다.
+
+### 실패한 수정 시도 3가지 — 다시 하지 말 것
+
+| 시도 | 결과 |
+|---|---|
+| Monaco 입력 textarea 포커스 대기 | **불가능.** 이 Monaco 버전은 EditContext API 를 쓰므로 입력용 textarea 도 contenteditable 도 없다. 에디터 안의 유일한 textarea 는 IME 보조 요소(`ime-text-area`, `tabindex=-1`, `readonly`, `aria-hidden`)라 절대 포커스되지 않는다 |
+| `.monaco-editor` 의 `focused` 클래스 대기 | 포커스는 잡히지만 자동 들여쓰기 경합은 그대로 남는다 |
+| 문서 전체를 한 번의 `insertText` 로 삽입 | **6/6 실패.** `검증 완료` 가 아예 뜨지 않는다. 여러 줄 `insertText` 가 EditContext 경로에서 기대대로 동작하지 않는 것으로 보인다 |
+
+### 다음에 시도할 방향
+
+키보드 입력으로 YAML 을 만들지 않는다. 이 앱에는 유효 문서를 넣는 결정적인 경로가
+이미 두 개 있다.
+
+1. **파일 업로드** — `Topbar` 의 `파일 업로드` 는 `<input type="file">` 이므로
+   `setInputFiles()` 로 유효 문서를 결정적으로 주입할 수 있다.
+2. **샘플 다운로드 후 업로드** — 기존 `downloadSample` 헬퍼가 이미 유효 샘플을
+   받아온다. 그 내용을 업로드 경로로 되돌려 넣는다.
+
+두 방법 모두 Monaco 의 편집 동작을 우회하므로 자동 들여쓰기와 무관하다.
+단, `edits a YAML OpenAPI document` 테스트는 이름대로 **편집**을 검증하므로 업로드로
+바꾸면 의도가 달라진다. 그 테스트만은 편집 경로를 유지하되 자동 들여쓰기가 개입하지
+않는 입력(예: 들여쓰기가 필요 없는 최소 문서)으로 재설계하는 편이 낫다.
+
+### 환경 주의사항
+
+`mise run install` 이 `npm ci` 로 바뀌어 `node_modules` 를 지우고 재설치한다.
+Playwright 브라우저는 `~/Library/Caches/ms-playwright` 에 있지만 **요구 버전 핀이
+`node_modules` 에 있어서**, 재설치로 버전이 바뀌면 캐시에 없는 빌드를 찾게 되고
+E2E 18개가 전부 브라우저 실행 단계에서 실패한다. 증상이 "갑자기 전부 실패"이므로
+코드 문제로 오인하기 쉽다.
+
+e2e 가 있는 앱(`json-yaml-converter`, `openapi-editor`)은 `mise run install` 뒤에
+다음을 실행한다.
+
+```bash
+npx playwright install chromium
+```
+
+### openapi-editor 는 손대지 않은 상태다
+
+정본 복사본을 넣었다가 되돌렸고 `TARGETS` 에서도 제외했다. `src/styles/` 에는
+`theme.css`·`base.css`·`components.css` 만 있다. 3차에서 `TARGETS` 에 다시 추가하고
+계획서 Task 6~7 을 그대로 실행하면 된다.

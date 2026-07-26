@@ -32,7 +32,6 @@ export const TARGETS = {
   'sign-maker': 'src/styles',
   'json-yaml-converter': 'src/styles',
   'ddl-seed-generator': 'app/styles',
-  'openapi-editor': 'src/styles',
 };
 
 /** 복사본 맨 앞에 붙는 경고 배너. */
