@@ -5,7 +5,7 @@
 // 앱마다 tsconfig 의 types 설정이 다르므로(sign-maker 는 ["vite/client"] 로
 // 제한한다) 이 파일을 8개 앱에서 동일하게 유지하기 위해 명시한다.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -26,6 +26,8 @@ const CANONICAL_DIR = resolve(process.cwd(), '../packages/design-system');
 const COMPONENT_DIR = ['src/components/design-system', 'app/_components/design-system']
   .map((path) => resolve(process.cwd(), path))
   .find(existsSync);
+const PRODUCT_ID = basename(process.cwd());
+const FAVICON_DIR = join(CANONICAL_DIR, 'favicons', PRODUCT_ID);
 
 const COMPONENTS = [
   'BrandMark.tsx',
@@ -47,6 +49,15 @@ const CASES = [
   ['ds-contrast-e2e.ts', 'ds-contrast-e2e.ts'],
 ] as const;
 
+const FAVICON_CASES = [
+  'favicon.svg',
+  'favicon.ico',
+  'favicon-16x16.png',
+  'favicon-32x32.png',
+  'apple-touch-icon.png',
+  'site.webmanifest',
+] as const;
+
 describe('디자인 시스템 정본 동기화', () => {
   it.each(CASES)('%s 가 %s 와 일치한다', (source, target) => {
     const canonical = readFileSync(join(CANONICAL_DIR, source), 'utf8');
@@ -64,6 +75,17 @@ if (COMPONENT_DIR) {
       const copy = readFileSync(join(COMPONENT_DIR, name), 'utf8');
 
       expect(copy.endsWith(canonical)).toBe(true);
+    });
+  });
+}
+
+if (existsSync(FAVICON_DIR)) {
+  describe('제품 파비콘 정본 동기화', () => {
+    it.each(FAVICON_CASES)('%s가 정본과 바이트 단위로 일치한다', (name) => {
+      const canonical = readFileSync(join(FAVICON_DIR, name));
+      const copy = readFileSync(resolve(process.cwd(), 'public', name));
+
+      expect(copy.equals(canonical)).toBe(true);
     });
   });
 }

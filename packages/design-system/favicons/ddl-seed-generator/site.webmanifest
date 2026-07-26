@@ -1,0 +1,19 @@
+{
+  "name": "DDL Seed Generator",
+  "short_name": "DDL Seed Generator",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#3366ff",
+  "background_color": "#f7f7f8",
+  "display": "standalone"
+}

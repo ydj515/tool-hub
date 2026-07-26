@@ -76,6 +76,26 @@ const COMPONENT_TARGETS_EXPECTED = [
   ['dummy-file-generator', 'app/_components/design-system'],
 ];
 
+const FAVICON_FILES_EXPECTED = [
+  'favicon.svg',
+  'favicon.ico',
+  'favicon-16x16.png',
+  'favicon-32x32.png',
+  'apple-touch-icon.png',
+  'site.webmanifest',
+];
+
+const FAVICON_TARGETS_EXPECTED = [
+  'home',
+  'sign-maker',
+  'json-yaml-converter',
+  'openapi-editor',
+  'api-contract-test-generator',
+  'ddl-seed-generator',
+  'config-diff-viewer',
+  'dummy-file-generator',
+];
+
 const APP_PATHS = [
   'sign-maker',
   'json-yaml-converter',
@@ -99,6 +119,13 @@ function makeRepo() {
   for (const name of COMPONENT_FILES) {
     writeFileSync(join(canonical, 'components', name), `// ${name} 본문\n`);
   }
+  for (const product of FAVICON_TARGETS_EXPECTED) {
+    const dir = join(canonical, 'favicons', product);
+    mkdirSync(dir, { recursive: true });
+    for (const name of FAVICON_FILES_EXPECTED) {
+      writeFileSync(join(dir, name), Buffer.from(`${product}:${name}\0`));
+    }
+  }
   writeFileSync(join(canonical, 'products.mjs'), '// 제품 메타데이터 정본\n');
 
   for (const app of APP_PATHS) mkdirSync(join(root, app), { recursive: true });
@@ -106,7 +133,7 @@ function makeRepo() {
 }
 
 describe('buildOperations', () => {
-  test('9개 토큰 대상과 7개 React 대상의 생성 operation을 모두 메모리에서 만든다', () => {
+  test('9개 토큰, 7개 React, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
     const root = makeRepo();
     const operations = buildOperations({ root });
     const expectedTargets = [
@@ -115,6 +142,9 @@ describe('buildOperations', () => {
       ),
       ...COMPONENT_TARGETS_EXPECTED.flatMap(([app, componentDir]) =>
         COMPONENT_FILES_EXPECTED.map((name) => `${app}/${componentDir}/${name}`),
+      ),
+      ...FAVICON_TARGETS_EXPECTED.flatMap((app) =>
+        FAVICON_FILES_EXPECTED.map((name) => `${app}/public/${name}`),
       ),
     ].sort();
 
@@ -139,7 +169,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root });
 
-    assert.equal(drifted.length, 117);
+    assert.equal(drifted.length, 165);
     assert.equal(
       readFileSync(join(root, 'sign-maker/src/styles/ds-tokens.css'), 'utf8'),
       render('tokens.css', root),
@@ -152,6 +182,13 @@ describe('sync', () => {
     );
     assert.ok(
       existsSync(join(root, 'sign-maker/src/components/design-system/product.generated.ts')),
+    );
+    assert.ok(
+      readFileSync(join(root, 'sign-maker/public/favicon.ico')).equals(
+        readFileSync(
+          join(root, 'packages/design-system/favicons/sign-maker/favicon.ico'),
+        ),
+      ),
     );
   });
 
@@ -166,7 +203,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root, check: true });
 
-    assert.equal(drifted.length, 117);
+    assert.equal(drifted.length, 165);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
     assert.equal(
       existsSync(join(root, 'sign-maker/src/components/design-system/Button.tsx')),

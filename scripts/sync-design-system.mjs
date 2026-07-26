@@ -12,7 +12,7 @@ import {
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { WEB_TOOLS } from '../packages/design-system/products.mjs';
+import { PRODUCTS, WEB_TOOLS } from '../packages/design-system/products.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = join(SCRIPT_DIR, '..');
@@ -52,6 +52,15 @@ export const COMPONENT_FILES = Object.freeze([
   'Badge.tsx',
   'ToolHeader.tsx',
   'components.test.tsx',
+]);
+
+export const FAVICON_FILES = Object.freeze([
+  'favicon.svg',
+  'favicon.ico',
+  'favicon-16x16.png',
+  'favicon-32x32.png',
+  'apple-touch-icon.png',
+  'site.webmanifest',
 ]);
 
 export const WEB_TOOL_TARGETS = Object.freeze(
@@ -135,6 +144,17 @@ export function buildOperations({ root = DEFAULT_ROOT } = {}) {
       targetPath: `${product.id}/${componentDir}/product.generated.ts`,
       content: renderProduct(product),
     });
+  }
+
+  for (const product of PRODUCTS) {
+    for (const sourceName of FAVICON_FILES) {
+      const sourcePath = `${CANONICAL_DIR}/favicons/${product.id}/${sourceName}`;
+      operations.push({
+        sourcePath,
+        targetPath: `${product.id}/${product.publicDir}/${sourceName}`,
+        content: readFileSync(resolve(root, sourcePath)),
+      });
+    }
   }
 
   return operations;
