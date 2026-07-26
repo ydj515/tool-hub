@@ -66,7 +66,7 @@
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.16s, border-color 0.16s, color 0.16s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 
 .primaryBtn {
@@ -98,7 +98,7 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .themeBtn:hover { border-color: var(--line-strong); color: var(--text); }
 
@@ -203,7 +203,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .uploadBtn:hover { border-color: var(--primary); color: var(--primary); }
 
@@ -287,7 +287,7 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.14s, background 0.14s;
+  transition: color var(--ds-duration-fast), background var(--ds-duration-fast);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -447,7 +447,7 @@
   border-right: none;
   border-radius: var(--ds-radius-md) 0 0 8px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast);
 }
 .exportSplitMain:hover { background: var(--surface-3); border-color: var(--line-strong); }
 
@@ -462,10 +462,10 @@
   border: 1px solid var(--line);
   border-radius: 0 8px 8px 0;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .exportSplitChevron:hover { background: var(--surface-3); border-color: var(--line-strong); color: var(--text); }
-.exportSplitChevron svg { transition: transform 0.15s; }
+.exportSplitChevron svg { transition: transform var(--ds-duration-fast); }
 .exportSplitChevron.open svg { transform: rotate(180deg); }
 
 .exportDropdown {
@@ -479,7 +479,7 @@
   box-shadow: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
   overflow: hidden;
   z-index: 100;
-  animation: fadeIn 0.1s ease;
+  animation: fadeIn var(--ds-duration-fast) ease;
 }
 
 .exportDropdownItem {
@@ -496,7 +496,7 @@
   border-bottom: 1px solid var(--line);
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s;
+  transition: background var(--ds-duration-fast);
 }
 .exportDropdownItem:last-child { border-bottom: none; }
 .exportDropdownItem:hover { background: var(--surface-2); }
@@ -523,7 +523,7 @@
   color: var(--green);
   font-size: 0.8rem;
   font-weight: 700;
-  animation: fadeIn 0.15s ease;
+  animation: fadeIn var(--ds-duration-fast) ease;
 }
 
 @keyframes fadeIn {
@@ -566,7 +566,7 @@
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
   background: var(--surface-2);
   color: var(--muted);
   user-select: none;
@@ -585,7 +585,7 @@
 .optionToggle[data-tooltip]::after {
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--ds-duration-fast);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -619,7 +619,7 @@
   background: currentColor;
   opacity: 0.5;
   flex: 0 0 auto;
-  transition: opacity 0.14s;
+  transition: opacity var(--ds-duration-fast);
 }
 .optionToggle.on .toggleDot { opacity: 1; }
 .toggleLock { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-left: 2px; }
@@ -637,30 +637,39 @@
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .optionsRulesBtn:hover { border-color: var(--primary); color: var(--primary); }
 
-/* ── Rules drawer ── */
-.drawerBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(23, 23, 25, 0.4);
-  z-index: 400;
-  animation: fadeIn 0.18s ease;
-}
-
+/* ── Rules drawer (<dialog> 기반 모달) ──
+   top layer 에 렌더되므로 z-index 가 필요 없다. */
 .rulesDrawer {
   position: fixed;
-  top: 0; right: 0; bottom: 0;
+  inset: 0 0 0 auto;              /* 우측 정렬 */
   width: min(600px, 92vw);
-  background: var(--surface);
+  max-width: none;                /* dialog 기본 max-width 해제 */
+  max-height: none;               /* dialog 기본 max-height 해제 */
+  height: 100%;
+  margin: 0;                      /* dialog 기본 margin: auto 해제 */
+  padding: 0;
+  border: 0;
   border-left: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
   box-shadow: -16px 0 48px rgba(23, 23, 25, 0.14), -4px 0 12px rgba(23, 23, 25, 0.08);
-  z-index: 401;
+  animation: slideInRight var(--ds-duration-slow) var(--ds-ease-emphasized);
+}
+
+/* display 는 [open] 에만 준다. 무조건 주면 닫힌 상태의 UA 기본값
+   display: none 을 덮어 dialog 가 항상 보인다. */
+.rulesDrawer[open] {
   display: flex;
   flex-direction: column;
-  animation: slideInRight 0.22s ease;
+}
+
+.rulesDrawer::backdrop {
+  background: rgba(23, 23, 25, 0.4);
+  animation: fadeIn var(--ds-duration-base) var(--ds-ease-standard);
 }
 
 @keyframes slideInRight {
@@ -692,7 +701,7 @@
   color: var(--muted);
   cursor: pointer;
   flex: 0 0 auto;
-  transition: border-color 0.14s, color 0.14s;
+  transition: border-color var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 .drawerCloseBtn:hover { border-color: var(--danger); color: var(--danger); }
 
@@ -718,7 +727,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.14s, background 0.14s;
+  transition: color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .drawerTabBtn:hover { color: var(--text); background: var(--surface); }
 .drawerTabBtn.active {
@@ -754,7 +763,7 @@
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background var(--ds-duration-fast), color var(--ds-duration-fast), border-color var(--ds-duration-fast);
 }
 .filterChip:hover { border-color: var(--primary); color: var(--primary); }
 .filterChip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -845,7 +854,7 @@
   font-weight: 600;
   min-width: 80px;
   max-width: 200px;
-  transition: border-color 0.12s, background 0.12s;
+  transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .filenameInput:hover { border-color: var(--line); background: var(--surface-2); }
 .filenameInput:focus { outline: none; border-color: var(--primary); background: var(--surface); }
@@ -871,7 +880,7 @@
   font-size: 0.82rem;
   line-height: 1.65;
   resize: vertical;
-  transition: border-color 0.14s, background 0.14s;
+  transition: border-color var(--ds-duration-fast), background var(--ds-duration-fast);
 }
 .codeTextarea:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%); }
 .codeTextarea::placeholder { color: var(--muted); font-style: italic; font-size: 0.8rem; }
