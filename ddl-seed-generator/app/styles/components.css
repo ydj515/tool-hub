@@ -251,7 +251,7 @@ h2 { font-size: var(--ds-font-size-subtitle); line-height: 1.25; font-weight: 60
   display: block;
   margin-bottom: 4px;
   color: var(--danger);
-  font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-caption);
   font-weight: 600;
 }
@@ -305,7 +305,7 @@ h2 { font-size: var(--ds-font-size-subtitle); line-height: 1.25; font-weight: 60
 .orderBox p {
   margin-top: 6px;
   color: var(--text);
-  font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-body);
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -403,11 +403,11 @@ h2 { font-size: var(--ds-font-size-subtitle); line-height: 1.25; font-weight: 60
   margin: 0 20px 20px;
   padding: 16px;
   overflow: auto;
-  color: var(--code-text);
-  background: var(--code);
-  border: 1px solid var(--code-line);
+  color: var(--inverse-text);
+  background: var(--inverse-bg);
+  border: 1px solid var(--inverse-line);
   border-radius: var(--ds-radius-md);
-  font-family: 'SF Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-family: var(--ds-font-mono);
   font-size: var(--ds-font-size-caption);
   line-height: 1.6;
   white-space: pre;
