@@ -9,8 +9,11 @@
 | Vite + React SPA | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor` | 적용 | 적용 |
 | Next.js App Router | `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` | 적용 | 적용 |
 | Electron + 바닐라 CSS | `webpage-capture-tool` | 적용 | 미적용 |
+| Vite + React SPA | `api-contract-test-generator` | **미적용** | 미적용 |
 
 > `webpage-capture-tool` 은 데스크톱 워크벤치라 헤더 3슬롯·브랜드 허브 링크·컨테이너 폭 규칙이 맞지 않는다. 토큰과 `<dialog>` 규칙만 따른다. `class-diagram-generator`(Kotlin)는 대상 외.
+>
+> `api-contract-test-generator` 는 정본 도입 작업과 **병행 개발되어** 아직 자체 `styles/theme.css` 를 쓴다. 스택과 구조가 다른 Vite 앱들과 같으므로 마이그레이션 비용은 낮다 — 아래 "새 도구에 적용하는 체크리스트" 를 그대로 따르면 된다.
 
 ## 5대 규칙
 
