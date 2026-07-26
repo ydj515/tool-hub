@@ -35,12 +35,12 @@ describe('tools metadata', () => {
     }));
   });
 
-  it('registers the API contract test generator independently', () => {
+  it('registers the API contract test generator as live', () => {
     expect(tools).toContainEqual(expect.objectContaining({
       id: 'api-contract-test-generator',
       name: 'API Contract Test Generator',
-      status: 'coming-soon',
-      url: null,
+      status: 'live',
+      url: expect.any(String),
       tags: expect.arrayContaining(['OpenAPI', 'API', 'Testing']),
     }));
   });
