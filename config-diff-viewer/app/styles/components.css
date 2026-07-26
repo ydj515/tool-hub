@@ -121,9 +121,6 @@
 
 /* ── Editor card ── */
 .editorCard {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -247,9 +244,6 @@
 
 /* ── Result panel ── */
 .resultCard {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
   overflow: hidden;
 }
 
@@ -877,9 +871,6 @@
 
 /* ── Diff view card ── */
 .diffViewCard {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;

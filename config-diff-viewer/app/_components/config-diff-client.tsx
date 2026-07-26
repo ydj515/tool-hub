@@ -140,7 +140,7 @@ export default function ConfigDiffClient() {
         <AnalysisOptionsBar options={options} onChange={setOptions} onOpenRules={() => setRulesOpen(true)} />
 
         {/* Input card */}
-        <div className="editorCard">
+        <div className="ds-card editorCard">
           <div className="inputGrid">
             <InputSide
               label="A"
@@ -174,7 +174,7 @@ export default function ConfigDiffClient() {
 
         {/* Monaco diff view — 비교 후에만 표시 */}
         {compareSnapshot && (
-          <div className="diffViewCard">
+          <div className="ds-card diffViewCard">
             <div className="diffViewHeader">
               <span className="diffViewLabel">Diff 뷰</span>
               <span className="diffViewFiles">
@@ -201,7 +201,7 @@ export default function ConfigDiffClient() {
         {report ? (
           <ResultPanel report={report} options={options} key={report.id} />
         ) : (
-          <div className="resultCard">
+          <div className="ds-card resultCard">
             <div className="emptyState">
               <ArrowLeftRight size={36} />
               <p>비교 버튼을 눌러 분석을 시작하세요.</p>

@@ -46,7 +46,7 @@ export function ExportStep({
   };
 
   return (
-    <section className="step-panel export-step" aria-labelledby="export-heading">
+    <section className="ds-card step-panel export-step" aria-labelledby="export-heading">
       <div className="section-heading">
         <div><p className="eyebrow">Step 3</p><h2 id="export-heading">테스트 계획 내보내기</h2><p>{plan.title}에서 선택한 테스트를 원하는 형식으로 저장합니다.</p></div>
         <Button onClick={onBack}><ArrowLeft size={16} aria-hidden="true" /> 테스트 검토로 돌아가기</Button>

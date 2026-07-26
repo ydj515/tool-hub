@@ -30,7 +30,7 @@ export function SpecInputStep({
   onAnalyze,
 }: SpecInputStepProps) {
   return (
-    <section className="step-panel input-step" aria-labelledby="input-heading">
+    <section className="ds-card step-panel input-step" aria-labelledby="input-heading">
       <div className="section-heading">
         <div>
           <p className="eyebrow">Step 1</p>

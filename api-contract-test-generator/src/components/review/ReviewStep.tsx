@@ -58,7 +58,7 @@ export function ReviewStep({
   const detail = <TestCaseDetail key={selectedTest?.id ?? 'empty'} testCase={selectedTest} selection={selectedTest ? selections[selectedTest.id] : undefined} onSelectionChange={onSelectionChange} onBack={mobile ? () => changeView('tests') : undefined} />;
 
   return (
-    <section className="step-panel review-step" aria-labelledby="review-heading">
+    <section className="ds-card step-panel review-step" aria-labelledby="review-heading">
       <div className="section-heading review-summary">
         <div><p className="eyebrow">Step 2</p><h2 id="review-heading">테스트 검토</h2><p>{plan.summary.endpointCount}개 엔드포인트 · {includedCount}/{plan.testCases.length}개 포함 · 검토 필요 {reviewRequiredCount}개 · 생략 {plan.summary.skippedCount}개</p></div>
         <Button variant="primary" disabled={includedCount === 0} onClick={onProceed}>내보내기 단계로</Button>

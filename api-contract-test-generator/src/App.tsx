@@ -16,7 +16,7 @@ function App() {
       <Header theme={theme} onToggleTheme={toggle} />
       <StepNavigator current={controller.state.step} />
       <main>
-        <Suspense fallback={<div className="welcome-panel" role="status">도구를 준비하고 있습니다.</div>}>
+        <Suspense fallback={<div className="ds-card welcome-panel" role="status">도구를 준비하고 있습니다.</div>}>
           <GeneratorPage controller={controller} theme={theme} />
         </Suspense>
       </main>

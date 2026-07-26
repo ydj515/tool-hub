@@ -93,7 +93,7 @@ export default function ResultPanel({ report, options }: Props) {
   const criticalHigh = summary.critical + summary.high;
 
   return (
-    <div className="resultCard">
+    <div className="ds-card resultCard">
       <StatsBar report={report} />
 
       <div className="tabBar">

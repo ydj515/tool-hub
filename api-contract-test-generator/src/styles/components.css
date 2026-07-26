@@ -105,11 +105,7 @@
 
 .welcome-panel {
   margin-top: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
   padding: clamp(24px, 5vw, 64px);
-  background: var(--surface);
-  box-shadow: var(--ds-shadow-sm);
 }
 
 .welcome-panel h2 { max-width: 700px; margin-top: 12px; font-size: var(--hero-size); line-height: 1.04; letter-spacing: -0.055em; }
@@ -118,11 +114,7 @@
 .step-panel {
   min-width: 0;
   margin-top: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
   padding: 24px;
-  background: var(--surface);
-  box-shadow: var(--ds-shadow-sm);
 }
 
 .section-heading {
