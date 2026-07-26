@@ -19,7 +19,7 @@
   padding: 14px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
 }
 
 .brandBlock {
@@ -37,7 +37,7 @@
   flex: 0 0 auto;
   color: #ffffff;
   background: var(--primary);
-  border-radius: 12px;
+  border-radius: var(--ds-radius-md);
 }
 
 .brandBlock p {
@@ -58,7 +58,7 @@
 /* ── Buttons ── */
 .primaryBtn, .secondaryBtn, .ghostBtn {
   min-height: 38px;
-  border-radius: 10px;
+  border-radius: var(--ds-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +91,7 @@
 .themeBtn {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
+  border-radius: var(--ds-radius-md);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -135,7 +135,7 @@
 .editorCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -180,7 +180,7 @@
 .controlSelect {
   height: 30px;
   padding: 0 8px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text);
@@ -193,7 +193,7 @@
 .uploadBtn {
   height: 30px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -230,7 +230,7 @@
   padding: 10px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -248,7 +248,7 @@
 .statusBadge {
   margin-left: auto;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -261,7 +261,7 @@
 .resultCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
 }
 
@@ -278,7 +278,7 @@
 
 .tabBtn {
   padding: 6px 14px;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--ds-radius-sm) 6px 0 0;
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
@@ -307,7 +307,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--ds-radius-md);
   font-size: 0.72rem;
   font-weight: 800;
   background: var(--surface-3);
@@ -378,7 +378,7 @@
 .valuePill {
   display: inline-block;
   padding: 2px 7px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -392,7 +392,7 @@
 
 .valuePill.placeholder { color: var(--green); background: color-mix(in srgb, var(--green), transparent 92%); border-color: color-mix(in srgb, var(--green), transparent 75%); }
 .valuePill.missing { color: var(--muted); background: none; border: none; font-style: italic; }
-.valuePill.changed { background: color-mix(in srgb, var(--yellow), transparent 90%); border-color: color-mix(in srgb, var(--yellow), transparent 75%); }
+.valuePill.changed { background: color-mix(in srgb, var(--warning), transparent 90%); border-color: color-mix(in srgb, var(--warning), transparent 75%); }
 .valuePill.danger { background: color-mix(in srgb, var(--danger), transparent 92%); border-color: color-mix(in srgb, var(--danger), transparent 80%); color: var(--danger); }
 .valuePill.masked { color: var(--muted); font-style: italic; }
 
@@ -404,7 +404,7 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -413,11 +413,11 @@
 }
 .badge.CRITICAL { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
 .badge.HIGH     { background: color-mix(in srgb, var(--coral),  transparent 88%); color: var(--coral); }
-.badge.MEDIUM   { background: color-mix(in srgb, var(--yellow), transparent 88%); color: var(--yellow); }
+.badge.MEDIUM   { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
 .badge.LOW      { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
 .badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 90%); color: var(--green); }
 .badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 88%); color: var(--danger); }
-.badge.CHANGED  { background: color-mix(in srgb, var(--yellow), transparent 88%); color: var(--yellow); }
+.badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 88%); color: var(--warning); }
 .badge.TYPE_CHANGED { background: color-mix(in srgb, #6541f2, transparent 90%); color: #6541f2; }
 
 /* ── Export bar ── */
@@ -445,7 +445,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-right: none;
-  border-radius: 8px 0 0 8px;
+  border-radius: var(--ds-radius-md) 0 0 8px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -475,7 +475,7 @@
   min-width: 190px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--ds-radius-md);
   box-shadow: 0 8px 24px rgba(23,23,25,0.10), 0 2px 6px rgba(23,23,25,0.06);
   overflow: hidden;
   z-index: 100;
@@ -518,7 +518,7 @@
 /* ── Copy notice ── */
 .copyNotice {
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   background: color-mix(in srgb, var(--green), transparent 88%);
   color: var(--green);
   font-size: 0.8rem;
@@ -543,7 +543,7 @@
   padding: 8px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   flex-wrap: wrap;
 }
 
@@ -561,7 +561,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-lg);
   border: 1px solid var(--line);
   font-size: 0.82rem;
   font-weight: 700;
@@ -597,7 +597,7 @@
   background: var(--code);
   color: #f0f4f2;
   padding: 5px 10px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
@@ -630,7 +630,7 @@
   align-items: center;
   gap: 5px;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -686,7 +686,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -707,7 +707,7 @@
 
 .drawerTabBtn {
   padding: 6px 14px;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--ds-radius-sm) 6px 0 0;
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
@@ -735,7 +735,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--ds-radius-md);
   font-size: 0.72rem;
   font-weight: 800;
   background: var(--surface-3);
@@ -747,7 +747,7 @@
 
 .filterChip {
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: var(--ds-radius-lg);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--muted);
@@ -780,7 +780,7 @@
 .ruleCard {
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--ds-radius-md);
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -791,7 +791,7 @@
 
 .ruleCategoryChip {
   padding: 1px 7px;
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-3);
   border: 1px solid var(--line);
   font-size: 0.7rem;
@@ -799,7 +799,7 @@
   color: var(--muted);
 }
 
-.ruleId { font-size: 0.76rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--soft); }
+.ruleId { font-size: 0.76rem; font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; color: var(--muted); }
 .ruleMessage { font-size: 0.84rem; color: var(--text); line-height: 1.4; margin: 0; }
 .ruleMessage.valuePatternName { font-size: 0.86rem; }
 
@@ -812,7 +812,7 @@
   color: var(--text);
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: var(--ds-radius-sm);
   padding: 1px 5px;
   word-break: break-all;
 }
@@ -837,7 +837,7 @@
   height: 28px;
   padding: 0 8px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--ds-radius-sm);
   background: transparent;
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -864,7 +864,7 @@
   min-height: 300px;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--ds-radius-sm);
   background: var(--surface-2);
   color: var(--text);
   font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -880,7 +880,7 @@
 .diffViewCard {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--ds-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -905,10 +905,10 @@
   align-items: center;
   gap: 5px;
   padding: 3px 10px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--yellow), transparent 90%);
-  border: 1px solid color-mix(in srgb, var(--yellow), transparent 75%);
-  color: var(--yellow);
+  border-radius: var(--ds-radius-sm);
+  background: color-mix(in srgb, var(--warning), transparent 90%);
+  border: 1px solid color-mix(in srgb, var(--warning), transparent 75%);
+  color: var(--warning);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -917,7 +917,7 @@
   font-size: 0.68rem;
   font-weight: 800;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--ds-radius-sm);
   letter-spacing: 0;
 }
 .toggleStatusBadge.on { background: color-mix(in srgb, var(--primary), transparent 82%); color: var(--primary); }

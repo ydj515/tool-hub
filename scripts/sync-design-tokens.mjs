@@ -34,6 +34,7 @@ export const TARGETS = {
   'ddl-seed-generator': 'app/styles',
   'openapi-editor': 'src/styles',
   'dummy-file-generator': 'app/styles',
+  'config-diff-viewer': 'app/styles',
 };
 
 /** 복사본 맨 앞에 붙는 경고 배너. */

@@ -87,6 +87,7 @@ describe('sync', () => {
       'ddl-seed-generator',
       'openapi-editor',
       'dummy-file-generator',
+      'config-diff-viewer',
     ]);
   });
 });
