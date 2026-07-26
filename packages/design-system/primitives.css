@@ -22,6 +22,7 @@
   width: 36px;
   min-width: 36px;
   height: 36px;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -81,6 +82,7 @@
 .ds-button {
   height: 36px;
   min-height: 36px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -138,6 +140,7 @@
 
 .ds-segmented {
   height: 36px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 2px;
