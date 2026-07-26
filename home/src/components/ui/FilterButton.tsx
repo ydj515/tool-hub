@@ -15,7 +15,7 @@ export default function FilterButton({ label, active, onClick }: FilterButtonPro
       className={`text-caption font-semibold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
         active
           ? 'bg-primary text-on-primary border-primary'
-          : 'text-muted border-line hover:border-primary hover:text-primary'
+          : 'text-muted border-line hover:border-primary hover:text-primary-text'
       }`}
     >
       {label}

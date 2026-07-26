@@ -23,7 +23,7 @@ export default function HomePage() {
       <section className="ds-shell py-14 sm:py-24">
         <div className="max-w-[600px] mx-auto text-center flex flex-col items-center gap-5">
           {/* 상태 인디케이터 */}
-          <div className="flex items-center gap-2 text-caption font-semibold text-primary tracking-normal uppercase">
+          <div className="flex items-center gap-2 text-caption font-semibold text-primary-text tracking-normal uppercase">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />

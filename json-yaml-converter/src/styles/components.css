@@ -15,7 +15,7 @@
 .direction-selector { display: flex; gap: 4px; margin-left: auto; padding: 4px; background: var(--fill); border: 1px solid var(--line-subtle); border-radius: var(--ds-radius-md); }
 .direction-selector__option { height: 32px; padding: 0 12px; color: var(--muted); background: transparent; border: 0; border-radius: var(--ds-radius-sm); font-weight: 600; }
 .direction-selector__option:hover { color: var(--text); }
-.direction-selector__option[aria-checked="true"] { color: var(--primary); background: var(--surface); box-shadow: var(--ds-shadow-sm); }
+.direction-selector__option[aria-checked="true"] { color: var(--primary-text); background: var(--surface); box-shadow: var(--ds-shadow-sm); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 0 12px; color: var(--text); background: var(--surface); border: 1px solid var(--control-border); border-radius: var(--ds-radius-md); font-weight: 600; cursor: pointer; transition: background var(--ds-duration-fast) var(--ds-ease-standard), border-color var(--ds-duration-fast) var(--ds-ease-standard), color var(--ds-duration-fast) var(--ds-ease-standard); }
 .btn:hover { background: var(--fill); }
 .btn-primary { color: var(--on-primary); background: var(--primary); border-color: var(--primary); box-shadow: var(--ds-shadow-sm); }
@@ -74,7 +74,7 @@
   .editor-panel[data-kind="source"] { border-right: 0; }
   .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; padding: 4px; background: var(--fill); border: 1px solid var(--line-subtle); border-radius: var(--ds-radius-md); }
   .mobile-tabs button { min-height: 36px; padding: 0 8px; color: var(--muted); background: transparent; border: 0; border-radius: var(--ds-radius-sm); font-weight: 600; }
-  .mobile-tabs button[aria-selected="true"] { color: var(--primary); background: var(--surface); box-shadow: var(--ds-shadow-sm); }
+  .mobile-tabs button[aria-selected="true"] { color: var(--primary-text); background: var(--surface); box-shadow: var(--ds-shadow-sm); }
   .editor-panel[data-mobile-hidden="true"] { display: none; }
   .editor-frame { height: 52vh; min-height: 320px; }
   .diagnostic-banner { margin: 8px -8px -8px; }

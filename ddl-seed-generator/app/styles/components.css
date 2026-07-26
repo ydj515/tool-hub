@@ -131,7 +131,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
   border-bottom: 1px solid var(--line-subtle);
 }
 
-.panelHead svg { color: var(--primary); flex: 0 0 auto; }
+.panelHead svg { color: var(--primary-text); flex: 0 0 auto; }
 
 .fieldGroup { display: grid; gap: 8px; }
 .fieldGroup.spaced { margin-top: 12px; }
@@ -371,7 +371,7 @@ h2 { font-size: 1.0625rem; line-height: 1.25; font-weight: 600; letter-spacing: 
 }
 
 .downloadMenu button + button { border-top: 1px solid var(--line-subtle); }
-.downloadMenu button:hover { background: var(--primary-surface); color: var(--primary); }
+.downloadMenu button:hover { background: var(--primary-surface); color: var(--text-neutral); }
 
 @keyframes spin-icon { to { transform: rotate(360deg); } }
 .spinIcon { animation: spin-icon 0.7s linear infinite; }

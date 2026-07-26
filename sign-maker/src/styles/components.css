@@ -139,7 +139,7 @@
 .seg-btn:hover { color: var(--text); }
 .seg-btn[data-active="true"] {
   background: var(--surface);
-  color: var(--primary);
+  color: var(--primary-text);
   box-shadow: var(--ds-shadow-sm);
 }
 

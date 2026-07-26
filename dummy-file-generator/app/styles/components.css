@@ -125,7 +125,7 @@ h1 {
 }
 
 .typeBtn.active {
-  color: var(--primary);
+  color: var(--text-neutral);
   border-color: var(--primary);
   background: var(--primary-surface);
   font-weight: 600;
@@ -181,7 +181,7 @@ h1 {
 }
 
 .zipStructureBtn.active {
-  color: var(--primary);
+  color: var(--text-neutral);
   border-color: var(--primary);
   background: var(--primary-surface);
   font-weight: 600;

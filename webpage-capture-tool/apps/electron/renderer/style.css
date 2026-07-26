@@ -41,7 +41,7 @@ body {
   box-shadow: var(--ds-shadow-sm);
 }
 .topbar-left { display: flex; align-items: center; gap: 12px; }
-.app-name { font-weight: 700; font-size: var(--ds-font-size-body); color: var(--primary); letter-spacing: -.01em; }
+.app-name { font-weight: 700; font-size: var(--ds-font-size-body); color: var(--primary-text); letter-spacing: -.01em; }
 .project-name { color: var(--muted); font-size: var(--ds-font-size-caption); }
 .topbar-right { display: flex; align-items: center; gap: 8px; }
 .status-badge {
@@ -54,7 +54,7 @@ body {
 }
 .status-badge.running {
   background: var(--primary-surface);
-  color: var(--primary);
+  color: var(--text-neutral);
 }
 .status-badge.error {
   background: var(--danger-surface);
@@ -329,7 +329,7 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
 .btn-preset.active {
   border-color: var(--primary);
   background: var(--fill);
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 600;
 }
 .aspect-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
@@ -346,7 +346,7 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
 .btn-aspect.active, .btn-crop-aspect.active {
   border-color: var(--primary);
   background: var(--fill);
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 600;
 }
 
@@ -420,7 +420,7 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
   white-space: nowrap;
 }
 .dom-candidate-tag {
-  color: var(--primary);
+  color: var(--primary-text);
   flex-shrink: 0;
 }
 
@@ -456,7 +456,7 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
   border-radius: var(--ds-radius-pill);
   font-size: var(--ds-font-size-caption); font-weight: 600;
 }
-.rule-type-badge.replace { background: var(--primary-surface); color: var(--primary); }
+.rule-type-badge.replace { background: var(--primary-surface); color: var(--text-neutral); }
 .rule-type-badge.hide { background: var(--warning-surface); color: var(--warning); }
 .rule-actions { display: flex; gap: 6px; }
 .btn-icon {
@@ -469,7 +469,7 @@ input[type="checkbox"], input[type="radio"] { width: auto; }
   transition: color var(--ds-duration-fast) var(--ds-ease-standard);
 }
 .btn-icon:hover { color: var(--danger); border-color: var(--danger); }
-.btn-icon.toggle:hover { color: var(--primary); border-color: var(--primary); }
+.btn-icon.toggle:hover { color: var(--primary-text); border-color: var(--primary); }
 
 /* ============================================================
    Image Editor
