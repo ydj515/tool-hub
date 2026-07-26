@@ -8,5 +8,9 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return <div className="ds-page">{children}</div>;
+  return (
+    <div className="ds-page" data-ds-page-shell>
+      {children}
+    </div>
+  );
 }

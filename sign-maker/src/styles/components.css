@@ -23,39 +23,10 @@
   margin-inline: auto;
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: var(--on-primary);
-  border: none;
-  border-radius: var(--ds-radius-md);
-  box-shadow: var(--ds-shadow-sm);
-  transition: background var(--ds-duration-fast) var(--ds-ease-standard);
-}
-.btn-primary:hover  { background: var(--primary-strong); }
-.btn-primary:active { background: var(--primary-heavy); }
-
-.btn-secondary {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-md);
-  transition: background var(--ds-duration-fast) var(--ds-ease-standard);
-}
-.btn-secondary:hover { background: var(--fill); }
-
-.app-mark {
-  background: var(--primary);
-  color: var(--on-primary);
+.ds-tool-header {
+  margin-bottom: 20px;
 }
 
-/* 자간은 정본 text-title 유틸리티가 --ds-tracking-title 로 준다.
-   여기서 letter-spacing 을 지정하면 안 된다 — 이 규칙은 레이어 밖이고
-   Tailwind 유틸리티는 @layer utilities 안이라 레이어 밖이 이긴다. */
-.app-title {
-  color: var(--text);
-}
-
-.app-subtitle,
 .panel-copy,
 .setting-label,
 .upload-hint {
@@ -120,27 +91,6 @@
 
 .upload-preview-canvas.is-visible {
   opacity: 1;
-}
-
-/* Segmented control (Draw / Upload 탭 전환) */
-.seg {
-  background: var(--fill);
-  border: 1px solid var(--line-subtle);
-  border-radius: var(--ds-radius-md);
-  padding: 4px;
-}
-.seg-btn {
-  background: transparent;
-  color: var(--muted);
-  border: none;
-  border-radius: var(--ds-radius-sm);
-  transition: color var(--ds-duration-fast) var(--ds-ease-standard), background var(--ds-duration-fast) var(--ds-ease-standard);
-}
-.seg-btn:hover { color: var(--text); }
-.seg-btn[data-active="true"] {
-  background: var(--surface);
-  color: var(--primary-text);
-  box-shadow: var(--ds-shadow-sm);
 }
 
 /* 포커스링은 정본 base.css 의 전역 :where(...):focus-visible 규칙이 담당한다.

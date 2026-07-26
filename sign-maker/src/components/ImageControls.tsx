@@ -1,7 +1,7 @@
 /**
  * 업로드 모드의 컨트롤 패널 콘텐츠: 안내 + 배경 임계값 슬라이더 + 초기화/내려받기.
  */
-import Button from "./ui/Button";
+import Button from "./design-system/Button";
 
 interface ImageControlsProps {
   threshold: number;
@@ -38,10 +38,10 @@ export default function ImageControls({
       </div>
 
       <div className="flex gap-2 mt-auto">
-        <Button variant="secondary" className="flex-1 h-10 text-body font-semibold" onClick={onReset}>
+        <Button variant="secondary" className="flex-1 text-body font-semibold" onClick={onReset}>
           초기화
         </Button>
-        <Button variant="primary" className="flex-1 h-10 text-body font-semibold" onClick={onDownload}>
+        <Button variant="primary" className="flex-1 text-body font-semibold" onClick={onDownload}>
           내려받기
         </Button>
       </div>

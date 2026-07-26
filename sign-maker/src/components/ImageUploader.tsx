@@ -9,7 +9,7 @@ import React, {
   useEffect,
 } from "react";
 import { Upload } from "lucide-react";
-import Button from "./ui/Button";
+import Button from "./design-system/Button";
 
 export interface ImageUploaderRef {
   reset: () => void;

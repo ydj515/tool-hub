@@ -6,20 +6,21 @@ import { collectSamples, contrastOf } from '../src/styles/ds-contrast-e2e';
  * 활성 세그먼트의 강조 텍스트가 실제 배경 위에서 읽히는지 본다.
  */
 const SELECTORS = [
-  '.app-subtitle',
+  '.ds-tool-header__copy > span',
   '.panel-copy',
   '.setting-label',
   '.upload-hint',
-  '.seg-btn',
+  '.ds-segmented button',
 ];
 
 for (const theme of ['light', 'dark'] as const) {
   test(`${theme} 테마의 보조·강조 텍스트가 WCAG AA 를 충족한다`, async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('button', { name: '테마 전환' })).toBeVisible();
+    const themeToggle = page.getByRole('button', { name: /테마로 전환/ });
+    await expect(themeToggle).toBeVisible();
 
     if (theme === 'dark') {
-      await page.getByRole('button', { name: '테마 전환' }).click();
+      await themeToggle.click();
     }
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
