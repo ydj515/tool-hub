@@ -11,6 +11,7 @@ Tool Hub 웹 도구들이 공유하는 디자인 토큰·전역 규칙·프리�
 | `primitives.css` | `ds-primitives.css` | `.ds-card`, `.ds-icon-btn` |
 | `ds-sync.test.ts` | `ds-sync.test.ts` | drift 감지 + 금지 Tailwind 단계 스캔 |
 | `ds-contrast.test.ts` | `ds-contrast.test.ts` | 팔레트 대비 계약 검증 (브라우저 불필요) |
+| `ds-contrast-e2e.ts` | `ds-contrast-e2e.ts` | 렌더된 요소의 대비를 재는 Playwright 헬퍼 |
 
 ## 사용법
 
@@ -110,6 +111,18 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 - `--disabled` 은 거꾸로 4.5 **미만**임을 못박는다. 활성 텍스트에 잘못 쓰이는 것을 막는다
 
 렌더된 요소의 합성(부모 틴트 위에 겹치는 알파 표면 등)은 이 테스트가 볼 수 없다. E2E 가 있는 앱에서 따로 본다.
+
+#### 요소 층 대비
+
+`ds-contrast.test.ts` 는 토큰 값만 본다. 렌더 시점에만 드러나는 것은 각 앱의 `e2e/contrast.spec.ts` 가 정본 `ds-contrast-e2e.ts` 헬퍼로 검사한다(7개 앱).
+
+토큰 층이 놓치는 것은 다음과 같다.
+
+- 알파 기반 역할 표면이 **부모 틴트 위에 겹칠 때** — 실제로 배지가 4.71 에서 4.21 로 떨어졌다.
+- `background-image` 로 칠한 틴트 — `backgroundColor` 만 읽으면 불투명 밑판과 비교해 4.73 을 11.71 로 읽는다.
+- `color-mix()` 로 만든 배경 — 토큰이 아니라 계산 결과라 토큰 층에 없다.
+
+헬퍼는 색 문자열을 손으로 파싱하지 않는다. 계산값이 `oklab()` · `color(srgb ...)` · `rgba()` 로 제각각이라(Tailwind 4 는 `bg-bg/85` 를 `oklab()` 으로 내보낸다) 브라우저 1×1 캔버스로 sRGB 바이트를 읽는다. 테마 전환 직후에는 색 트랜지션이 끝나기를 기다리고, 다중 스톱 gradient 위의 글자는 단일 배경색으로 환원할 수 없어 `unmeasurable` 로 표시한다.
 
 #### 역할 표면 위의 텍스트
 

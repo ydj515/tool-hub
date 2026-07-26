@@ -20,7 +20,7 @@ Finishing code changes without verification is not allowed.
 - If a repository is missing a verification script that should reasonably exist for its stack, add that script before considering the work complete.
 - Treat successful verification as the definition of done.
 - 앱마다 `mise run check`가 표준 진입점이다.
-- e2e가 있는 앱(`json-yaml-converter`, `openapi-editor`)은 `mise run install` 뒤 `npx playwright install chromium`을 실행한다. `npm ci`가 `node_modules`를 재설치하면서 Playwright 브라우저 요구 버전 핀이 바뀌어 캐시에 없는 빌드를 찾게 되고, e2e 전체가 브라우저 실행 단계에서 실패한다.
+- e2e가 있는 앱(`json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `config-diff-viewer`, `ddl-seed-generator`, `dummy-file-generator`, `home`, `sign-maker`)은 `mise run install` 뒤 `npx playwright install chromium`을 실행한다. `npm ci`가 `node_modules`를 재설치하면서 Playwright 브라우저 요구 버전 핀이 바뀌어 캐시에 없는 빌드를 찾게 되고, e2e 전체가 브라우저 실행 단계에서 실패한다.
 
 ## Documentation Rule
 `AGENTS.md` must remain an index, not a long-form handbook.
