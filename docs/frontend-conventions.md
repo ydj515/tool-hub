@@ -72,6 +72,8 @@
 - **알파 기반 역할 표면(`--*-surface`)은 `--surface` 위를 전제한다.** 다른 틴트 위에 겹치면 대비가 떨어진다. 배지처럼 틴트된 부모 안에 놓이는 요소는 `background-color: var(--surface)` + `background-image: linear-gradient(<표면>, <표면>)` 으로 합성 기준을 고정한다.
 - **`--primary-surface` 위의 글자는 `--text-neutral` 을 쓴다.** `--primary` 계열 중 두 테마 모두에서 이 표면 위 AA 를 넘는 토큰이 없다.
 - **번들러가 없는 앱은 산출 CSS 대신 런타임 계산값으로 검증한다.** `getComputedStyle` 로 토큰이 실제 해석되는지 보는 쪽이 grep 보다 강한 가드다.
+- **팔레트 대비는 정본 `ds-contrast.test.ts` 가 9개 앱 전부에서 지킨다.** 브라우저가 필요 없으므로 E2E 가 없는 앱도 덮인다. 정본 색을 바꾸면 이 테스트가 먼저 깨진다.
+- **`--on-primary` 는 테마마다 방향이 다르다.** 다크의 `--primary` 는 밝은 파랑이라 흰 글자가 3.39:1 로 미달한다. primary 배경 위 글자는 반드시 토큰을 쓰고 `#fff` 를 직접 적지 않는다.
 
 ## 디렉터리 구조
 

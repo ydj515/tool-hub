@@ -10,6 +10,7 @@ Tool Hub 웹 도구들이 공유하는 디자인 토큰·전역 규칙·프리�
 | `base.css` | `ds-base.css` | 전역 포커스링, `prefers-reduced-motion` |
 | `primitives.css` | `ds-primitives.css` | `.ds-card`, `.ds-icon-btn` |
 | `ds-sync.test.ts` | `ds-sync.test.ts` | drift 감지 + 금지 Tailwind 단계 스캔 |
+| `ds-contrast.test.ts` | `ds-contrast.test.ts` | 팔레트 대비 계약 검증 (브라우저 불필요) |
 
 ## 사용법
 
@@ -95,6 +96,20 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 | dark | 5.65 / 5.03 / 4.69 / **3.94** | 4.59 / **4.09** / **3.81** / **3.20** | **3.96** / **3.53** / **3.29** / **2.77** | 7.38 / 6.57 / 6.13 / 5.15 |
 
 방향이 테마별로 반대이므로 `--primary-text` 를 따로 둔다. 라이트는 `--primary-strong` 과 같은 `#005eeb`, 다크는 `--primary` 보다 한 단계 밝은 `#7a9dff` 다 — `--primary`(`#5b84ff`)를 그대로 쓰면 `--surface-3` 위에서 3.94:1 로 계약을 못 지킨다.
+
+#### 대비 계약은 테스트가 지킨다
+
+`ds-contrast.test.ts` 가 `ds-tokens.css` 를 파싱해 값을 직접 계산한다. E2E 하네스가 있는 앱은 4개뿐이라 브라우저 기반 검사로는 나머지를 덮을 수 없어, 토큰이 전부 리터럴인 점을 이용해 단위 테스트로 만들었다. 9개 앱의 vitest 에서 모두 돈다.
+
+검사 항목은 다음과 같다.
+
+- `--text` · `--text-neutral` · `--muted` · `--primary-text` 가 네 표면 전부에서 4.5:1
+- `--danger` · `--success` · `--warning` 이 각자의 `-surface` 위에서, `--text-neutral` 이 `--primary-surface` 위에서 4.5:1
+- `--on-primary` 가 `--primary` 위에서 4.5:1
+- `--control-border` 가 네 표면 전부에서 3:1, `--primary` 가 `--surface`/`--bg` 위에서 3:1
+- `--disabled` 은 거꾸로 4.5 **미만**임을 못박는다. 활성 텍스트에 잘못 쓰이는 것을 막는다
+
+렌더된 요소의 합성(부모 틴트 위에 겹치는 알파 표면 등)은 이 테스트가 볼 수 없다. E2E 가 있는 앱에서 따로 본다.
 
 #### 역할 표면 위의 텍스트
 
