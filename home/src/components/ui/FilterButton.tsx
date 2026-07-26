@@ -12,10 +12,10 @@ export default function FilterButton({ label, active, onClick }: FilterButtonPro
   return (
     <button
       onClick={onClick}
-      className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+      className={`text-caption font-semibold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
         active
-          ? 'bg-primary text-white border-primary'
-          : 'text-gray-400 dark:text-white/40 border-black/[0.10] dark:border-white/[0.10] hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
+          ? 'bg-primary text-on-primary border-primary'
+          : 'text-muted border-line hover:border-primary hover:text-primary'
       }`}
     >
       {label}

@@ -35,3 +35,42 @@
 .orb-bg-c {
   background: radial-gradient(circle, #10b981, #6366f1 55%, transparent);
 }
+
+/* ── 랜딩 셸과 브랜드 장식 ──
+   기능 토큰이 아니라 허브 고유 인상을 담당하므로 --brand-gradient 를 쓴다. */
+
+/* 셸 컨테이너. 랜딩·문서형은 --ds-container-page 를 쓴다. */
+.ds-shell {
+  width: 100%;
+  max-width: var(--ds-container-page);
+  margin-inline: auto;
+  padding-inline: var(--ds-page-padding);
+}
+
+@media (max-width: 767px) {
+  .ds-shell {
+    padding-inline: var(--ds-page-padding-mobile);
+  }
+}
+
+/* 랜딩 브랜드 마크. */
+.brandMark {
+  background: var(--brand-gradient);
+  color: var(--on-primary);
+}
+
+/* 허브 타이틀. 헤더 높이에 맞춰 title 대신 subtitle 단계를 쓴다. */
+.app-title {
+  font-size: var(--ds-font-size-subtitle);
+  line-height: var(--ds-line-height-subtitle);
+}
+
+/* 히어로 텍스트. 장식 그라디언트를 텍스트에 클리핑한다.
+   h1 안의 인라인 span 에 붙으므로 크기·행간은 h1 에서 상속받는다.
+   랜딩 히어로는 clamp(40px, 7vw, 64px) 이라 정본 display 단계(28px)와 맞지 않는다. */
+.heroTitle {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
