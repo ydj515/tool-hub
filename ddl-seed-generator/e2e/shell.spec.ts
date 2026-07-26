@@ -73,6 +73,12 @@ test("DDL 편집기의 접근성 이름과 자동완성 보조 문구를 한국�
   await page.keyboard.press("Control+End");
   await page.keyboard.press("Enter");
   await page.keyboard.type("use");
+
+  await expect(
+    page.getByRole("button", { name: /34행, 1열 지원하지 않는 SQL 문입니다/ }),
+  ).toBeVisible();
+  await page.locator(".monaco-editor").click();
+  await page.keyboard.press("Control+End");
   await page.keyboard.press("Control+Space");
 
   const suggestions = page.locator(".suggest-widget");
