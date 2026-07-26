@@ -112,8 +112,10 @@ function validateDocument(document: OpenApiDocument): { version?: SpecVersion; d
     version = 'openapi-3.0';
   } else if (/^3\.1\.\d+(?:[-+].*)?$/.test(openapi)) {
     version = 'openapi-3.1';
+  } else if (/^3\.2\.\d+(?:[-+].*)?$/.test(openapi)) {
+    version = 'openapi-3.2';
   } else {
-    diagnostics.push(createDiagnostic('UNSUPPORTED_SPEC_VERSION', 'OpenAPI 3.0.x와 3.1.x만 지원합니다.', { sourcePointer: '/openapi' }));
+    diagnostics.push(createDiagnostic('UNSUPPORTED_SPEC_VERSION', 'OpenAPI 3.0.x, 3.1.x와 3.2.x만 지원합니다.', { sourcePointer: '/openapi' }));
   }
 
   const info = document.info;

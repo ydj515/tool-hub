@@ -433,7 +433,7 @@ function visitBodySchema(
 
 function removeAuthentication(request: GeneratedRequest, scheme: NormalizedSecurityScheme): GeneratedRequest {
   const next = cloneRequest(request);
-  if (scheme.type === 'http-bearer' || scheme.type === 'http-basic') delete next.headers.Authorization;
+  if (scheme.type === 'http-bearer' || scheme.type === 'http-basic' || scheme.type === 'oauth2') delete next.headers.Authorization;
   if (scheme.type === 'api-key-header' && scheme.parameterName) delete next.headers[scheme.parameterName];
   if (scheme.type === 'api-key-query' && scheme.parameterName) delete next.queryParameters[scheme.parameterName];
   if (scheme.type === 'api-key-cookie' && scheme.parameterName) delete next.cookies[scheme.parameterName];
@@ -442,7 +442,7 @@ function removeAuthentication(request: GeneratedRequest, scheme: NormalizedSecur
 
 function malformedAuthentication(request: GeneratedRequest, scheme: NormalizedSecurityScheme): GeneratedRequest {
   const next = cloneRequest(request);
-  if (scheme.type === 'http-bearer') next.headers.Authorization = 'Bearer';
+  if (scheme.type === 'http-bearer' || scheme.type === 'oauth2') next.headers.Authorization = 'Bearer';
   if (scheme.type === 'http-basic') next.headers.Authorization = 'Basic invalid';
   if (scheme.type === 'api-key-header' && scheme.parameterName) next.headers[scheme.parameterName] = 'invalid-api-key';
   if (scheme.type === 'api-key-query' && scheme.parameterName) next.queryParameters[scheme.parameterName] = 'invalid-api-key';

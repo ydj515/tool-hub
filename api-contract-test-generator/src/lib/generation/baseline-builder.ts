@@ -36,6 +36,7 @@ function stringLength(schema: NormalizedSchema): number {
 
 function matchesFormat(format: string | undefined, value: string): boolean {
   if (!format) return true;
+  if (format === 'byte' || format === 'binary' || format === 'password') return true;
   if (format === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   if (format === 'uuid') return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   if (format === 'date') return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -208,7 +209,10 @@ export function buildValidValue(schema: NormalizedSchema, seed: string, context:
     return { ok: false, value: undefined, diagnostics };
   }
 
-  if (schema.format && !['email', 'uuid', 'date', 'date-time', 'uri', 'hostname', 'ipv4', 'ipv6'].includes(schema.format)) {
+  if (schema.format && ![
+    'email', 'uuid', 'date', 'date-time', 'uri', 'hostname', 'ipv4', 'ipv6',
+    'int32', 'int64', 'float', 'double', 'byte', 'binary', 'password',
+  ].includes(schema.format)) {
     diagnostics.push(createDiagnostic('UNSUPPORTED_FORMAT', `${schema.format} format의 유효한 값을 추측하지 않습니다.`, {
       stage: 'generate', sourcePointer: schema.pointer, severity: 'warning', blocking: false,
     }));
@@ -307,6 +311,7 @@ function applySecurity(request: GeneratedRequest, alternative: SecurityAlternati
   for (const scheme of alternative ?? []) {
     if (scheme.type === 'http-bearer') request.headers.Authorization = 'Bearer {{API_TOKEN}}';
     if (scheme.type === 'http-basic') request.headers.Authorization = 'Basic {{BASIC_AUTH}}';
+    if (scheme.type === 'oauth2') request.headers.Authorization = 'Bearer {{OAUTH2_ACCESS_TOKEN}}';
     if (scheme.type === 'api-key-header' && scheme.parameterName) request.headers[scheme.parameterName] = '{{API_KEY}}';
     if (scheme.type === 'api-key-query' && scheme.parameterName) request.queryParameters[scheme.parameterName] = '{{API_KEY}}';
     if (scheme.type === 'api-key-cookie' && scheme.parameterName) request.cookies[scheme.parameterName] = '{{API_KEY}}';

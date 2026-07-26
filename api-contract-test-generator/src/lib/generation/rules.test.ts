@@ -152,6 +152,22 @@ describe('generateRuleCandidates', () => {
     expect(malformed).toHaveLength(2);
   });
 
+  it('OAuth2 Bearer 토큰의 누락과 형식 오류를 각각 만든다', () => {
+    const endpoint = endpointFixture();
+    endpoint.security = [[{ name: 'oauth', type: 'oauth2', sourcePointer: '/security/oauth' }]];
+    const baseline = buildBaselineRequest(endpoint, 'seed').request;
+    const candidates = generateRuleCandidates(endpoint, baseline, 'seed');
+
+    expect(candidates).toContainEqual(expect.objectContaining({
+      ruleId: 'authentication-omitted',
+      request: expect.objectContaining({ headers: {} }),
+    }));
+    expect(candidates).toContainEqual(expect.objectContaining({
+      ruleId: 'authentication-malformed',
+      request: expect.objectContaining({ headers: { Authorization: 'Bearer' } }),
+    }));
+  });
+
   it('배열 항목 타입 위반을 하나의 변이로 만든다', () => {
     const endpoint = endpointFixture();
     endpoint.requestBody!.properties.tags = schema({

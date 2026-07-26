@@ -16,10 +16,10 @@ describe('parseOpenApi', () => {
     expect(result).toMatchObject({ ok: true, format: 'json', version: 'openapi-3.0' });
   });
 
-  it('OpenAPI 3.2를 차단한다', () => {
+  it('OpenAPI 3.2 JSON을 파싱한다', () => {
     const result = parseOpenApi('{"openapi":"3.2.0","info":{"title":"Pets","version":"1"},"paths":{}}', 'pets.json');
 
-    expect(result.diagnostics).toContainEqual(expect.objectContaining({ code: 'UNSUPPORTED_SPEC_VERSION', blocking: true }));
+    expect(result).toMatchObject({ ok: true, format: 'json', version: 'openapi-3.2' });
   });
 
   it('YAML 문법 오류 위치를 보고한다', () => {

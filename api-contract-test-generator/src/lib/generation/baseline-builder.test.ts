@@ -118,4 +118,27 @@ describe('buildBaselineRequest', () => {
       body: { email: expect.stringMatching(/@example\.com$/) },
     });
   });
+
+  it('OAuth2, 표준 숫자 포맷과 binary 본문에 유효한 기준값을 만든다', () => {
+    const endpoint: NormalizedEndpoint = {
+      id: 'QUERY /assets/{assetId}', method: 'QUERY', path: '/assets/{assetId}', tags: [], responses: ['200'], incomplete: false,
+      requestBodyRequired: true, requestBodyMediaType: 'application/octet-stream', sourcePointer: '/paths/~1assets~1{assetId}/query',
+      parameters: [
+        { name: 'assetId', location: 'path', required: true, style: 'simple', explode: false, schema: schema({ pointer: '/assetId', type: 'integer', format: 'int64' }), sourcePointer: '/assetId' },
+      ],
+      requestBody: schema({ pointer: '/binary', format: 'binary' }),
+      security: [[{ name: 'oauth', type: 'oauth2', sourcePointer: '/oauth' }]],
+    };
+
+    const result = buildBaselineRequest(endpoint, 'seed');
+
+    expect(result).toMatchObject({
+      ok: true,
+      request: {
+        pathParameters: { assetId: expect.any(Number) },
+        headers: { Authorization: 'Bearer {{OAUTH2_ACCESS_TOKEN}}' },
+        body: expect.any(String),
+      },
+    });
+  });
 });

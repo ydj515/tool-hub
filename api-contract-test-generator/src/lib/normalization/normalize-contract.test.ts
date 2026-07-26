@@ -164,4 +164,48 @@ describe('normalizeContract', () => {
     expect(result.contract.endpoints[0]?.parameters.find((parameter) => parameter.name === 'expand')?.schema.example).toBe(true);
     expect(result.contract.endpoints[0]?.requestBody?.example).toEqual({ email: 'media@example.com' });
   });
+
+  it('OpenAPI 3.2 QUERY, OAuth2, 표준 포맷과 binary 본문을 정규화한다', () => {
+    const result = normalizeContract({
+      openapi: '3.2.0',
+      info: { title: 'Search API', version: '1' },
+      components: {
+        securitySchemes: {
+          oauth: { type: 'oauth2', flows: { clientCredentials: { tokenUrl: 'https://example.com/token', scopes: {} } } },
+        },
+      },
+      paths: {
+        '/assets/{assetId}': {
+          query: {
+            parameters: [{ name: 'assetId', in: 'path', required: true, schema: { type: 'integer', format: 'int64' } }],
+            requestBody: { required: true, content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } } },
+            responses: { 200: { description: 'ok' } },
+            security: [{ oauth: [] }],
+          },
+        },
+        '/measurements': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { score: { type: 'number', format: 'float' } } } } } },
+            responses: { 201: { description: 'created' } },
+          },
+        },
+      },
+    }, 'openapi-3.2');
+
+    expect(result.contract.endpoints).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        method: 'QUERY',
+        requestBodyMediaType: 'application/octet-stream',
+        requestBody: expect.objectContaining({ format: 'binary' }),
+        security: [[expect.objectContaining({ type: 'oauth2' })]],
+        incomplete: false,
+      }),
+      expect.objectContaining({
+        method: 'POST',
+        requestBody: expect.objectContaining({ properties: { score: expect.objectContaining({ format: 'float' }) } }),
+        incomplete: false,
+      }),
+    ]));
+    expect(result.diagnostics).not.toContainEqual(expect.objectContaining({ code: 'UNSUPPORTED_FORMAT' }));
+  });
 });

@@ -11,8 +11,11 @@ import type {
 import { createDiagnostic, type Diagnostic } from '../../domain/diagnostic';
 import { resolveLocalReference } from '../references/local-ref-resolver';
 
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const;
-const SUPPORTED_FORMATS = new Set(['email', 'uuid', 'date', 'date-time', 'uri', 'hostname', 'ipv4', 'ipv6']);
+const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'] as const;
+const SUPPORTED_FORMATS = new Set([
+  'email', 'uuid', 'date', 'date-time', 'uri', 'hostname', 'ipv4', 'ipv6',
+  'int32', 'int64', 'float', 'double', 'byte', 'binary', 'password',
+]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -84,7 +87,7 @@ function resolveSchemaRecord(
 
 function schemaType(raw: Record<string, unknown>, version: SpecVersion): NormalizedSchema['type'] {
   if (typeof raw.type === 'string') return raw.type as NormalizedSchema['type'];
-  if (version === 'openapi-3.1' && Array.isArray(raw.type)) {
+  if (version !== 'openapi-3.0' && Array.isArray(raw.type)) {
     return raw.type.find((item): item is NormalizedSchema['type'] => typeof item === 'string' && item !== 'null');
   }
   if (isRecord(raw.properties)) return 'object';
@@ -132,7 +135,7 @@ function normalizeSchema(value: unknown, pointer: string, context: Normalization
     if (raw.exclusiveMaximum === true) exclusiveMaximum = numberValue(raw.maximum);
   }
   const type = schemaType(raw, context.version);
-  const nullable = raw.nullable === true || (context.version === 'openapi-3.1' && Array.isArray(raw.type) && raw.type.includes('null'));
+  const nullable = raw.nullable === true || (context.version !== 'openapi-3.0' && Array.isArray(raw.type) && raw.type.includes('null'));
   const format = typeof raw.format === 'string' ? raw.format : undefined;
   if (format && !SUPPORTED_FORMATS.has(format)) {
     context.diagnostics.push(createDiagnostic('UNSUPPORTED_FORMAT', `${format} format의 유효한 기준값을 자동 생성할 수 없습니다.`, {
@@ -152,7 +155,7 @@ function normalizeSchema(value: unknown, pointer: string, context: Normalization
     anyOf: normalizeVariants('anyOf'),
     additionalProperties,
     enum: Array.isArray(raw.enum) ? raw.enum : undefined,
-    constValue: context.version === 'openapi-3.1' && 'const' in raw ? raw.const : undefined,
+    constValue: context.version !== 'openapi-3.0' && 'const' in raw ? raw.const : undefined,
     examples: Array.isArray(raw.examples) ? raw.examples : undefined,
     example: raw.example,
     defaultValue: raw.default,
@@ -281,6 +284,8 @@ function normalizeSecurity(value: unknown, pointer: string, context: Normalizati
         normalized = { name, type: 'http-bearer', sourcePointer: `/components/securitySchemes/${escapePointer(name)}` };
       } else if (raw?.type === 'http' && String(raw.scheme).toLowerCase() === 'basic') {
         normalized = { name, type: 'http-basic', sourcePointer: `/components/securitySchemes/${escapePointer(name)}` };
+      } else if (raw?.type === 'oauth2' && isRecord(raw.flows) && Object.keys(raw.flows).length > 0) {
+        normalized = { name, type: 'oauth2', sourcePointer: `/components/securitySchemes/${escapePointer(name)}` };
       } else if (raw?.type === 'apiKey' && ['header', 'query', 'cookie'].includes(String(raw.in)) && typeof raw.name === 'string') {
         normalized = {
           name,
@@ -307,9 +312,10 @@ function requestBodySchema(raw: Record<string, unknown>, pointer: string, contex
   const content = body && isRecord(body.content) ? body.content : undefined;
   if (!body || !content) return {};
   const mediaType = Object.keys(content).find((key) => key === 'application/json')
-    ?? Object.keys(content).find((key) => key.endsWith('+json'));
+    ?? Object.keys(content).find((key) => key.endsWith('+json'))
+    ?? Object.keys(content).find((key) => key === 'application/octet-stream' || key.startsWith('text/'));
   if (!mediaType) {
-    context.diagnostics.push(createDiagnostic('UNSUPPORTED_REQUEST_BODY_MEDIA_TYPE', 'JSON 요청 본문만 자동 생성합니다.', {
+    context.diagnostics.push(createDiagnostic('UNSUPPORTED_REQUEST_BODY_MEDIA_TYPE', 'JSON, octet-stream, text 요청 본문만 자동 생성합니다.', {
       stage: 'normalize', sourcePointer: `${pointer}/requestBody/content`, severity: 'warning', blocking: false,
     }));
     return { required: body.required === true };

@@ -1,6 +1,6 @@
 import type { Diagnostic, SourceLocation } from './diagnostic';
 
-export type SpecVersion = 'openapi-3.0' | 'openapi-3.1';
+export type SpecVersion = 'openapi-3.0' | 'openapi-3.1' | 'openapi-3.2';
 export type OpenApiDocument = Record<string, unknown>;
 
 export interface NormalizedSchema {
@@ -45,7 +45,7 @@ export interface NormalizedParameter {
 
 export interface NormalizedSecurityScheme {
   name: string;
-  type: 'http-bearer' | 'http-basic' | 'api-key-header' | 'api-key-query' | 'api-key-cookie';
+  type: 'http-bearer' | 'http-basic' | 'oauth2' | 'api-key-header' | 'api-key-query' | 'api-key-cookie';
   parameterName?: string;
   sourcePointer: string;
 }
