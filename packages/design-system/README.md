@@ -9,6 +9,7 @@ Tool Hub 웹 도구들이 공유하는 디자인 토큰·전역 규칙·프리�
 | `tokens.css` | `ds-tokens.css` | 색·타이포·radius·shadow·motion·z-index·레이아웃 토큰 |
 | `base.css` | `ds-base.css` | 전역 포커스링, `prefers-reduced-motion` |
 | `primitives.css` | `ds-primitives.css` | `.ds-card`, `.ds-icon-btn` |
+| `ds-sync.test.ts` | `ds-sync.test.ts` | drift 감지 + 금지 Tailwind 단계 스캔 |
 
 ## 사용법
 
@@ -23,6 +24,10 @@ npm run tokens:sync
 ```bash
 npm run tokens:check
 ```
+
+`ds-sync.test.ts` 는 자기 위치(`dirname(__filename)`)를 검사 경로로 쓴다. 스타일 디렉터리가 앱마다 `src/styles` · `app/styles` · `apps/electron/renderer/styles` 로 달라 경로를 추론하지 않는다. 새 앱을 추가할 때 `scripts/sync-design-tokens.mjs` 의 `TARGETS` 에 경로만 적으면 된다.
+
+금지 Tailwind 단계 스캔은 `src` 또는 `app` 이 있을 때만 돈다. Tailwind 를 쓰지 않는 앱(`webpage-capture-tool`)은 스캔 대상이 0건이고 그게 정상이다.
 
 앱의 진입 CSS 는 다음 순서로 import 한다. import 순서가 캐스케이드 순서다.
 
