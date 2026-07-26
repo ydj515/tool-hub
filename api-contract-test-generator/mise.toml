@@ -34,3 +34,8 @@ run = "npm run build"
 
 [tasks.e2e]
 run = "npm run test:e2e"
+
+[tasks.check]
+alias = "c"
+description = "Run the full local verification suite"
+depends = ["test", "lint", "typecheck", "build", "e2e"]
