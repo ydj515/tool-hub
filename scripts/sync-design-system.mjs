@@ -54,6 +54,12 @@ export const COMPONENT_FILES = Object.freeze([
   'components.test.tsx',
 ]);
 
+/** 브라우저 셸 계약 정본 파일명 → 각 웹 도구 E2E 디렉터리의 생성 파일명. */
+export const E2E_FILES = Object.freeze({
+  'shell-contract-e2e.ts': 'ds-shell-contract-e2e.ts',
+  'shell-contract.spec.ts': 'shell-contract.spec.ts',
+});
+
 export const FAVICON_FILES = Object.freeze([
   'favicon.svg',
   'favicon.ico',
@@ -109,6 +115,22 @@ function renderProduct(product) {
   );
 }
 
+function renderE2E(sourceName, root) {
+  const sourcePath = `${CANONICAL_DIR}/${sourceName}`;
+  return generatedBanner(sourcePath) + readFileSync(resolve(root, sourcePath), 'utf8');
+}
+
+function renderTestProduct(product) {
+  return (
+    generatedBanner(`${CANONICAL_DIR}/products.mjs`) +
+    `export const TEST_PRODUCT = ${JSON.stringify(
+      { id: product.id, name: product.name },
+      null,
+      2,
+    )} as const;\n`
+  );
+}
+
 /**
  * 쓰기 전에 전체 생성 계획과 내용을 메모리에 만든다.
  * @returns {{ sourcePath: string, targetPath: string, content: Buffer | string }[]}
@@ -143,6 +165,18 @@ export function buildOperations({ root = DEFAULT_ROOT } = {}) {
       sourcePath: `${CANONICAL_DIR}/products.mjs`,
       targetPath: `${product.id}/${componentDir}/product.generated.ts`,
       content: renderProduct(product),
+    });
+    for (const [sourceName, targetName] of Object.entries(E2E_FILES)) {
+      operations.push({
+        sourcePath: `${CANONICAL_DIR}/${sourceName}`,
+        targetPath: `${product.id}/e2e/${targetName}`,
+        content: renderE2E(sourceName, root),
+      });
+    }
+    operations.push({
+      sourcePath: `${CANONICAL_DIR}/products.mjs`,
+      targetPath: `${product.id}/e2e/product.generated.ts`,
+      content: renderTestProduct(product),
     });
   }
 

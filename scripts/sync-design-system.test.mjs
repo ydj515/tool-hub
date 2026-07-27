@@ -15,6 +15,7 @@ import { describe, test } from 'node:test';
 
 import {
   COMPONENT_FILES,
+  E2E_FILES,
   FILES,
   TARGETS,
   buildOperations,
@@ -76,6 +77,12 @@ const COMPONENT_TARGETS_EXPECTED = [
   ['dummy-file-generator', 'app/_components/design-system'],
 ];
 
+const E2E_FILES_EXPECTED = [
+  'ds-shell-contract-e2e.ts',
+  'shell-contract.spec.ts',
+  'product.generated.ts',
+];
+
 const FAVICON_FILES_EXPECTED = [
   'favicon.svg',
   'favicon.ico',
@@ -119,6 +126,9 @@ function makeRepo() {
   for (const name of COMPONENT_FILES) {
     writeFileSync(join(canonical, 'components', name), `// ${name} 본문\n`);
   }
+  for (const name of Object.keys(E2E_FILES)) {
+    writeFileSync(join(canonical, name), `// ${name} 본문\n`);
+  }
   for (const product of FAVICON_TARGETS_EXPECTED) {
     const dir = join(canonical, 'favicons', product);
     mkdirSync(dir, { recursive: true });
@@ -133,7 +143,7 @@ function makeRepo() {
 }
 
 describe('buildOperations', () => {
-  test('9개 토큰, 7개 React, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
+  test('9개 토큰, 7개 React·E2E, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
     const root = makeRepo();
     const operations = buildOperations({ root });
     const expectedTargets = [
@@ -142,6 +152,9 @@ describe('buildOperations', () => {
       ),
       ...COMPONENT_TARGETS_EXPECTED.flatMap(([app, componentDir]) =>
         COMPONENT_FILES_EXPECTED.map((name) => `${app}/${componentDir}/${name}`),
+      ),
+      ...COMPONENT_TARGETS_EXPECTED.flatMap(([app]) =>
+        E2E_FILES_EXPECTED.map((name) => `${app}/e2e/${name}`),
       ),
       ...FAVICON_TARGETS_EXPECTED.flatMap((app) =>
         FAVICON_FILES_EXPECTED.map((name) => `${app}/public/${name}`),
@@ -161,6 +174,14 @@ describe('buildOperations', () => {
     assert.match(String(product.content), /import \{ PenLine \} from 'lucide-react';/);
     assert.match(String(product.content), /"name": "Sign Maker"/);
     assert.match(String(product.content), /export const ProductIcon = PenLine;/);
+
+    const testProduct = operations.find(
+      ({ targetPath }) => targetPath === 'sign-maker/e2e/product.generated.ts',
+    );
+    assert.ok(testProduct);
+    assert.match(String(testProduct.content), /"id": "sign-maker"/);
+    assert.match(String(testProduct.content), /"name": "Sign Maker"/);
+    assert.doesNotMatch(String(testProduct.content), /description|ProductIcon|lucide-react/);
   });
 });
 
@@ -169,7 +190,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root });
 
-    assert.equal(drifted.length, 165);
+    assert.equal(drifted.length, 186);
     assert.equal(
       readFileSync(join(root, 'sign-maker/src/styles/ds-tokens.css'), 'utf8'),
       render('tokens.css', root),
@@ -183,6 +204,12 @@ describe('sync', () => {
     assert.ok(
       existsSync(join(root, 'sign-maker/src/components/design-system/product.generated.ts')),
     );
+    assert.ok(
+      readFileSync(join(root, 'sign-maker/e2e/ds-shell-contract-e2e.ts'), 'utf8')
+        .endsWith('// shell-contract-e2e.ts 본문\n'),
+    );
+    assert.ok(existsSync(join(root, 'sign-maker/e2e/shell-contract.spec.ts')));
+    assert.ok(existsSync(join(root, 'sign-maker/e2e/product.generated.ts')));
     assert.ok(
       readFileSync(join(root, 'sign-maker/public/favicon.ico')).equals(
         readFileSync(
@@ -203,12 +230,13 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root, check: true });
 
-    assert.equal(drifted.length, 165);
+    assert.equal(drifted.length, 186);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
     assert.equal(
       existsSync(join(root, 'sign-maker/src/components/design-system/Button.tsx')),
       false,
     );
+    assert.equal(existsSync(join(root, 'sign-maker/e2e/shell-contract.spec.ts')), false);
   });
 
   test('복사본이 수정되면 해당 파일만 불일치로 감지한다', () => {
@@ -219,6 +247,17 @@ describe('sync', () => {
 
     assert.deepEqual(sync({ root, check: true }), [
       'sign-maker/src/styles/ds-tokens.css',
+    ]);
+  });
+
+  test('E2E 생성물이 수정되면 check가 해당 파일만 불일치로 감지한다', () => {
+    const root = makeRepo();
+    sync({ root });
+    const path = join(root, 'sign-maker/e2e/shell-contract.spec.ts');
+    writeFileSync(path, readFileSync(path, 'utf8') + '// 손으로 고친 흔적\n');
+
+    assert.deepEqual(sync({ root, check: true }), [
+      'sign-maker/e2e/shell-contract.spec.ts',
     ]);
   });
 
