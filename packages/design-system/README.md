@@ -4,7 +4,7 @@ Tool Hub 웹 도구들이 공유하는 디자인 토큰·전역 규칙·프리�
 
 ## 파일
 
-| 정본 | 앱에 복사되는 이름 | 내용 |
+| 정본 | 앱 내부 생성물 | 내용 |
 |---|---|---|
 | `tokens.css` | `ds-tokens.css` | 색·타이포·radius·shadow·motion·z-index·레이아웃 토큰 |
 | `base.css` | `ds-base.css` | 전역 포커스링, `prefers-reduced-motion` |
@@ -12,24 +12,49 @@ Tool Hub 웹 도구들이 공유하는 디자인 토큰·전역 규칙·프리�
 | `ds-sync.test.ts` | `ds-sync.test.ts` | drift 감지 + 금지 Tailwind 단계 스캔 |
 | `ds-contrast.test.ts` | `ds-contrast.test.ts` | 팔레트 대비 계약 검증 (브라우저 불필요) |
 | `ds-contrast-e2e.ts` | `ds-contrast-e2e.ts` | 렌더된 요소의 대비를 재는 Playwright 헬퍼 |
+| `components/*.tsx` | 7개 도구의 generated component directory | `BrandMark.tsx`, `ThemeToggle.tsx`, `Button.tsx`, `SegmentedControl.tsx`, `EmptyState.tsx`, `Badge.tsx`, `ToolHeader.tsx`와 컴포넌트 테스트 |
+| `products.mjs` | `product.generated.ts`, `e2e/product.generated.ts` | 8개 웹 앱 metadata와 7개 카드형 도구의 이름·아이콘·생성 경로·E2E 포트 |
+| `favicons/<product>/*` | 각 웹 앱의 `public/` | SVG·ICO·16/32 PNG·Apple touch icon·manifest 정본 |
+| `shell-contract-e2e.ts` | `e2e/ds-shell-contract-e2e.ts` | 7개 도구의 viewport·계산값 Playwright helper |
+| `shell-contract.spec.ts` | `e2e/shell-contract.spec.ts` | 3개 viewport × 2개 theme의 공통 셸·스크린샷 spec |
+| `fixtures/primitives.html` | 생성하지 않음 | 정본 프리미티브의 라이트·다크 시각 회귀 fixture |
 
 ## 사용법
 
-앱의 `styles/ds-*.css` 는 **생성물이다. 직접 편집하지 않는다.** 정본을 고친 뒤 저장소 루트에서 동기화한다.
+앱의 `ds-*` CSS·테스트, design-system 컴포넌트, 제품 metadata, favicon, 셸 E2E helper/spec은 **생성물이다. 직접 편집하지 않는다.** 정본을 고친 뒤 저장소 루트에서 동기화한다.
 
 ```bash
-npm run tokens:sync
+npm run design-system:sync
 ```
 
-동기화를 잊으면 각 앱의 `ds-sync.test.ts` 가 실패한다. 차이만 확인하려면 다음을 쓴다.
+동기화를 잊으면 각 앱의 `ds-sync.test.ts`와 루트 check가 실패한다. 차이만 확인하려면 다음을 쓴다.
 
 ```bash
-npm run tokens:check
+npm run design-system:check
 ```
 
-`ds-sync.test.ts` 는 자기 위치(`dirname(__filename)`)를 검사 경로로 쓴다. 스타일 디렉터리가 앱마다 `src/styles` · `app/styles` · `apps/electron/renderer/styles` 로 달라 경로를 추론하지 않는다. 새 앱을 추가할 때 `scripts/sync-design-tokens.mjs` 의 `TARGETS` 에 경로만 적으면 된다.
+`ds-sync.test.ts`는 자기 위치(`dirname(__filename)`)를 검사 경로로 쓴다. 스타일 디렉터리가 앱마다 `src/styles` · `app/styles` · `apps/electron/renderer/styles`로 달라 경로를 추론하지 않는다. 새 앱을 추가할 때 `packages/design-system/products.mjs`와 `scripts/sync-design-system.mjs`의 target을 함께 갱신한다.
 
 금지 Tailwind 단계 스캔은 `src` 또는 `app` 이 있을 때만 돈다. Tailwind 를 쓰지 않는 앱(`webpage-capture-tool`)은 스캔 대상이 0건이고 그게 정상이다.
+
+## 독립 배포
+
+- Runtime: 각 앱은 런타임 패키지를 공유하지 않는다.
+- Generated sync: React 컴포넌트·제품 metadata·favicon·E2E helper는 앱 내부 생성물로 커밋하며, 앱 코드는 저장소 루트나 `packages/design-system/`을 import하지 않는다.
+- Vercel: 각 Vercel 프로젝트는 자신의 Root Directory를 독립 배포 단위로 사용하고 그 디렉터리 안에서 install과 build를 완료한다.
+- Vercel Root Directories: `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator`
+
+정본 변경은 배포 전에 저장소 루트에서 `npm run design-system:sync`로 생성물을 갱신하고 `npm run design-system:check`로 drift가 없는지 확인한다. 앱별 install·build·dev 명령은 저장소 루트 workspace나 정본 소스의 런타임 존재에 의존하지 않는다.
+
+## 생성 매핑 계약
+
+아래 목록은 `scripts/sync-design-system.mjs`가 내보내는 현재 source-to-target 계약이다. `<tool>`과 `<product>`의 실제 ID, `<componentDir>`과 `<publicDir>`은 `products.mjs`가 소유한다.
+
+- Token files: `tokens.css → ds-tokens.css`, `base.css → ds-base.css`, `primitives.css → ds-primitives.css`, `ds-sync.test.ts → ds-sync.test.ts`, `ds-contrast.test.ts → ds-contrast.test.ts`, `ds-contrast-e2e.ts → ds-contrast-e2e.ts`
+- React components: `BrandMark.tsx`, `ThemeToggle.tsx`, `Button.tsx`, `SegmentedControl.tsx`, `EmptyState.tsx`, `Badge.tsx`, `ToolHeader.tsx`, `components.test.tsx`를 `<tool>/<componentDir>/<source-name>`에 생성한다.
+- Product metadata: `<tool>/<componentDir>/product.generated.ts`, `<tool>/e2e/product.generated.ts`
+- Shell E2E: `shell-contract-e2e.ts → ds-shell-contract-e2e.ts`, `shell-contract.spec.ts → shell-contract.spec.ts`를 `<tool>/e2e/<target-name>`에 생성한다.
+- Favicons: `favicon.svg`, `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `site.webmanifest`를 `<product>/<publicDir>/<source-name>`에 생성한다.
 
 앱의 진입 CSS 는 다음 순서로 import 한다. import 순서가 캐스케이드 순서다.
 
@@ -70,9 +95,9 @@ npm run tokens:check
 CSS 커스텀 프로퍼티는 미디어 쿼리 조건에서 동작하지 않는다(`@media (max-width: var(--bp-md))` 는 조용히 무시된다). 따라서 토큰이 아니라 규칙으로 관리한다.
 
 ```
-768 / 1024 / 1280 만 사용 (= Tailwind md / lg / xl)
-Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금지
-바닐라 CSS 앱: 같은 세 값을 직접 사용
+767 / 768 / 1023 / 1024 / 1279 / 1280px 경계만 사용
+Tailwind 앱: 표준 md / lg / xl 변형 사용. 임의 값과 비-px·함수형 미디어 쿼리 금지
+바닐라 CSS 앱: 같은 min/max 경계를 직접 사용
 ```
 
 ### 대비
@@ -100,7 +125,7 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 
 #### 대비 계약은 테스트가 지킨다
 
-`ds-contrast.test.ts` 가 `ds-tokens.css` 를 파싱해 값을 직접 계산한다. E2E 하네스가 있는 앱은 4개뿐이라 브라우저 기반 검사로는 나머지를 덮을 수 없어, 토큰이 전부 리터럴인 점을 이용해 단위 테스트로 만들었다. 9개 앱의 vitest 에서 모두 돈다.
+`ds-contrast.test.ts`가 `ds-tokens.css`를 파싱해 값을 직접 계산한다. 토큰이 전부 리터럴인 점을 이용해 브라우저가 필요 없는 단위 테스트로 만들었고, 8개 웹 앱과 Electron을 합친 9개 대상의 테스트에서 실행한다.
 
 검사 항목은 다음과 같다.
 
@@ -164,7 +189,7 @@ Tailwind 앱: max-md: · lg: 변형 사용. 임의 픽셀 미디어 쿼리 금�
 `theme.local.css` 에 같은 토큰이 **3개 이상 앱에서 반복되면 정본으로 승격**한다. 승격 절차는 다음과 같다.
 
 1. `tokens.css` 에 토큰을 추가하고 대비를 측정해 주석에 기록한다.
-2. `npm run tokens:sync` 를 실행한다.
+2. `npm run design-system:sync` 를 실행한다.
 3. 각 앱의 `theme.local.css` 에서 중복 정의를 제거한다.
 4. 각 앱에서 `mise run check` 를 실행한다.
 

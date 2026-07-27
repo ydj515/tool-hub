@@ -1,16 +1,17 @@
 # 프론트엔드 컨벤션 (웹 앱)
 
-웹 도구들이 공통으로 따르는 코드 구조 규칙이다. **코드를 공유하지는 않지만**(각 앱은 독립 패키지), 모든 앱이 같은 규칙으로 작성된다.
+웹 도구들이 공통으로 따르는 코드 구조 규칙이다. 각 앱은 **런타임 패키지를 공유하지 않는 독립 패키지**이며, `packages/design-system/`의 정본 구현을 앱 내부 generated 파일로 동기화한다.
 
 ## 적용 대상
 
-| 스택 | 앱 | 정본 토큰 | 셸 계약 |
-|---|---|---|---|
-| Vite + React SPA | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator` | 적용 | 적용 |
-| Next.js App Router | `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` | 적용 | 적용 |
-| Electron + 바닐라 CSS | `webpage-capture-tool` | 적용 | 미적용 |
+| 계약 | 프로젝트 |
+|---|---|
+| 테마 (8개 웹 앱) | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |
+| 카드형 셸 (7개 웹 도구) | `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |
+| 토큰 (9개 대상) | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator`, `webpage-capture-tool` |
+| 대상 외 | `class-diagram-generator` |
 
-> `webpage-capture-tool` 은 데스크톱 워크벤치라 헤더 3슬롯·브랜드 허브 링크·컨테이너 폭 규칙이 맞지 않는다. 토큰과 `<dialog>` 규칙만 따른다. `class-diagram-generator`(Kotlin)는 대상 외.
+`webpage-capture-tool`은 Electron 데스크톱 워크벤치이므로 토큰과 `<dialog>` 규칙만 따른다. `class-diagram-generator`는 server-rendered Kotlin 프로젝트라 프론트엔드 디자인 시스템 대상이 아니다.
 
 ## 5대 규칙
 
@@ -21,7 +22,7 @@
    - 진입 파일은 `@import "tailwindcss";` + 하위 파일 import만. CSS 스펙상 `@import`는 최상단에만 올 수 있다.
    - import 순서 = 캐스케이드 순서이므로 `ds-tokens → ds-base → ds-primitives → theme.local → base → components` 순.
    - 콤마 그룹(`.a, .b { ... }`)이 컴포넌트 경계를 넘나들면 무리하게 쪼개지 말고 `theme / base / components` 3토픽으로 둔다.
-3. **토큰 체계** — 공통 토큰은 `packages/design-system/`의 정본이 단일 출처다. 각 앱의 `styles/ds-tokens.css`·`ds-base.css`·`ds-primitives.css`·`ds-sync.test.ts`는 **생성물이며 직접 편집하지 않는다.** 앱 고유 토큰만 `styles/theme.local.css`에 둔다. 정본을 고친 뒤 저장소 루트에서 `npm run tokens:sync`를 실행한다.
+3. **토큰 체계** — 공통 토큰은 `packages/design-system/`의 정본이 단일 출처다. 각 앱의 `styles/ds-tokens.css`·`ds-base.css`·`ds-primitives.css`·`ds-sync.test.ts`는 **생성물이며 직접 편집하지 않는다.** 앱 고유 토큰만 `styles/theme.local.css`에 둔다. 정본을 고친 뒤 저장소 루트에서 `npm run design-system:sync`를 실행한다.
    - 동기화를 잊으면 각 앱의 `ds-sync.test.ts`가 실패한다. CI가 없으므로 검증이 이미 일어나는 곳에 drift 감지를 둔다.
    - Tailwind 테마 네임스페이스와 겹치는 토큰은 `--ds-` 접두사를 쓴다. 접두사가 없으면 유틸리티(`rounded-md`, `shadow-sm`)와 `var()`가 서로 다른 값을 참조한다.
    - `theme.local.css`에 같은 토큰이 3개 이상 앱에서 반복되면 정본으로 승격한다.
@@ -29,12 +30,12 @@
 4. **반복 UI는 React 컴포넌트** — 재사용 단위는 외워야 하는 전역 CSS 클래스가 아니라 타입이 있는 컴포넌트다. 단, **1회용은 컴포넌트로 빼지 않는다**(죽은 추상화 금지).
 5. **유틸리티 우선** — 레이아웃은 Tailwind 유틸리티로. 토큰·데이터 구동 복잡 상태(hover/active, `data-*` 셀렉터)만 의미 클래스로 둔다. 의미 클래스를 쓸 땐 React 컴포넌트로 감싸 재사용 단위를 컴포넌트로 만든다.
 
-## 테마 컨벤션 (7개 앱 공통)
+## 테마 컨벤션 (8개 웹 앱)
 
 - **메커니즘: `[data-theme]` 속성** (`.dark` 클래스 아님). `@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *))`.
 - **`theme.ts`**: `resolveInitialTheme()` — `matchMedia` + `localStorage`로 초기 테마 결정(순수 함수, 테스트 가능).
 - **`useTheme` 훅**: 테마 상태 + `data-theme` 동기화 effect + `toggle`. Next.js는 SSR 하이드레이션 불일치를 피하려 `mounted`(rAF 한 프레임)를 추가로 반환한다.
-- **FOUC 인라인 스크립트**: `index.html`(Vite) 또는 `app/layout.tsx`(Next.js)에서 페인트 전에 실행. 7개 앱 모두 동일:
+- **FOUC 인라인 스크립트**: `index.html`(Vite) 또는 `app/layout.tsx`(Next.js)에서 페인트 전에 실행한다. 8개 웹 앱은 저장된 테마를 우선하고 없으면 시스템 설정을 해석해 `data-theme`을 정하는 같은 계약을 따른다. 스택과 오류 시 fallback에 따라 구현 문법은 다를 수 있다. 대표 흐름:
   ```js
   (function () {
     try {
@@ -47,9 +48,11 @@
   })();
   ```
 
-## 셸 계약 (7개 앱 공통)
+## 카드형 도구 셸 (7개 웹 도구)
 
-헤더는 세 슬롯으로 구성한다. 컴포넌트를 공유하지 않고 계약만 공유한다.
+7개 도구는 앱 내부에 동기화된 `ToolHeader`를 사용하고 헤더를 브랜드·페이지 액션·유틸리티의 세 슬롯으로 구성한다. 런타임에는 저장소 루트 정본을 import하지 않는다.
+
+`home`은 테마와 토큰 대상이지만 카드형 도구 셸 대상이 아니다. 평면형 sticky header와 Tool Hub master mark를 유지하며, 도구용 `ToolHeader` 생성물을 렌더하지 않는다.
 
 | 슬롯 | 규칙 |
 |---|---|
@@ -57,7 +60,6 @@
 | 페이지 액션 | 앱 고유. 비어 있어도 된다 |
 | 유틸리티 | 항상 최우측. **테마 토글이 마지막 요소**. 그 앞에만 앱별 유틸을 둔다 |
 
-- 페이지 액션이 많은 앱은 2행 구조를 쓴다(`openapi-editor`). 유틸리티 슬롯은 그때도 1행의 끝이다.
 - 푸터는 `home` 전용이다. 도구 앱은 full-height 워크스페이스라 세로 공간을 먹는다. 허브 복귀는 헤더 브랜드 링크가 담당한다.
 - 컨테이너는 `--ds-container-narrow`(560px, 단일 폼) / `--ds-container-page`(1120px, 랜딩) / `--ds-container-wide`(1600px, 에디터) 중 하나를 쓴다.
 - 아이콘 버튼은 정본 `.ds-icon-btn`(36px)을 쓰고 앱에서 얇은 컴포넌트로 감싼다. 모든 직접 조작 요소는 36px 높이를 유지한다.
@@ -85,6 +87,32 @@
 - **팔레트 대비는 정본 `ds-contrast.test.ts` 가 9개 앱 전부에서 지킨다.** 브라우저가 필요 없으므로 E2E 가 없는 앱도 덮인다. 정본 색을 바꾸면 이 테스트가 먼저 깨진다.
 - **`--on-primary` 는 테마마다 방향이 다르다.** 다크의 `--primary` 는 밝은 파랑이라 흰 글자가 3.39:1 로 미달한다. primary 배경 위 글자는 반드시 토큰을 쓰고 `#fff` 를 직접 적지 않는다.
 
+## 생성 컴포넌트 경로 (7개 웹 도구)
+
+| 도구 | generated component directory |
+|---|---|
+| `sign-maker` | `src/components/design-system` |
+| `json-yaml-converter` | `src/components/design-system` |
+| `openapi-editor` | `src/components/design-system` |
+| `api-contract-test-generator` | `src/components/design-system` |
+| `ddl-seed-generator` | `app/_components/design-system` |
+| `config-diff-viewer` | `app/_components/design-system` |
+| `dummy-file-generator` | `app/_components/design-system` |
+
+이 디렉터리의 컴포넌트와 `product.generated.ts`는 직접 편집하지 않는다. 정본을 수정한 뒤 저장소 루트에서 `npm run design-system:sync`를 실행하고 `npm run design-system:check`로 drift가 없는지 확인한다.
+
+## 제품명과 UI 언어
+
+- 제품명: `products.mjs`의 승인 이름과 같은 English Title Case를 사용한다.
+- 기본 UI: 사용자에게 보이는 버튼·레이블·상태·설명은 한국어로 작성한다.
+- 예외: OpenAPI·JSON·YAML 같은 기술 식별자, 파일 포맷, HTTP method, CSS 값과 표준 단위는 원래 표기를 유지한다.
+
+## 반응형 계약
+
+- CSS breakpoint: `767px`, `768px`, `1023px`, `1024px`, `1279px`, `1280px`만 사용한다. max/min 경계를 분리해 같은 전환점을 표현하며 비-px·함수형 조건은 허용하지 않는다.
+- 검증 viewport: `375×812`, `768×900`, `1440×900`에서 라이트·다크 셸 계약을 실행한다. 이 값은 테스트 화면 크기이며 CSS breakpoint 목록과 별개다.
+- 모바일 375px에서는 actions가 둘째 줄에 놓이고, 768px과 1440px에서는 브랜드·actions·utilities가 한 행에 놓인다.
+
 ## 디렉터리 구조
 
 **Vite (`src/`)**
@@ -93,6 +121,7 @@ theme.ts                  resolveInitialTheme
 hooks/useTheme.ts
 pages/*.tsx               페이지 콘텐츠
 components/layout/*       Layout, Header, Footer, Background
+components/design-system/*  정본 React 컴포넌트 생성물 (편집 금지)
 components/ui/*           재사용 프리미티브 (Button 등)
 components/icons/         인라인 SVG 모음 (있을 경우)
 styles/ds-tokens.css      정본 복사본 (생성물, 편집 금지)
@@ -111,6 +140,7 @@ _hooks/use-theme.ts
 _lib/*                    상수·도메인 헬퍼 (samples, report 등)
 _components/*-client.tsx  클라이언트 오케스트레이터 (상태·핸들러 소유)
 _components/*             Topbar, 패널 등 구조 컴포넌트
+_components/design-system/*  정본 React 컴포넌트 생성물 (편집 금지)
 _components/ui/*          재사용 프리미티브
 styles/ds-tokens.css      정본 복사본 (생성물, 편집 금지)
 styles/ds-base.css        정본 복사본
@@ -149,7 +179,7 @@ styles/theme.local.css    앱 고유 토큰 + 로컬 @font-face
 ## 새 도구에 적용하는 체크리스트
 
 1. green baseline 확인 (`mise run check`).
-2. `scripts/sync-design-tokens.mjs` 의 `TARGETS` 에 앱을 추가하고 `npm run tokens:sync`.
+2. `packages/design-system/products.mjs`와 `scripts/sync-design-system.mjs`의 대상에 앱을 추가하고 `npm run design-system:sync`.
 3. 진입 CSS 를 정본 import 순서로 교체하고 앱 고유 토큰만 `theme.local.css` 로.
 4. `theme.ts` + `useTheme` 추출, 다크모드 `data-theme`로 통일.
 5. 셸(Layout/Topbar)을 헤더 슬롯 계약에 맞추고 페이지 콘텐츠 분리.

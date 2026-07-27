@@ -33,11 +33,16 @@ Web apps (Vite + Next.js) share a structure playbook — shell/content split, CS
 - [frontend-conventions.md](frontend-conventions.md)
 
 ## Project-Specific References
-- `home/`: [home/docs/contributor-guide.md](../home/docs/contributor-guide.md)
-- `sign-maker/`: [sign-maker/docs/contributor-guide.md](../sign-maker/docs/contributor-guide.md)
-- `dummy-file-generator/`: [dummy-file-generator/docs/contributor-guide.md](../dummy-file-generator/docs/contributor-guide.md)
-- `ddl-seed-generator/`: [ddl-seed-generator/docs/contributor-guide.md](../ddl-seed-generator/docs/contributor-guide.md)
-- `config-diff-viewer/`: [config-diff-viewer/docs/contributor-guide.md](../config-diff-viewer/docs/contributor-guide.md)
-- `webpage-capture-tool/`: [webpage-capture-tool/docs/contributor-guide.md](../webpage-capture-tool/docs/contributor-guide.md)
-- `openapi-editor/`: [openapi-editor/docs/contributor-guide.md](../openapi-editor/docs/contributor-guide.md)
-- `api-contract-test-generator/`: [api-contract-test-generator/docs/contributor-guide.md](../api-contract-test-generator/docs/contributor-guide.md)
+
+| Project | Local index | Detailed guide |
+|---|---|---|
+| `home/` | [AGENTS.md](../home/AGENTS.md) | [Contributor guide](../home/docs/contributor-guide.md) |
+| `sign-maker/` | [AGENTS.md](../sign-maker/AGENTS.md) | [Contributor guide](../sign-maker/docs/contributor-guide.md) |
+| `json-yaml-converter/` | [AGENTS.md](../json-yaml-converter/AGENTS.md) | [Contributor guide](../json-yaml-converter/docs/contributor-guide.md) |
+| `openapi-editor/` | [AGENTS.md](../openapi-editor/AGENTS.md) | [Contributor guide](../openapi-editor/docs/contributor-guide.md) |
+| `api-contract-test-generator/` | [AGENTS.md](../api-contract-test-generator/AGENTS.md) | [Contributor guide](../api-contract-test-generator/docs/contributor-guide.md) |
+| `ddl-seed-generator/` | [AGENTS.md](../ddl-seed-generator/AGENTS.md) | [Contributor guide](../ddl-seed-generator/docs/contributor-guide.md) |
+| `config-diff-viewer/` | [AGENTS.md](../config-diff-viewer/AGENTS.md) | [Contributor guide](../config-diff-viewer/docs/contributor-guide.md) |
+| `dummy-file-generator/` | [AGENTS.md](../dummy-file-generator/AGENTS.md) | [Contributor guide](../dummy-file-generator/docs/contributor-guide.md) |
+| `webpage-capture-tool/` | [AGENTS.md](../webpage-capture-tool/AGENTS.md) | [Contributor guide](../webpage-capture-tool/docs/contributor-guide.md) |
+| `class-diagram-generator/` | 없음 | [README](../class-diagram-generator/README.md) |

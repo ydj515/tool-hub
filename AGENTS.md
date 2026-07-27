@@ -4,10 +4,15 @@
 Use this file as the top-level index for contributor and agent guidance. Keep it short, scannable, and stable.
 
 ## How To Use This Repository
-- Each tool lives in its own project directory: `home/`, `sign-maker/`, `dummy-file-generator/`, `ddl-seed-generator/`, `config-diff-viewer/`, and `webpage-capture-tool/`.
 - Run commands from the target project directory unless a root-level command is explicitly documented.
-- When working on a specific project from the repository root, read that project's local `AGENTS.md` before making changes.
+- When working on a specific project from the repository root, read its local `AGENTS.md` when present and follow the project reference below.
 - Follow the existing style and structure of the project you are editing instead of forcing one convention across the whole repository.
+
+## Projects
+
+- Web apps (8): `home/`, `sign-maker/`, `json-yaml-converter/`, `openapi-editor/`, `api-contract-test-generator/`, `ddl-seed-generator/`, `config-diff-viewer/`, `dummy-file-generator/`
+- Desktop app (1): `webpage-capture-tool/`
+- Server-rendered Kotlin app (1): `class-diagram-generator/`
 
 ## Required Verification
 Finishing code changes without verification is not allowed.
