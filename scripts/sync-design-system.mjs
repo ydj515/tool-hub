@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   realpathSync,
@@ -11,12 +12,18 @@ import {
 } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as lucideReact from 'lucide-react';
 
-import { PRODUCTS, WEB_TOOLS } from '../packages/design-system/products.mjs';
+import {
+  PRODUCTS,
+  WEB_TOOLS,
+  validateProducts,
+} from '../packages/design-system/products.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = join(SCRIPT_DIR, '..');
 const CANONICAL_DIR = 'packages/design-system';
+const REQUIRED_LUCIDE_VERSION = '1.14.0';
 
 /** 정본 파일명 → 앱에 복사될 파일명. */
 export const FILES = Object.freeze({
@@ -72,6 +79,195 @@ export const FAVICON_FILES = Object.freeze([
 export const WEB_TOOL_TARGETS = Object.freeze(
   Object.fromEntries(WEB_TOOLS.map(({ id, componentDir }) => [id, componentDir])),
 );
+
+function printable(value) {
+  return value === undefined ? 'undefined' : JSON.stringify(value);
+}
+
+function readJsonFile(path, { owner, field, relativePath }) {
+  if (!existsSync(path)) {
+    throw new Error(
+      `${owner} field "${field}" 파일이 없다: path="${relativePath}", value="missing"`,
+    );
+  }
+  if (!lstatSync(path).isFile()) {
+    throw new Error(
+      `${owner} field "${field}"가 일반 파일이 아니다: path="${relativePath}", value="not a regular file"`,
+    );
+  }
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    const cause = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `${owner} field "${field}" JSON이 올바르지 않다: path="${relativePath}", value=${printable(cause)}`,
+      { cause: error },
+    );
+  }
+}
+
+function validateDirectory(root, app, relativePath, field) {
+  const appPath = resolve(root, app);
+  const owner = `대상 "${app}"`;
+  if (!existsSync(appPath)) throw new Error(`대상 앱이 없다: ${app} (field "appDir", path="${app}")`);
+  if (!statSync(appPath).isDirectory()) {
+    throw new Error(`대상 앱이 디렉터리가 아니다: ${app} (field "appDir", path="${app}")`);
+  }
+
+  const realRoot = realpathSync(root);
+  const realApp = realpathSync(appPath);
+  if (!isInside(realApp, realRoot)) {
+    throw new Error(`${owner} field "appDir" 경로가 저장소 밖이다: path="${app}", value="${realApp}"`);
+  }
+
+  if (relativePath === undefined) return;
+  const path = resolve(appPath, relativePath);
+  const displayPath = `${app}/${relativePath}`;
+  if (!existsSync(path)) {
+    throw new Error(
+      `${owner} field "${field}" 경로가 디렉터리가 아니다: path="${displayPath}", value="missing"`,
+    );
+  }
+  if (!statSync(path).isDirectory()) {
+    throw new Error(
+      `${owner} field "${field}" 경로가 디렉터리가 아니다: path="${displayPath}", value="not a directory"`,
+    );
+  }
+  const realDirectory = realpathSync(path);
+  if (!isInside(realDirectory, realApp)) {
+    throw new Error(
+      `${owner} field "${field}" 경로가 앱 밖이다: path="${displayPath}", value="${realDirectory}"`,
+    );
+  }
+}
+
+function validateLucideDependency(root, product) {
+  const owner = `제품 "${product.id}"`;
+  const packagePath = `${product.id}/package.json`;
+  const packageJson = readJsonFile(resolve(root, packagePath), {
+    owner,
+    field: 'package.json',
+    relativePath: packagePath,
+  });
+  const declaration = packageJson.dependencies?.['lucide-react'];
+  if (declaration !== REQUIRED_LUCIDE_VERSION) {
+    throw new Error(
+      `${owner} package.json field "dependencies.lucide-react"가 정확하지 않다: path="${packagePath}", expected="${REQUIRED_LUCIDE_VERSION}", value=${printable(declaration)}`,
+    );
+  }
+
+  const lockPath = `${product.id}/package-lock.json`;
+  const lock = readJsonFile(resolve(root, lockPath), {
+    owner,
+    field: 'package-lock.json',
+    relativePath: lockPath,
+  });
+  const rootDeclaration = lock.packages?.['']?.dependencies?.['lucide-react'];
+  if (rootDeclaration !== REQUIRED_LUCIDE_VERSION) {
+    throw new Error(
+      `${owner} package-lock.json field "root dependencies.lucide-react"가 정확하지 않다: path="${lockPath}", expected="${REQUIRED_LUCIDE_VERSION}", value=${printable(rootDeclaration)}`,
+    );
+  }
+  const resolvedVersion = lock.packages?.['node_modules/lucide-react']?.version;
+  if (resolvedVersion !== REQUIRED_LUCIDE_VERSION) {
+    throw new Error(
+      `${owner} package-lock.json field "node_modules/lucide-react.version"이 정확하지 않다: path="${lockPath}", expected="${REQUIRED_LUCIDE_VERSION}", value=${printable(resolvedVersion)}`,
+    );
+  }
+}
+
+function validateManifest(root, product) {
+  const owner = `제품 "${product.id}"`;
+  const relativePath = `${CANONICAL_DIR}/favicons/${product.id}/site.webmanifest`;
+  const manifest = readJsonFile(resolve(root, relativePath), {
+    owner,
+    field: 'site.webmanifest',
+    relativePath,
+  });
+  const invalid = (field, expected, value) => {
+    throw new Error(
+      `${owner} site.webmanifest field "${field}"가 정확하지 않다: path="${relativePath}", expected=${printable(expected)}, value=${printable(value)}`,
+    );
+  };
+
+  for (const field of ['name', 'short_name']) {
+    if (manifest[field] !== product.name) invalid(field, product.name, manifest[field]);
+  }
+  for (const [field, expected] of [
+    ['theme_color', '#3366ff'],
+    ['background_color', '#f7f7f8'],
+    ['display', 'standalone'],
+  ]) {
+    if (manifest[field] !== expected) invalid(field, expected, manifest[field]);
+  }
+  if (!Array.isArray(manifest.icons)) invalid('icons', 'array', manifest.icons);
+
+  const requiredIcons = [
+    { src: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+  ];
+  for (const required of requiredIcons) {
+    const related = manifest.icons.filter(
+      (icon) => icon?.src === required.src || icon?.sizes === required.sizes,
+    );
+    if (
+      related.length !== 1 ||
+      related[0].src !== required.src ||
+      related[0].sizes !== required.sizes ||
+      related[0].type !== required.type
+    ) {
+      invalid('icons', required, related);
+    }
+  }
+}
+
+/** buildOperations 전에 저장소 전체 생성 입력 계약을 검증한다. */
+export function validatePreflight({
+  root = DEFAULT_ROOT,
+  products = PRODUCTS,
+  lucideExports = lucideReact,
+} = {}) {
+  validateProducts(products);
+  const webTools = products.filter(({ header }) => header === 'card');
+
+  for (const product of webTools) {
+    if (!Object.hasOwn(lucideExports, product.icon) || lucideExports[product.icon] == null) {
+      throw new Error(
+        `제품 "${product.id}" field "icon" value=${printable(product.icon)}은 설치된 lucide-react named export가 아니다`,
+      );
+    }
+  }
+
+  for (const app of new Set([...Object.keys(TOKEN_TARGETS), ...products.map(({ id }) => id)])) {
+    validateDirectory(root, app);
+  }
+  for (const [app, stylesDir] of Object.entries(TOKEN_TARGETS)) {
+    validateDirectory(root, app, stylesDir, 'stylesDir');
+  }
+  for (const product of products) {
+    validateDirectory(root, product.id, product.stylesDir, 'stylesDir');
+    validateDirectory(root, product.id, product.publicDir, 'publicDir');
+    if (product.header === 'card') {
+      validateDirectory(root, product.id, product.componentDir, 'componentDir');
+      validateDirectory(root, product.id, 'e2e', 'e2eDir');
+    }
+  }
+
+  for (const product of webTools) validateLucideDependency(root, product);
+
+  for (const product of products) {
+    for (const sourceName of FAVICON_FILES) {
+      const relativePath = `${CANONICAL_DIR}/favicons/${product.id}/${sourceName}`;
+      const path = resolve(root, relativePath);
+      if (!existsSync(path) || !lstatSync(path).isFile()) {
+        throw new Error(
+          `제품 "${product.id}" field "favicon.${sourceName}"가 일반 파일이 아니다: path="${relativePath}", value=${existsSync(path) ? '"not a regular file"' : '"missing"'}`,
+        );
+      }
+    }
+    validateManifest(root, product);
+  }
+}
 
 function tokenBanner(sourceName) {
   return [
@@ -135,8 +331,9 @@ function renderTestProduct(product) {
  * 쓰기 전에 전체 생성 계획과 내용을 메모리에 만든다.
  * @returns {{ sourcePath: string, targetPath: string, content: Buffer | string }[]}
  */
-export function buildOperations({ root = DEFAULT_ROOT } = {}) {
+export function buildOperations({ root = DEFAULT_ROOT, products = PRODUCTS } = {}) {
   const operations = [];
+  const webTools = products.filter(({ header }) => header === 'card');
 
   for (const [app, stylesDir] of Object.entries(TOKEN_TARGETS)) {
     for (const [sourceName, targetName] of Object.entries(FILES)) {
@@ -152,8 +349,8 @@ export function buildOperations({ root = DEFAULT_ROOT } = {}) {
   // 누락된 저장소에서도 쓰기가 시작되지 않도록 이 단계에서 존재를 확인한다.
   readFileSync(resolve(root, CANONICAL_DIR, 'products.mjs'));
 
-  for (const product of WEB_TOOLS) {
-    const componentDir = WEB_TOOL_TARGETS[product.id];
+  for (const product of webTools) {
+    const componentDir = product.componentDir;
     for (const sourceName of COMPONENT_FILES) {
       operations.push({
         sourcePath: `${CANONICAL_DIR}/components/${sourceName}`,
@@ -180,7 +377,7 @@ export function buildOperations({ root = DEFAULT_ROOT } = {}) {
     });
   }
 
-  for (const product of PRODUCTS) {
+  for (const product of products) {
     for (const sourceName of FAVICON_FILES) {
       const sourcePath = `${CANONICAL_DIR}/favicons/${product.id}/${sourceName}`;
       operations.push({
@@ -263,27 +460,66 @@ function sameContent(path, content) {
   }
 }
 
-function atomicWrite(path, content) {
+export function atomicWrite(path, content, { replace = renameSync } = {}) {
   mkdirSync(dirname(path), { recursive: true });
   const temporary = join(dirname(path), `.${basename(path)}.tmp-${process.pid}`);
   try {
     writeFileSync(temporary, content);
-    renameSync(temporary, path);
+    replace(temporary, path);
   } finally {
     if (existsSync(temporary)) unlinkSync(temporary);
   }
 }
 
+export class SyncWriteError extends Error {
+  constructor({ failedTarget, cause, writtenTargets, remainingDrift }) {
+    const causeMessage = cause instanceof Error ? cause.message : String(cause);
+    const lines = (targets) => targets.length > 0
+      ? targets.map((target) => `  ${target}`)
+      : ['  (없음)'];
+    super([
+      `생성물 쓰기에 실패했다: ${failedTarget}`,
+      `원인: ${causeMessage}`,
+      '이번 실행에서 이미 쓴 대상:',
+      ...lines(writtenTargets),
+      '남은 drift (실패 대상 포함):',
+      ...lines(remainingDrift),
+    ].join('\n'), { cause });
+    this.name = 'SyncWriteError';
+    this.failedTarget = failedTarget;
+    this.writtenTargets = Object.freeze([...writtenTargets]);
+    this.remainingDrift = Object.freeze([...remainingDrift]);
+  }
+}
+
 /** 정본과 다른 생성물 경로를 반환하고, check가 아니면 원자적으로 교체한다. */
-export function sync({ root = DEFAULT_ROOT, check = false } = {}) {
-  const operations = buildOperations({ root });
+export function sync({
+  root = DEFAULT_ROOT,
+  check = false,
+  products = PRODUCTS,
+  lucideExports = lucideReact,
+  writeTarget = atomicWrite,
+} = {}) {
+  validatePreflight({ root, products, lucideExports });
+  const operations = buildOperations({ root, products });
   validateOperations(operations, { root });
   const drifted = operations.filter(
     ({ targetPath, content }) => !sameContent(resolve(root, targetPath), content),
   );
   if (!check) {
-    for (const operation of drifted) {
-      atomicWrite(resolve(root, operation.targetPath), operation.content);
+    const writtenTargets = [];
+    for (const [index, operation] of drifted.entries()) {
+      try {
+        writeTarget(resolve(root, operation.targetPath), operation.content);
+      } catch (cause) {
+        throw new SyncWriteError({
+          failedTarget: operation.targetPath,
+          cause,
+          writtenTargets,
+          remainingDrift: drifted.slice(index).map(({ targetPath }) => targetPath),
+        });
+      }
+      writtenTargets.push(operation.targetPath);
     }
   }
   return drifted.map(({ targetPath }) => targetPath);

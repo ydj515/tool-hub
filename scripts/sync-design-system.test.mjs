@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -13,7 +14,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 
-import {
+import { PRODUCTS } from '../packages/design-system/products.mjs';
+import * as syncModule from './sync-design-system.mjs';
+
+const {
   COMPONENT_FILES,
   E2E_FILES,
   FILES,
@@ -23,7 +27,7 @@ import {
   runCli,
   sync,
   validateOperations,
-} from './sync-design-system.mjs';
+} = syncModule;
 
 const TOKEN_SOURCES = [
   'tokens.css',
@@ -115,6 +119,47 @@ const APP_PATHS = [
   'api-contract-test-generator',
 ];
 
+const REQUIRED_LUCIDE_VERSION = '1.14.0';
+const FIRST_TARGET = 'sign-maker/src/styles/ds-tokens.css';
+
+function manifestFor(product) {
+  return {
+    name: product.name,
+    short_name: product.name,
+    icons: [
+      { src: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    theme_color: '#3366ff',
+    background_color: '#f7f7f8',
+    display: 'standalone',
+  };
+}
+
+function packageJsonFor(product) {
+  return {
+    name: product.id,
+    private: true,
+    dependencies: { 'lucide-react': REQUIRED_LUCIDE_VERSION },
+  };
+}
+
+function packageLockFor(product) {
+  return {
+    name: product.id,
+    lockfileVersion: 3,
+    requires: true,
+    packages: {
+      '': { dependencies: { 'lucide-react': REQUIRED_LUCIDE_VERSION } },
+      'node_modules/lucide-react': { version: REQUIRED_LUCIDE_VERSION },
+    },
+  };
+}
+
+function writeJson(path, value) {
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
 function makeRepo() {
   const root = mkdtempSync(join(tmpdir(), 'ds-sync-'));
   const canonical = join(root, 'packages/design-system');
@@ -133,14 +178,216 @@ function makeRepo() {
     const dir = join(canonical, 'favicons', product);
     mkdirSync(dir, { recursive: true });
     for (const name of FAVICON_FILES_EXPECTED) {
-      writeFileSync(join(dir, name), Buffer.from(`${product}:${name}\0`));
+      if (name === 'site.webmanifest') {
+        const metadata = PRODUCTS.find(({ id }) => id === product);
+        writeJson(join(dir, name), manifestFor(metadata));
+      } else {
+        writeFileSync(join(dir, name), Buffer.from(`${product}:${name}\0`));
+      }
     }
   }
   writeFileSync(join(canonical, 'products.mjs'), '// 제품 메타데이터 정본\n');
 
   for (const app of APP_PATHS) mkdirSync(join(root, app), { recursive: true });
+  for (const [app, stylesDir] of TOKEN_TARGETS_EXPECTED) {
+    mkdirSync(join(root, app, stylesDir), { recursive: true });
+  }
+  for (const product of PRODUCTS) {
+    mkdirSync(join(root, product.id, product.publicDir), { recursive: true });
+    if (product.header === 'card') {
+      mkdirSync(join(root, product.id, product.componentDir), { recursive: true });
+      mkdirSync(join(root, product.id, 'e2e'), { recursive: true });
+      writeJson(join(root, product.id, 'package.json'), packageJsonFor(product));
+      writeJson(join(root, product.id, 'package-lock.json'), packageLockFor(product));
+    }
+  }
   return root;
 }
+
+function assertFirstTargetWasNotWritten(root) {
+  assert.equal(existsSync(join(root, FIRST_TARGET)), false);
+}
+
+describe('validatePreflight', () => {
+  test('현실적인 repository fixture 전체를 write와 check 전에 검증한다', () => {
+    const root = makeRepo();
+
+    assert.equal(typeof syncModule.validatePreflight, 'function');
+    assert.doesNotThrow(() => syncModule.validatePreflight({ root }));
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('마지막 card 제품의 미지원 Lucide icon을 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const products = PRODUCTS.map((product) =>
+      product.id === 'dummy-file-generator'
+        ? { ...product, icon: 'UnsupportedFixtureIcon' }
+        : product,
+    );
+
+    assert.throws(
+      () => sync({ root, products }),
+      /dummy-file-generator[\s\S]*icon[\s\S]*UnsupportedFixtureIcon[\s\S]*lucide-react/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('이름만 존재하고 값이 없는 Lucide export를 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const lucideExports = Object.fromEntries(
+      PRODUCTS.filter(({ header }) => header === 'card').map(({ icon }) => [icon, {}]),
+    );
+    lucideExports.FilePlus2 = undefined;
+
+    assert.throws(
+      () => sync({ root, lucideExports }),
+      /dummy-file-generator[\s\S]*icon[\s\S]*FilePlus2[\s\S]*lucide-react/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  for (const check of [false, true]) {
+    test(`마지막 web tool의 package semver range를 ${check ? 'check' : 'write'} 전에 거부한다`, () => {
+      const root = makeRepo();
+      const path = join(root, 'dummy-file-generator/package.json');
+      const packageJson = JSON.parse(readFileSync(path, 'utf8'));
+      packageJson.dependencies['lucide-react'] = '^1.14.0';
+      writeJson(path, packageJson);
+
+      assert.throws(
+        () => sync({ root, check }),
+        /dummy-file-generator[\s\S]*package\.json[\s\S]*lucide-react[\s\S]*\^1\.14\.0/,
+      );
+      assertFirstTargetWasNotWritten(root);
+    });
+  }
+
+  test('마지막 web tool의 lock resolved version 불일치를 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const path = join(root, 'dummy-file-generator/package-lock.json');
+    const lock = JSON.parse(readFileSync(path, 'utf8'));
+    lock.packages['node_modules/lucide-react'].version = '1.13.0';
+    writeJson(path, lock);
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*package-lock\.json[\s\S]*node_modules\/lucide-react[\s\S]*1\.13\.0/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('lock root declaration 누락을 fallback 위치로 보완하지 않는다', () => {
+    const root = makeRepo();
+    const path = join(root, 'dummy-file-generator/package-lock.json');
+    const lock = JSON.parse(readFileSync(path, 'utf8'));
+    delete lock.packages[''].dependencies['lucide-react'];
+    lock.packages['node_modules/some-package/node_modules/lucide-react'] = {
+      version: REQUIRED_LUCIDE_VERSION,
+    };
+    writeJson(path, lock);
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*package-lock\.json[\s\S]*root[\s\S]*lucide-react/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('마지막 manifest의 malformed JSON을 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const path = join(
+      root,
+      'packages/design-system/favicons/dummy-file-generator/site.webmanifest',
+    );
+    writeFileSync(path, '{ "name": ');
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*site\.webmanifest[\s\S]*JSON/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('마지막 manifest의 중복·부분 icon과 잘못된 display를 첫 write 전에 거부한다', () => {
+    const invalidManifests = [
+      {
+        name: '중복 32x32 icon',
+        change(manifest) {
+          manifest.icons.push({ ...manifest.icons[0] });
+        },
+      },
+      {
+        name: 'type이 빠진 180x180 icon',
+        change(manifest) {
+          manifest.icons[1] = { src: '/apple-touch-icon.png', sizes: '180x180' };
+        },
+      },
+      {
+        name: '잘못된 display',
+        change(manifest) {
+          manifest.display = 'browser';
+        },
+      },
+    ];
+
+    for (const fixture of invalidManifests) {
+      const root = makeRepo();
+      const product = PRODUCTS.at(-1);
+      const path = join(root, `packages/design-system/favicons/${product.id}/site.webmanifest`);
+      const manifest = manifestFor(product);
+      fixture.change(manifest);
+      writeJson(path, manifest);
+
+      assert.throws(
+        () => sync({ root }),
+        new RegExp(`${product.id}[\\s\\S]*site\\.webmanifest[\\s\\S]*(icons|display)`),
+        fixture.name,
+      );
+      assertFirstTargetWasNotWritten(root);
+    }
+  });
+
+  test('마지막 제품의 누락된 표준 E2E directory를 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    rmSync(join(root, 'dummy-file-generator/e2e'), { recursive: true });
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*e2e[\s\S]*디렉터리/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('표준 component directory의 app 밖 symlink를 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const componentDir = join(root, 'dummy-file-generator/app/_components/design-system');
+    const outside = mkdtempSync(join(tmpdir(), 'ds-preflight-outside-'));
+    rmSync(componentDir, { recursive: true });
+    symlinkSync(outside, componentDir, 'dir');
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*componentDir[\s\S]*앱 밖/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+
+  test('마지막 canonical favicon이 일반 파일이 아니면 첫 write 전에 거부한다', () => {
+    const root = makeRepo();
+    const favicon = join(
+      root,
+      'packages/design-system/favicons/dummy-file-generator/site.webmanifest',
+    );
+    rmSync(favicon);
+    mkdirSync(favicon);
+
+    assert.throws(
+      () => sync({ root }),
+      /dummy-file-generator[\s\S]*site\.webmanifest[\s\S]*일반 파일/,
+    );
+    assertFirstTargetWasNotWritten(root);
+  });
+});
 
 describe('buildOperations', () => {
   test('9개 토큰, 7개 React·E2E, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
@@ -289,9 +536,10 @@ describe('sync', () => {
 
   test('대상의 기존 중간 경로가 파일이면 어떤 대상도 쓰지 않는다', () => {
     const root = makeRepo();
+    rmSync(join(root, 'dummy-file-generator/app'), { recursive: true });
     writeFileSync(join(root, 'dummy-file-generator/app'), '생성 디렉터리가 아님');
 
-    assert.throws(() => sync({ root }), /대상 부모가 디렉터리가 아니다/);
+    assert.throws(() => sync({ root }), /dummy-file-generator[\s\S]*디렉터리/);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
   });
 
@@ -306,18 +554,54 @@ describe('sync', () => {
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
   });
 
-  test('원자 교체가 실패하면 임시 파일을 남기지 않는다', () => {
+  test('두 번째 원자 교체 실패가 written과 remaining drift를 보고하고 임시 파일을 지운다', () => {
     const root = makeRepo();
-    const target = join(root, 'sign-maker/src/styles/ds-tokens.css');
-    mkdirSync(target, { recursive: true });
-    writeFileSync(join(target, 'keep'), '기존 대상');
+    const writtenTarget = 'sign-maker/src/styles/ds-tokens.css';
+    const failedTarget = 'sign-maker/src/styles/ds-base.css';
+    const untouchedTarget = 'sign-maker/src/styles/ds-primitives.css';
+    let writeCount = 0;
+    const diskError = new Error('fixture replace ENOSPC');
+    const writeTarget = (path, content) => {
+      writeCount += 1;
+      return syncModule.atomicWrite(path, content, {
+        replace(source, target) {
+          if (writeCount === 2) throw diskError;
+          renameSync(source, target);
+        },
+      });
+    };
 
-    assert.throws(() => sync({ root }));
+    let error;
+    assert.throws(() => sync({ root, writeTarget }), (caught) => {
+      error = caught;
+      return true;
+    });
+
+    assert.equal(error.failedTarget, failedTarget);
+    assert.equal(error.cause, diskError);
+    assert.deepEqual(error.writtenTargets, [writtenTarget]);
+    assert.equal(error.remainingDrift[0], failedTarget);
+    assert.ok(error.remainingDrift.includes(untouchedTarget));
+    assert.match(error.message, new RegExp(failedTarget.replaceAll('.', '\\.')));
+    assert.match(error.message, /fixture replace ENOSPC/);
+    assert.match(error.message, new RegExp(writtenTarget.replaceAll('.', '\\.')));
+    assert.match(error.message, new RegExp(untouchedTarget.replaceAll('.', '\\.')));
+    assert.equal(existsSync(join(root, writtenTarget)), true);
+    assert.equal(existsSync(join(root, failedTarget)), false);
+    assert.equal(existsSync(join(root, untouchedTarget)), false);
     assert.deepEqual(
       readdirSync(join(root, 'sign-maker/src/styles')).filter((name) => name.startsWith('.ds-tokens.css.tmp-')),
       [],
     );
-    assert.equal(readFileSync(join(target, 'keep'), 'utf8'), '기존 대상');
+    assert.deepEqual(
+      readdirSync(join(root, 'sign-maker/src/styles')).filter((name) => name.startsWith('.ds-base.css.tmp-')),
+      [],
+    );
+
+    const remaining = sync({ root, check: true });
+    assert.equal(remaining.length, 185);
+    assert.equal(remaining.includes(writtenTarget), false);
+    assert.equal(remaining[0], failedTarget);
   });
 });
 
