@@ -1,4 +1,21 @@
 import { expect, test } from "@playwright/test";
+import type { Locator } from "@playwright/test";
+
+async function expectActiveSqlTab(
+  activeTab: Locator,
+  inactiveTab: Locator,
+  panel: Locator,
+  labelledBy: string,
+  sqlText: string,
+) {
+  await expect(activeTab).toBeFocused();
+  await expect(activeTab).toHaveAttribute("aria-selected", "true");
+  await expect(activeTab).toHaveAttribute("tabindex", "0");
+  await expect(inactiveTab).toHaveAttribute("aria-selected", "false");
+  await expect(inactiveTab).toHaveAttribute("tabindex", "-1");
+  await expect(panel).toHaveAttribute("aria-labelledby", labelledBy);
+  await expect(panel).toContainText(sqlText);
+}
 
 test("공통 셸과 한국어 액션이 렌더되고 disabled 시각 계약을 유지한다", async ({ page }) => {
   await page.goto("/");
@@ -62,6 +79,53 @@ test("SQL 생성 후 INSERT와 ROLLBACK panel을 실제로 전환한다", async 
     "data-ds-button",
     "true",
   );
+});
+
+test("SQL 출력 탭은 활성 탭만 Tab 순서에 포함한다", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("테이블당 행 수").fill("2");
+  await page.getByRole("button", { name: "생성" }).click();
+
+  const insertTab = page.getByRole("tab", { name: "INSERT" });
+  const rollbackTab = page.getByRole("tab", { name: "ROLLBACK" });
+
+  await expect(insertTab).toHaveAttribute("tabindex", "0");
+  await expect(rollbackTab).toHaveAttribute("tabindex", "-1");
+});
+
+test("SQL 출력 탭은 방향키와 Home/End로 선택과 포커스를 함께 이동한다", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("테이블당 행 수").fill("2");
+  await page.getByRole("button", { name: "생성" }).click();
+
+  const insertTab = page.getByRole("tab", { name: "INSERT" });
+  const rollbackTab = page.getByRole("tab", { name: "ROLLBACK" });
+  const panel = page.getByRole("tabpanel");
+
+  await insertTab.focus();
+  await page.keyboard.press("ArrowLeft");
+  await expectActiveSqlTab(
+    rollbackTab,
+    insertTab,
+    panel,
+    "rollback-tab",
+    "DELETE FROM",
+  );
+
+  await page.keyboard.press("ArrowRight");
+  await expectActiveSqlTab(insertTab, rollbackTab, panel, "insert-tab", "INSERT INTO");
+
+  await page.keyboard.press("End");
+  await expectActiveSqlTab(
+    rollbackTab,
+    insertTab,
+    panel,
+    "rollback-tab",
+    "DELETE FROM",
+  );
+
+  await page.keyboard.press("Home");
+  await expectActiveSqlTab(insertTab, rollbackTab, panel, "insert-tab", "INSERT INTO");
 });
 
 test("DDL 편집기의 접근성 이름과 자동완성 보조 문구를 한국어로 표시한다", async ({ page }) => {

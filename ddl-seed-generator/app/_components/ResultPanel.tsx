@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
 import {
   AlertTriangle,
   Check,
@@ -21,6 +21,38 @@ import { EmptyState } from "@/app/_components/design-system/EmptyState";
  * 우측 결과 패널: 분석 요약 + 경고 + insert order + Insert/Rollback 탭 + 복사/다운로드 + SQL 미리보기.
  */
 type OutputTab = "insert" | "rollback";
+const OUTPUT_TABS: readonly OutputTab[] = ["insert", "rollback"];
+
+function handleOutputTabKeyDown(
+  event: ReactKeyboardEvent<HTMLButtonElement>,
+  currentTab: OutputTab,
+  onActiveTabChange: (tab: OutputTab) => void,
+) {
+  const currentIndex = OUTPUT_TABS.indexOf(currentTab);
+  let destinationIndex: number;
+
+  switch (event.key) {
+    case "ArrowLeft":
+      destinationIndex = (currentIndex - 1 + OUTPUT_TABS.length) % OUTPUT_TABS.length;
+      break;
+    case "ArrowRight":
+      destinationIndex = (currentIndex + 1) % OUTPUT_TABS.length;
+      break;
+    case "Home":
+      destinationIndex = 0;
+      break;
+    case "End":
+      destinationIndex = OUTPUT_TABS.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  event.preventDefault();
+  const destination = OUTPUT_TABS[destinationIndex];
+  onActiveTabChange(destination);
+  event.currentTarget.ownerDocument.getElementById(`${destination}-tab`)?.focus();
+}
 
 interface ResultPanelProps {
   result: GeneratedSql | null;
@@ -101,8 +133,10 @@ export default function ResultPanel({
               role="tab"
               aria-selected={activeTab === "insert"}
               aria-controls="sql-output-panel"
+              tabIndex={activeTab === "insert" ? 0 : -1}
               className={activeTab === "insert" ? "selected" : ""}
               onClick={() => onActiveTabChange("insert")}
+              onKeyDown={(event) => handleOutputTabKeyDown(event, "insert", onActiveTabChange)}
             >
               INSERT
             </button>
@@ -112,8 +146,10 @@ export default function ResultPanel({
               role="tab"
               aria-selected={activeTab === "rollback"}
               aria-controls="sql-output-panel"
+              tabIndex={activeTab === "rollback" ? 0 : -1}
               className={activeTab === "rollback" ? "selected" : ""}
               onClick={() => onActiveTabChange("rollback")}
+              onKeyDown={(event) => handleOutputTabKeyDown(event, "rollback", onActiveTabChange)}
             >
               ROLLBACK
             </button>
