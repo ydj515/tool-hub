@@ -211,7 +211,7 @@
 }
 
 .ds-badge--primary {
-  color: var(--primary-text);
+  color: var(--text-neutral);
   background: var(--primary-surface);
 }
 

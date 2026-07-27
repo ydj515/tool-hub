@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { collectSamples, contrastOf } from '../src/styles/ds-contrast-e2e';
 
 test('ThemeToggle은 Chromium에서 36px 버튼과 16px 아이콘 크기를 유지한다', async ({ page }) => {
   await page.goto('/e2e/fixtures/design-system-primitives.html');
@@ -50,3 +51,17 @@ test('ThemeToggle은 Chromium에서 36px 버튼과 16px 아이콘 크기를 유�
     },
   });
 });
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`${theme} primary Badge는 중첩된 primary 표면에서 WCAG AA를 충족한다`, async ({ page }) => {
+    await page.goto('/e2e/fixtures/design-system-primitives.html');
+
+    const selector = `[data-ds-contrast-theme="${theme}"] [data-ds-badge]`;
+    await expect(page.locator(selector)).toBeVisible();
+    const samples = await collectSamples(page, [selector]);
+
+    expect(samples).toHaveLength(1);
+    expect(samples[0].unmeasurable).toBe(false);
+    expect(contrastOf(samples[0]), samples[0].label).toBeGreaterThanOrEqual(4.5);
+  });
+}
