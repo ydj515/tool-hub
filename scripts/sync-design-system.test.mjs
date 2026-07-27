@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -554,6 +555,32 @@ describe('sync', () => {
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
   });
 
+  for (const check of [false, true]) {
+    test(`앱 내부 target file의 외부 symlink를 ${check ? 'check' : 'write'} 전에 거부한다`, () => {
+      const root = makeRepo();
+      const targetPath = 'sign-maker/src/styles/ds-tokens.css';
+      const target = join(root, targetPath);
+      const outside = mkdtempSync(join(tmpdir(), 'ds-target-file-outside-'));
+      const outsideFile = join(outside, 'external.css');
+      const outsideContent = check ? render('tokens.css', root) : '외부 파일 원본\n';
+      writeFileSync(outsideFile, outsideContent);
+      symlinkSync(outsideFile, target, 'file');
+
+      let error;
+      try {
+        sync({ root, check });
+      } catch (caught) {
+        error = caught;
+      }
+
+      assert.equal(readFileSync(outsideFile, 'utf8'), outsideContent);
+      assert.ok(error, `${check ? 'check' : 'write'} mode가 target file symlink를 거부해야 한다`);
+      assert.match(error.message, /sign-maker\/src\/styles\/ds-tokens\.css/);
+      assert.match(error.message, /symlink/);
+      assert.equal(lstatSync(target).isSymbolicLink(), true);
+    });
+  }
+
   test('두 번째 원자 교체 실패가 written과 remaining drift를 보고하고 임시 파일을 지운다', () => {
     const root = makeRepo();
     const writtenTarget = 'sign-maker/src/styles/ds-tokens.css';
@@ -606,6 +633,31 @@ describe('sync', () => {
 });
 
 describe('validateOperations', () => {
+  test('앱 내부의 기존 regular target file은 허용한다', () => {
+    const root = makeRepo();
+    const targetPath = 'sign-maker/src/styles/ds-tokens.css';
+    writeFileSync(join(root, targetPath), '기존 regular file\n');
+
+    assert.doesNotThrow(() => validateOperations([
+      { sourcePath: 'packages/design-system/tokens.css', targetPath, content: '새 내용\n' },
+    ], { root }));
+  });
+
+  test('존재하지 않는 파일을 가리키는 dangling target symlink도 거부한다', () => {
+    const root = makeRepo();
+    const targetPath = 'sign-maker/src/styles/ds-tokens.css';
+    const target = join(root, targetPath);
+    symlinkSync('missing-external.css', target, 'file');
+
+    assert.throws(
+      () => validateOperations([
+        { sourcePath: 'packages/design-system/tokens.css', targetPath, content: '새 내용\n' },
+      ], { root }),
+      /ds-tokens\.css[\s\S]*symlink|symlink[\s\S]*ds-tokens\.css/,
+    );
+    assert.equal(lstatSync(target).isSymbolicLink(), true);
+  });
+
   test('대상 경로가 앱 밖이면 쓰기 전에 거부한다', () => {
     const root = makeRepo();
     const operations = [
