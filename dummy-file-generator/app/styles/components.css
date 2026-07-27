@@ -3,7 +3,9 @@
   min-height: 100vh;
   width: 100%;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
   padding: var(--ds-page-padding-mobile);
 }
 
@@ -13,73 +15,17 @@
   }
 }
 
+.pageShell > [data-ds-tool-header],
 .card {
   width: min(var(--ds-container-narrow), 100%);
+}
+
+.card {
   border-radius: var(--ds-radius-lg);          /* 카드 16px */
   background: var(--surface);
   border: 1px solid var(--line-subtle);     /* translucent hairline */
   box-shadow: var(--ds-shadow-md);             /* 중립·저확산 elevation */
   padding: 28px;
-}
-
-/* ── Header ── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--line-subtle);
-  margin-bottom: 22px;
-}
-
-/* 브랜드 슬롯. 전체가 링크이므로 밑줄과 색을 상속으로 되돌린다. */
-.brandBlock {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  text-decoration: none;
-  color: inherit;
-}
-
-.brandIcon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  color: var(--on-primary);
-  background: var(--primary);
-  border-radius: var(--ds-radius-md);
-}
-
-.brandIcon svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentcolor;
-  fill: none;
-}
-
-h1 {
-  font-size: var(--ds-font-size-title);
-  line-height: var(--ds-line-height-title);
-  letter-spacing: var(--ds-tracking-title);
-  font-weight: 700;
-  color: var(--text);
-}
-
-.topbar p {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: var(--ds-font-size-body);
-  line-height: var(--ds-line-height-body);
-}
-
-.themeIconPlaceholder {
-  display: block;
-  width: 16px;
-  height: 16px;
 }
 
 /* ── Form ── */
@@ -106,7 +52,7 @@ h1 {
   font-size: var(--ds-font-size-body);
   font-weight: 500;
   display: grid;
-  grid-template-columns: 15px 1fr;
+  grid-template-columns: 16px 1fr;
   gap: 7px;
   align-items: center;
   justify-items: center;
@@ -132,10 +78,11 @@ h1 {
 }
 
 .typeBtn svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
   stroke: currentcolor;
-  fill: currentcolor;
+  fill: none;
 }
 
 .typeBtn span { line-height: 1; }
@@ -151,41 +98,6 @@ h1 {
 }
 
 .zipLabel { margin-top: 14px; margin-bottom: 8px; }
-
-.zipStructureGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.zipStructureBtn {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--muted);
-  border-radius: var(--ds-radius-sm);
-  min-height: 40px;
-  font-size: var(--ds-font-size-body);
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color var(--ds-duration-fast) var(--ds-ease-standard),
-              color var(--ds-duration-fast) var(--ds-ease-standard),
-              background var(--ds-duration-fast) var(--ds-ease-standard);
-}
-
-.zipStructureBtn:hover { border-color: var(--line-strong); color: var(--text); background: var(--fill-subtle); }
-
-.zipStructureBtn:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-.zipStructureBtn.active {
-  color: var(--text-neutral);
-  border-color: var(--primary);
-  background: var(--primary-surface);
-  font-weight: 600;
-}
 
 .sizeInput {
   width: 100%;
@@ -215,40 +127,10 @@ h1 {
   font-size: var(--ds-font-size-body);
 }
 
-.generateBtn {
+.form > [data-ds-button] {
   margin-top: 20px;
   width: 100%;
-  border: 0;
-  border-radius: var(--ds-radius-md);
-  min-height: 48px;
-  background: var(--primary);
-  color: var(--on-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-weight: 600;
-  font-size: var(--ds-font-size-subtitle);
-  cursor: pointer;
-  transition: background var(--ds-duration-base) var(--ds-ease-standard);
 }
-
-.generateBtn:hover { background: var(--primary-strong); }
-
-.generateBtn:active { background: var(--primary-heavy); }
-
-.generateBtn:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-.generateBtn:disabled {
-  background: var(--fill-bold);
-  color: var(--disabled);
-  cursor: not-allowed;
-}
-
-.generateBtn svg { width: 17px; height: 17px; stroke: currentcolor; fill: none; }
 
 .error {
   margin-top: 12px;
@@ -260,7 +142,7 @@ h1 {
   font-weight: 600;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767px) {
   .card { padding: 20px 16px; }
   .typeGrid { grid-template-columns: repeat(2, 1fr); }
 }

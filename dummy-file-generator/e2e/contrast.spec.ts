@@ -18,10 +18,11 @@ const SELECTORS = [
 for (const theme of ['light', 'dark'] as const) {
   test(`${theme} 테마의 렌더된 보조 텍스트가 WCAG AA 를 충족한다`, async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('button', { name: '테마 전환' })).toBeVisible();
+    const themeToggle = page.locator('[data-ds-theme-toggle]');
+    await expect(themeToggle).toBeVisible();
 
     if (theme === 'dark') {
-      await page.getByRole('button', { name: '테마 전환' }).click();
+      await themeToggle.click();
     }
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 

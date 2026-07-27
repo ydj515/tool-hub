@@ -6,7 +6,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Dummy File Generator",
-  description: "PDF, DOCX, XLSX 등을 목표 용량으로 생성하는 도구",
+  description: "원하는 형식과 크기의 더미 파일을 생성합니다.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

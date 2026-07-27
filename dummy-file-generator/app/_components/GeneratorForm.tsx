@@ -14,7 +14,23 @@ import {
   type ZipExtensionProfile,
   type ZipStructure,
 } from "@/lib/types";
+import { Button } from "./design-system/Button";
+import {
+  SegmentedControl,
+  type SegmentOption,
+} from "./design-system/SegmentedControl";
 import { DownloadIcon, FormatIcon } from "./icons";
+
+const ZIP_STRUCTURE_OPTIONS: readonly SegmentOption<ZipStructure>[] = ZIP_STRUCTURES.map((value) => ({
+  value,
+  label: value === "flat" ? "평면" : "계층",
+}));
+
+const ZIP_EXTENSION_PROFILE_OPTIONS: readonly SegmentOption<ZipExtensionProfile>[] =
+  ZIP_EXTENSION_PROFILES.map((value) => ({
+    value,
+    label: value === "mixed" ? "혼합" : value === "text" ? "텍스트" : "바이너리",
+  }));
 
 export default function GeneratorForm() {
   const [loading, setLoading] = useState(false);
@@ -68,13 +84,14 @@ export default function GeneratorForm() {
   return (
     <>
       <form className="form" onSubmit={onSubmit}>
-        <div className="fieldHead">File Format</div>
-        <div className="typeGrid" role="tablist" aria-label="파일 포맷 선택">
+        <div className="fieldHead">파일 형식</div>
+        <div className="typeGrid" role="group" aria-label="파일 형식 선택">
           {FILE_TYPES.map((item) => (
             <button
               key={item}
               type="button"
               className={`typeBtn ${type === item ? "active" : ""}`}
+              aria-pressed={type === item}
               onClick={() => { setType(item); setError(null); }}
             >
               <FormatIcon type={item} />
@@ -85,40 +102,28 @@ export default function GeneratorForm() {
 
         {type === "zip" ? (
           <>
-            <label className="fieldLabel zipLabel" htmlFor="zipStructure">ZIP Structure</label>
-            <div className="zipStructureGrid" role="tablist" aria-label="ZIP 구조 선택">
-              {ZIP_STRUCTURES.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={`zipStructureBtn ${zipStructure === item ? "active" : ""}`}
-                  onClick={() => setZipStructure(item)}
-                >
-                  {item === "flat" ? "Flat" : "Hierarchy"}
-                </button>
-              ))}
-            </div>
+            <div className="fieldLabel zipLabel">ZIP 구조</div>
+            <SegmentedControl<ZipStructure>
+              value={zipStructure}
+              options={ZIP_STRUCTURE_OPTIONS}
+              onValueChange={setZipStructure}
+              ariaLabel="ZIP 구조"
+            />
             {zipStructure === "hierarchy" && (
               <>
-                <label className="fieldLabel zipLabel" htmlFor="zipExtensionProfile">Extension Profile</label>
-                <div className="zipStructureGrid" role="tablist" aria-label="확장자 조합 선택">
-                  {ZIP_EXTENSION_PROFILES.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={`zipStructureBtn ${zipExtensionProfile === item ? "active" : ""}`}
-                      onClick={() => setZipExtensionProfile(item)}
-                    >
-                      {item === "mixed" ? "Mixed" : item === "text" ? "Text" : "Binary"}
-                    </button>
-                  ))}
-                </div>
+                <div className="fieldLabel zipLabel">확장자 조합</div>
+                <SegmentedControl<ZipExtensionProfile>
+                  value={zipExtensionProfile}
+                  options={ZIP_EXTENSION_PROFILE_OPTIONS}
+                  onValueChange={setZipExtensionProfile}
+                  ariaLabel="확장자 조합"
+                />
               </>
             )}
           </>
         ) : null}
 
-        <label className="fieldLabel" htmlFor="targetSize">Target Size (MiB)</label>
+        <label className="fieldLabel" htmlFor="targetSize">목표 크기 (MiB)</label>
         <input
           id="targetSize"
           className="sizeInput"
@@ -127,12 +132,12 @@ export default function GeneratorForm() {
           inputMode="decimal"
           placeholder="1"
         />
-        <p className="hint">1 MiB = 1,048,576 Bytes. 최대 100MiB 정책.</p>
+        <p className="hint">1 MiB = 1,048,576 B. 최대 100 MiB 정책.</p>
 
-        <button className="generateBtn" type="submit" disabled={!canSubmit || loading}>
+        <Button type="submit" variant="primary" disabled={!canSubmit || loading}>
           <DownloadIcon />
-          <span>{loading ? "생성 중..." : "Generate File"}</span>
-        </button>
+          <span>{loading ? "생성 중..." : "파일 생성"}</span>
+        </Button>
       </form>
 
       {error ? <p className="error">오류: {error}</p> : null}
