@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tool Hub Design System Primitives</title>
+    <style>
+      html {
+        color: var(--text);
+        background: var(--bg);
+        font-family: var(--ds-font-sans);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 48px;
+        box-sizing: border-box;
+        background: var(--bg);
+      }
+
+      .ds-fixture {
+        width: min(100%, var(--ds-container-page));
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .ds-fixture > section {
+        min-width: 0;
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--ds-radius-lg);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .ds-fixture h1 {
+        margin: 0 0 16px;
+        font-size: var(--ds-font-size-subtitle);
+        line-height: var(--ds-line-height-subtitle);
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="ds-fixture">
+      <section>
+        <h1>Button</h1>
+        <div class="row">
+          <button class="ds-button ds-button--primary" data-ds-button data-ds-control>주요</button>
+          <button class="ds-button ds-button--secondary" data-ds-button data-ds-control>보조</button>
+          <button class="ds-button ds-button--ghost" data-ds-button data-ds-control>고스트</button>
+          <button class="ds-button ds-button--danger" data-ds-button data-ds-control>위험</button>
+          <button class="ds-button ds-button--icon" data-ds-button data-ds-control aria-label="추가">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5v14" />
+            </svg>
+          </button>
+          <button class="ds-button ds-button--primary" data-ds-button data-ds-control disabled>비활성</button>
+        </div>
+      </section>
+      <section>
+        <h1>Segmented Control</h1>
+        <div class="ds-segmented" data-ds-segmented data-ds-control role="group" aria-label="보기">
+          <button aria-pressed="true">첫 번째</button>
+          <button aria-pressed="false">두 번째</button>
+          <button disabled aria-pressed="false">비활성</button>
+        </div>
+      </section>
+      <section>
+        <h1>Empty State</h1>
+        <div class="ds-empty-state" data-ds-empty-state>
+          <span class="ds-empty-state__icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+            </svg>
+          </span>
+          <strong>결과가 없습니다.</strong>
+          <p>입력 후 다시 실행해 주세요.</p>
+        </div>
+      </section>
+      <section>
+        <h1>Badge</h1>
+        <div class="row">
+          <span class="ds-badge ds-badge--neutral" data-ds-badge>중립</span>
+          <span class="ds-badge ds-badge--primary" data-ds-badge>주요</span>
+          <span class="ds-badge ds-badge--success" data-ds-badge>성공</span>
+          <span class="ds-badge ds-badge--warning" data-ds-badge>주의</span>
+          <span class="ds-badge ds-badge--danger" data-ds-badge>위험</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
