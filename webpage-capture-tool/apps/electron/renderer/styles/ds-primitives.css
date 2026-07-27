@@ -48,7 +48,7 @@
   border: 1px solid var(--line);
   border-radius: var(--ds-radius-md);
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--ds-font-weight-bold);
   cursor: pointer;
 }
 
@@ -142,6 +142,19 @@
   cursor: not-allowed;
 }
 
+/* 비활성 버튼은 variant 와 무관하게 하나의 중립 면으로 되돌린다.
+   primary 의 파란 배경을 그대로 둔 채 글자만 --disabled 로 흐려지면 누를 수 있는
+   버튼처럼 보이고, 짙은 회색 글자가 파란 면 위에 얹혀 오히려 더 읽기 어렵다.
+   .ds-icon-btn:disabled 와 같은 면을 쓴다.
+   ghost 는 배경도 테두리도 없는 것이 정의이므로 제외한다 — 비활성일 때만
+   상자가 생기면 다른 컴포넌트로 보인다.
+   .ds-segmented 는 자체 선택 배경이 있으므로 이 규칙에 넣지 않는다. */
+.ds-button:disabled:not(.ds-button--ghost),
+.ds-button[aria-disabled="true"]:not(.ds-button--ghost) {
+  background: var(--fill-subtle);
+  border-color: var(--line);
+}
+
 .ds-segmented {
   height: 36px;
   box-sizing: border-box;
@@ -167,7 +180,7 @@
   border: 0;
   border-radius: var(--ds-radius-sm);
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--ds-font-weight-bold);
 }
 
 .ds-segmented button[aria-pressed="true"] {
@@ -202,7 +215,7 @@
   padding: 2px 7px;
   border-radius: var(--ds-radius-pill);
   font-size: var(--ds-font-size-caption);
-  font-weight: 800;
+  font-weight: var(--ds-font-weight-extrabold);
 }
 
 .ds-badge--neutral {
@@ -258,11 +271,19 @@
   gap: 2px;
 }
 
+/* font-weight 를 명시한다. Tailwind Preflight 가 h1~h6 의 font-size 와
+   font-weight 를 inherit 으로 리셋하므로, 지정하지 않으면 앱 타이틀이 본문
+   굵기(400)로 렌더된다.
+   letter-spacing 도 여기서 소유한다 — title 자간 토큰은 Tailwind 매핑
+   (--text-title--letter-spacing)에만 연결돼 있어서, 손으로 쓴 CSS 를 쓰는
+   앱은 앱마다 자간이 달랐다. */
 .ds-tool-header__copy h1 {
   margin: 0;
   overflow: hidden;
   font-size: var(--ds-font-size-title);
+  font-weight: var(--ds-font-weight-bold);
   line-height: var(--ds-line-height-title);
+  letter-spacing: var(--ds-tracking-title);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

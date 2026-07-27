@@ -22,11 +22,11 @@
 .diagnostic-banner { margin: 0; padding: 10px 12px; color: var(--danger); background: var(--danger-surface); border: 0; border-top: 1px solid var(--danger); border-radius: 0; }
 .diagnostic-banner button { width: 100%; padding: 0; color: inherit; background: transparent; border: 0; text-align: left; cursor: pointer; }
 .monaco-editor .json-yaml-converter-glyph-error { background-image: radial-gradient(circle, var(--danger) 0 4px, transparent 4.5px); background-position: center; background-repeat: no-repeat; }
-.stale-result { margin: 8px 12px; color: var(--warning); font-weight: 600; }
+.stale-result { margin: 8px 12px; color: var(--warning); font-weight: var(--ds-font-weight-semibold); }
 .status-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 0 0 0 auto; color: var(--text-neutral); font-size: var(--ds-font-size-body); }
 .status-bar p { margin: 0; }
 .action-message { margin: 0; padding: 10px 12px; color: var(--text-neutral); background: var(--surface); border: 1px solid var(--line); border-radius: var(--ds-radius-md); box-shadow: var(--ds-shadow-sm); font-size: var(--ds-font-size-body); }
-.copy-success-toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; gap: 8px; padding: 12px 14px; color: var(--text-neutral); background: var(--surface); border: 1px solid var(--line); border-radius: var(--ds-radius-md); box-shadow: var(--ds-shadow-md); font-size: var(--ds-font-size-body); font-weight: 600; pointer-events: none; animation: copy-feedback-in var(--ds-duration-fast) var(--ds-ease-standard); }
+.copy-success-toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; gap: 8px; padding: 12px 14px; color: var(--text-neutral); background: var(--surface); border: 1px solid var(--line); border-radius: var(--ds-radius-md); box-shadow: var(--ds-shadow-md); font-size: var(--ds-font-size-body); font-weight: var(--ds-font-weight-semibold); pointer-events: none; animation: copy-feedback-in var(--ds-duration-fast) var(--ds-ease-standard); }
 .copy-success-toast svg { flex: 0 0 auto; color: var(--success); }
 @keyframes copy-feedback-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .status-bar--valid { color: var(--success); }
@@ -46,7 +46,7 @@
   .converter-grid__swap { position: static; order: -1; display: flex; justify-content: flex-end; margin-bottom: 8px; transform: none; }
   .editor-panel[data-kind="source"] { border-right: 0; }
   .mobile-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; padding: 4px; background: var(--fill); border: 1px solid var(--line-subtle); border-radius: var(--ds-radius-md); }
-  .mobile-tabs button { min-height: 36px; padding: 0 8px; color: var(--muted); background: transparent; border: 0; border-radius: var(--ds-radius-sm); font-weight: 600; }
+  .mobile-tabs button { min-height: 36px; padding: 0 8px; color: var(--muted); background: transparent; border: 0; border-radius: var(--ds-radius-sm); font-weight: var(--ds-font-weight-semibold); }
   .mobile-tabs button[aria-selected="true"] { color: var(--primary-text); background: var(--surface); box-shadow: var(--ds-shadow-sm); }
   .editor-panel[data-mobile-hidden="true"] { display: none; }
   .editor-frame { height: 52vh; min-height: 320px; }

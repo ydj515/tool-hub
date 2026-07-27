@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { PRODUCTS, WEB_TOOLS } from '../packages/design-system/products.mjs';
 import {
   COMPONENT_FILES,
+  CSS_ONLY_TARGETS,
   E2E_FILES,
   FAVICON_FILES,
   FILES,
@@ -149,10 +150,11 @@ test('루트 index와 contributor guide가 실제 10개 프로젝트를 구조�
   }
 });
 
-test('frontend conventions가 8 theme·7 card shell·9 token target과 생성 경로를 고정한다', () => {
+test('frontend conventions가 8 theme·7 card shell·9 token·1 css-only target과 생성 경로를 고정한다', () => {
   assert.equal(PRODUCTS.length, 8);
   assert.equal(WEB_TOOLS.length, 7);
   assert.equal(Object.keys(TOKEN_TARGETS).length, 9);
+  assert.equal(Object.keys(CSS_ONLY_TARGETS).length, 1);
 
   const conventions = read(FRONTEND_CONVENTIONS);
   const scopeRows = tableRows(section(conventions, '적용 대상'), ['계약', '프로젝트']);
@@ -163,7 +165,8 @@ test('frontend conventions가 8 theme·7 card shell·9 token target과 생성 �
     sorted(WEB_TOOLS.map(({ id }) => id)),
   );
   assert.deepEqual(sorted(scope.get('토큰 (9개 대상)')), sorted(Object.keys(TOKEN_TARGETS)));
-  assert.deepEqual(scope.get('대상 외'), KOTLIN_PROJECTS);
+  assert.deepEqual(sorted(scope.get('토큰 CSS (1개 대상)')), sorted(Object.keys(CSS_ONLY_TARGETS)));
+  assert.deepEqual(Object.keys(CSS_ONLY_TARGETS), KOTLIN_PROJECTS);
 
   const generatedRows = tableRows(section(conventions, '생성 컴포넌트 경로 (7개 웹 도구)'), [
     '도구',

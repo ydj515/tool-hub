@@ -9,9 +9,9 @@
 | 테마 (8개 웹 앱) | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |
 | 카드형 셸 (7개 웹 도구) | `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |
 | 토큰 (9개 대상) | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator`, `webpage-capture-tool` |
-| 대상 외 | `class-diagram-generator` |
+| 토큰 CSS (1개 대상) | `class-diagram-generator` |
 
-`webpage-capture-tool`은 Electron 데스크톱 워크벤치이므로 토큰과 `<dialog>` 규칙만 따른다. `class-diagram-generator`는 server-rendered Kotlin 프로젝트라 프론트엔드 디자인 시스템 대상이 아니다.
+`webpage-capture-tool`은 Electron 데스크톱 워크벤치이므로 토큰과 `<dialog>` 규칙만 따른다. `class-diagram-generator`는 server-rendered Kotlin 프로젝트라 Node 테스트 러너가 없다. `ds-tokens.css`와 `ds-base.css`만 `static/css/ds/`로 동기화하고, `static/css/mmu/tokens.css`가 기존 `--mmu-*` 이름을 정본 토큰에 잇는다. `.ds-*` 클래스를 템플릿이 쓰지 않으므로 `ds-primitives.css`는 동기화 대상이 아니다.
 
 ## 5대 규칙
 

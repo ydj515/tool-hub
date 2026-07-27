@@ -45,6 +45,17 @@
   --ds-line-height-display: 1.2;
   --ds-tracking-display: -0.02em;
 
+  /* 굵기 5단.
+     가변 폰트라 임의 값을 쓸 수 있지만 단계를 고정한다 — 700 과 750 처럼
+     화면에서 구분되지 않는 값이 섞이면 같은 위계의 요소가 앱마다 달라 보인다.
+     Tailwind 의 font-weight 이름과 같은 단어를 써서 유틸리티와 var() 가
+     같은 어휘를 갖게 한다. */
+  --ds-font-weight-normal: 400;      /* 본문·설명 */
+  --ds-font-weight-medium: 500;      /* 보조 라벨·힌트 */
+  --ds-font-weight-semibold: 600;    /* 섹션 헤딩·패널 제목 */
+  --ds-font-weight-bold: 700;        /* 버튼·탭·앱 타이틀 */
+  --ds-font-weight-extrabold: 800;   /* 배지·수치 강조 */
+
   /* ── 표면 ── */
   --bg: #f7f7f8;
   --surface: #ffffff;
@@ -210,6 +221,12 @@
   --text-display: var(--ds-font-size-display);
   --text-display--line-height: var(--ds-line-height-display);
   --text-display--letter-spacing: var(--ds-tracking-display);
+
+  --font-weight-normal: var(--ds-font-weight-normal);
+  --font-weight-medium: var(--ds-font-weight-medium);
+  --font-weight-semibold: var(--ds-font-weight-semibold);
+  --font-weight-bold: var(--ds-font-weight-bold);
+  --font-weight-extrabold: var(--ds-font-weight-extrabold);
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);

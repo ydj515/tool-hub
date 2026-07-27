@@ -15,6 +15,11 @@
     <link rel="icon" href="/favicon.ico" th:href="@{/favicon.ico}">
     <link rel="stylesheet" href="/webjars/bootstrap/dist/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
     <link rel="stylesheet" href="/webjars/bootstrap-icons/font/bootstrap-icons.css" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+    <!-- ds-*.css 는 packages/design-system 의 생성물이다. 직접 편집하지 말고
+         정본을 고친 뒤 저장소 루트에서 `npm run tokens:sync` 를 실행한다.
+         link 순서 = 캐스케이드 순서이고, mmu/tokens.css 가 --mmu-* 별칭을 잇는다. -->
+    <link rel="stylesheet" href="/css/ds/ds-tokens.css" th:href="@{/css/ds/ds-tokens.css}">
+    <link rel="stylesheet" href="/css/ds/ds-base.css" th:href="@{/css/ds/ds-base.css}">
     <link rel="stylesheet" href="/css/mmu/tokens.css" th:href="@{/css/mmu/tokens.css}">
     <link rel="stylesheet" href="/css/mmu/components.css" th:href="@{/css/mmu/components.css}">
     <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">

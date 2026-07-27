@@ -19,15 +19,20 @@
     color: var(--app-text);
 }
 
+/* accent 위 글자는 --on-primary 로 잡는다. Bootstrap 기본값인 흰색은 다크의
+   accent(#5b84ff) 위에서 3.39:1 이라 AA 에 못 미친다 — 정본은 이 경우
+   글자를 어둡게 잡는다(accent 를 어둡게 하면 표면 위 비텍스트 3:1 이 깨진다). */
 .btn-primary {
     background-color: var(--app-accent);
     border-color: var(--app-accent);
+    color: var(--on-primary);
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
     background-color: var(--app-accent-strong);
     border-color: var(--app-accent-strong);
+    color: var(--on-primary);
 }
 
 .btn-outline-primary {
@@ -39,7 +44,14 @@
 .btn-outline-primary:focus-visible {
     background-color: var(--app-accent);
     border-color: var(--app-accent);
-    color: #ffffff;
+    color: var(--on-primary);
+}
+
+/* Bootstrap 의 .navbar-brand 는 emphasis color 를 쓰는데, 이 앱은 Bootstrap 을
+   다크로 전환하지 않으므로(data-bs-theme 미사용) 다크에서 거의 검정 글자가
+   어두운 navbar 에 얹혀 1.20:1 이 된다. 본문 텍스트 토큰을 따르게 한다. */
+.navbar-brand {
+    color: var(--app-text);
 }
 
 .form-control:focus,
@@ -66,7 +78,7 @@
 
 .page-title {
     margin-bottom: 0;
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     letter-spacing: 0;
 }
 
@@ -107,7 +119,7 @@
     border-radius: 999px;
     color: var(--app-text-muted);
     font-size: 0.875rem;
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     text-align: center;
     text-decoration: none;
     transition:
@@ -141,7 +153,7 @@
     border: 1px solid var(--app-border);
     border-radius: 1rem;
     background: color-mix(in srgb, var(--mmu-surface-strong) 92%, transparent);
-    font-weight: 600;
+    font-weight: var(--ds-font-weight-semibold);
     transition:
         border-color 0.15s ease,
         background-color 0.15s ease,
@@ -193,7 +205,7 @@
 }
 
 .file-dropzone__title {
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
 }
 
 .file-dropzone__hint {
@@ -259,7 +271,7 @@
 }
 
 .file-dropzone__filename-strong {
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     color: var(--app-accent-strong);
     word-break: break-all;
 }
@@ -309,7 +321,7 @@
     margin-bottom: 0.35rem;
     color: var(--app-text-muted);
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     text-transform: uppercase;
     letter-spacing: 0;
 }
@@ -317,7 +329,7 @@
 .meta-value {
     display: block;
     font-size: 1.05rem;
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
 }
 
 .progress-lg {
@@ -328,7 +340,7 @@
 }
 
 .progress-lg .progress-bar {
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     background: var(--app-accent);
     color: #ffffff;
     font-size: 0;
@@ -350,7 +362,7 @@
 
 .percent-hero__value {
     font-size: 3.5rem;
-    font-weight: 800;
+    font-weight: var(--ds-font-weight-extrabold);
     letter-spacing: 0;
     line-height: 1;
     color: var(--app-accent);
@@ -360,7 +372,7 @@
 .percent-hero__stage {
     margin-top: 0.85rem;
     color: var(--app-text-muted);
-    font-weight: 600;
+    font-weight: var(--ds-font-weight-semibold);
     font-size: 1rem;
 }
 
@@ -418,7 +430,7 @@
 
 .timeline__label {
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: var(--ds-font-weight-semibold);
     line-height: 1.25;
 }
 
@@ -489,7 +501,7 @@
     padding: 0.25rem 0.65rem;
     border-radius: 999px;
     font-size: 0.78rem;
-    font-weight: 700;
+    font-weight: var(--ds-font-weight-bold);
     text-transform: uppercase;
     letter-spacing: 0;
 }
@@ -523,7 +535,7 @@
 }
 
 .artifact-filename {
-    font-weight: 600;
+    font-weight: var(--ds-font-weight-semibold);
     color: var(--app-text);
     overflow-wrap: anywhere;
     line-height: 1.35;
@@ -546,7 +558,7 @@
     border-radius: 999px;
     background: var(--app-accent-soft);
     color: var(--app-accent-strong);
-    font-weight: 600;
+    font-weight: var(--ds-font-weight-semibold);
     font-size: 0.85rem;
     font-variant-numeric: tabular-nums;
 }

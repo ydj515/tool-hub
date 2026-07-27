@@ -50,6 +50,23 @@ export const TARGETS = Object.freeze({
 
 export const TOKEN_TARGETS = TARGETS;
 
+/** CSS 정본만 복사되는 파일. */
+export const CSS_ONLY_FILES = Object.freeze({
+  'tokens.css': 'ds-tokens.css',
+  'base.css': 'ds-base.css',
+});
+
+/**
+ * CSS 정본만 받는 대상.
+ *
+ * Node 테스트 러너가 없는 프로젝트라 ds-*.test.ts 를 둘 곳이 없고,
+ * primitives.css 의 .ds-* 클래스도 아직 템플릿이 쓰지 않아 복사하지 않는다.
+ * 토큰과 base 규칙(포커스링·모션 축소)만 정본에서 받는다.
+ */
+export const CSS_ONLY_TARGETS = Object.freeze({
+  'class-diagram-generator': 'src/main/resources/static/css/ds',
+});
+
 export const COMPONENT_FILES = Object.freeze([
   'BrandMark.tsx',
   'ThemeToggle.tsx',
@@ -238,10 +255,17 @@ export function validatePreflight({
     }
   }
 
-  for (const app of new Set([...Object.keys(TOKEN_TARGETS), ...products.map(({ id }) => id)])) {
+  for (const app of new Set([
+    ...Object.keys(TOKEN_TARGETS),
+    ...Object.keys(CSS_ONLY_TARGETS),
+    ...products.map(({ id }) => id),
+  ])) {
     validateDirectory(root, app);
   }
   for (const [app, stylesDir] of Object.entries(TOKEN_TARGETS)) {
+    validateDirectory(root, app, stylesDir, 'stylesDir');
+  }
+  for (const [app, stylesDir] of Object.entries(CSS_ONLY_TARGETS)) {
     validateDirectory(root, app, stylesDir, 'stylesDir');
   }
   for (const product of products) {
@@ -337,6 +361,16 @@ export function buildOperations({ root = DEFAULT_ROOT, products = PRODUCTS } = {
 
   for (const [app, stylesDir] of Object.entries(TOKEN_TARGETS)) {
     for (const [sourceName, targetName] of Object.entries(FILES)) {
+      operations.push({
+        sourcePath: `${CANONICAL_DIR}/${sourceName}`,
+        targetPath: `${app}/${stylesDir}/${targetName}`,
+        content: render(sourceName, root),
+      });
+    }
+  }
+
+  for (const [app, stylesDir] of Object.entries(CSS_ONLY_TARGETS)) {
+    for (const [sourceName, targetName] of Object.entries(CSS_ONLY_FILES)) {
       operations.push({
         sourcePath: `${CANONICAL_DIR}/${sourceName}`,
         targetPath: `${app}/${stylesDir}/${targetName}`,

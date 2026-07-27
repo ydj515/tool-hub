@@ -1,76 +1,57 @@
-/* Tool Hub UI tokens
-   - 단일 액션 컬러: #3366FF
-   - 차가운 중립(cool-neutral) 그레이 + 흰색 표면
-   - 로컬 타이포 / 부드러운 모서리 / 중립 저확산 그림자
-   기존 --mmu-* 변수명을 유지하면서 값만 새 토큰으로 매핑한다. */
+/* Tool Hub 디자인 시스템 별칭 층.
+   색·타이포·그림자·반경의 값은 정본(css/ds/ds-tokens.css)에서 온다.
+   이 파일은 값을 정의하지 않고 --mmu-* 이름만 정본 토큰에 연결한다.
 
-@font-face {
-    font-family: "ToolHub Sans";
-    src: url("/fonts/toolhub-sans.woff2") format("woff2");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-}
+   값을 바꾸려면 packages/design-system/tokens.css 를 고치고 저장소 루트에서
+   `npm run tokens:sync` 를 실행한다.
+
+   별칭은 var() 참조이므로 [data-theme="dark"] 가 정본 토큰을 덮으면
+   --mmu-* 도 함께 따라간다. 다크 값을 여기서 다시 선언하지 않는다. */
 
 :root {
     /* 타이포 */
-    --mmu-font-sans: "ToolHub Sans",
-        -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mmu-font-sans: var(--ds-font-sans);
 
-    /* 배경 / 표면 — 평평한 흰색 + 차가운 그루핑 배경 */
-    --mmu-bg: #f7f7f8;                         /* cool-neutral-99 grouped bg */
-    --mmu-surface: #ffffff;                    /* 카드/패널 표면 */
-    --mmu-surface-strong: #ffffff;
+    /* 배경 / 표면 */
+    --mmu-bg: var(--bg);
+    --mmu-surface: var(--surface);
+    /* 정본 표면은 4단(--bg/--surface/--surface-2/--surface-3)이다.
+       navbar·카드가 쓰던 "강조 표면"은 정본의 카드 표면과 같은 층이다. */
+    --mmu-surface-strong: var(--surface);
 
-    /* 보더 / 라인 — 반투명 중립 헤어라인(#70737C 기반) */
-    --mmu-border: rgba(112, 115, 124, 0.22);   /* 기본 보더 */
-    --mmu-border-subtle: rgba(112, 115, 124, 0.08);
-    --mmu-border-strong: rgba(112, 115, 124, 0.52);
+    /* 보더 / 라인 */
+    --mmu-border: var(--line);
+    --mmu-border-subtle: var(--line-subtle);
+    --mmu-border-strong: var(--line-strong);
 
-    /* 텍스트 — 근사 블랙 위 불투명도 단계 */
-    --mmu-text: #171717;                       /* label-normal */
-    --mmu-text-muted: rgba(55, 56, 60, 0.61);  /* label-alternative */
+    /* 텍스트 */
+    --mmu-text: var(--text);
+    --mmu-text-muted: var(--muted);
 
     /* 액션 컬러 */
-    --mmu-accent: #3366ff;                     /* primary-normal */
-    --mmu-accent-strong: #005eeb;              /* primary-strong (hover) */
-    --mmu-accent-heavy: #0054d1;               /* primary-heavy (press) */
-    --mmu-accent-soft: #eaf2fe;               /* primary-surface (선택 틴트) */
+    --mmu-accent: var(--primary);
+    --mmu-accent-strong: var(--primary-strong);
+    --mmu-accent-heavy: var(--primary-heavy);
+    --mmu-accent-soft: var(--primary-surface);
 
     /* 상태 컬러 */
-    --mmu-success: #00bf40;
-    --mmu-warning: #ff9200;
-    --mmu-danger: #ff4242;
+    --mmu-success: var(--success);
+    --mmu-warning: var(--warning);
+    --mmu-danger: var(--danger);
 
-    /* 그림자 — 중립, 저확산(절대 검정/유채색 아님) */
-    --mmu-shadow-soft: 0 1px 2px rgba(23, 23, 25, 0.06), 0 1px 3px rgba(23, 23, 25, 0.07);
-    --mmu-shadow-md: 0 8px 24px rgba(23, 23, 25, 0.10), 0 2px 6px rgba(23, 23, 25, 0.06);
+    /* 그림자 */
+    --mmu-shadow-soft: var(--ds-shadow-sm);
+    --mmu-shadow-md: var(--ds-shadow-lg);
 
-    /* 모서리 — 컨트롤 8~12px, 카드 16px, 시트/대형 카드 20px */
-    --mmu-radius-lg: 16px;
+    /* 모서리 */
+    --mmu-radius-lg: var(--ds-radius-lg);
+    /* 정본에는 20px 단계가 없다. 시트/대형 카드 전용으로 앱이 소유한다. */
     --mmu-radius-xl: 20px;
 
-    /* 간격 — 4px 그리드 */
+    /* 간격 — 정본에 4px 그리드 토큰이 없어 앱이 소유한다. */
     --mmu-space-2: 0.5rem;
     --mmu-space-3: 0.75rem;
     --mmu-space-4: 1rem;
     --mmu-space-6: 1.5rem;
     --mmu-space-8: 2rem;
-}
-
-html[data-theme="dark"] {
-    --mmu-bg: #141415;                          /* cool-neutral-5 근사 grouped bg */
-    --mmu-surface: #1b1c1e;                     /* background-normal-normal (dark) */
-    --mmu-surface-strong: #232427;
-    --mmu-border: rgba(149, 153, 163, 0.24);
-    --mmu-border-subtle: rgba(149, 153, 163, 0.10);
-    --mmu-border-strong: rgba(149, 153, 163, 0.45);
-    --mmu-text: #f7f7f7;                        /* label-normal (dark) */
-    --mmu-text-muted: rgba(194, 196, 200, 0.61);
-    --mmu-accent: #5b84ff;                      /* primary-normal (dark) */
-    --mmu-accent-strong: #7a9bff;
-    --mmu-accent-heavy: #99b3ff;
-    --mmu-accent-soft: rgba(91, 132, 255, 0.16);
-    --mmu-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.4);
-    --mmu-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
 }

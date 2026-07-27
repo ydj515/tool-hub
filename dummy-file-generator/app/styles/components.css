@@ -31,7 +31,7 @@
 /* ── Form ── */
 .fieldHead {
   font-size: var(--ds-font-size-caption);
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   letter-spacing: 0;
   margin-bottom: 10px;
   color: var(--text-neutral);
@@ -50,7 +50,7 @@
   border-radius: var(--ds-radius-sm);
   min-height: 44px;
   font-size: var(--ds-font-size-body);
-  font-weight: 500;
+  font-weight: var(--ds-font-weight-medium);
   display: grid;
   grid-template-columns: 16px 1fr;
   gap: 7px;
@@ -74,7 +74,7 @@
   color: var(--text-neutral);
   border-color: var(--primary);
   background: var(--primary-surface);
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
 }
 
 .typeBtn svg {
@@ -93,7 +93,7 @@
   margin-bottom: 10px;
   color: var(--text-neutral);
   font-size: var(--ds-font-size-caption);
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   letter-spacing: 0;
 }
 
@@ -139,7 +139,7 @@
   background: var(--danger-surface);
   color: var(--danger);
   font-size: var(--ds-font-size-body);
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
 }
 
 @media (max-width: 767px) {

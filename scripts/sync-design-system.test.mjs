@@ -60,6 +60,12 @@ const TOKEN_TARGETS_EXPECTED = [
   ['api-contract-test-generator', 'src/styles'],
 ];
 
+const CSS_ONLY_FILES_EXPECTED = ['ds-tokens.css', 'ds-base.css'];
+
+const CSS_ONLY_TARGETS_EXPECTED = [
+  ['class-diagram-generator', 'src/main/resources/static/css/ds'],
+];
+
 const COMPONENT_FILES_EXPECTED = [
   'BrandMark.tsx',
   'ThemeToggle.tsx',
@@ -118,6 +124,7 @@ const APP_PATHS = [
   'home',
   'webpage-capture-tool',
   'api-contract-test-generator',
+  'class-diagram-generator',
 ];
 
 const REQUIRED_LUCIDE_VERSION = '1.14.0';
@@ -191,6 +198,9 @@ function makeRepo() {
 
   for (const app of APP_PATHS) mkdirSync(join(root, app), { recursive: true });
   for (const [app, stylesDir] of TOKEN_TARGETS_EXPECTED) {
+    mkdirSync(join(root, app, stylesDir), { recursive: true });
+  }
+  for (const [app, stylesDir] of CSS_ONLY_TARGETS_EXPECTED) {
     mkdirSync(join(root, app, stylesDir), { recursive: true });
   }
   for (const product of PRODUCTS) {
@@ -391,12 +401,15 @@ describe('validatePreflight', () => {
 });
 
 describe('buildOperations', () => {
-  test('9개 토큰, 7개 React·E2E, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
+  test('9개 토큰, 1개 CSS 전용, 7개 React·E2E, 8개 favicon 대상의 생성 operation을 모두 메모리에서 만든다', () => {
     const root = makeRepo();
     const operations = buildOperations({ root });
     const expectedTargets = [
       ...TOKEN_TARGETS_EXPECTED.flatMap(([app, stylesDir]) =>
         TOKEN_FILES_EXPECTED.map((name) => `${app}/${stylesDir}/${name}`),
+      ),
+      ...CSS_ONLY_TARGETS_EXPECTED.flatMap(([app, stylesDir]) =>
+        CSS_ONLY_FILES_EXPECTED.map((name) => `${app}/${stylesDir}/${name}`),
       ),
       ...COMPONENT_TARGETS_EXPECTED.flatMap(([app, componentDir]) =>
         COMPONENT_FILES_EXPECTED.map((name) => `${app}/${componentDir}/${name}`),
@@ -438,7 +451,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root });
 
-    assert.equal(drifted.length, 186);
+    assert.equal(drifted.length, 188);
     assert.equal(
       readFileSync(join(root, 'sign-maker/src/styles/ds-tokens.css'), 'utf8'),
       render('tokens.css', root),
@@ -478,7 +491,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root, check: true });
 
-    assert.equal(drifted.length, 186);
+    assert.equal(drifted.length, 188);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
     assert.equal(
       existsSync(join(root, 'sign-maker/src/components/design-system/Button.tsx')),
@@ -626,7 +639,7 @@ describe('sync', () => {
     );
 
     const remaining = sync({ root, check: true });
-    assert.equal(remaining.length, 185);
+    assert.equal(remaining.length, 187);
     assert.equal(remaining.includes(writtenTarget), false);
     assert.equal(remaining[0], failedTarget);
   });

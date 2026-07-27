@@ -15,10 +15,3 @@ body {
 button, input, textarea, select { font: inherit; }
 button { border: 0; }
 h1, h2, p { margin: 0; }
-
-h1 {
-  font-size: var(--ds-font-size-title);
-  line-height: var(--ds-line-height-title);
-  letter-spacing: var(--ds-tracking-title);
-  font-weight: 700;
-}
