@@ -32,7 +32,7 @@ export function ToolHeader({
         data-ds-tool-brand
         className="ds-tool-header__brand"
         href={homeHref}
-        aria-label="Tool Hub로 이동"
+        aria-label={`${product.name}에서 Tool Hub로 이동`}
       >
         <BrandMark icon={product.icon} />
         <span className="ds-tool-header__copy">

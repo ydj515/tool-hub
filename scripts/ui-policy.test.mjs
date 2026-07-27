@@ -60,6 +60,7 @@ const PRODUCT_NAME_HOLDERS = [
 
 const FAVICON_FILES = [
   'favicon.svg',
+  'favicon.ico',
   'favicon-32x32.png',
   'favicon-16x16.png',
   'apple-touch-icon.png',
@@ -85,6 +86,7 @@ const BANNED_UI_COPY = [
 
 const FAVICON_CONTRACTS = [
   { name: 'favicon.svg', href: '/favicon.svg', rel: 'icon', type: 'image/svg+xml' },
+  { name: 'favicon.ico', href: '/favicon.ico', rel: 'icon', type: 'image/x-icon' },
   {
     name: 'favicon-32x32.png',
     href: '/favicon-32x32.png',
@@ -427,6 +429,7 @@ const VALID_NEXT_METADATA = `
     icons: {
       icon: [
         { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/favicon.ico", type: "image/x-icon" },
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       ],
@@ -477,10 +480,24 @@ const AMBIGUOUS_NEXT_METADATA = [
   },
 ];
 
+test('Next favicon matcher가 favicon.ico를 포함한 완전한 metadata를 인정한다', () => {
+  assert.deepEqual(
+    missingFaviconEntries('dummy-file-generator/app/layout.tsx', VALID_NEXT_METADATA),
+    [],
+  );
+
+  const wrongIcoUrl = VALID_NEXT_METADATA.replace('/favicon.ico', '/legacy/favicon.ico');
+  assert.deepEqual(
+    missingFaviconEntries('dummy-file-generator/app/layout.tsx', wrongIcoUrl),
+    ['favicon.ico'],
+  );
+});
+
 for (const { name, source } of AMBIGUOUS_NEXT_METADATA) {
   test(`Next favicon matcher가 ${name} 구조를 거부한다`, () => {
     assert.deepEqual(missingFaviconEntries('dummy-file-generator/app/layout.tsx', source), [
       'favicon.svg',
+      'favicon.ico',
       'favicon-32x32.png',
       'favicon-16x16.png',
       'apple-touch-icon.png',
@@ -491,12 +508,13 @@ for (const { name, source } of AMBIGUOUS_NEXT_METADATA) {
 
 test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하지 않는다', () => {
   const commented = `<!--
-    /favicon.svg /favicon-32x32.png /favicon-16x16.png
+    /favicon.svg /favicon.ico /favicon-32x32.png /favicon-16x16.png
     /apple-touch-icon.png /site.webmanifest
   -->`;
 
   assert.deepEqual(missingFaviconEntries('home/index.html', commented), [
     'favicon.svg',
+    'favicon.ico',
     'favicon-32x32.png',
     'favicon-16x16.png',
     'apple-touch-icon.png',
@@ -505,10 +523,12 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
   assert.deepEqual(
     missingFaviconEntries(
       'home/index.html',
-      '<link rel="icon" type="image/svg+xml" href="/legacy/favicon.svg" />',
+      `<link rel="icon" type="image/svg+xml" href="/legacy/favicon.svg" />
+       <link rel="icon" type="image/x-icon" href="/legacy/favicon.ico" />`,
     ),
     [
       'favicon.svg',
+      'favicon.ico',
       'favicon-32x32.png',
       'favicon-16x16.png',
       'apple-touch-icon.png',
@@ -518,10 +538,11 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
   assert.deepEqual(
     missingFaviconEntries(
       'home/index.html',
-      '<link data-rel="icon" data-type="image/svg+xml" data-href="/favicon.svg" />',
+      '<link data-rel="icon" data-type="image/x-icon" data-href="/favicon.ico" />',
     ),
     [
       'favicon.svg',
+      'favicon.ico',
       'favicon-32x32.png',
       'favicon-16x16.png',
       'apple-touch-icon.png',
@@ -536,6 +557,7 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
       icons: {
         icon: [
           { url: "/favicon.svg", type: "image/svg+xml" },
+          { url: "/favicon.ico", type: "image/x-icon" },
           { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
           { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
         ],
@@ -545,6 +567,7 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
   `;
   assert.deepEqual(missingFaviconEntries('dummy-file-generator/app/layout.tsx', unrelatedNextObject), [
     'favicon.svg',
+    'favicon.ico',
     'favicon-32x32.png',
     'favicon-16x16.png',
     'apple-touch-icon.png',
@@ -557,6 +580,7 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
       icons: {
         icon: [
           { url: "/favicon.svg", type: "image/svg+xml" },
+          { url: "/favicon.ico", type: "image/x-icon" },
           { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
           { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
         ],
@@ -566,6 +590,7 @@ test('favicon matcher가 주석과 잘못된 URL을 실제 연결로 인정하�
   `;
   assert.deepEqual(missingFaviconEntries('dummy-file-generator/app/layout.tsx', unexportedMetadata), [
     'favicon.svg',
+    'favicon.ico',
     'favicon-32x32.png',
     'favicon-16x16.png',
     'apple-touch-icon.png',

@@ -118,7 +118,9 @@ describe('OpenAPI Editor Topbar', () => {
     const user = userEvent.setup();
     render(<Topbar {...createProps()} />);
     const trigger = screen.getByRole('button', { name: '더보기 메뉴' });
-    const home = screen.getByRole('link', { name: 'Tool Hub로 이동' });
+    const home = screen.getByRole('link', {
+      name: 'OpenAPI Editor에서 Tool Hub로 이동',
+    });
 
     trigger.focus();
     await waitFor(() => expect(screen.getByRole('menu', { name: '더보기 작업' })).toBeInTheDocument());

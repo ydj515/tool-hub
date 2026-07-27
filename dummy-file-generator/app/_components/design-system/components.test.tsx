@@ -63,6 +63,14 @@ describe('생성 디자인 시스템 컴포넌트', () => {
     expect(html).not.toContain('<svg');
   });
 
+  it('ThemeToggle은 icon Button 기본 class와 소비자 className을 병합한다', () => {
+    const html = renderToStaticMarkup(
+      <ThemeToggle theme="light" className="header-theme-toggle" onToggle={() => {}} />,
+    );
+
+    expect(html).toContain('class="ds-button ds-button--icon header-theme-toggle"');
+  });
+
   it('SegmentedControl은 단일 선택을 aria-pressed로 표현한다', () => {
     const html = renderToStaticMarkup(
       <SegmentedControl
@@ -150,7 +158,7 @@ describe('생성 디자인 시스템 컴포넌트', () => {
     expect(html).toContain('<header');
     expect(html).toContain('data-ds-tool-header="true"');
     expect(html).toContain('href="https://example.com"');
-    expect(html).toContain('Tool Hub로 이동');
+    expect(html).toContain('aria-label="Sign Maker에서 Tool Hub로 이동"');
     expect(html).toContain('<h1>Sign Maker</h1>');
     expect(html).toContain('data-ds-tool-actions="true"');
     expect(html).toContain('data-ds-tool-utilities="true"');
