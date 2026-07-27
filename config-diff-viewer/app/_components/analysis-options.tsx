@@ -5,6 +5,7 @@
 
 import { BookOpen } from "lucide-react";
 import type { AnalysisOptions } from "@/lib/types";
+import { Badge } from "./design-system/Badge";
 
 interface Props {
   options: AnalysisOptions;
@@ -29,7 +30,7 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         >
           <span className="toggleDot" />
           키 비교
-          <span className="toggleStatusBadge on">항상</span>
+          <Badge variant="primary">항상</Badge>
         </div>
 
         {/* Secret detection */}
@@ -41,9 +42,9 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         >
           <span className="toggleDot" />
           민감정보 탐지
-          <span className={`toggleStatusBadge ${options.enableSecretDetection ? "on" : "off"}`}>
-            {options.enableSecretDetection ? "ON" : "OFF"}
-          </span>
+          <Badge variant={options.enableSecretDetection ? "primary" : "neutral"}>
+            {options.enableSecretDetection ? "켬" : "끔"}
+          </Badge>
         </button>
 
         {/* Dangerous config detection */}
@@ -55,9 +56,9 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         >
           <span className="toggleDot" />
           위험 설정 탐지
-          <span className={`toggleStatusBadge ${options.enableDangerousConfigDetection ? "on" : "off"}`}>
-            {options.enableDangerousConfigDetection ? "ON" : "OFF"}
-          </span>
+          <Badge variant={options.enableDangerousConfigDetection ? "primary" : "neutral"}>
+            {options.enableDangerousConfigDetection ? "켬" : "끔"}
+          </Badge>
         </button>
 
         {/* Duplicate key detection */}
@@ -69,9 +70,9 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
         >
           <span className="toggleDot" />
           중복 키 탐지
-          <span className={`toggleStatusBadge ${options.enableDuplicateKeyDetection ? "on" : "off"}`}>
-            {options.enableDuplicateKeyDetection ? "ON" : "OFF"}
-          </span>
+          <Badge variant={options.enableDuplicateKeyDetection ? "primary" : "neutral"}>
+            {options.enableDuplicateKeyDetection ? "켬" : "끔"}
+          </Badge>
         </button>
 
         <span className="optionsHint">항목을 클릭하여 분석 범위를 설정하세요</span>

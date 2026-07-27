@@ -109,7 +109,7 @@ export default function ResultPanel({ report, options }: Props) {
             >
               {label}
               {isDisabled ? (
-                <span className="tabCount tabCountOff">OFF</span>
+                <span className="tabCount tabCountOff">끔</span>
               ) : (
                 <span className="tabCount">{count}</span>
               )}
@@ -119,7 +119,7 @@ export default function ResultPanel({ report, options }: Props) {
 
         {criticalHigh > 0 && (
           <span className="criticalHighNotice">
-            CRITICAL/HIGH {criticalHigh}건
+            치명/높음 {criticalHigh}건
           </span>
         )}
       </div>

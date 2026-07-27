@@ -4,9 +4,19 @@
 "use client";
 
 import IssueBadge from "./issue-badge";
-import type { DiffResult, ValidationIssue, ValidationReport } from "@/lib/types";
+import { Badge, type BadgeVariant } from "./design-system/Badge";
+import { EmptyState } from "./design-system/EmptyState";
+import type { DiffResult, DiffStatus, ValidationIssue, ValidationReport } from "@/lib/types";
 
 type TabType = "diff" | "missing" | "secrets" | "warnings" | "duplicates";
+
+const DIFF_BADGE: Record<DiffStatus, { label: string; variant: BadgeVariant }> = {
+  ADDED: { label: "B만 있음", variant: "success" },
+  REMOVED: { label: "A만 있음", variant: "danger" },
+  CHANGED: { label: "값 변경", variant: "warning" },
+  TYPE_CHANGED: { label: "타입 변경", variant: "primary" },
+  UNCHANGED: { label: "일치", variant: "neutral" },
+};
 
 function ValueCell({
   cv,
@@ -20,7 +30,7 @@ function ValueCell({
   if (cv.isSensitiveCandidate && cv.maskedValue)
     return <span className="valuePill masked">{cv.maskedValue}</span>;
   const cls = status !== "UNCHANGED" ? "changed" : "";
-  return <span className={`valuePill ${cls}`}>{cv.rawValue || <em>{"(empty)"}</em>}</span>;
+  return <span className={`valuePill ${cls}`}>{cv.rawValue || <em>{"(비어 있음)"}</em>}</span>;
 }
 
 function DiffTable({
@@ -33,11 +43,7 @@ function DiffTable({
   filenameB: string;
 }) {
   if (rows.length === 0) {
-    return (
-      <div className="emptyState">
-        <p>차이가 없습니다.</p>
-      </div>
-    );
+    return <EmptyState title="차이가 없습니다." />;
   }
 
   return (
@@ -46,7 +52,7 @@ function DiffTable({
         <thead>
           <tr>
             <th className="statusColumn">상태</th>
-            <th>Key</th>
+            <th>키</th>
             <th>{filenameA}</th>
             <th>{filenameB}</th>
           </tr>
@@ -55,15 +61,9 @@ function DiffTable({
           {rows.map((d) => (
             <tr key={d.key}>
               <td>
-                <span className={`badge ${d.status}`}>
-                  {d.status === "ADDED"
-                    ? "B만 있음"
-                    : d.status === "REMOVED"
-                      ? "A만 있음"
-                      : d.status === "TYPE_CHANGED"
-                        ? "타입 변경"
-                        : "값 변경"}
-                </span>
+                <Badge variant={DIFF_BADGE[d.status].variant}>
+                  {DIFF_BADGE[d.status].label}
+                </Badge>
               </td>
               <td><span className="keyPath">{d.key}</span></td>
               <td><ValueCell cv={d.valueA} status={d.status} /></td>
@@ -78,11 +78,7 @@ function DiffTable({
 
 function IssueTable({ issues }: { issues: ValidationIssue[] }) {
   if (issues.length === 0) {
-    return (
-      <div className="emptyState">
-        <p>탐지된 이슈가 없습니다.</p>
-      </div>
-    );
+    return <EmptyState title="탐지된 이슈가 없습니다." />;
   }
 
   return (
@@ -90,9 +86,9 @@ function IssueTable({ issues }: { issues: ValidationIssue[] }) {
       <table className="issueTable">
         <thead>
           <tr>
-            <th className="severityColumn">Severity</th>
-            <th>Key</th>
-            <th>Value</th>
+            <th className="severityColumn">심각도</th>
+            <th>키</th>
+            <th>값</th>
             <th>내용</th>
             <th>제안</th>
           </tr>
@@ -140,11 +136,7 @@ function MissingTable({
   const missingInA = diffResults.filter((d) => d.status === "ADDED");
 
   if (missingInA.length === 0 && missingInB.length === 0) {
-    return (
-      <div className="emptyState">
-        <p>누락된 키가 없습니다.</p>
-      </div>
-    );
+    return <EmptyState title="누락된 키가 없습니다." />;
   }
 
   const allMissing = [
@@ -157,7 +149,7 @@ function MissingTable({
       <table className="issueTable">
         <thead>
           <tr>
-            <th>Key</th>
+            <th>키</th>
             <th>누락 파일</th>
             <th>존재하는 값</th>
           </tr>
@@ -192,11 +184,7 @@ function MissingTable({
 
 function DuplicateTable({ issues }: { issues: ValidationIssue[] }) {
   if (issues.length === 0) {
-    return (
-      <div className="emptyState">
-        <p>중복 키가 없습니다.</p>
-      </div>
-    );
+    return <EmptyState title="중복 키가 없습니다." />;
   }
 
   return (
@@ -204,8 +192,8 @@ function DuplicateTable({ issues }: { issues: ValidationIssue[] }) {
       <table className="issueTable">
         <thead>
           <tr>
-            <th className="severityColumn">Severity</th>
-            <th>Key</th>
+            <th className="severityColumn">심각도</th>
+            <th>키</th>
             <th>파일</th>
             <th>내용</th>
             <th>제안</th>

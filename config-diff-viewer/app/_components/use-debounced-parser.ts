@@ -27,7 +27,7 @@ export function useDebouncedParser(
         const parsed = parseConfigFile(content, filename, format);
         setParseError(
           parsed.parseErrors.length > 0
-            ? `Line ${parsed.parseErrors[0].line}: ${parsed.parseErrors[0].message}`
+            ? `${parsed.parseErrors[0].line}행: 설정 문법을 확인하세요.`
             : "",
         );
       } catch {

@@ -6,7 +6,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Config Diff Viewer",
-  description: "설정 파일 비교·검증 도구 — 누락 키, 위험 설정, 민감정보를 배포 전에 탐지합니다.",
+  description: "설정 파일의 차이를 비교합니다.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

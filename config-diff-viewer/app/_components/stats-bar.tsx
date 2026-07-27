@@ -4,6 +4,7 @@
 "use client";
 
 import type { ValidationReport } from "@/lib/types";
+import { Badge } from "./design-system/Badge";
 
 interface Props {
   report: ValidationReport;
@@ -53,9 +54,9 @@ export default function StatsBar({ report }: Props) {
         </strong>
       </div>
 
-      <span className={`statusBadge ${isPassed ? "passed" : "failed"}`}>
-        {isPassed ? "PASSED" : "FAILED"}
-      </span>
+      <Badge variant={isPassed ? "success" : "danger"}>
+        {isPassed ? "통과" : "실패"}
+      </Badge>
     </div>
   );
 }

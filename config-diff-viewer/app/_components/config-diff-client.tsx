@@ -19,6 +19,7 @@ import { parseConfigFile, detectFormat } from "@/lib/parser";
 import { buildReport } from "@/app/_lib/report";
 import { SAMPLE_A, SAMPLE_B, DEFAULT_OPTIONS } from "@/app/_lib/constants";
 import type { AnalysisOptions, ConfigFormat, ValidationReport } from "@/lib/types";
+import { EmptyState } from "./design-system/EmptyState";
 
 interface CompareSnapshot {
   contentA: string;
@@ -66,9 +67,9 @@ export default function ConfigDiffClient() {
     const tmpA = parseConfigFile(contentA, filenameA, formatA);
     const tmpB = parseConfigFile(contentB, filenameB, formatB);
     const errA = tmpA.parseErrors.length > 0
-      ? `Line ${tmpA.parseErrors[0].line}: ${tmpA.parseErrors[0].message}` : "";
+      ? `${tmpA.parseErrors[0].line}행: ${tmpA.parseErrors[0].message}` : "";
     const errB = tmpB.parseErrors.length > 0
-      ? `Line ${tmpB.parseErrors[0].line}: ${tmpB.parseErrors[0].message}` : "";
+      ? `${tmpB.parseErrors[0].line}행: ${tmpB.parseErrors[0].message}` : "";
     if (errA || errB) return;
 
     // React 18 배치로 인해 setIsComparing(true) 직후 페인트가 안 됨 →
@@ -124,7 +125,7 @@ export default function ConfigDiffClient() {
   }
 
   return (
-    <div className="appShell">
+    <div className="appShell" data-ds-page-shell>
       <Topbar
         isComparing={isComparing}
         hasParseError={!!(parseErrorA || parseErrorB)}
@@ -176,7 +177,7 @@ export default function ConfigDiffClient() {
         {compareSnapshot && (
           <div className="ds-card diffViewCard">
             <div className="diffViewHeader">
-              <span className="diffViewLabel">Diff 뷰</span>
+              <span className="diffViewLabel">비교 결과</span>
               <span className="diffViewFiles">
                 {filenameA} <span className="diffArrow">→</span> {filenameB}
               </span>
@@ -202,11 +203,11 @@ export default function ConfigDiffClient() {
           <ResultPanel report={report} options={options} key={report.id} />
         ) : (
           <div className="ds-card resultCard">
-            <div className="emptyState">
-              <ArrowLeftRight size={36} />
-              <p>비교 버튼을 눌러 분석을 시작하세요.</p>
-              <small>A와 B에 설정 파일 내용을 붙여넣거나 업로드한 뒤 비교를 클릭하세요.</small>
-            </div>
+            <EmptyState
+              icon={<ArrowLeftRight size={16} strokeWidth={2} />}
+              title="비교 버튼을 눌러 분석을 시작하세요."
+              description="A와 B에 설정 파일 내용을 붙여넣거나 업로드한 뒤 비교를 클릭하세요."
+            />
           </div>
         )}
       </main>

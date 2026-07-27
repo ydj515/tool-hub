@@ -147,7 +147,7 @@ export default function RulesDrawer({ open, onClose }: Props) {
                   </div>
                   <p className="drawerSectionDesc">
                     아래 패턴과 일치하는 키 이름에 값이 평문으로 설정된 경우 탐지됩니다.
-                    placeholder({"${...}"}) 값은 제외합니다.
+                    자리표시자({"${...}"}) 값은 제외합니다.
                   </p>
                   {SECRET_KEY_PATTERNS_META.map((p, i) => (
                     <div key={i} className="ruleCard">

@@ -7,107 +7,21 @@
   gap: 16px;
 }
 
-/* ── Top bar ── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.appShell > .ds-tool-header {
   max-width: var(--ds-container-wide);
   margin: 0 auto;
   width: 100%;
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--ds-radius-lg);
 }
 
-.brandBlock {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  text-decoration: none;
-  color: inherit;
-}
-
-.brandIcon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  color: var(--on-primary);
-  background: var(--primary);
-  border-radius: var(--ds-radius-md);
-}
-
-.brandBlock p {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: var(--ds-font-size-body);
-  line-height: var(--ds-line-height-body);
-}
-
-.topActions {
+.config-header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-/* ── Buttons ── */
-.primaryBtn, .secondaryBtn, .ghostBtn {
-  min-height: 38px;
-  border-radius: var(--ds-radius-md);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: background var(--ds-duration-fast), border-color var(--ds-duration-fast), color var(--ds-duration-fast);
-}
-
-.primaryBtn {
-  min-width: 118px;
-  padding: 0 16px;
-  color: var(--on-primary);
-  background: var(--primary);
-}
-.primaryBtn:hover { background: var(--primary-strong); }
-.primaryBtn:active { background: var(--primary-heavy); }
-.primaryBtn:disabled { cursor: not-allowed; color: var(--disabled); background: var(--fill-subtle); }
-
-.secondaryBtn {
-  min-width: 100px;
-  padding: 0 13px;
-  color: var(--text);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-}
-.secondaryBtn:hover { border-color: var(--line-strong); background: var(--surface-3); }
-
-.themeIconPlaceholder {
-  display: block;
-  width: 16px;
-  height: 16px;
 }
 
 .hiddenFileInput {
   display: none;
 }
-
-.ghostBtn {
-  padding: 0 10px;
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid transparent;
-  font-size: var(--ds-font-size-body);
-}
-.ghostBtn:hover { border-color: var(--line); color: var(--text); background: var(--surface-2); }
 
 /* ── Main workspace ── */
 .workspace {
@@ -230,17 +144,7 @@
 .statValue.warn { color: var(--coral); }
 .statsDivider { width: 1px; height: 20px; background: var(--line); }
 
-.statusBadge {
-  margin-left: auto;
-  padding: 3px 10px;
-  border-radius: var(--ds-radius-sm);
-  font-size: var(--ds-font-size-caption);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0;
-}
-.statusBadge.passed { background: color-mix(in srgb, var(--green), transparent 92%); color: var(--green); }
-.statusBadge.failed { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
+.statsBar > [data-ds-badge] { margin-left: auto; }
 
 /* ── Result panel ── */
 .resultCard {
@@ -381,27 +285,6 @@
 .diffArrow { color: var(--muted); font-size: var(--ds-font-size-caption); padding: 0 4px; }
 .suggestionText { font-size: var(--ds-font-size-caption); color: var(--muted); line-height: 1.4; }
 
-/* ── Severity badge ── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: var(--ds-radius-sm);
-  font-size: var(--ds-font-size-caption);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0;
-  white-space: nowrap;
-}
-.badge.CRITICAL { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
-.badge.HIGH     { background: color-mix(in srgb, var(--coral),  transparent 92%); color: var(--coral); }
-.badge.MEDIUM   { background: color-mix(in srgb, var(--warning), transparent 92%); color: var(--warning); }
-.badge.LOW      { background: color-mix(in srgb, var(--green),  transparent 92%); color: var(--green); }
-.badge.ADDED    { background: color-mix(in srgb, var(--green),  transparent 92%); color: var(--green); }
-.badge.REMOVED  { background: color-mix(in srgb, var(--danger), transparent 92%); color: var(--danger); }
-.badge.CHANGED  { background: color-mix(in srgb, var(--warning), transparent 92%); color: var(--warning); }
-.badge.TYPE_CHANGED { background: color-mix(in srgb, var(--violet), transparent 92%); color: var(--violet); }
-
 /* ── Export bar ── */
 .exportBar {
   padding: 10px 14px;
@@ -482,20 +365,6 @@
 }
 .exportDropdownItem:last-child { border-bottom: none; }
 .exportDropdownItem:hover { background: var(--surface-2); }
-
-/* ── Empty / placeholder ── */
-.emptyState {
-  padding: 48px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  text-align: center;
-}
-.emptyState svg { color: var(--line-strong); }
-.emptyState p { font-size: var(--ds-font-size-body); font-weight: 700; }
-.emptyState small { font-size: var(--ds-font-size-body); }
 
 /* ── Copy notice ── */
 .copyNotice {
@@ -843,7 +712,7 @@
 .filenameInput:hover { border-color: var(--line); background: var(--surface-2); }
 .filenameInput:focus { outline: none; border-color: var(--primary); background: var(--surface); }
 
-@media (min-width: 901px) {
+@media (min-width: 1024px) {
   .inputSideHeader {
     display: grid;
     grid-template-columns: auto minmax(80px, 200px) auto auto auto;
@@ -903,15 +772,13 @@
   font-weight: 700;
 }
 
-.toggleStatusBadge {
-  font-size: var(--ds-font-size-caption);
-  font-weight: 800;
-  padding: 1px 5px;
-  border-radius: var(--ds-radius-sm);
-  letter-spacing: 0;
-}
-.toggleStatusBadge.on { background: color-mix(in srgb, var(--primary), transparent 82%); color: var(--text-neutral); }
-.toggleStatusBadge.off { background: color-mix(in srgb, var(--muted), transparent 92%); color: var(--muted); }
-
 .optionsLeft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
 .optionsHint { font-size: var(--ds-font-size-caption); color: var(--muted); font-weight: 500; white-space: nowrap; margin-left: 4px; }
+
+@media (max-width: 767px) {
+  .config-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -4,14 +4,16 @@
 "use client";
 
 import type { Severity } from "@/lib/types";
+import { Badge, type BadgeVariant } from "./design-system/Badge";
 
-const LABELS: Record<Severity, string> = {
-  CRITICAL: "CRITICAL",
-  HIGH: "HIGH",
-  MEDIUM: "MEDIUM",
-  LOW: "LOW",
+const BADGE: Record<Severity, { label: string; variant: BadgeVariant }> = {
+  CRITICAL: { label: "치명", variant: "danger" },
+  HIGH: { label: "높음", variant: "danger" },
+  MEDIUM: { label: "중간", variant: "warning" },
+  LOW: { label: "낮음", variant: "neutral" },
 };
 
 export default function IssueBadge({ severity }: { severity: Severity }) {
-  return <span className={`badge ${severity}`}>{LABELS[severity]}</span>;
+  const badge = BADGE[severity];
+  return <Badge variant={badge.variant}>{badge.label}</Badge>;
 }

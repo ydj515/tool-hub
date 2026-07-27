@@ -9,9 +9,8 @@ import { collectSamples, contrastOf } from '../app/styles/ds-contrast-e2e';
  * 틴트처럼 렌더 시점에만 드러나는 합성이다.
  */
 const SELECTORS = [
-  '.badge',
-  '.statusBadge',
-  '.toggleStatusBadge',
+  '[data-ds-badge]',
+  '[data-ds-empty-state]',
   '.valuePill',
   '.filterChip',
   '.statLabel',
@@ -28,7 +27,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByRole('button', { name: '비교' })).toBeVisible();
 
     if (theme === 'dark') {
-      await page.getByRole('button', { name: '테마 전환' }).click();
+      await page.getByRole('button', { name: '다크 테마로 전환' }).click();
     }
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
