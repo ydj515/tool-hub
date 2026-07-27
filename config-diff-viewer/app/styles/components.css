@@ -682,16 +682,23 @@
 .ruleSuggestion { font-size: var(--ds-font-size-caption); color: var(--green); line-height: 1.4; padding-left: 2px; }
 
 /* ── Input grid (two-side textarea) ── */
-.inputGrid { display: grid; grid-template-columns: 1fr 1fr; }
+.inputGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
 .inputSide {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
   padding: 12px 14px 14px;
   border-right: 1px solid var(--line);
 }
 .inputSide.inputSideRight { border-right: none; }
+
+@media (max-width: 767px) {
+  .inputGrid { grid-template-columns: minmax(0, 1fr); }
+  .inputSide { border-right: none; }
+  .inputSide.inputSideRight { border-top: 1px solid var(--line); }
+}
 
 .inputSideHeader { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 

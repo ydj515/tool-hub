@@ -1,5 +1,19 @@
 import { expect, test } from "@playwright/test";
 
+interface ElementBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function expectBoxInside(inner: ElementBox, outer: ElementBox) {
+  expect(inner.x).toBeGreaterThanOrEqual(outer.x - 1);
+  expect(inner.y).toBeGreaterThanOrEqual(outer.y - 1);
+  expect(inner.x + inner.width).toBeLessThanOrEqual(outer.x + outer.width + 1);
+  expect(inner.y + inner.height).toBeLessThanOrEqual(outer.y + outer.height + 1);
+}
+
 test("공통 셸에서 옵션 boolean과 비교 결과를 실제로 전환한다", async ({ page }) => {
   await page.goto("/");
 
@@ -38,7 +52,7 @@ test("파싱 오류가 있으면 비교를 비활성화하고 한국어 위치�
   await page.locator(".codeTextarea").first().fill("server: [");
 
   await expect(page.locator(".parseErrorBanner").first()).toHaveText(
-    /^\d+행: 설정 문법을 확인하세요\.$/,
+    "2행: unexpected end of the stream within a flow collection (2:1)",
   );
   await expect(compareButton).toBeDisabled();
   await expect(compareButton).toHaveAttribute("title", "파싱 오류를 먼저 수정하세요.");
@@ -77,6 +91,32 @@ for (const width of [375, 768, 1440]) {
     expect(await header.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
     expect(await page.locator("body").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 
+    const editorCard = page.locator(".editorCard");
+    const inputSides = page.locator(".inputSide");
+    const filenameInputs = page.locator(".filenameInput");
+    const textareas = page.locator(".codeTextarea");
+    const [editorCardBox, inputABox, inputBBox, filenameABox, filenameBBox, textareaABox, textareaBBox] =
+      await Promise.all([
+        editorCard.boundingBox(),
+        inputSides.nth(0).boundingBox(),
+        inputSides.nth(1).boundingBox(),
+        filenameInputs.nth(0).boundingBox(),
+        filenameInputs.nth(1).boundingBox(),
+        textareas.nth(0).boundingBox(),
+        textareas.nth(1).boundingBox(),
+      ]);
+
+    expect(editorCardBox).not.toBeNull();
+    expect(inputABox).not.toBeNull();
+    expect(inputBBox).not.toBeNull();
+    expect(filenameABox).not.toBeNull();
+    expect(filenameBBox).not.toBeNull();
+    expect(textareaABox).not.toBeNull();
+    expect(textareaBBox).not.toBeNull();
+    for (const box of [inputABox, inputBBox, filenameABox, filenameBBox, textareaABox, textareaBBox]) {
+      expectBoxInside(box!, editorCardBox!);
+    }
+
     if (width === 375) {
       const [resetBox, compareBox] = await Promise.all([
         resetButton.boundingBox(),
@@ -89,9 +129,12 @@ for (const width of [375, 768, 1440]) {
       expect(compareBox!.x - (resetBox!.x + resetBox!.width)).toBeGreaterThanOrEqual(7);
       expect(actionsBox!.y).toBeGreaterThan(brandBox!.y + brandBox!.height);
       expect(Math.abs(brandBox!.y - themeBox!.y)).toBeLessThan(12);
+      expect(inputBBox!.y).toBeGreaterThanOrEqual(inputABox!.y + inputABox!.height - 1);
     } else {
       expect(Math.abs(brandBox!.y - actionsBox!.y)).toBeLessThan(12);
       expect(Math.abs(brandBox!.y - themeBox!.y)).toBeLessThan(12);
+      expect(Math.abs(inputABox!.y - inputBBox!.y)).toBeLessThan(1);
+      expect(inputBBox!.x).toBeGreaterThanOrEqual(inputABox!.x + inputABox!.width - 1);
     }
   });
 }
