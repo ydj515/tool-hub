@@ -256,6 +256,76 @@ test('opens a utility menu by tap on a narrow viewport', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'OpenAPI 3.2.0 샘플', exact: true })).toBeVisible();
 });
 
+test('opens the version guide from the more menu and closes it with Escape', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('더보기 메뉴', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '버전 가이드' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Swagger/OpenAPI 버전 가이드' });
+
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('table', { name: '버전별 핵심 차이와 선택 기준' }).getByRole('rowheader')).toHaveCount(4);
+  const syntaxGuide = dialog.getByRole('region', { name: '자주 헷갈리는 문법' });
+  await expect(syntaxGuide).toBeVisible();
+  await expect(syntaxGuide.getByText('nullable: true', { exact: true })).toBeVisible();
+  await expect(syntaxGuide.getByText('type: [string, "null"]', { exact: true }).first()).toBeVisible();
+  const syntaxRowGeometry = await syntaxGuide.getByRole('table', { name: '버전별 작성 문법' }).locator('tbody tr').evaluateAll((rows) => rows.map((row) => (
+    Array.from(row.querySelectorAll('td')).map((cell) => {
+      const description = cell.querySelector('p');
+      const code = cell.querySelector('code');
+      if (!description || !code) throw new Error('작성 문법 셀의 설명 또는 코드 블록을 찾을 수 없습니다.');
+      return {
+        descriptionHeight: description.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(getComputedStyle(description).lineHeight),
+        codeTop: code.getBoundingClientRect().top,
+      };
+    })
+  )));
+  for (const cells of syntaxRowGeometry) {
+    for (const cell of cells) expect(cell.descriptionHeight).toBeGreaterThanOrEqual((cell.lineHeight * 4) - 1);
+    const codeTops = cells.map((cell) => cell.codeTop);
+    expect(Math.max(...codeTops) - Math.min(...codeTops)).toBeLessThanOrEqual(1);
+  }
+  await syntaxGuide.scrollIntoViewIfNeeded();
+  await expect(syntaxGuide).toHaveScreenshot('version-guide-syntax-desktop-light.png');
+  const box = await dialog.boundingBox();
+  if (!box) throw new Error('데스크톱 버전 가이드 다이얼로그 위치를 읽을 수 없습니다.');
+  expect(box.width).toBeLessThanOrEqual(760);
+  expect(box.x).toBeGreaterThan(0);
+  await expect(dialog).toHaveScreenshot('version-guide-desktop-light.png');
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByLabel('더보기 메뉴', { exact: true })).toBeFocused();
+  await expect(page.getByRole('menu', { name: '더보기 작업' })).not.toBeVisible();
+});
+
+test('renders the version guide with dark theme tokens', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '다크 테마로 전환' }).click();
+  await page.getByLabel('더보기 메뉴', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '버전 가이드' }).click();
+
+  await expect(page.getByRole('dialog', { name: 'Swagger/OpenAPI 버전 가이드' })).toHaveScreenshot('version-guide-desktop-dark.png');
+});
+
+test('fits the version guide inside a 360px mobile viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/');
+  await page.getByLabel('더보기 메뉴', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '버전 가이드' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Swagger/OpenAPI 버전 가이드' });
+  const box = await dialog.boundingBox();
+  if (!box) throw new Error('버전 가이드 다이얼로그 위치를 읽을 수 없습니다.');
+
+  expect(box.x).toBe(0);
+  expect(box.y).toBe(0);
+  expect(box.width).toBe(360);
+  expect(box.height).toBe(800);
+  await expect(dialog.getByRole('region', { name: '자주 헷갈리는 문법' })).toBeAttached();
+  const overflow = await dialog.evaluate((element) => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+  await expect(dialog).toHaveScreenshot('version-guide-mobile-light.png');
+});
+
 for (const [closeLabel, openLabel] of [['탐색기 접기', '탐색기 열기'], ['미리보기 접기', '미리보기 열기']]) {
   test(`reopens the ${closeLabel.replace(' 접기', '')} panel after collapse`, async ({ page }) => {
     await page.goto('/');

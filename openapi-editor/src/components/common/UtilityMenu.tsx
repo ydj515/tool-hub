@@ -1,5 +1,5 @@
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode, type Ref } from 'react';
 import { Button } from '../design-system/Button';
 
 const MENU_OPEN_EVENT = 'toolhub:popover-open';
@@ -7,12 +7,13 @@ const MENU_OPEN_EVENT = 'toolhub:popover-open';
 interface UtilityMenuProps {
   label: string;
   isOpen: boolean;
+  triggerRef?: Ref<HTMLButtonElement>;
   onOpen(): void;
   onClose(): void;
   children: ReactNode;
 }
 
-export function UtilityMenu({ label, isOpen, onOpen, onClose, children }: UtilityMenuProps) {
+export function UtilityMenu({ label, isOpen, triggerRef, onOpen, onClose, children }: UtilityMenuProps) {
   const id = useId();
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const clearScheduledClose = () => {
@@ -47,7 +48,7 @@ export function UtilityMenu({ label, isOpen, onOpen, onClose, children }: Utilit
       onClose();
     }
   }}>
-    <Button variant="secondary" className="utility-menu-trigger" aria-label={`${label} 메뉴`} aria-haspopup="menu" aria-expanded={isOpen} onClick={openMenuFromPointerOrFocus}>{label}<ChevronDown size={16} strokeWidth={2} /></Button>
+    <Button ref={triggerRef} variant="secondary" className="utility-menu-trigger" aria-label={`${label} 메뉴`} aria-haspopup="menu" aria-expanded={isOpen} onClick={openMenuFromPointerOrFocus}>{label}<ChevronDown size={16} strokeWidth={2} /></Button>
     {isOpen && <div className="utility-menu-popover" role="menu" aria-label={`${label} 작업`}>{children}</div>}
   </div>;
 }

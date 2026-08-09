@@ -11,6 +11,7 @@ function createProps(overrides: Partial<TopbarProps> = {}): TopbarProps {
   return {
     filename: undefined,
     format: 'yaml',
+    sourceVersion: undefined,
     target: 'openapi-3.1',
     conversionEnabled: false,
     reviewing: false,
@@ -112,6 +113,28 @@ describe('OpenAPI Editor Topbar', () => {
 
     await user.click(screen.getByRole('button', { name: '다크 테마로 전환' }));
     expect(props.onToggleTheme).toHaveBeenCalledOnce();
+  });
+
+  it('버전 가이드를 메뉴 첫 항목으로 열고 현재·대상 버전을 표시한 뒤 더보기로 포커스를 복원한다', async () => {
+    const user = userEvent.setup();
+    render(<Topbar {...createProps({ sourceVersion: 'swagger-2.0', target: 'openapi-3.2' })} />);
+    const moreTrigger = screen.getByRole('button', { name: '더보기 메뉴' });
+
+    await user.click(moreTrigger);
+    const menu = screen.getByRole('menu', { name: '더보기 작업' });
+    expect(within(menu).getAllByRole('menuitem')[0]).toHaveAccessibleName('버전 가이드');
+
+    await user.click(within(menu).getByRole('menuitem', { name: '버전 가이드' }));
+    const dialog = screen.getByRole('dialog', { name: 'Swagger/OpenAPI 버전 가이드' });
+    const summaryTable = within(dialog).getByRole('table', { name: '버전별 핵심 차이와 선택 기준' });
+    expect(dialog).toBeVisible();
+    expect(within(summaryTable).getByRole('rowheader', { name: /Swagger 2.0/ }).closest('tr')).toHaveTextContent('현재 문서');
+    expect(within(summaryTable).getByRole('rowheader', { name: /OpenAPI 3.2.0/ }).closest('tr')).toHaveTextContent('변환 대상');
+
+    await user.click(screen.getByRole('button', { name: '버전 가이드 닫기' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(moreTrigger).toHaveFocus();
+    expect(screen.queryByRole('menu', { name: '더보기 작업' })).not.toBeInTheDocument();
   });
 
   it('포커스로 메뉴를 열고 Escape, 포커스 이탈, 외부 포인터 입력으로 닫는다', async () => {

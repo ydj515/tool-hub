@@ -1,4 +1,4 @@
-import { FileUp, RotateCcw, WandSparkles } from 'lucide-react';
+import { BookOpen, FileUp, RotateCcw, WandSparkles } from 'lucide-react';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { UtilityMenu } from '../common/UtilityMenu';
 import type { DocumentFormat, SpecFamily } from '../../domain/document';
@@ -7,6 +7,7 @@ import type { Theme } from '../../theme';
 import { Button } from '../design-system/Button';
 import { ToolHeader } from '../design-system/ToolHeader';
 import { PRODUCT, ProductIcon } from '../design-system/product.generated';
+import { VersionGuideDialog } from '../version-guide/VersionGuideDialog';
 
 type UtilityMenuName = 'more';
 
@@ -33,10 +34,13 @@ interface TopbarProps {
 const sampleLabel: Record<SpecFamily, string> = { 'swagger-2.0': 'Swagger 2.0', 'openapi-3.0': 'OpenAPI 3.0.4', 'openapi-3.1': 'OpenAPI 3.1.2', 'openapi-3.2': 'OpenAPI 3.2.0' };
 const sampleVersions: SpecFamily[] = ['swagger-2.0', 'openapi-3.0', 'openapi-3.1', 'openapi-3.2'];
 
-export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
+export function Topbar({ sourceVersion, target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const menuAreaRef = useRef<HTMLDivElement>(null);
+  const moreTriggerRef = useRef<HTMLButtonElement>(null);
+  const suppressMoreOpenRef = useRef(false);
   const [openMenu, setOpenMenu] = useState<UtilityMenuName | null>(null);
+  const [versionGuideOpen, setVersionGuideOpen] = useState(false);
   const closeMenu = (menu?: UtilityMenuName) => setOpenMenu((current) => menu === undefined || current === menu ? null : current);
   const chooseFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -63,6 +67,17 @@ export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, on
     action();
     closeMenu();
   };
+  const openMoreMenu = () => {
+    if (suppressMoreOpenRef.current) {
+      suppressMoreOpenRef.current = false;
+      return;
+    }
+    setOpenMenu('more');
+  };
+  const closeVersionGuide = () => {
+    suppressMoreOpenRef.current = true;
+    setVersionGuideOpen(false);
+  };
 
   const actions = <div ref={menuAreaRef} className="openapi-header-actions">
     <label className="select-label"><span className="select-label-text">대상 버전</span>
@@ -82,7 +97,9 @@ export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, on
       <WandSparkles size={16} strokeWidth={2} />
       변환
     </Button>
-    <UtilityMenu label="더보기" isOpen={openMenu === 'more'} onOpen={() => setOpenMenu('more')} onClose={() => closeMenu('more')}>
+    <UtilityMenu triggerRef={moreTriggerRef} label="더보기" isOpen={openMenu === 'more'} onOpen={openMoreMenu} onClose={() => closeMenu('more')}>
+      <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => setVersionGuideOpen(true))}><BookOpen size={16} strokeWidth={2} />버전 가이드</Button>
+      <span className="utility-menu-separator" role="separator" />
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('yaml'))} disabled={!canDownloadYaml}>YAML 다운로드</Button>
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('json'))} disabled={!canDownloadJson}>JSON 다운로드</Button>
       {sampleVersions.map((version) => <Button key={version} variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownloadSample(version))} disabled={reviewing}>{sampleLabel[version]} 샘플</Button>)}
@@ -93,11 +110,20 @@ export function Topbar({ target, conversionEnabled, reviewing, theme, onFile, on
     </UtilityMenu>
   </div>;
 
-  return <ToolHeader
-    product={{ ...PRODUCT, icon: ProductIcon }}
-    homeHref={TOOL_HUB_URL}
-    theme={theme}
-    onThemeToggle={onToggleTheme}
-    actions={actions}
-  />;
+  return <>
+    <ToolHeader
+      product={{ ...PRODUCT, icon: ProductIcon }}
+      homeHref={TOOL_HUB_URL}
+      theme={theme}
+      onThemeToggle={onToggleTheme}
+      actions={actions}
+    />
+    <VersionGuideDialog
+      open={versionGuideOpen}
+      sourceVersion={sourceVersion}
+      targetVersion={target}
+      returnFocusRef={moreTriggerRef}
+      onClose={closeVersionGuide}
+    />
+  </>;
 }
