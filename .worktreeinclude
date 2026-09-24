@@ -1,0 +1,19 @@
+# Ignored local setup files copied into Codex-managed worktrees.
+# Only matching Git-ignored files are copied; file contents stay untracked.
+
+# Vite app overrides.
+/home/.env*.local
+/sign-maker/.env*.local
+/json-yaml-converter/.env*.local
+# Next.js dummy-file generator environment.
+/dummy-file-generator/.env
+/dummy-file-generator/.env.local
+# Electron and CLI capture environment.
+/webpage-capture-tool/.env
+/webpage-capture-tool/.env.*
+/webpage-capture-tool/apps/*/.env
+/webpage-capture-tool/apps/*/.env.*
+/webpage-capture-tool/packages/*/.env
+/webpage-capture-tool/packages/*/.env.*
+# Local JVM toolchain configuration.
+/class-diagram-generator/.mise.local.toml
