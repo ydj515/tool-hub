@@ -40,21 +40,23 @@ export function EditorPanel({
         {source ? (
           <Button
             type="button"
-            variant="icon"
             aria-label={`${format.toUpperCase()} Pretty`}
             title={`${format.toUpperCase()} Pretty`}
             onClick={onPretty}
             disabled={prettyDisabled}
           >
             <AlignLeft size={16} strokeWidth={2} aria-hidden="true" />
+            <span className="editor-action-label">보기 좋게 정렬</span>
           </Button>
         ) : (
           <>
-            <Button type="button" variant="icon" aria-label="결과 복사" title="결과 복사" data-copied={copySucceeded} onClick={onCopy} disabled={resultDisabled}>
+            <Button type="button" aria-label="결과 복사" title="결과 복사" data-copied={copySucceeded} onClick={onCopy} disabled={resultDisabled}>
               {copySucceeded ? <Check size={16} strokeWidth={2} aria-hidden="true" /> : <Copy size={16} strokeWidth={2} aria-hidden="true" />}
+              <span className="editor-action-label">{copySucceeded ? '복사됨' : '복사'}</span>
             </Button>
-            <Button type="button" variant="icon" aria-label="결과 다운로드" title="결과 다운로드" onClick={onDownload} disabled={resultDisabled}>
+            <Button type="button" variant="primary" aria-label="결과 다운로드" title="결과 다운로드" onClick={onDownload} disabled={resultDisabled}>
               <Download size={16} strokeWidth={2} aria-hidden="true" />
+              <span className="editor-action-label">다운로드</span>
             </Button>
           </>
         )}

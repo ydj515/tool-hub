@@ -1,5 +1,6 @@
 import type { ConverterDirection } from '../../lib/converter';
 import type { Theme } from '../../theme';
+import type { ReactNode } from 'react';
 import { TOOL_HUB_URL } from '../../constants';
 import { SegmentedControl } from '../design-system/SegmentedControl';
 import { ToolHeader } from '../design-system/ToolHeader';
@@ -10,9 +11,10 @@ interface HeaderProps {
   direction: ConverterDirection;
   onDirectionChange(direction: ConverterDirection): void;
   onToggleTheme(): void;
+  toolbar?: ReactNode;
 }
 
-export function Header({ theme, direction, onDirectionChange, onToggleTheme }: HeaderProps) {
+export function Header({ theme, direction, onDirectionChange, onToggleTheme, toolbar }: HeaderProps) {
   return (
     <ToolHeader
       product={{ ...PRODUCT, icon: ProductIcon }}
@@ -20,6 +22,7 @@ export function Header({ theme, direction, onDirectionChange, onToggleTheme }: H
       theme={theme}
       onThemeToggle={onToggleTheme}
       actions={(
+        <>
         <SegmentedControl
           value={direction}
           onValueChange={onDirectionChange}
@@ -29,6 +32,8 @@ export function Header({ theme, direction, onDirectionChange, onToggleTheme }: H
             { value: 'yaml-to-json', label: 'YAML → JSON' },
           ]}
         />
+        {toolbar}
+        </>
       )}
     />
   );

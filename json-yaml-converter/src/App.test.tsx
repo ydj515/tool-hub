@@ -24,9 +24,9 @@ describe('App shell', () => {
 
     const heading = await screen.findByRole('heading', { name: 'JSON/YAML Converter' }, { timeout: 5000 });
     expect(heading).toBeInTheDocument();
-    expect(screen.getByText('JSON과 YAML을 변환하고 검증합니다.')).toBeInTheDocument();
+    expect(screen.getByText('Tool Hub')).toBeInTheDocument();
     const banner = heading.closest('header');
-    expect(banner?.querySelector('[data-ds-brand-mark] svg')).toBeInTheDocument();
+    expect(banner?.querySelector('.ds-tool-header__home svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /테마로 전환/ })).toHaveAttribute('data-ds-theme-toggle');
     expect(screen.getByTestId('converter-studio-shell')).toHaveAttribute('data-ds-page-shell');
     expect(container.querySelector('[data-ds-page-shell]')).toBeInTheDocument();

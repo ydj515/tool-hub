@@ -50,11 +50,11 @@ describe('ConverterPage', () => {
     const controlCard = screen.getByTestId('converter-control-card');
     const workspace = screen.getByTestId('converter-workspace');
 
-    expect(screen.getByTestId('converter-studio')).toContainElement(toolbar);
+    expect(banner).toContainElement(toolbar);
     expect(banner).not.toBeNull();
     expect(banner).toContainElement(directionGroup);
     expect(toolbar).not.toContainElement(directionGroup);
-    expect(controlCard).toContainElement(toolbar);
+    expect(controlCard).not.toContainElement(toolbar);
     expect(controlCard).toContainElement(screen.getByText(/모든 처리는 브라우저 안에서 완료됩니다/));
     expect(workspace).toContainElement(screen.getByRole('region', { name: '원본 편집기' }));
     expect(workspace).toContainElement(screen.getByRole('region', { name: '결과 편집기' }));
@@ -65,7 +65,7 @@ describe('ConverterPage', () => {
       expect(action).toHaveAttribute('data-ds-button');
       expect(action).toHaveAttribute('title', name);
       expect(action.querySelector('svg')).not.toBeNull();
-      expect(action).toHaveTextContent('');
+      expect(action.textContent?.length).toBeGreaterThan(0);
     }
   });
 

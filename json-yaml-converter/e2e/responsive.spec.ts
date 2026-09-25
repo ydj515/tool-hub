@@ -159,14 +159,12 @@ test('정본 디자인 시스템의 셸과 control 크기를 사용한다', asyn
   await page.setViewportSize({ width: 1700, height: 900 });
   await page.goto('/');
 
-  // --ds-container-wide. 에디터·캔버스 도구의 최대폭이다.
-  await expect(page.locator('.app-main')).toHaveCSS('max-width', '1600px');
-  await expect(page.getByRole('banner')).toHaveCSS('padding', '16px 20px');
-  await expect(page.locator('[data-ds-brand-mark]')).toHaveCSS('width', '40px');
-  await expect(page.locator('[data-ds-brand-mark]')).toHaveCSS('height', '40px');
+  await expect(page.locator('.app-main')).toHaveCSS('width', '1700px');
+  await expect(page.getByRole('banner')).toHaveCSS('padding', '0px');
+  await expect(page.locator('.ds-tool-header__home')).toHaveText('Tool Hub');
   await expect(page.getByRole('button', { name: /테마로 전환/ })).toHaveCSS('width', '36px');
   await expect(page.getByRole('button', { name: /테마로 전환/ })).toHaveCSS('height', '36px');
-  await expect(page.locator('.studio-control-card')).toHaveCSS('border-radius', '16px');
+  await expect(page.getByRole('banner')).toHaveCSS('border-radius', '0px');
 });
 
 test('비활성 편집기 액션은 opacity가 아닌 token 스타일로 구분한다', async ({ page }) => {
@@ -188,14 +186,14 @@ test('Converter Studio가 desktop에서 topbar와 공통 workspace를 표시한�
   await expect(page.getByTestId('converter-workspace')).toBeVisible();
   await expect(page.getByRole('region', { name: '원본 편집기' })).toBeVisible();
   await expect(page.getByRole('region', { name: '결과 편집기' })).toBeVisible();
-  await expect(page.locator('.converter-page')).toHaveCSS('display', 'grid');
+  await expect(page.locator('.converter-page')).toHaveCSS('display', 'flex');
   await expect(page.locator('.converter-grid')).toHaveCSS(
     'grid-template-columns',
     /^\d+(?:\.\d+)?px \d+(?:\.\d+)?px$/,
   );
   await expect(page.locator('.converter-grid__swap')).toHaveCSS('position', 'absolute');
-  await expect(page.locator('.converter-grid__swap')).toHaveCSS('top', '50px');
-  await expect(page.locator('.editor-frame').first()).toHaveCSS('height', '400px');
+  const editor = await page.locator('.editor-frame').first().boundingBox();
+  expect(editor?.height).toBeGreaterThan(400);
 });
 
 test('768px에서 데스크톱 레이아웃을 유지한다', async ({ page }) => {
@@ -220,7 +218,7 @@ test('mobile Studio에서 swap을 유지한다', async ({ page }) => {
   const directionBox = await page.getByRole('group', { name: '변환 방향' }).boundingBox();
   await expect(page.getByRole('tablist')).toBeVisible();
   await expect(page.getByRole('button', { name: '변환 방향 전환' })).toBeVisible();
-  await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '8px');
+  await expect(page.getByTestId('converter-workspace')).toHaveCSS('padding-top', '12px');
   await expect(page.getByRole('button', { name: 'JSON → YAML' })).toHaveAttribute('aria-pressed', 'true');
   expect(directionBox?.width ?? 0).toBeGreaterThanOrEqual(244);
   expect(directionBox?.width ?? 0).toBeLessThanOrEqual(bannerBox?.width ?? 0);
@@ -291,16 +289,8 @@ for (const theme of ['light', 'dark'] as const) {
     const unselectedDirectionBackground = compositeBackground(unselectedDirection.backgrounds);
     expect(contrast(parseColor(selectedDirection.color), selectedDirectionBackground)).toBeGreaterThanOrEqual(4.5);
     const selectedDirectionButton = page.getByRole('button', { name: 'JSON → YAML', exact: true });
-    if (theme === 'dark') {
-      // 공통 aria-pressed 그룹은 두 버튼이 모두 tabbable 하므로 역방향으로 두 번 이동한다.
-      await page.keyboard.press('Shift+Tab');
-      await page.keyboard.press('Shift+Tab');
-    } else {
-      // 헤더의 첫 tabbable 요소는 브랜드 블록의 Tool Hub 링크다.
-      await page.keyboard.press('Tab');
-      await expect(page.getByRole('link', { name: /Tool Hub/ })).toBeFocused();
-      await page.keyboard.press('Tab');
-    }
+    await page.getByRole('link', { name: /Tool Hub/ }).focus();
+    await page.keyboard.press('Tab');
     await expect(selectedDirectionButton).toBeFocused();
     const focusedDirection = await computedColors(selectedDirectionButton);
     expect(focusedDirection.outline.style).toBe('solid');

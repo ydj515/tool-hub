@@ -136,17 +136,14 @@ export function ConverterPage({ theme, onToggleTheme }: ConverterPageProps) {
   };
 
   return <>
-    <Header theme={theme} direction={state.direction} onDirectionChange={handleDirectionChange} onToggleTheme={onToggleTheme} />
+    <Header theme={theme} direction={state.direction} onDirectionChange={handleDirectionChange} onToggleTheme={onToggleTheme} toolbar={<ConverterToolbar onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />} />
     <main className="converter-page" aria-label="변환기 작업 공간" data-testid="converter-studio">
-      <section className="studio-control-card" data-testid="converter-control-card">
-        <div className="studio-control-card__main">
-          <ConverterToolbar onLoadSample={handleLoadSample} onOpenFile={handleFile} onClear={handleClear} />
-          <StatusBar state={state} />
-        </div>
-        <p className="control-card__privacy">자동 변환 · 모든 처리는 브라우저 안에서 완료됩니다.</p>
-      </section>
       {message ? <p className="action-message" role="status">{message}</p> : null}
       <ConverterWorkspace state={state} theme={theme} sourceEditorRef={sourceEditorRef} activeTab={activeTab} filePending={filePending} copySucceeded={copySucceeded} onTabChange={handleTabChange} onSourceChange={handleSourceChange} onPretty={handlePretty} onCopy={handleCopy} onDownload={handleDownload} onSwap={handleSwap} onDiagnosticFocus={handleDiagnosticFocus} />
+      <div className="converter-status" data-testid="converter-control-card">
+        <StatusBar state={state} />
+        <p className="control-card__privacy">자동 변환 · 모든 처리는 브라우저 안에서 완료됩니다.</p>
+      </div>
       {copySucceeded ? <CopySuccessToast /> : null}
     </main>
   </>;

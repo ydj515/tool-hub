@@ -91,16 +91,21 @@ test('첨부 AsyncAPI 예제를 현재 방향에 맞게 불러온다', async ({ 
     .toContainText('"title": "Streetlights Kafka API"');
 });
 
-test('편집기 액션을 접근 가능한 36px 아이콘 버튼으로 표시한다', async ({ page }) => {
+test('편집기 액션은 이름을 유지하고 모바일에서 36px 아이콘으로 축약한다', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
 
   for (const name of ['JSON Pretty', '결과 복사', '결과 다운로드']) {
     const action = page.getByRole('button', { name, exact: true });
     await expect(action).toHaveAttribute('title', name);
-    await expect(action).toHaveCSS('width', '36px');
+    await expect(action.locator('.editor-action-label')).toBeVisible();
     await expect(action).toHaveCSS('height', '36px');
     await expect(action.locator('svg')).toHaveCount(1);
   }
+  await page.setViewportSize({ width: 375, height: 812 });
+  const pretty = page.getByRole('button', { name: 'JSON Pretty', exact: true });
+  await expect(pretty).toHaveCSS('width', '36px');
+  await expect(pretty.locator('.editor-action-label')).toBeHidden();
 });
 
 test('결과 복사 성공을 체크와 일시 알림으로 안내한다', async ({ page }) => {

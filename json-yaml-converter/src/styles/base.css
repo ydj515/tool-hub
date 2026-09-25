@@ -5,6 +5,5 @@ body { min-height: 100vh; font-family: var(--ds-font-sans); background: var(--bg
 button, input { font: inherit; }
 button:disabled { cursor: not-allowed; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.app-shell { min-height: 100vh; padding: var(--ds-page-padding-mobile); }
-.app-main { display: grid; gap: 20px; width: 100%; max-width: var(--ds-container-wide); margin: 0 auto; }
-@media (min-width: 768px) { .app-shell { padding: var(--ds-page-padding); } }
+.app-shell { min-height: 100dvh; }
+.app-main { display: flex; flex-direction: column; width: 100%; min-height: 100dvh; }

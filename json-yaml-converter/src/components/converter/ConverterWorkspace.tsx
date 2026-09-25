@@ -4,6 +4,7 @@ import type { ConverterState } from '../../hooks/useConverter';
 import type { CodeEditorHandle } from '../editor/CodeEditor';
 import type { Theme } from '../../theme';
 import { Button } from '../design-system/Button';
+import { ArrowRightLeft } from 'lucide-react';
 import { DiagnosticBanner } from './DiagnosticBanner';
 import { EditorPanel } from './EditorPanel';
 
@@ -62,7 +63,7 @@ export function ConverterWorkspace({ state, theme, sourceEditorRef, activeTab, f
     </div>
     <div className="converter-grid">
       <EditorPanel kind="source" format={sourceFormat} value={state.source} theme={theme} diagnostic={state.diagnostic} editorRef={sourceEditorRef} onChange={onSourceChange} onPretty={onPretty} prettyDisabled={state.status !== 'valid'} mobileHidden={activeTab !== 'source'} panelId="converter-source-panel" tabId="converter-source-tab" isMobile={isMobile} />
-      <div className="converter-grid__swap"><Button type="button" className="converter-grid__swap-button" variant="icon" aria-label="변환 방향 전환" disabled={disabled} onClick={switchAndSwap}>⇄</Button></div>
+      <div className="converter-grid__swap"><Button type="button" className="converter-grid__swap-button" variant="icon" aria-label="변환 방향 전환" disabled={disabled} onClick={switchAndSwap}><ArrowRightLeft size={16} aria-hidden="true" /></Button></div>
       <EditorPanel kind="result" format={resultFormat} value={state.result} theme={theme} diagnostic={null} onCopy={onCopy} onDownload={onDownload} resultDisabled={disabled} copySucceeded={copySucceeded} mobileHidden={activeTab !== 'result'} panelId="converter-result-panel" tabId="converter-result-tab" isMobile={isMobile}>{!state.resultFresh && state.result.length > 0 ? <p className="stale-result" role="status">현재 입력과 동기화되지 않은 결과</p> : null}</EditorPanel>
     </div>
     {state.diagnostic ? <DiagnosticBanner diagnostic={state.diagnostic} onFocus={onDiagnosticFocus} /> : null}
