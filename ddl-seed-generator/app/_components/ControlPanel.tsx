@@ -1,7 +1,6 @@
 import type { Dialect, DataLocale, GeneratedSql } from "@/lib/types";
 import { DIALECT_LABELS } from "@/app/_lib/samples";
 import SelectField from "@/app/_components/ui/SelectField";
-import Stat from "@/app/_components/ui/Stat";
 
 /**
  * 좌측 생성 옵션 패널: 입력/출력 방언, row 수, seed, 경계값, locale, 요약 통계.
@@ -37,10 +36,10 @@ export default function ControlPanel({
   onIncludeBoundaryChange,
   locale,
   onLocaleChange,
-  result,
 }: ControlPanelProps) {
   return (
     <aside className="controlPanel" aria-label="생성 옵션">
+      <h2 className="settingsTitle">설정</h2>
       <SelectField
         label="입력 DDL"
         id="inputDialect"
@@ -101,11 +100,6 @@ export default function ControlPanel({
         <option value="en">영어</option>
       </SelectField>
 
-      <div className="miniStats" aria-label="생성 요약">
-        <Stat label="테이블" value={result?.summary.tableCount ?? "-"} />
-        <Stat label="총 행" value={result?.summary.totalRows.toLocaleString() ?? "-"} />
-        <Stat label="삽입 순서" value={result ? result.analysis.insertOrder.length : "-"} />
-      </div>
     </aside>
   );
 }

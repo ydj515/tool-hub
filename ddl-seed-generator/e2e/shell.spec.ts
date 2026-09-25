@@ -37,11 +37,9 @@ test("공통 셸과 한국어 액션이 렌더되고 disabled 시각 계약을 �
   await expect(page.getByLabel("샘플 DDL 불러오기")).toHaveValue("");
   await expect(page.getByLabel("입력 DDL")).toHaveValue("mysql");
 
-  const brandMark = page.locator("[data-ds-brand-mark]");
   const generateButton = page.getByRole("button", { name: "생성" });
   const themeToggle = page.getByRole("button", { name: "다크 테마로 전환" });
-  await expect(brandMark).toHaveCSS("width", "40px");
-  await expect(brandMark).toHaveCSS("height", "40px");
+  await expect(page.locator(".ds-tool-header__home")).toContainText("Tool Hub");
   await expect(generateButton).toHaveCSS("height", "36px");
   await expect(themeToggle).toHaveCSS("width", "36px");
   await expect(themeToggle).toHaveCSS("height", "36px");
@@ -91,6 +89,19 @@ test("SQL 출력 탭은 활성 탭만 Tab 순서에 포함한다", async ({ page
 
   await expect(insertTab).toHaveAttribute("tabindex", "0");
   await expect(rollbackTab).toHaveAttribute("tabindex", "-1");
+});
+
+test("생성 결과와 ZIP 다운로드를 워크벤치에서 제공한다", async ({ page }) => {
+  await page.setViewportSize({ width: 1488, height: 1058 });
+  await page.goto("/");
+  await page.getByLabel("테이블당 행 수").fill("5");
+  await page.getByRole("button", { name: "생성", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("총 20행");
+  await expect(page.getByRole("button", { name: "ZIP 다운로드", exact: true })).toBeEnabled();
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "ZIP 다운로드", exact: true }).click();
+  expect((await download).suggestedFilename()).toBe("ddl-seed-postgresql.zip");
+  await expect(page).toHaveScreenshot("ddl-workbench-ready.png");
 });
 
 test("SQL 출력 탭은 방향키와 Home/End로 선택과 포커스를 함께 이동한다", async ({ page }) => {
@@ -168,6 +179,6 @@ test("767px에서 헤더 action이 브랜드와 테마 다음 행에 배치된�
   expect(brandBox).not.toBeNull();
   expect(actionsBox).not.toBeNull();
   expect(themeBox).not.toBeNull();
-  expect(Math.abs(brandBox!.y - themeBox!.y)).toBeLessThan(12);
-  expect(actionsBox!.y).toBeGreaterThan(brandBox!.y + brandBox!.height);
+  expect(Math.abs(brandBox!.y + brandBox!.height / 2 - themeBox!.y - themeBox!.height / 2)).toBeLessThan(2);
+  expect(actionsBox!.y).toBeGreaterThanOrEqual(brandBox!.y + brandBox!.height);
 });

@@ -1,8 +1,8 @@
-.appShell { min-height: 100vh; padding: 20px; }
+.appShell { min-height: 100vh; padding: 0; }
 
 .appShell > .ds-tool-header {
-  max-width: var(--ds-container-wide);
-  margin: 0 auto 16px;
+  max-width: none;
+  margin: 0;
 }
 
 h2, p { margin: 0; }

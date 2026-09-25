@@ -289,6 +289,8 @@ export default function GeneratorClient() {
         theme={theme}
         mounted={mounted}
         onToggleTheme={toggleTheme}
+        onDownloadAll={() => { void handleDownload("all"); }}
+        canDownload={Boolean(result) && !isDownloading}
       />
 
       <section className="workspace">
@@ -340,6 +342,11 @@ export default function GeneratorClient() {
           downloadMenuRef={downloadMenuRef}
         />
       </section>
+      <div className="workspaceStatus" role="status">
+        <span>{result ? "생성이 완료되었습니다." : "DDL과 설정을 확인한 뒤 생성하세요."}</span>
+        {result && <span>{result.summary.tableCount}개 테이블 · 총 {result.summary.totalRows.toLocaleString()}행 · FK 순서 적용</span>}
+        <span className="statusDialect">{dialect.toUpperCase()} · SQL</span>
+      </div>
     </main>
   );
 }

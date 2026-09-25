@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Download, SlidersHorizontal } from "lucide-react";
 import { TOOL_HUB_URL } from "@/app/_lib/constants";
 import { Button } from "@/app/_components/design-system/Button";
 import { ToolHeader } from "@/app/_components/design-system/ToolHeader";
@@ -15,6 +15,8 @@ interface TopbarProps {
   theme: "light" | "dark";
   mounted: boolean;
   onToggleTheme: () => void;
+  onDownloadAll?: () => void;
+  canDownload?: boolean;
 }
 
 export default function Topbar({
@@ -24,6 +26,8 @@ export default function Topbar({
   theme,
   mounted,
   onToggleTheme,
+  onDownloadAll,
+  canDownload = false,
 }: TopbarProps) {
   const actions = (
     <div className="ddl-header-actions">
@@ -36,16 +40,20 @@ export default function Topbar({
         }}
         aria-label="샘플 DDL 불러오기"
       >
-        <option value="" disabled>샘플</option>
+        <option value="" disabled>예제 불러오기</option>
         <option value="basic">기본 — PostgreSQL</option>
         <option value="schema">스키마 + ALTER TABLE — PostgreSQL</option>
         <option value="advanced">GENERATED ALWAYS AS IDENTITY — PostgreSQL</option>
         <option value="mysql">AUTO_INCREMENT + ENUM — MySQL</option>
         <option value="h2">IDENTITY 타입 — H2</option>
       </select>
-      <Button variant="primary" disabled={!canGenerate} onClick={onGenerate}>
-        <Sparkles size={16} strokeWidth={2} />
+      <Button disabled={!canGenerate} onClick={onGenerate}>
+        <SlidersHorizontal size={16} strokeWidth={2} />
         생성
+      </Button>
+      <Button variant="primary" disabled={!canDownload} onClick={onDownloadAll}>
+        <Download size={16} strokeWidth={2} />
+        ZIP 다운로드
       </Button>
     </div>
   );

@@ -16,9 +16,9 @@ describe("DDL Seed Generator Topbar", () => {
     );
 
     expect(html).toContain('data-ds-tool-header="true"');
-    expect(html).toContain("DDL을 분석해 시드 데이터를 생성합니다.");
+    expect(html).toContain("Tool Hub");
     expect(html).toContain('aria-label="샘플 DDL 불러오기"');
-    expect(html).toContain(">샘플<");
+    expect(html).toContain(">예제 불러오기<");
     expect(html).toContain("기본 — PostgreSQL");
     expect(html).toContain(">생성</button>");
     expect(html).toContain('data-ds-button="true"');
