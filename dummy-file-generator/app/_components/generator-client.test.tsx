@@ -35,7 +35,8 @@ describe("GeneratorClient", () => {
 
   it("파일 형식 카드는 aria-pressed 선택 상태와 Lucide 16px 아이콘을 렌더한다", () => {
     const html = renderToStaticMarkup(<GeneratorClient />);
-    const svgTags = html.match(/<svg\b[^>]*>/g) ?? [];
+    const formatButtons = html.match(/<button[^>]*class="typeBtn[^]*?<\/button>/g) ?? [];
+    const svgTags = formatButtons.flatMap((button) => button.match(/<svg\b[^>]*>/g) ?? []);
 
     expect(html.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(html.match(/aria-pressed="false"/g)).toHaveLength(7);

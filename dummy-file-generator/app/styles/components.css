@@ -2,30 +2,26 @@
 .pageShell {
   min-height: 100vh;
   width: 100%;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 16px;
-  padding: var(--ds-page-padding-mobile);
+  padding: 0;
 }
 
 @media (min-width: 768px) {
   .pageShell {
-    padding: var(--ds-page-padding);
+    padding: 0;
   }
 }
 
 .pageShell > [data-ds-tool-header],
 .card {
-  width: min(var(--ds-container-narrow), 100%);
+  width: 100%;
 }
 
 .card {
-  border-radius: var(--ds-radius-lg);          /* 카드 16px */
+  border-radius: 0;
   background: var(--surface);
-  border: 1px solid var(--line-subtle);     /* translucent hairline */
-  box-shadow: var(--ds-shadow-md);             /* 중립·저확산 elevation */
-  padding: 28px;
+  border: 0;
+  box-shadow: none;
+  padding: 32px 40px;
 }
 
 /* ── Form ── */
@@ -48,7 +44,7 @@
   background: var(--surface);
   color: var(--muted);
   border-radius: var(--ds-radius-sm);
-  min-height: 44px;
+  min-height: 56px;
   font-size: var(--ds-font-size-body);
   font-weight: var(--ds-font-weight-medium);
   display: grid;
@@ -145,4 +141,39 @@
 @media (max-width: 767px) {
   .card { padding: 20px 16px; }
   .typeGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.pageIntro h2 { margin: 0 0 10px; font-size: 28px; font-weight: var(--ds-font-weight-semibold); }
+.pageIntro p { color: var(--muted); font-size: 16px; line-height: 1.5; }
+.generatorWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-top: 32px; min-height: calc(100dvh - 250px); }
+.inputPane { padding-right: 32px; }
+.resultsPane { min-width: 0; padding-left: 28px; border-left: 1px solid var(--line); }
+.resultsHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.resultsHeading h2 { margin: 0; font-size: 18px; font-weight: var(--ds-font-weight-semibold); }
+.fieldHead, .fieldLabel { font-size: 14px; }
+.fieldLabel { margin-top: 32px; }
+.form > [data-ds-button] { margin-top: 36px; }
+.resultsTableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+.resultsTable { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+.resultsTable th { padding: 16px 12px; font-weight: var(--ds-font-weight-medium); color: var(--muted); background: var(--surface-2); white-space: nowrap; }
+.resultsTable td { padding: 14px 12px; border-top: 1px solid var(--line); }
+.resultsTable td:first-child { overflow-wrap: anywhere; }
+.resultsTable td:not(:first-child) { white-space: nowrap; }
+.resultSuccess { color: var(--success); font-size: 12px; }
+.resultDownload { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--text); text-decoration: none; }
+.resultDownload:hover { background: var(--surface-2); }
+.resultsEmpty { padding: 48px 16px; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+.resultsStatus { min-height: 24px; margin-top: 12px; color: var(--muted); font-size: 12px; }
+@media (max-width: 1023px) {
+  .card { padding: 28px 24px; }
+  .generatorWorkspace { grid-template-columns: 1fr; gap: 36px; }
+  .inputPane { padding-right: 0; }
+  .resultsPane { padding: 24px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (max-width: 767px) {
+  .card { padding: 24px 16px; }
+  .pageIntro h2 { font-size: 24px; }
+  .pageIntro p { font-size: 14px; }
+  .generatorWorkspace { margin-top: 28px; }
+  .resultsTable th, .resultsTable td { padding: 12px 8px; }
 }

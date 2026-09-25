@@ -20,6 +20,7 @@ import {
   type SegmentOption,
 } from "./design-system/SegmentedControl";
 import { DownloadIcon, FormatIcon } from "./icons";
+import { Trash2 } from "lucide-react";
 
 const ZIP_STRUCTURE_OPTIONS: readonly SegmentOption<ZipStructure>[] = ZIP_STRUCTURES.map((value) => ({
   value,
@@ -39,6 +40,7 @@ export default function GeneratorForm() {
   const [zipStructure, setZipStructure] = useState<ZipStructure>("flat");
   const [zipExtensionProfile, setZipExtensionProfile] = useState<ZipExtensionProfile>("mixed");
   const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<GenerateOutput[]>([]);
 
   const canSubmit = useMemo(() => {
     const num = Number(targetSize);
@@ -68,6 +70,7 @@ export default function GeneratorForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data?.error ?? "생성 요청 실패");
       const nextResult = data as GenerateOutput;
+      setResults([nextResult]);
       const link = document.createElement("a");
       link.href = nextResult.downloadUrl;
       link.download = nextResult.fileName;
@@ -82,7 +85,8 @@ export default function GeneratorForm() {
   }
 
   return (
-    <>
+    <div className="generatorWorkspace">
+      <div className="inputPane">
       <form className="form" onSubmit={onSubmit}>
         <div className="fieldHead">파일 형식</div>
         <div className="typeGrid" role="group" aria-label="파일 형식 선택">
@@ -140,7 +144,34 @@ export default function GeneratorForm() {
         </Button>
       </form>
 
-      {error ? <p className="error">오류: {error}</p> : null}
-    </>
+      {error ? <p className="error" role="alert">오류: {error}</p> : null}
+      </div>
+      <section className="resultsPane" aria-label="생성 결과">
+        <div className="resultsHeading">
+          <h2>생성 결과</h2>
+          <Button disabled={results.length === 0} onClick={() => setResults([])}>
+            <Trash2 size={16} strokeWidth={2} />
+            결과 지우기
+          </Button>
+        </div>
+        <div className="resultsTableWrap">
+          <table className="resultsTable">
+            <thead><tr><th scope="col">파일 이름</th><th scope="col">크기</th><th scope="col">상태</th><th scope="col">작업</th></tr></thead>
+            <tbody>
+              {results.map((result) => (
+                <tr key={result.id}>
+                  <td>{result.fileName}</td>
+                  <td>{(result.actualBytes / 1048576).toLocaleString(undefined, { maximumFractionDigits: 2 })} MiB</td>
+                  <td><span className="resultSuccess">생성 완료</span></td>
+                  <td><a className="resultDownload" href={result.downloadUrl} download={result.fileName}><DownloadIcon />다운로드</a></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {results.length === 0 && <p className="resultsEmpty">생성한 파일이 여기에 표시됩니다.</p>}
+        </div>
+        <p className="resultsStatus" role="status" aria-live="polite">{loading ? "파일을 생성하고 있습니다." : results.length > 0 ? `${results.length}개 파일 생성 완료` : ""}</p>
+      </section>
+    </div>
   );
 }

@@ -22,6 +22,10 @@ export default function GeneratorClient() {
         onThemeToggle={toggleTheme}
       />
       <section className="card">
+        <div className="pageIntro">
+          <h2>파일 생성</h2>
+          <p>원하는 형식과 크기로 테스트 파일을 만듭니다.</p>
+        </div>
         <GeneratorForm />
       </section>
     </main>
