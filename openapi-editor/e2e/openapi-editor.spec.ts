@@ -15,6 +15,26 @@ async function downloadSample(page: Page, label: string): Promise<{ filename: st
 
 const VALID_YAML = ['openapi: 3.1.2', 'info:', '  title: Pets', '  version: 1.0.0', 'paths: {}'].join('\n');
 
+for (const selector of ['body', '[data-ds-tool-header]', '.monaco-editor', '.preview-panel']) {
+  test(`loads a file dropped on ${selector}`, async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.monaco-editor .view-lines').first().waitFor();
+    const transfer = await page.evaluateHandle((source) => {
+      const data = new DataTransfer();
+      data.items.add(new File([source], 'dropped.yaml', { type: 'application/yaml' }));
+      return data;
+    }, VALID_YAML);
+    const target = page.locator(selector).first();
+    await target.dispatchEvent('dragenter', { dataTransfer: transfer });
+    await expect(page.getByText('파일을 놓으면 OpenAPI 문서를 불러옵니다.')).toBeVisible();
+    await target.dispatchEvent('dragover', { dataTransfer: transfer });
+    await target.dispatchEvent('drop', { dataTransfer: transfer });
+    await expect(page.getByText('검증 완료')).toBeVisible();
+    await expect(page.getByText('파일을 놓으면 OpenAPI 문서를 불러옵니다.')).not.toBeVisible();
+    await transfer.dispose();
+  });
+}
+
 /**
  * 파일 업로드로 유효 문서를 주입한다.
  *
@@ -285,8 +305,14 @@ test('opens the version guide from the more menu and closes it with Escape', asy
     const codeTops = cells.map((cell) => cell.codeTop);
     expect(Math.max(...codeTops) - Math.min(...codeTops)).toBeLessThanOrEqual(1);
   }
+  const viewport = page.viewportSize()!;
+  await page.setViewportSize({ width: viewport.width, height: 1000 });
+  await dialog.evaluate((element) => { element.style.maxHeight = 'calc(100vh - 48px)'; });
   await syntaxGuide.scrollIntoViewIfNeeded();
   await expect(syntaxGuide).toHaveScreenshot('version-guide-syntax-desktop-light.png');
+  await dialog.evaluate((element) => { element.style.removeProperty('max-height'); });
+  await page.setViewportSize(viewport);
+  await dialog.locator('.version-guide-content').evaluate((element) => { element.scrollTop = 0; });
   const box = await dialog.boundingBox();
   if (!box) throw new Error('데스크톱 버전 가이드 다이얼로그 위치를 읽을 수 없습니다.');
   expect(box.width).toBeLessThanOrEqual(760);

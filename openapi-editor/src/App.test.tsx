@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -12,6 +12,26 @@ vi.mock('./components/preview/SwaggerPreview', () => ({
 }));
 
 describe('openapi-editor App', () => {
+  it('shows a file drop hint across nested regions and clears it on exit', () => {
+    render(<App />);
+    const dataTransfer = { types: ['Files'], files: [] };
+    fireEvent.dragEnter(document.body, { dataTransfer });
+    fireEvent.dragEnter(screen.getByLabelText('문서 편집기'), { dataTransfer });
+    fireEvent.dragLeave(screen.getByLabelText('문서 편집기'), { dataTransfer });
+    expect(screen.getByText('파일을 놓으면 OpenAPI 문서를 불러옵니다.')).toBeVisible();
+    fireEvent.dragLeave(document.body, { dataTransfer });
+    expect(screen.queryByText('파일을 놓으면 OpenAPI 문서를 불러옵니다.')).not.toBeInTheDocument();
+  });
+
+  it('does not intercept text dragging', () => {
+    render(<App />);
+    const dataTransfer = { types: ['text/plain'], files: [] };
+    fireEvent.dragEnter(document.body, { dataTransfer });
+    expect(fireEvent.dragOver(document.body, { dataTransfer })).toBe(true);
+    expect(fireEvent.drop(document.body, { dataTransfer })).toBe(true);
+    expect(screen.queryByText('파일을 놓으면 OpenAPI 문서를 불러옵니다.')).not.toBeInTheDocument();
+  });
+
   it('renders the editor workspace shell', () => {
     render(<App />);
 
