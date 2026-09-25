@@ -6,6 +6,7 @@ import { DocumentEditor } from '../editor/DocumentEditor';
 import type { CodeEditorHandle } from '../editor/CodeEditor';
 import { DocumentNavigator } from '../navigator/DocumentNavigator';
 import { SwaggerPreview } from '../preview/SwaggerPreview';
+import { RedocPreview } from '../preview/RedocPreview';
 import { ConversionReview } from '../conversion/ConversionReview';
 import { usePanelLayout } from '../../hooks/usePanelLayout';
 import type { WorkspaceState } from '../../hooks/useWorkspace';
@@ -15,6 +16,7 @@ interface WorkspaceProps {
   state: WorkspaceState;
   theme: Theme;
   onChange(source: string): void;
+  onFile(file: File): void;
   formatConversionEnabled: boolean;
   reviewing: boolean;
   onConvertFormat(format: DocumentFormat): void;
@@ -35,11 +37,12 @@ function nearestLocation(pointer: string, locations: Record<string, Diagnostic['
   }
 }
 
-export function Workspace({ state, theme, onChange, formatConversionEnabled, reviewing, onConvertFormat, onRedetect, onForceFormat, onCancel, onApply }: WorkspaceProps) {
+export function Workspace({ state, theme, onChange, onFile, formatConversionEnabled, reviewing, onConvertFormat, onRedetect, onForceFormat, onCancel, onApply }: WorkspaceProps) {
   const { layout, resize, toggle } = usePanelLayout();
   const editorRef = useRef<CodeEditorHandle>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const [mobileTab, setMobileTab] = useState<'navigator' | 'editor' | 'preview'>('editor');
+  const [previewMode, setPreviewMode] = useState<'swagger' | 'redoc'>('swagger');
   const locations = state.analysis?.parsed.pointerLocations ?? {};
   const selectPointer = (pointer: string) => {
     const location = nearestLocation(pointer, locations);
@@ -99,7 +102,13 @@ export function Workspace({ state, theme, onChange, formatConversionEnabled, rev
       <button className="panel-resizer" data-collapsed={layout.previewCollapsed} type="button" aria-label="미리보기 폭 조절" onPointerDown={(event) => resizeFromPointer('editor', event)}><Columns2 size={12} /></button>
       <section className="workspace-panel preview-panel" aria-label="API 미리보기" data-mobile-hidden={mobileTab !== 'preview'} data-collapsed={layout.previewCollapsed}>
         <header className="panel-header"><div><Eye size={16} /><strong>API 미리보기</strong></div><button className="panel-collapse-btn" aria-label={layout.previewCollapsed ? '미리보기 열기' : '미리보기 접기'} title={layout.previewCollapsed ? '미리보기 열기' : '미리보기 접기'} aria-expanded={!layout.previewCollapsed} type="button" onClick={() => toggle('preview')}>{layout.previewCollapsed ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</button></header>
-        {!layout.previewCollapsed ? <SwaggerPreview document={previewDocument} stale={stale} /> : null}
+        {!layout.previewCollapsed && <>
+          <div className="preview-mode-switch" role="group" aria-label="명세서 표시 방식">
+            <button type="button" aria-pressed={previewMode === 'swagger'} onClick={() => setPreviewMode('swagger')}>Swagger UI</button>
+            <button type="button" aria-pressed={previewMode === 'redoc'} onClick={() => setPreviewMode('redoc')}>ReDoc</button>
+          </div>
+          {previewMode === 'swagger' ? <SwaggerPreview document={previewDocument} stale={stale} /> : <RedocPreview document={previewDocument} stale={stale} theme={theme} onFile={onFile} />}
+        </>}
       </section>
     </main>
   </>;

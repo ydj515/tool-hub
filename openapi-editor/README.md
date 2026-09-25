@@ -7,8 +7,10 @@ Swagger 2.0, OpenAPI 3.0.x, OpenAPI 3.1.x, OpenAPI 3.2.x 단일 문서를 브라
 - YAML·JSON 직접 입력과 `.yaml`, `.yml`, `.json` 업로드
 - Swagger 2.0, OpenAPI 3.0.0~3.0.4, OpenAPI 3.1.0~3.1.2, OpenAPI 3.2.x 검증
 - Swagger 2.0, OpenAPI 3.0.4, OpenAPI 3.1.2, OpenAPI 3.2.0 사이의 모든 변환 방향
-- 내부 `$ref` 검사, 외부 `$ref` 경고, 읽기 전용 Swagger UI 미리보기
-- YAML·JSON 다운로드, 버전별 YAML 예시 명세 다운로드, 라이트·다크 테마, 반응형 패널
+- 내부 `$ref` 검사, 외부 `$ref` 경고, 읽기 전용 Swagger UI/ReDoc 미리보기 전환
+- YAML·JSON·ReDoc HTML 다운로드, 버전별 YAML 예시 명세 다운로드, 라이트·다크 테마, 반응형 패널
+
+ReDoc 보기와 HTML 다운로드는 Swagger 2.0, OpenAPI 3.0/3.1을 지원한다. OpenAPI 3.2를 선택하면 미지원 안내를 표시하며 명세 버전을 자동으로 바꾸지 않는다. HTML은 명세와 렌더러를 포함한 단일 파일로, 인터넷 없이 브라우저에서 열 수 있다. Markdown 설명도 HTML로 표시한다. 외부 `$ref`가 있는 문서는 참조를 문서 안에 포함해야 ReDoc으로 보거나 내려받을 수 있다.
 
 ## 변환 손실
 

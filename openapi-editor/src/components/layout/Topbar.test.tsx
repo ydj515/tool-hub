@@ -21,6 +21,9 @@ function createProps(overrides: Partial<TopbarProps> = {}): TopbarProps {
     onDownloadSample: vi.fn(),
     onConvert: vi.fn(),
     onDownload: vi.fn(),
+    onDownloadHtml: vi.fn(),
+    canDownloadHtml: false,
+    exportingHtml: false,
     canDownloadYaml: false,
     canDownloadJson: false,
     onRestore: vi.fn(),
@@ -31,6 +34,17 @@ function createProps(overrides: Partial<TopbarProps> = {}): TopbarProps {
 }
 
 describe('OpenAPI Editor Topbar', () => {
+  it('downloads HTML and disables repeated export while generating', async () => {
+    const user = userEvent.setup();
+    const props = createProps({ canDownloadHtml: true });
+    const { rerender } = render(<Topbar {...props} />);
+    await user.click(screen.getByRole('button', { name: '더보기 메뉴' }));
+    await user.click(screen.getByRole('menuitem', { name: 'HTML 명세서 다운로드' }));
+    expect(props.onDownloadHtml).toHaveBeenCalledOnce();
+    rerender(<Topbar {...props} exportingHtml />);
+    await user.click(screen.getByRole('button', { name: '더보기 메뉴' }));
+    expect(screen.getByRole('menuitem', { name: 'HTML 생성 중…' })).toBeDisabled();
+  });
   it('공통 카드 셸에서 승인된 제품명과 단일 action row를 렌더한다', () => {
     const html = renderToStaticMarkup(<Topbar {...createProps()} />);
 
@@ -67,6 +81,7 @@ describe('OpenAPI Editor Topbar', () => {
     await user.click(screen.getByRole('button', { name: '더보기 메뉴' }));
     expect(screen.getByRole('menuitem', { name: 'YAML 다운로드' })).toBeDisabled();
     expect(screen.getByRole('menuitem', { name: 'JSON 다운로드' })).toBeDisabled();
+    expect(screen.getByRole('menuitem', { name: 'HTML 명세서 다운로드' })).toBeDisabled();
     expect(screen.getByRole('menuitem', { name: 'Swagger 2.0 샘플' })).toBeEnabled();
     expect(screen.getByRole('menuitem', { name: '원본 복원' })).toBeDisabled();
 

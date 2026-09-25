@@ -53,6 +53,12 @@ YAML/JSON 자동 감지는 입력 형식을 정한 뒤 편집 중 유지한다. 
 - 예외·분석 이벤트에 문서 전체를 기록하지 않는다.
 - 편집 내용은 새로고침 시 사라질 수 있으므로 파일 다운로드와 이탈 확인 흐름을 유지한다.
 
+## ReDoc HTML 출력
+
+[html-document.ts](../src/lib/files/html-document.ts)는 고정 버전 `redoc`의 standalone 번들·라이선스와 명세 JSON을 HTML 하나에 넣는다. 이 모듈은 ReDoc 미리보기 또는 HTML 다운로드를 처음 선택할 때 지연 로드한다. ReDoc 로고도 data URI로 포함한다. 다운로드에는 현재 편집 내용과 일치하는 검증 결과만 사용하며, 생성 시작 시점의 명세와 파일명을 보존한다.
+
+OpenAPI 3.2에서는 “현재 버전은 지원하지 않습니다.”를 표시하고 다운로드하지 않는다. 외부 `$ref`가 있는 문서는 내부에 참조를 포함하도록 안내한다. 제목·명세의 HTML 종료 태그를 이스케이프하고 ReDoc의 `untrustedSpec` 옵션으로 Markdown/HTML을 정화한다. CSP로 외부 통신·이미지·폰트 요청을 차단한다. JSON/YAML 원문 다운로드는 기존 규칙을 유지한다.
+
 ## 검증
 
 파서 위치, 버전 감지, 내부/외부/순환 ref, 모든 변환 방향의 골든 fixture, vendor extension, 설명되지 않는 누락, revision 경쟁, 후보 적용/취소/복원을 검사한다. 브라우저에서는 외부 요청 차단, 실제 Monaco/Swagger UI와 파일 다운로드를 확인한다. [기여자 가이드](contributor-guide.md)의 전체 명령을 따른다.

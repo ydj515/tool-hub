@@ -21,6 +21,7 @@
     "monaco-editor": "^0.56.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "redoc": "2.5.4",
     "swagger-ui-react": "^5.32.11",
     "tailwindcss": "^4.2.4",
     "yaml": "^2.9.0"

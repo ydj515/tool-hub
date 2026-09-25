@@ -24,6 +24,9 @@ interface TopbarProps {
   onDownloadSample(version: SpecFamily): void;
   onConvert(): void;
   onDownload(format: DocumentFormat): void;
+  onDownloadHtml(): void;
+  canDownloadHtml: boolean;
+  exportingHtml: boolean;
   canDownloadYaml: boolean;
   canDownloadJson: boolean;
   onRestore(): void;
@@ -34,7 +37,7 @@ interface TopbarProps {
 const sampleLabel: Record<SpecFamily, string> = { 'swagger-2.0': 'Swagger 2.0', 'openapi-3.0': 'OpenAPI 3.0.4', 'openapi-3.1': 'OpenAPI 3.1.2', 'openapi-3.2': 'OpenAPI 3.2.0' };
 const sampleVersions: SpecFamily[] = ['swagger-2.0', 'openapi-3.0', 'openapi-3.1', 'openapi-3.2'];
 
-export function Topbar({ sourceVersion, target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
+export function Topbar({ sourceVersion, target, conversionEnabled, reviewing, theme, onFile, onTarget, onDownloadSample, onConvert, onDownload, onDownloadHtml, canDownloadHtml, exportingHtml, canDownloadYaml, canDownloadJson, onRestore, canRestore, onToggleTheme }: TopbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const menuAreaRef = useRef<HTMLDivElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
@@ -102,6 +105,7 @@ export function Topbar({ sourceVersion, target, conversionEnabled, reviewing, th
       <span className="utility-menu-separator" role="separator" />
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('yaml'))} disabled={!canDownloadYaml}>YAML 다운로드</Button>
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownload('json'))} disabled={!canDownloadJson}>JSON 다운로드</Button>
+      <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(onDownloadHtml)} disabled={!canDownloadHtml || exportingHtml}>{exportingHtml ? 'HTML 생성 중…' : 'HTML 명세서 다운로드'}</Button>
       {sampleVersions.map((version) => <Button key={version} variant="secondary" role="menuitem" onClick={() => runMenuAction(() => onDownloadSample(version))} disabled={reviewing}>{sampleLabel[version]} 샘플</Button>)}
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(onRestore)} disabled={!canRestore || reviewing}>
         <RotateCcw size={16} strokeWidth={2} />
