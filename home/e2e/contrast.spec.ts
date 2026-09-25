@@ -5,10 +5,10 @@ import { collectSamples, contrastOf } from '../src/styles/ds-contrast-e2e';
  * home 은 역할색(danger/warning/success)을 쓰지 않는다. 보조 텍스트와 강조
  * 텍스트가 실제 배경 위에서 읽히는지만 본다.
  *
- * 도구 카드는 --tool-accent-rgb 그라디언트와 accent ring 위에 텍스트가
- * 놓인다. 토큰 층은 평면 표면만 보므로 그 합성은 여기서만 검사된다.
+ * 미리보기 이미지는 장식이며 카드의 제목·설명과 분류 버튼·링크의
+ * 실제 표면 대비를 검사한다.
  */
-const SELECTORS = ['.text-muted', '.text-primary-text', '.toolCard p', '.toolCard h3'];
+const SELECTORS = ['.text-muted', '.toolCard p', '.toolCard h2', '.toolSource', '.toolOpen', '.categoryButton', '.landingFooter p'];
 
 for (const theme of ['light', 'dark'] as const) {
   test(`${theme} 테마의 보조·강조 텍스트가 WCAG AA 를 충족한다`, async ({ page }) => {

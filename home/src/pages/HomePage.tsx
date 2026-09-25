@@ -1,102 +1,30 @@
-/**
- * Tool Hub 홈 화면 콘텐츠: 히어로 영역과 태그 필터링 도구 목록을 렌더링한다.
- */
 import { useState } from 'react';
 import ToolCard from '../components/ToolCard';
 import FilterButton from '../components/ui/FilterButton';
-import Stat from '../components/ui/Stat';
-import { tools } from '../data/tools';
-
-const liveCount = tools.filter((t) => t.status === 'live').length;
-const allTags = [...new Set(tools.flatMap((t) => t.tags))];
+import { catalog, categories, type Category } from '../data/catalog';
 
 export default function HomePage() {
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-
-  const filteredTools = activeTag
-    ? tools.filter((t) => t.tags.includes(activeTag))
-    : tools;
-
+  const [category, setCategory] = useState<Category>('전체');
+  const visibleTools = catalog.filter((tool) => category === '전체' || tool.category === category);
   return (
     <>
-      {/* 히어로 */}
-      <section className="ds-shell py-14 sm:py-24">
-        <div className="max-w-[600px] mx-auto text-center flex flex-col items-center gap-5">
-          {/* 상태 인디케이터 */}
-          <div className="flex items-center gap-2 text-caption font-semibold text-primary-text tracking-normal uppercase">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-            </span>
-            Open Source · Always Free
-          </div>
-
-          {/* 메인 타이틀 */}
-          <h1 className="text-[clamp(40px,7vw,64px)] font-black leading-[1.08] tracking-normal text-tx">
-            개발자를 위한
-            <br />
-            <span className="heroTitle">
-              웹 도구 모음
-            </span>
-          </h1>
-
-          {/* 서브 텍스트 */}
-          <p className="text-subtitle text-muted leading-relaxed max-w-[420px]">
-            개발과 일상에서 자주 쓰는 소형 도구들.
-            <br />
-            브라우저에서 바로, 설치 없이 사용하세요.
-          </p>
-
-          {/* 인라인 통계 */}
-          <div className="flex items-center gap-3.5 text-body mt-1">
-            <Stat value={tools.length} label="tools" />
-            <span className="text-disabled text-subtitle select-none">/</span>
-            <Stat value={liveCount} label="live" />
-            <span className="text-disabled text-subtitle select-none">/</span>
-            <Stat value="100%" label="free" tabular={false} />
-          </div>
+      <section className="landingHero" aria-labelledby="hero-title">
+        <img className="landingHeroArt" src="/images/toolhub-hero.webp" alt="" fetchPriority="high" width="1800" height="650" />
+        <div className="ds-shell landingHeroContent">
+          <h1 id="hero-title">ToolHub</h1>
+          <p>데이터 변환, 파일 생성 등 자주 사용하는 도구 모음입니다.</p>
+          <a className="heroAction" href="#tools">도구 둘러보기 <span aria-hidden="true">→</span></a>
         </div>
       </section>
-
-      {/* 도구 목록 */}
-      <section className="ds-shell pb-28">
-        {/* 섹션 헤더 */}
-        <div className="flex items-center gap-4 mb-5">
-          <span className="text-caption font-bold tracking-normal uppercase text-muted shrink-0">
-            All Tools
-          </span>
-          <div className="flex-1 h-px bg-line" />
-          <span className="text-caption font-medium text-muted tabular-nums shrink-0">
-            {activeTag ? `${filteredTools.length} / ${tools.length}` : `${tools.length} total`}
-          </span>
-        </div>
-
-        {/* 태그 필터 */}
-        <div className="flex gap-2 flex-wrap mb-8">
-          <FilterButton
-            label="All"
-            active={activeTag === null}
-            onClick={() => setActiveTag(null)}
-          />
-          {allTags.map((tag) => (
-            <FilterButton
-              key={tag}
-              label={tag}
-              active={activeTag === tag}
-              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-            />
+      <section id="tools" className="ds-shell toolCatalog" aria-label="도구 모음">
+        <div className="categoryFilters" role="group" aria-label="도구 분류">
+          {categories.map((label) => (
+            <FilterButton key={label} label={label} active={category === label} onClick={() => setCategory(label)} />
           ))}
         </div>
-
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
-          {filteredTools.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} />
-          ))}
-          {filteredTools.length === 0 && (
-            <p className="col-span-full text-center py-16 text-body text-muted">
-              해당 태그의 도구가 없습니다.
-            </p>
-          )}
+        <p className="sr-only" role="status">{category} 도구 {visibleTools.length}개</p>
+        <div className="toolGrid">
+          {visibleTools.map((tool, index) => <ToolCard key={tool.id} tool={tool} description={tool.description} eager={index < 3} />)}
         </div>
       </section>
     </>

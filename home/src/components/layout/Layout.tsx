@@ -3,7 +3,6 @@
  * 테마 상태를 소유해 유일한 소비자인 헤더에 주입한다.
  */
 import type { ReactNode } from 'react';
-import Background from './Background';
 import Header from './Header';
 import Footer from './Footer';
 import { useTheme } from '../../hooks/useTheme';
@@ -17,7 +16,6 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg text-tx">
-      <Background />
       <Header theme={theme} onToggle={toggle} />
       <main className="flex-1 relative">{children}</main>
       <Footer />

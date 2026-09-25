@@ -16,7 +16,7 @@ interface HeaderProps {
 export default function Header({ theme, onToggle }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-bg/85 backdrop-blur-xl border-b border-line">
-      <div className="ds-shell h-14 flex items-center justify-between">
+      <div className="ds-shell h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="brandMark w-7 h-7 rounded-sm flex items-center justify-center shadow-sm">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -25,7 +25,7 @@ export default function Header({ theme, onToggle }: HeaderProps) {
               <rect x="9.5" y="1.5" width="3" height="10" rx="0.8" fill="white" opacity="0.4" />
             </svg>
           </div>
-          <span className="app-title text-tx font-semibold">Tool Hub</span>
+          <span className="app-title text-tx font-semibold">ToolHub</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -33,7 +33,7 @@ export default function Header({ theme, onToggle }: HeaderProps) {
             href={GITHUB_REPO}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-caption font-medium text-muted hover:text-tx px-3 py-1.5 rounded-md border border-line hover:bg-fill transition-colors no-underline"
+            className="flex h-9 items-center gap-1.5 text-caption font-medium text-muted hover:text-tx px-3 rounded-md border border-line hover:bg-fill transition-colors no-underline"
           >
             <GitHubIcon />
             GitHub
