@@ -49,8 +49,7 @@ UPPERCASE_METHOD | normalized_path | source_pointer | rule_id | variant_id
 검토 화면의 상세 패널이나 액션을 `fixed` 또는 `absolute`로 띄우지 않습니다. 모든 grid 자식은 `min-width: 0`을 유지합니다.
 
 - 320px, 375px: 엔드포인트·테스트 목록·상세를 한 화면씩 표시
-- 768px, 1024px: 엔드포인트 행과 목록·상세 2열
-- 1440px: 엔드포인트·목록·상세 3열
+- 768px 이상: 엔드포인트 탐색기와 검토 영역 2열, 테스트 목록 아래에 상세 표시
 
 `e2e/responsive.spec.ts`에서 가로 overflow, 데스크톱 열 경계, 모바일 단일 화면, 마지막 카드와 고정 액션의 교차 여부를 검증합니다.
 

@@ -15,22 +15,15 @@ for (const width of [320, 375, 768, 1024, 1200, 1279, 1280, 1440]) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
 
-    if (width >= 1280) {
+    if (width >= 768) {
       const endpoint = await page.getByRole('region', { name: '엔드포인트 목록' }).boundingBox();
       const list = await page.getByRole('region', { name: '테스트 목록' }).boundingBox();
       const detail = await page.getByRole('region', { name: '테스트 상세' }).boundingBox();
       expect(endpoint && list && detail).toBeTruthy();
       expect(endpoint!.x + endpoint!.width).toBeLessThanOrEqual(list!.x + 0.5);
-      expect(list!.x + list!.width).toBeLessThanOrEqual(detail!.x + 0.5);
-    }
-
-    if (width >= 768 && width < 1280) {
-      const endpoint = await page.getByRole('region', { name: '엔드포인트 목록' }).boundingBox();
-      const list = await page.getByRole('region', { name: '테스트 목록' }).boundingBox();
-      const detail = await page.getByRole('region', { name: '테스트 상세' }).boundingBox();
-      expect(endpoint && list && detail).toBeTruthy();
-      expect(endpoint!.y + endpoint!.height).toBeLessThanOrEqual(list!.y + 0.5);
-      expect(list!.x + list!.width).toBeLessThanOrEqual(detail!.x + 0.5);
+      expect(list!.y + list!.height).toBeLessThanOrEqual(detail!.y + 0.5);
+      expect(Math.abs(list!.x - detail!.x)).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(list!.width - detail!.width)).toBeLessThanOrEqual(0.5);
     }
 
     if (width < 768) {

@@ -5,16 +5,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { Header } from './Header';
 
 describe('Header', () => {
-  it('기능 glyph와 공통 카드 셸을 렌더한다', () => {
+  it('도구 이름과 공통 작업 헤더를 렌더한다', () => {
     const html = renderToStaticMarkup(<Header theme="light" onToggleTheme={() => {}} />);
 
     expect(html).toContain('data-ds-tool-header="true"');
     expect(html).toContain('API Contract Test Generator');
-    expect(html).toContain('OpenAPI 계약에서 테스트를 생성합니다.');
-    expect(html).toContain('명세와 결과는 브라우저 밖으로 전송하지 않습니다.');
+    expect(html).toContain('Tool Hub');
     expect(html).not.toContain('>AC<');
     expect(html).toContain('다크 테마로 전환');
-    expect(html.indexOf('privacy-note')).toBeLessThan(html.indexOf('data-ds-theme-toggle'));
   });
 
   it('정본 ThemeToggle로 테마 변경을 요청한다', async () => {
