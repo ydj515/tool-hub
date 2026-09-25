@@ -5,49 +5,60 @@
 <th:block th:fragment="content">
     <section class="mmu-hero-card mmu-progress-hero" data-progress-hero>
         <p class="mmu-eyebrow" th:text="#{page.progress.section}">Progress</p>
-        <h1 class="page-title" th:text="#{page.progress.title}">진행 상태</h1>
+        <h1 class="page-title" th:text="#{page.progress.heading}">클래스 설계서를 생성하고 있습니다</h1>
         <p class="mmu-hero-copy" th:text="#{page.progress.lead}">
             업로드한 소스를 분석하고 산출물을 생성하는 중입니다.
         </p>
-        <div class="percent-hero mt-4">
+        <p class="workflow-source" th:if="${jobContext != null and jobContext.sourceFilename != null}"><span th:text="${jobContext.sourceFilename}"></span><span th:if="${jobContext.sourceSizeLabel != null}" th:text="${' · ' + jobContext.sourceSizeLabel}"></span></p>
+        <div class="workflow-progress-meter">
+        <div class="progress progress-lg">
+            <div id="bar" class="progress-bar progress-bar--empty" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        </div>
+        <div class="workflow-progress-reading" aria-live="polite">
             <strong id="progressPercent" class="percent-hero__value">0%</strong>
             <span id="stage" class="percent-hero__stage" th:text="#{page.progress.stage}">-</span>
         </div>
-        <div class="progress progress-lg mt-3">
-            <div id="bar" class="progress-bar progress-bar--empty" role="progressbar"></div>
         </div>
-        <p class="mmu-status-note mt-3 mb-0" data-progress-note th:text="#{page.progress.autoRedirect}">
-            완료되면 결과 화면으로 자동 이동합니다.
-        </p>
     </section>
-    <section class="mmu-progress-layout mt-4">
+    <section class="mmu-progress-layout workflow-progress-layout mt-4">
         <article class="mmu-surface-card" data-progress-timeline>
             <h2 class="mmu-section-title" th:text="#{page.progress.pipeline}">처리 단계</h2>
-            <ol class="timeline mt-4" id="timeline" aria-label="pipeline timeline">
+            <ol class="timeline workflow-timeline mt-4" id="timeline" aria-label="pipeline timeline">
                 <li class="timeline__step" data-step="intake">
                     <span class="timeline__dot"><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i></span>
-                    <span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span>
+                    <div class="timeline__copy"><span class="timeline__label" th:text="#{page.progress.step.intake}">Intake</span><p class="timeline__description" th:text="#{page.progress.step.intake.help}"></p></div>
                 </li>
                 <li class="timeline__step" data-step="analysis">
                     <span class="timeline__dot"><i class="bi bi-braces" aria-hidden="true"></i></span>
-                    <span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span>
+                    <div class="timeline__copy"><span class="timeline__label" th:text="#{page.progress.step.analysis}">Analysis</span><p class="timeline__description" th:text="#{page.progress.step.analysis.help}"></p></div>
                 </li>
                 <li class="timeline__step" data-step="diagrams">
                     <span class="timeline__dot"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
-                    <span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span>
+                    <div class="timeline__copy"><span class="timeline__label" th:text="#{page.progress.step.diagrams}">Diagrams</span><p class="timeline__description" th:text="#{page.progress.step.diagrams.help}"></p></div>
                 </li>
                 <li class="timeline__step" data-step="rendering">
                     <span class="timeline__dot"><i class="bi bi-file-earmark-richtext" aria-hidden="true"></i></span>
-                    <span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span>
+                    <div class="timeline__copy"><span class="timeline__label" th:text="#{page.progress.step.rendering}">Rendering</span><p class="timeline__description" th:text="#{page.progress.step.rendering.help}"></p></div>
                 </li>
                 <li class="timeline__step" data-step="packaging">
                     <span class="timeline__dot"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
-                    <span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span>
+                    <div class="timeline__copy"><span class="timeline__label" th:text="#{page.progress.step.packaging}">Packaging</span><p class="timeline__description" th:text="#{page.progress.step.packaging.help}"></p></div>
                 </li>
             </ol>
         </article>
         <article class="mmu-surface-card" data-progress-status>
-            <h2 class="mmu-section-title" th:text="#{page.progress.statusTitle}">상태 안내</h2>
+            <div class="workflow-request" th:if="${jobContext != null}">
+                <h2 class="mmu-section-title" th:text="#{page.progress.requested}">요청한 산출물</h2>
+                <p class="workflow-formats" th:text="${#strings.listJoin(jobContext.formats, ' · ')}"></p>
+                <p th:if="${jobContext.includeDiagrams}" th:text="#{page.upload.includeDiagrams}"></p>
+                <dl class="workflow-settings">
+                    <div><dt th:text="#{page.upload.programName}"></dt><dd th:text="${jobContext.programName}"></dd></div>
+                    <div><dt th:text="#{page.upload.version}"></dt><dd th:text="${jobContext.version}"></dd></div>
+                    <div><dt th:text="#{page.upload.language}"></dt><dd th:text="${jobContext.language}"></dd></div>
+                </dl>
+            </div>
+            <p class="mmu-status-note" data-progress-note th:text="#{page.progress.autoRedirect}"></p>
+            <h2 class="mmu-section-title visually-hidden" th:text="#{page.progress.statusTitle}">상태 안내</h2>
             <div id="warnings" class="mmu-warning-stack mt-4"></div>
         </article>
     </section>

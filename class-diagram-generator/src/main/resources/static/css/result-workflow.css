@@ -1,0 +1,57 @@
+/* Progress and result screens share the same quiet workspace hierarchy. */
+.mmu-progress-hero .mmu-hero-copy,
+.result-summary .mmu-hero-copy { display: none; }
+.workflow-source, .workflow-result-context, .workflow-result-count { margin: 12px 0 0; color: var(--app-text-muted); font-size: 16px; overflow-wrap: anywhere; }
+.workflow-progress-meter { display: grid; grid-template-columns: minmax(0, 1fr) 170px; align-items: center; gap: 24px; margin-top: 28px; }
+.workflow-progress-meter .progress { height: 12px; }
+.workflow-progress-reading { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; text-align: right; }
+.workflow-progress-reading .percent-hero__value { font-size: 32px; }
+.workflow-progress-reading .percent-hero__stage { margin: 0; font-size: 14px; font-weight: 400; }
+.workflow-progress-layout { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 48px; padding-top: 30px; }
+.workflow-progress-layout > .mmu-surface-card { border: 0; border-radius: 0; padding: 0; background: transparent; box-shadow: none; }
+.workflow-progress-layout [data-progress-timeline] > h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.workflow-progress-layout [data-progress-status] { border-left: 1px solid var(--app-border); padding-left: 40px; }
+.workflow-timeline { display: flex; flex-direction: column; gap: 0; list-style: none; margin: 0 !important; padding: 0 0 0 24px; }
+.workflow-timeline .timeline__step { display: grid; grid-template-columns: 32px minmax(0, 1fr); justify-items: start; column-gap: 24px; min-height: 100px; text-align: left; }
+.workflow-timeline .timeline__step::before { content: ''; top: 34px; left: 13px; width: 1px; height: calc(100% - 38px); background: var(--app-border); }
+.workflow-timeline .timeline__step:last-child::before { content: none; }
+.workflow-timeline .timeline__dot { width: 28px; height: 28px; box-shadow: none; }
+.workflow-timeline .timeline__label { font-size: 17px; line-height: 28px; color: var(--app-text); }
+.timeline__description { margin: 4px 0 22px; color: var(--app-text-muted); font-size: 15px; line-height: 1.6; }
+.workflow-timeline .is-active .timeline__description { color: var(--app-accent); }
+.workflow-timeline .is-done .timeline__dot { background: var(--app-accent); border-color: var(--app-accent); color: var(--on-primary); }
+.workflow-formats { margin: 12px 0 6px; }
+.workflow-request p { color: var(--app-text-muted); }
+.workflow-settings { margin: 26px 0; padding: 24px 0; border-top: 1px solid var(--app-border); border-bottom: 1px solid var(--app-border); }
+.workflow-settings > div + div { margin-top: 18px; }
+.workflow-settings dt { font-weight: 600; margin-bottom: 6px; }
+.workflow-settings dd { margin: 0; color: var(--app-text-muted); overflow-wrap: anywhere; }
+.workflow-progress-layout .mmu-status-note { font-size: 14px; line-height: 1.6; color: var(--app-text-muted); }
+.workflow-progress-layout [data-progress-status] > h2 { font-size: 14px; margin-top: 24px; }
+.workflow-progress-layout .mmu-info-card { padding: 0; background: transparent; border: 0; font-size: 14px; }
+.result-summary + #resultWarnings + .artifact-section { margin-top: 32px !important; }
+.artifact-heading, .artifact-card { grid-template-columns: minmax(0, 1fr) 110px 110px 140px; }
+.artifact-card { grid-template-rows: auto auto; padding: 22px; }
+.artifact-name { grid-column: 1; grid-row: 1; min-width: 0; }
+.artifact-title { display: block; font-size: 17px; margin-bottom: 5px; font-weight: 600; }
+.artifact-name .artifact-filename { display: block; font-size: 14px; color: var(--app-text-muted); font-weight: 400; }
+.artifact-module { text-transform: none; }
+.workflow-result-details { margin-top: 26px; }
+.workflow-result-details .workflow-source { font-size: 14px; }
+.workflow-source strong { color: var(--app-text); margin-right: 12px; }
+.workflow-result-metadata { display: flex; flex-wrap: wrap; gap: 12px 32px; margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--app-border); font-size: 12px; color: var(--app-text-muted); }
+.workflow-result-metadata dt { font-weight: 500; margin-bottom: 4px; }
+.workflow-result-metadata dd { margin: 0; }
+@media (max-width: 767px) {
+    .workflow-progress-meter { grid-template-columns: minmax(0, 1fr) 105px; gap: 16px; }
+    .workflow-progress-reading .percent-hero__value { font-size: 26px; }
+    .workflow-progress-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .workflow-progress-layout [data-progress-status] { border-left: 0; border-top: 1px solid var(--app-border); padding: 24px 0 0; }
+    .workflow-timeline { padding-left: 0; }
+    .workflow-timeline .timeline__step { column-gap: 16px; }
+    .workflow-source, .workflow-result-context, .workflow-result-count { font-size: 14px; }
+    .artifact-card { grid-template-columns: minmax(0, 1fr) auto; padding: 18px; }
+    .artifact-name { grid-column: 1 / -1; grid-row: 1; }
+    .artifact-name .artifact-filename { font-size: 12px; }
+    .artifact-title { font-size: 16px; }
+}

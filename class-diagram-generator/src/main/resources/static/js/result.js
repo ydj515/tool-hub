@@ -49,10 +49,16 @@ function buildArtifactCard(a) {
     link.append(icon('bi-download'), el('span', null, resultLabels.download));
     footer.appendChild(link);
 
+    const name = el('div', 'artifact-name');
+    name.append(
+        el('strong', 'artifact-title', resultLabels.documentTitle),
+        el('span', 'artifact-filename', a.filename ?? ''),
+    );
+
     card.append(
         header,
         el('div', 'artifact-module', a.module ?? ''),
-        el('div', 'artifact-filename', a.filename ?? ''),
+        name,
         footer,
     );
     return card;
@@ -112,6 +118,8 @@ async function load() {
     document.getElementById('createdAt').textContent = formatDate(data.createdAt);
     document.getElementById('expiresAt').textContent = formatDate(data.expiresAt);
     document.getElementById('artifactCount').textContent = String(data.artifacts.length);
+    const formats = [...new Set(data.artifacts.map((artifact) => artifact.format.toUpperCase()))];
+    document.getElementById('resultCount').textContent = `${formats.join(', ')} · ${resultLabels.generated}: ${data.artifacts.length}`;
     renderWarnings(data.warnings ?? []);
     renderFormatDownloads(data.formatDownloads ?? []);
     const grid = document.getElementById('artifacts');

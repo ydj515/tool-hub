@@ -29,6 +29,8 @@ function applyTimeline(stageKey) {
         const idx = stepOrder.indexOf(el.dataset.step);
         el.classList.toggle('is-done', idx < activeIdx);
         el.classList.toggle('is-active', idx === activeIdx);
+        if (idx === activeIdx) el.setAttribute('aria-current', 'step');
+        else el.removeAttribute('aria-current');
     });
 }
 
@@ -36,11 +38,13 @@ const es = new EventSource(`/api/v1/jobs/${jobId}/events`);
 
 function applyProgress(payload) {
     if (payload.stage) {
+        warnings.querySelector('.mmu-info-card')?.remove();
         stage.textContent = progressStageLabels[payload.stage] ?? payload.stage.replaceAll('_', ' ');
         applyTimeline(payload.stage);
     }
     if (payload.percent !== undefined) {
         bar.style.width = payload.percent + '%';
+        bar.setAttribute('aria-valuenow', String(payload.percent));
         progressPercent.textContent = payload.percent + '%';
     }
 }
