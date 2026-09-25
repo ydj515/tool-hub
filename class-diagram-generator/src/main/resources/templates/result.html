@@ -3,7 +3,7 @@
       th:replace="~{fragments/layout :: page('page.result.title', ~{::content}, ~{::scripts})}">
 <body>
 <th:block th:fragment="content">
-    <section class="mmu-hero-card">
+    <section class="mmu-hero-card result-summary">
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
             <div>
                 <p class="mmu-eyebrow" th:text="#{page.result.section}">Result</p>
@@ -12,9 +12,14 @@
                     생성된 산출물을 검토하고 묶음 또는 개별 다운로드를 진행할 수 있습니다.
                 </p>
             </div>
-            <a id="bundleBtn" class="btn btn-primary btn-lg btn-with-icon" th:text="#{page.result.bundle}">묶음 다운로드</a>
+            <div class="result-actions">
+                <a href="/" class="btn btn-outline-primary btn-with-icon" th:text="#{page.result.another}">다른 프로젝트 분석</a>
+                <a id="bundleBtn" class="btn btn-primary btn-with-icon" th:text="#{page.result.bundle}">묶음 다운로드</a>
+            </div>
         </div>
-        <div class="mt-4">
+        <details class="result-details mt-4">
+        <summary th:text="#{page.result.formatDownloads}">형식별 다운로드</summary>
+        <div class="mt-3">
             <h2 class="mmu-section-title" th:text="#{page.result.formatDownloads}">형식별 다운로드</h2>
             <div id="formatDownloads" class="d-flex flex-wrap gap-2 mt-3"></div>
         </div>
@@ -32,12 +37,19 @@
                 <strong id="artifactCount" class="meta-value">0</strong>
             </div>
         </div>
+        </details>
     </section>
     <section id="resultWarnings" class="mmu-surface-card mt-4" hidden>
         <h2 class="mmu-section-title" th:text="#{page.result.warningTitle}">주의 사항</h2>
         <div id="resultWarningsList" class="mmu-warning-stack mt-3"></div>
     </section>
-    <section class="mmu-surface-card mt-4">
+    <section class="mmu-surface-card artifact-section mt-4">
+        <div class="artifact-heading" aria-hidden="true">
+            <span th:text="#{page.result.filename}">파일명</span>
+            <span th:text="#{page.result.format}">형식</span>
+            <span th:text="#{page.result.size}">크기</span>
+            <span th:text="#{page.result.download}">다운로드</span>
+        </div>
         <div
             class="visually-hidden"
             th:text="|#{page.result.module} · #{page.result.format} · #{page.result.filename} · #{page.result.size}|"></div>

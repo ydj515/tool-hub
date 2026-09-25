@@ -4,6 +4,7 @@
       th:fragment="page(titleKey, content, scripts)">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
         (function () {
             const stored = localStorage.getItem('cdg-theme');
@@ -23,12 +24,13 @@
     <link rel="stylesheet" href="/css/mmu/tokens.css" th:href="@{/css/mmu/tokens.css}">
     <link rel="stylesheet" href="/css/mmu/components.css" th:href="@{/css/mmu/components.css}">
     <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
+    <link rel="stylesheet" href="/css/workbench.css" th:href="@{/css/workbench.css}">
 </head>
 <body class="mmu-body">
 <nav class="navbar navbar-expand mmu-topbar app-navbar">
     <div class="container">
-        <a class="navbar-brand" href="/">class-diagram-generator</a>
-        <span class="mmu-page-context" th:text="${#messages.msg(titleKey)}">Class Diagram Generator</span>
+        <a class="navbar-brand" href="https://tool-hub-rho.vercel.app/"><i class="bi bi-arrow-left" aria-hidden="true"></i> Tool Hub</a>
+        <span class="mmu-page-context">Class Diagram Generator</span>
         <div class="mmu-toolbar">
             <div class="lang-toggle" role="group" aria-label="Locale selector">
                 <a
@@ -53,6 +55,11 @@
             </button>
         </div>
     </div>
+</nav>
+<nav class="workflow-nav" aria-label="Workflow">
+    <a href="/" th:classappend="${titleKey == 'page.upload.title'} ? ' is-current' : ''" th:text="#{page.workflow.upload}">ZIP 업로드</a>
+    <span th:classappend="${titleKey == 'page.progress.title'} ? ' is-current' : ''" th:text="#{page.workflow.analysis}">분석</span>
+    <span th:classappend="${titleKey == 'page.result.title'} ? ' is-current' : ''" th:text="#{page.workflow.result}">결과</span>
 </nav>
 <main class="container mmu-shell">
     <th:block th:replace="${content}"></th:block>
