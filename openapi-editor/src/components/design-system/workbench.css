@@ -1,0 +1,126 @@
+/* Generated from packages/design-system/components/workbench.css. Run npm run design-system:sync; do not edit. */
+/* Tool-only workbench layer. Imported by ToolHeader, never by home or Electron. */
+body:has([data-ds-tool-header]) {
+  background: var(--surface);
+  --ds-radius-sm: 4px;
+  --ds-radius-md: 6px;
+  --ds-radius-lg: 8px;
+}
+
+[data-ds-tool-header].ds-tool-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "brand utilities" "actions actions";
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--surface);
+}
+
+[data-ds-tool-header] .ds-tool-header__brand {
+  grid-area: brand;
+  min-height: 64px;
+  gap: 24px;
+  padding: 12px 24px;
+}
+
+.ds-tool-header__home {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  font-size: 18px;
+  font-weight: var(--ds-font-weight-semibold);
+  white-space: nowrap;
+}
+
+[data-ds-tool-header] .ds-tool-header__copy {
+  display: block;
+  border-left: 1px solid var(--line-strong);
+  padding-left: 24px;
+}
+
+[data-ds-tool-header] .ds-tool-header__copy h1 {
+  font-weight: var(--ds-font-weight-semibold);
+}
+
+[data-ds-tool-header] .ds-tool-header__utilities {
+  grid-area: utilities;
+  justify-content: flex-end;
+  padding: 12px 24px 12px 0;
+}
+
+[data-ds-tool-header] .ds-tool-header__actions {
+  grid-area: actions;
+  width: 100%;
+  min-height: 56px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 24px;
+  background: var(--fill-subtle);
+  border-top: 1px solid var(--line-subtle);
+}
+
+[data-ds-tool-header] .ds-tool-header__actions:empty {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+
+body:has([data-ds-tool-header]) .ds-button {
+  border-radius: 6px;
+  font-weight: var(--ds-font-weight-medium);
+  font-size: var(--ds-font-size-body);
+  box-shadow: none;
+}
+
+body:has([data-ds-tool-header]) .ds-button--secondary,
+body:has([data-ds-tool-header]) .ds-button--icon {
+  background: var(--surface);
+}
+
+body:has([data-ds-tool-header]) .ds-button--secondary:hover:not(:disabled),
+body:has([data-ds-tool-header]) .ds-button--icon:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+[data-ds-tool-header] .ds-segmented {
+  padding: 0;
+  gap: 20px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-ds-tool-header] .ds-segmented button {
+  height: 36px;
+  padding: 0 4px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  font-weight: var(--ds-font-weight-semibold);
+}
+
+[data-ds-tool-header] .ds-segmented button[aria-pressed="true"] {
+  color: var(--primary-text);
+  background: transparent;
+  border-bottom-color: var(--primary);
+  box-shadow: none;
+}
+
+@media (max-width: 767px) {
+  [data-ds-tool-header] .ds-tool-header__brand { gap: 12px; padding: 12px; }
+  [data-ds-tool-header] .ds-tool-header__copy { padding-left: 12px; }
+  [data-ds-tool-header] .ds-tool-header__copy h1 {
+    font-size: 16px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .ds-tool-header__home { gap: 8px; font-size: 14px; }
+  [data-ds-tool-header] .ds-tool-header__utilities { padding-right: 12px; }
+  [data-ds-tool-header] .ds-tool-header__actions { padding: 10px 12px; }
+  [data-ds-tool-header] .ds-segmented { gap: 12px; }
+}

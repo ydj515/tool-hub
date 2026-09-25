@@ -51,7 +51,7 @@ npm run design-system:check
 아래 목록은 `scripts/sync-design-system.mjs`가 내보내는 현재 source-to-target 계약이다. `<tool>`과 `<product>`의 실제 ID, `<componentDir>`과 `<publicDir>`은 `products.mjs`가 소유한다.
 
 - Token files: `tokens.css → ds-tokens.css`, `base.css → ds-base.css`, `primitives.css → ds-primitives.css`, `ds-sync.test.ts → ds-sync.test.ts`, `ds-contrast.test.ts → ds-contrast.test.ts`, `ds-contrast-e2e.ts → ds-contrast-e2e.ts`
-- React components: `BrandMark.tsx`, `ThemeToggle.tsx`, `Button.tsx`, `SegmentedControl.tsx`, `EmptyState.tsx`, `Badge.tsx`, `ToolHeader.tsx`, `components.test.tsx`를 `<tool>/<componentDir>/<source-name>`에 생성한다.
+- React components: `BrandMark.tsx`, `ThemeToggle.tsx`, `Button.tsx`, `SegmentedControl.tsx`, `EmptyState.tsx`, `Badge.tsx`, `ToolHeader.tsx`, `workbench.css`, `components.test.tsx`를 `<tool>/<componentDir>/<source-name>`에 생성한다.
 - Product metadata: `<tool>/<componentDir>/product.generated.ts`, `<tool>/e2e/product.generated.ts`
 - Shell E2E: `shell-contract-e2e.ts → ds-shell-contract-e2e.ts`, `shell-contract.spec.ts → shell-contract.spec.ts`를 `<tool>/e2e/<target-name>`에 생성한다.
 - Favicons: `favicon.svg`, `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `site.webmanifest`를 `<product>/<publicDir>/<source-name>`에 생성한다.

@@ -74,6 +74,7 @@ const COMPONENT_FILES_EXPECTED = [
   'EmptyState.tsx',
   'Badge.tsx',
   'ToolHeader.tsx',
+  'workbench.css',
   'components.test.tsx',
   'product.generated.ts',
 ];
@@ -451,7 +452,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root });
 
-    assert.equal(drifted.length, 188);
+    assert.equal(drifted.length, 195);
     assert.equal(
       readFileSync(join(root, 'sign-maker/src/styles/ds-tokens.css'), 'utf8'),
       render('tokens.css', root),
@@ -491,7 +492,7 @@ describe('sync', () => {
     const root = makeRepo();
     const drifted = sync({ root, check: true });
 
-    assert.equal(drifted.length, 188);
+    assert.equal(drifted.length, 195);
     assert.equal(existsSync(join(root, 'sign-maker/src/styles/ds-tokens.css')), false);
     assert.equal(
       existsSync(join(root, 'sign-maker/src/components/design-system/Button.tsx')),
@@ -639,7 +640,7 @@ describe('sync', () => {
     );
 
     const remaining = sync({ root, check: true });
-    assert.equal(remaining.length, 187);
+    assert.equal(remaining.length, 194);
     assert.equal(remaining.includes(writtenTarget), false);
     assert.equal(remaining[0], failedTarget);
   });

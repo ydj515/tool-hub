@@ -1,7 +1,7 @@
-import type { LucideIcon } from 'lucide-react';
+import { ArrowLeft, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { BrandMark } from './BrandMark';
 import { ThemeToggle } from './ThemeToggle';
+import './workbench.css';
 
 interface ProductView {
   name: string;
@@ -34,10 +34,9 @@ export function ToolHeader({
         href={homeHref}
         aria-label={`${product.name}에서 Tool Hub로 이동`}
       >
-        <BrandMark icon={product.icon} />
+        <span className="ds-tool-header__home"><ArrowLeft data-ds-icon aria-hidden="true" /><span>Tool Hub</span></span>
         <span className="ds-tool-header__copy">
           <h1>{product.name}</h1>
-          <span>{product.description}</span>
         </span>
       </a>
       <div data-ds-tool-actions className="ds-tool-header__actions">

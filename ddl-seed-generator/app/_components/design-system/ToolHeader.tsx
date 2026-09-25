@@ -1,10 +1,10 @@
 // 이 파일은 packages/design-system/components/ToolHeader.tsx 에서 생성되었다.
 // 직접 편집하지 말고 정본을 고친 뒤 저장소 루트에서
 // `npm run design-system:sync` 를 실행한다.
-import type { LucideIcon } from 'lucide-react';
+import { ArrowLeft, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { BrandMark } from './BrandMark';
 import { ThemeToggle } from './ThemeToggle';
+import './workbench.css';
 
 interface ProductView {
   name: string;
@@ -37,10 +37,9 @@ export function ToolHeader({
         href={homeHref}
         aria-label={`${product.name}에서 Tool Hub로 이동`}
       >
-        <BrandMark icon={product.icon} />
+        <span className="ds-tool-header__home"><ArrowLeft data-ds-icon aria-hidden="true" /><span>Tool Hub</span></span>
         <span className="ds-tool-header__copy">
           <h1>{product.name}</h1>
-          <span>{product.description}</span>
         </span>
       </a>
       <div data-ds-tool-actions className="ds-tool-header__actions">

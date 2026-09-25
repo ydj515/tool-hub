@@ -94,9 +94,9 @@ export async function assertShellContract(
   await expect(heading).toHaveCount(1);
   await expect(heading).toHaveText(product.name);
 
-  const brandMark = header.locator('[data-ds-brand-mark]');
-  await expect(brandMark).toHaveCSS('width', '40px');
-  await expect(brandMark).toHaveCSS('height', '40px');
+  await expect(header.locator('.ds-tool-header__home')).toHaveText('Tool Hub');
+  await expect(header).toHaveCSS('border-radius', '0px');
+  await expect(header).toHaveCSS('box-shadow', 'none');
 
   const themeToggle = header.locator('[data-ds-theme-toggle]');
   await expect(themeToggle).toHaveCount(1);
@@ -152,16 +152,11 @@ export async function assertShellContract(
   const brand = await box(header.locator('[data-ds-tool-brand]'));
   const actions = await box(header.locator('[data-ds-tool-actions]'));
   const utility = await box(utilities);
-  if (viewport.width < 768) {
+  expect(Math.abs((brand.y + brand.height / 2) - (utility.y + utility.height / 2))).toBeLessThanOrEqual(4);
+  if (actions.height > 0) {
     expect(actions.y).toBeGreaterThanOrEqual(
       Math.max(brand.y + brand.height, utility.y + utility.height),
     );
-  } else {
-    const centers = [
-      brand.y + brand.height / 2,
-      actions.y + actions.height / 2,
-      utility.y + utility.height / 2,
-    ];
-    expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(4);
+    expect(actions.width).toBeGreaterThanOrEqual(viewport.width - 64);
   }
 }

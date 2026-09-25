@@ -75,6 +75,7 @@ export const COMPONENT_FILES = Object.freeze([
   'EmptyState.tsx',
   'Badge.tsx',
   'ToolHeader.tsx',
+  'workbench.css',
   'components.test.tsx',
 ]);
 
@@ -319,7 +320,10 @@ export function render(sourceName, root = DEFAULT_ROOT) {
 
 function renderComponent(sourceName, root) {
   const sourcePath = `${CANONICAL_DIR}/components/${sourceName}`;
-  return generatedBanner(sourcePath) + readFileSync(resolve(root, sourcePath), 'utf8');
+  const banner = sourceName.endsWith('.css')
+    ? `/* Generated from ${sourcePath}. Run npm run design-system:sync; do not edit. */\n`
+    : generatedBanner(sourcePath);
+  return banner + readFileSync(resolve(root, sourcePath), 'utf8');
 }
 
 function renderProduct(product) {
