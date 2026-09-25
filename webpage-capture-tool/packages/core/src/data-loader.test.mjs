@@ -50,3 +50,22 @@ describe("resolveReadablePath", () => {
     }
   });
 });
+
+describe("spreadsheet input compatibility", () => {
+  it.each(["xlsx", "csv"])("%s 입력의 한글 제목과 URL을 유지한다", (extension) => {
+    const xlsx = require("xlsx");
+    const fixturePath = path.join(tmpDir, `capture-input.${extension}`);
+    const expected = [{ id: "capture-1", subject: "한글 제목", detailPage: "https://example.com/page?q=1" }];
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(expected), "page-list");
+    xlsx.writeFile(workbook, fixturePath);
+
+    const rows = loadRowsFromFiles([fixturePath], {
+      columns: { id: "id", subjectKey: "subject", urlKey: "detailPage" },
+      sheetName: "page-list",
+      csvEncoding: "utf8"
+    });
+
+    expect(rows).toEqual(expected);
+  });
+});

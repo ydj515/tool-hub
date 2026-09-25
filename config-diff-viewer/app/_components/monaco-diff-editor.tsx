@@ -13,12 +13,12 @@ if (typeof window !== 'undefined') {
     getWorker(_moduleId: string, label: string) {
       if (label === 'json') {
         return new Worker(
-          new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url)
+          new URL('monaco-editor/language/json/json.worker.js', import.meta.url)
         );
       }
       // yaml/ini는 별도 언어 워커 없음 — editor worker로 fallback
       return new Worker(
-        new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url)
+        new URL('monaco-editor/editor/editor.worker.js', import.meta.url)
       );
     },
   };

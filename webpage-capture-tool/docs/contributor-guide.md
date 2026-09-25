@@ -38,3 +38,8 @@
 - Verify failure handling and logs if the changed code affects input parsing or capture behavior.
 - For Electron changes, confirm app launch, file selection, capture start, and cancellation flows.
 - If packaging-related code changed, run the relevant bundle or packaging command and confirm it completes.
+
+## Dependency Security Notes
+
+- SheetJS `xlsx` uses the versioned 0.20.3 tarball from the [official distribution](https://docs.sheetjs.com/docs/getting-started/installation/nodejs/), because the npm registry release remains at the vulnerable 0.18.5 version. Keep the tarball URL and lockfile integrity together when updating it.
+- The root `pptxgenjs` override pins its transitive `image-size` dependency to the patched 2.x line. PptxGenJS 4.0.1 does not import it in its distributed runtime; verify real PPTX generation with `packages/core/src/exporters/ppt-assets.test.mjs` when changing this override.
