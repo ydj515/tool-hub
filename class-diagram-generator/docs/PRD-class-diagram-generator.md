@@ -13,7 +13,7 @@
 
 ## 0. 연관 문서
 
-- (예정) 구현 계획서: `docs/mvp-plan.md`
+- 처리 흐름과 화면: [application-flow.md](application-flow.md)
 - (예정) 사용자 가이드: `docs/user-guide.md`
 
 ---
@@ -706,7 +706,7 @@ app:
 |---|---|---|
 | **NEXT-01** | Git repo 입력 지원 | `repoUrl + ref` 입력 받아 서버측 shallow clone → 기존 파이프라인 재사용. 인증(토큰), private repo, LFS 처리, 작업 디렉터리 격리, 네트워크 제한 정책 검토 필요. |
 | **NEXT-02** | Kotlin(.kt) 소스 클래스 설계서화 | Kotlin compiler embeddable API 또는 detekt-parsing(PSI) 기반. 데이터 클래스/오브젝트/sealed 처리 규칙 정의 필요. |
-| **NEXT-03** | ~~클래스 다이어그램 이미지 첨부~~ (완료 2026-05-19) | PlantUML(서버 사이드 PNG, Smetana 레이아웃) + Mermaid(md). 본문에 계층/클래스 다이어그램 임베드. 구현 스펙: `docs/superpowers/specs/2026-05-19-class-diagram-embed-design.md` |
+| **NEXT-03** | ~~클래스 다이어그램 이미지 첨부~~ (완료 2026-05-19) | PlantUML(서버 사이드 PNG, Smetana 레이아웃) + Mermaid(md). 본문에 계층/클래스 다이어그램 임베드. 설계 문서: [diagram-output.md](diagram-output.md) |
 | **NEXT-04** | LLM 기반 설명 보강 | Javadoc 없는 항목에 한해 코드 시그니처 기반 한국어 설명 생성. 비용/지연/외부 API 의존 검토 필요. |
 | **NEXT-05** | 인증/멀티테넌시 | API 키 or OAuth2 Resource Server. 사용자별 job/산출물 격리. |
 | **NEXT-06** | 비-Java JVM 언어(Groovy 등) | 필요성 확인 후 결정. |

@@ -53,3 +53,7 @@
 ## Documentation Sync
 
 When behavior changes, update tests, this guide, the project README, and the root tool list in the same change.
+
+## Design Reference
+
+- [Conversion, diagnostics, and editor state](conversion-design.md)

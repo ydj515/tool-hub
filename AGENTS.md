@@ -29,6 +29,7 @@ Finishing code changes without verification is not allowed.
 - Prefer small topic-focused docs over one oversized guide.
 
 ## Detailed References
+- Documentation index: [docs/README.md](docs/README.md)
 - Contributor guide: [docs/contributor-guide.md](docs/contributor-guide.md)
 - Frontend conventions (web apps): [docs/frontend-conventions.md](docs/frontend-conventions.md)
 - Project-specific guides: see the references listed inside [docs/contributor-guide.md](docs/contributor-guide.md)

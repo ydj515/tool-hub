@@ -63,3 +63,7 @@ npm run typecheck
 npm run build
 npm run test:e2e
 ```
+
+## Design Reference
+
+- [Test generation, review, and export](test-generation.md)
