@@ -51,7 +51,7 @@ const getSvgPathFromStroke = (stroke: number[][]) => {
 /**
  * 사용자의 포인터 입력을 받아 서명 스트로크를 그리고 PNG 다운로드를 지원한다.
  */
-const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
+const SignaturePad = forwardRef<SignaturePadRef, { onPreviewChange?: (source: string | null) => void }>( ({ onPreviewChange }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [strokes, setStrokes] = useState<Stroke[]>([]);
@@ -118,7 +118,10 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       return () => window.removeEventListener("resize", handleResize);
     }, [drawAll]);
 
-    useEffect(() => { drawAll(); }, [drawAll]);
+    useEffect(() => {
+      drawAll();
+      if (!isDrawing) onPreviewChange?.(strokes.length ? canvasRef.current?.toDataURL("image/png") ?? null : null);
+    }, [drawAll, isDrawing, onPreviewChange, strokes.length]);
 
     useEffect(() => {
       if (isDrawing || countdown <= 0) {
@@ -177,11 +180,13 @@ const SignaturePad = forwardRef<SignaturePadRef>( (_props, ref) => {
       >
         <canvas
           ref={canvasRef}
+          aria-label="서명 그리기 캔버스"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           className="signature-canvas block w-full h-full cursor-crosshair"
         />
+        <p className="signature-input-hint">마우스 또는 터치로 서명하세요.</p>
         {countdown > 0 && (
           <div
             key={countdown}

@@ -22,7 +22,7 @@ describe("Sign Maker App UI", () => {
 
     render(<App />);
 
-    expect(screen.getByText("그리기 도구")).toBeInTheDocument();
+    expect(screen.getByText("서명 미리보기")).toBeInTheDocument();
     expect(screen.getByText("캔버스에 서명을 그리세요. 펜을 멈추면 3초 후 자동으로 부드럽게 정리돼요.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "업로드" }));

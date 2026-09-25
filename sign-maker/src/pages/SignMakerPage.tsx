@@ -16,6 +16,7 @@ import { useTheme } from "../hooks/useTheme";
 export default function SignMakerPage() {
   const [activeTab, setActiveTab] = useState<"draw" | "upload">("draw");
   const [threshold, setThreshold] = useState<number>(200);
+  const [preview, setPreview] = useState<string | null>(null);
   const { theme, toggle } = useTheme();
 
   const signaturePadRef = useRef<SignaturePadRef>(null);
@@ -27,10 +28,12 @@ export default function SignMakerPage() {
         theme={theme}
         onToggleTheme={toggle}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          if (tab !== activeTab) { setActiveTab(tab); setPreview(null); }
+        }}
       />
 
-      <div className="ds-shell grid gap-5 grid-cols-1 md:grid-cols-[1fr_320px]">
+      <div className="ds-shell signature-workbench">
         {/* Canvas panel */}
         <Panel
           title="캔버스"
@@ -39,16 +42,19 @@ export default function SignMakerPage() {
           bodyClassName="flex-1"
         >
           {activeTab === "draw"
-            ? <SignaturePad ref={signaturePadRef} />
-            : <ImageUploader ref={imageUploaderRef} threshold={threshold} />}
+            ? <SignaturePad ref={signaturePadRef} onPreviewChange={setPreview} />
+            : <ImageUploader ref={imageUploaderRef} threshold={threshold} onPreviewChange={setPreview} />}
         </Panel>
 
         {/* Controls panel */}
         <Panel
           as="aside"
-          title={activeTab === "draw" ? "그리기 도구" : "이미지 설정"}
+          title={activeTab === "draw" ? "서명 미리보기" : "이미지 설정"}
           bodyClassName="flex flex-col gap-4 flex-1"
         >
+          <div className="signature-preview" aria-label="서명 미리보기">
+            {preview ? <img src={preview} alt="현재 서명 미리보기" /> : <p>서명을 입력하면 여기에 표시됩니다.</p>}
+          </div>
           {activeTab === "draw" ? (
             <DrawControls
               onClear={() => signaturePadRef.current?.clear()}
@@ -64,6 +70,7 @@ export default function SignMakerPage() {
           )}
         </Panel>
       </div>
+      <footer className="signature-status">투명 배경 PNG · 서명은 브라우저 밖으로 전송되지 않습니다.</footer>
     </>
   );
 }

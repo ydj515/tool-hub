@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
   useEffect,
+  useCallback,
 } from "react";
 import { Upload } from "lucide-react";
 import Button from "./design-system/Button";
@@ -18,13 +19,14 @@ export interface ImageUploaderRef {
 
 interface ImageUploaderProps {
   threshold: number;
+  onPreviewChange?: (source: string | null) => void;
 }
 
 /**
  * 업로드한 이미지에서 밝기 임계값을 기준으로 배경을 제거한다.
  */
 const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
-  ({ threshold }, ref) => {
+  ({ threshold, onPreviewChange }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,6 +38,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       reset: () => {
         setOriginalImage(null);
         setHasImage(false);
+        onPreviewChange?.(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext("2d");
@@ -51,7 +54,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       },
     }));
 
-    const processImage = (img: HTMLImageElement, currentThreshold: number) => {
+    const processImage = useCallback((img: HTMLImageElement, currentThreshold: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -79,11 +82,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         }
       }
       ctx.putImageData(imageData, x, y);
-    };
+      onPreviewChange?.(canvas.toDataURL("image/png"));
+    }, [onPreviewChange]);
 
     useEffect(() => {
       if (originalImage) processImage(originalImage, threshold);
-    }, [originalImage, threshold]);
+    }, [originalImage, threshold, processImage]);
 
     const handleFileSelected = (file: File) => {
       const reader = new FileReader();
