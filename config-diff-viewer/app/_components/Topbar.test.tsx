@@ -15,6 +15,7 @@ function renderTopbar({
 } = {}) {
   return renderToStaticMarkup(
     <Topbar
+      options={<span>분석 옵션</span>}
       isComparing={isComparing}
       hasParseError={hasParseError}
       onReset={() => {}}
@@ -31,9 +32,9 @@ describe("Config Diff Viewer Topbar", () => {
     const html = renderTopbar();
 
     expect(html).toContain('data-ds-tool-header="true"');
-    expect(html).toContain('data-ds-brand-mark="true"');
+    expect(html).toContain('ds-tool-header__home');
     expect(html).toContain("<h1>Config Diff Viewer</h1>");
-    expect(html).toContain("설정 파일의 차이를 비교합니다.");
+    expect(html).toContain("분석 옵션");
     expect(html).toContain('class="config-header-actions"');
     expect((html.match(/data-ds-button="true"/g) ?? [])).toHaveLength(3);
     expect(html).toContain('data-variant="secondary"');
@@ -50,8 +51,8 @@ describe("Config Diff Viewer Topbar", () => {
   it("액션 아이콘과 마운트 전 테마 자리표시자의 크기 계약을 유지한다", () => {
     const html = renderTopbar({ mounted: false, theme: "dark" });
 
-    expect((html.match(/width="16"/g) ?? [])).toHaveLength(3);
-    expect((html.match(/height="16"/g) ?? [])).toHaveLength(3);
+    expect((html.match(/width="16"/g) ?? [])).toHaveLength(2);
+    expect((html.match(/height="16"/g) ?? [])).toHaveLength(2);
     expect((html.match(/stroke-width="2"/g) ?? [])).toHaveLength(3);
     expect(html).toContain('class="ds-theme-placeholder"');
     expect(html).toContain("라이트 테마로 전환");

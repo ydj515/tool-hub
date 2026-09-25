@@ -66,7 +66,7 @@ for (const width of [375, 768, 1440]) {
 
     const header = page.locator("[data-ds-tool-header]");
     const brand = page.locator("[data-ds-tool-brand]");
-    const brandMark = page.locator("[data-ds-brand-mark]");
+    const homeLabel = page.locator(".ds-tool-header__home");
     const actions = page.locator(".config-header-actions");
     const resetButton = page.getByRole("button", { name: "초기화" });
     const compareButton = page.getByRole("button", { name: "비교" });
@@ -82,8 +82,7 @@ for (const width of [375, 768, 1440]) {
     expect(brandBox).not.toBeNull();
     expect(actionsBox).not.toBeNull();
     expect(themeBox).not.toBeNull();
-    await expect(brandMark).toHaveCSS("width", "40px");
-    await expect(brandMark).toHaveCSS("height", "40px");
+    await expect(homeLabel).toContainText("Tool Hub");
     await expect(resetButton).toHaveCSS("height", "36px");
     await expect(compareButton).toHaveCSS("height", "36px");
     await expect(themeButton).toHaveCSS("width", "36px");
@@ -128,11 +127,11 @@ for (const width of [375, 768, 1440]) {
       expect(Math.abs(resetBox!.width - compareBox!.width)).toBeLessThan(1);
       expect(compareBox!.x - (resetBox!.x + resetBox!.width)).toBeGreaterThanOrEqual(7);
       expect(actionsBox!.y).toBeGreaterThan(brandBox!.y + brandBox!.height);
-      expect(Math.abs(brandBox!.y - themeBox!.y)).toBeLessThan(12);
+      expect(Math.abs(brandBox!.y + brandBox!.height / 2 - themeBox!.y - themeBox!.height / 2)).toBeLessThan(1);
       expect(inputBBox!.y).toBeGreaterThanOrEqual(inputABox!.y + inputABox!.height - 1);
     } else {
-      expect(Math.abs(brandBox!.y - actionsBox!.y)).toBeLessThan(12);
-      expect(Math.abs(brandBox!.y - themeBox!.y)).toBeLessThan(12);
+      expect(actionsBox!.y).toBeGreaterThan(brandBox!.y + brandBox!.height);
+      expect(Math.abs(brandBox!.y + brandBox!.height / 2 - themeBox!.y - themeBox!.height / 2)).toBeLessThan(1);
       expect(Math.abs(inputABox!.y - inputBBox!.y)).toBeLessThan(1);
       expect(inputBBox!.x).toBeGreaterThanOrEqual(inputABox!.x + inputABox!.width - 1);
     }

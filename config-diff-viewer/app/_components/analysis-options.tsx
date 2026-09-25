@@ -3,7 +3,7 @@
  */
 "use client";
 
-import { BookOpen } from "lucide-react";
+import { BookOpen, CheckSquare, Square } from "lucide-react";
 import type { AnalysisOptions } from "@/lib/types";
 import { Badge } from "./design-system/Badge";
 
@@ -40,7 +40,7 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
           aria-pressed={options.enableSecretDetection}
           data-tooltip="password, secret, token 등 민감한 키·값 패턴을 탐지합니다."
         >
-          <span className="toggleDot" />
+          {options.enableSecretDetection ? <CheckSquare size={16} /> : <Square size={16} />}
           민감정보 탐지
           <Badge variant={options.enableSecretDetection ? "primary" : "neutral"}>
             {options.enableSecretDetection ? "켬" : "끔"}
@@ -54,7 +54,7 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
           aria-pressed={options.enableDangerousConfigDetection}
           data-tooltip="Spring Boot, Kubernetes, Docker Compose의 위험한 설정을 검사합니다."
         >
-          <span className="toggleDot" />
+          {options.enableDangerousConfigDetection ? <CheckSquare size={16} /> : <Square size={16} />}
           위험 설정 탐지
           <Badge variant={options.enableDangerousConfigDetection ? "primary" : "neutral"}>
             {options.enableDangerousConfigDetection ? "켬" : "끔"}
@@ -68,7 +68,7 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
           aria-pressed={options.enableDuplicateKeyDetection}
           data-tooltip="같은 파일 내에서 동일한 키가 두 번 이상 정의된 경우를 찾습니다."
         >
-          <span className="toggleDot" />
+          {options.enableDuplicateKeyDetection ? <CheckSquare size={16} /> : <Square size={16} />}
           중복 키 탐지
           <Badge variant={options.enableDuplicateKeyDetection ? "primary" : "neutral"}>
             {options.enableDuplicateKeyDetection ? "켬" : "끔"}
@@ -79,7 +79,7 @@ export default function AnalysisOptionsBar({ options, onChange, onOpenRules }: P
       </div>
 
       <button className="optionsRulesBtn" onClick={onOpenRules}>
-        <BookOpen size={13} />
+        <BookOpen size={16} />
         규칙 보기
       </button>
     </div>

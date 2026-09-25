@@ -127,6 +127,7 @@ export default function ConfigDiffClient() {
   return (
     <div className="appShell" data-ds-page-shell>
       <Topbar
+        options={<AnalysisOptionsBar options={options} onChange={setOptions} onOpenRules={() => setRulesOpen(true)} />}
         isComparing={isComparing}
         hasParseError={!!(parseErrorA || parseErrorB)}
         onReset={handleReset}
@@ -137,9 +138,6 @@ export default function ConfigDiffClient() {
       />
 
       <main className="workspace">
-        {/* Analysis options */}
-        <AnalysisOptionsBar options={options} onChange={setOptions} onOpenRules={() => setRulesOpen(true)} />
-
         {/* Input card */}
         <div className="ds-card editorCard">
           <div className="inputGrid">

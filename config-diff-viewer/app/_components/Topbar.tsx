@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ArrowLeftRight, Loader2, RotateCcw } from "lucide-react";
 import { TOOL_HUB_URL } from "@/app/_lib/constants";
 import { Button } from "./design-system/Button";
@@ -9,6 +10,7 @@ import { PRODUCT, ProductIcon } from "./design-system/product.generated";
  * 페이지 액션을 품으므로 root layout이 아니라 페이지가 렌더한다.
  */
 interface TopbarProps {
+  options: ReactNode;
   isComparing: boolean;
   hasParseError: boolean;
   onReset: () => void;
@@ -19,6 +21,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
+  options,
   isComparing,
   hasParseError,
   onReset,
@@ -28,6 +31,8 @@ export default function Topbar({
   onToggleTheme,
 }: TopbarProps) {
   const actions = (
+    <div className="config-toolbar">
+      {options}
     <div className="config-header-actions">
       <Button variant="secondary" onClick={onReset}>
         <RotateCcw size={16} strokeWidth={2} />
@@ -46,6 +51,7 @@ export default function Topbar({
         )}
         비교
       </Button>
+    </div>
     </div>
   );
 

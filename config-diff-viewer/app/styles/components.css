@@ -1,14 +1,14 @@
 /* ── App shell ── */
 .appShell {
   min-height: 100vh;
-  padding: var(--ds-page-padding);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
 }
 
 .appShell > .ds-tool-header {
-  max-width: var(--ds-container-wide);
+  max-width: none;
   margin: 0 auto;
   width: 100%;
 }
@@ -25,7 +25,8 @@
 
 /* ── Main workspace ── */
 .workspace {
-  max-width: var(--ds-container-wide);
+  max-width: none;
+  padding: 24px 28px 40px;
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -781,6 +782,32 @@
 
 .optionsLeft { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
 .optionsHint { font-size: var(--ds-font-size-caption); color: var(--muted); font-weight: var(--ds-font-weight-medium); white-space: nowrap; margin-left: 4px; }
+
+/* Flat workbench controls and panes. */
+.config-toolbar { display: flex; align-items: center; gap: 24px; width: 100%; }
+.config-header-actions { margin-left: auto; flex-shrink: 0; }
+.optionsBar { padding: 0; border: 0; border-radius: 0; background: transparent; flex: 1; gap: 20px; }
+.optionsLeft { gap: 18px; }
+.optionsLabel, .optionsHint, .optionToggle.locked { display: none; }
+.optionToggle, .optionToggle.on { padding: 6px 0; border: 0; border-radius: 0; background: transparent; color: var(--text); font-weight: 500; }
+.optionToggle.on .toggleDot { color: var(--primary); }
+.optionToggle [data-ds-badge] { display: none; }
+.optionsRulesBtn { background: var(--surface); min-height: 34px; }
+.editorCard, .resultCard, .diffViewCard, .statsBar { box-shadow: none; border-radius: 5px; }
+.inputSide { padding: 0; gap: 0; }
+.inputSideHeader { min-height: 54px; padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.filenameInput { font-family: var(--ds-font-sans); max-width: 240px; }
+.sideLabel { color: var(--text); font-size: 14px; }
+.codeTextarea { min-height: 340px; border: 0; border-radius: 0; background: var(--surface); padding: 20px; font-size: 14px; line-height: 1.8; }
+.codeTextarea:focus { box-shadow: inset 0 0 0 2px var(--primary); }
+.statsBar { padding: 14px 18px; }
+.tabBar { padding: 0 14px; background: var(--surface-2); gap: 16px; }
+.tabBtn { padding: 14px 4px; border-radius: 0; font-weight: 600; }
+.tabBtn.active { color: var(--primary-text); background: transparent; border-color: transparent; border-bottom: 2px solid var(--primary); }
+.issueTable th, .issueTable td { padding: 13px 18px; }
+.valuePill { border: 0; border-radius: 2px; padding: 3px 5px; }
+@media (max-width: 1100px) { .config-toolbar { flex-wrap: wrap; gap: 12px; } .optionsBar { flex-basis: 100%; } }
+@media (max-width: 767px) { .workspace { padding: 16px; } .optionsLeft { gap: 10px 16px; } .optionsBar { gap: 10px; } .codeTextarea { min-height: 260px; } }
 
 @media (max-width: 767px) {
   .config-header-actions {
