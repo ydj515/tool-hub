@@ -10,7 +10,7 @@
 .upload-file-picker.is-selected { min-height: 100px; border-color: var(--app-border); background: var(--surface-2); box-shadow: none; }
 .upload-file-picker .file-dropzone__success { grid-template-columns: 40px minmax(0, 1fr) auto 28px; align-items: center; gap: 18px; text-align: left; }
 .upload-file-picker .file-dropzone__success-icon { grid-column: 1; grid-row: 1; color: var(--app-text-muted); font-size: 34px; }
-.upload-file-picker .file-dropzone__meta { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.upload-file-picker .file-dropzone__meta { grid-column: 2; grid-row: 1; justify-self: stretch; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .upload-file-picker .file-dropzone__filename-strong { color: var(--app-text); font-weight: 500; overflow-wrap: anywhere; word-break: normal; }
 .upload-file-picker .file-dropzone__dot { display: none; }
 .upload-file-picker .file-dropzone__change { grid-column: 3; grid-row: 1; margin: 0; padding: 4px 0; border: 0; background: transparent; color: var(--primary-text); white-space: nowrap; }

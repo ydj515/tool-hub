@@ -50,6 +50,8 @@ class JobServiceTest :
             uploadPath.captured shouldBe storage.uploadZip(rec.id)
             Files.exists(uploadPath.captured) shouldBe true
             Files.readAllBytes(uploadPath.captured).contentEquals(zipBytes) shouldBe true
+            rec.sourceFilename shouldBe "source.zip"
+            rec.sourceSizeBytes shouldBe zipBytes.size.toLong()
         }
 
         "submit rejects uploads larger than app upload limit" {

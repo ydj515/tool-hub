@@ -38,6 +38,8 @@ data class JobRecord(
     var errorCode: String? = null,
     @Volatile
     var errorMessage: String? = null,
+    val sourceFilename: String? = null,
+    val sourceSizeBytes: Long? = null,
 )
 
 @Component

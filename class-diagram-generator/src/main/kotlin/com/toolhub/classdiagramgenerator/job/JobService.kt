@@ -46,6 +46,8 @@ class JobService(
                 includeDiagrams = includeDiagrams,
                 status = JobStatus.PENDING,
                 workDir = workDir,
+                sourceFilename = file.originalFilename?.replace('\\', '/')?.substringAfterLast('/'),
+                sourceSizeBytes = file.size,
             )
         val uploadZip = storage.uploadZip(id)
         try {

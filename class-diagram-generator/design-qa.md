@@ -1,32 +1,13 @@
 # Class Diagram Generator design QA
 
-- Source: `/Users/dongjin/.codex/generated_images/01a0d6d3-a94a-78d2-8f3e-a23427ac49f8/exec-3328cefc-906e-4834-a2ac-bfe7fce2324a.png` (1487 × 1058).
-- Implementation captures: `/tmp/tool-hub-workbench-qa/class-result-desktop.png`, `class-result-dark.png`, and `class-result-mobile.png` in the same directory.
-- Preview: http://localhost:4185
-- Viewports: desktop 1280 × 720 CSS pixels (full-page capture 1280 × 726); mobile 375 × 900 CSS pixels. Images inspected at their native density. Source and desktop capture compared together; viewport differences are intentional responsive scaling, not a pixel-exact clone claim.
-- State: successful generation from bundled `sample-projects/gradle-single-jdk21`; three actual DOCX/XLSX/MD artifacts, including diagrams.
+Approved references: upload exec-bc472f3e-abcd-4e1c-890b-489ccc172d28.png, progress exec-74323a75-d66b-447d-9a9d-84ccf2d31a72.png, result exec-0ffecbb8-38af-45bf-9872-ddb5fcbc8ca9.png in /Users/dongjin/.codex/generated_images/01a0d6d3-a94a-78d2-8f3e-a23427ac49f8/.
 
-## Findings and iteration
+Captures: class-upload-final.png, class-progress-final.png, class-result-final.png, class-result-dark-en.png, class-upload-mobile.png, class-result-mobile.png in /Users/dongjin/.codex/visualizations/2026/09/25/01a0d6d3-a94a-78d2-8f3e-a23427ac49f8/. Desktop 1488x1058 and mobile 375x900. Preview http://localhost:8080/.
 
-- Initial result cards changed to aligned filename/format/size/download rows. A grid row definition inherited from cards caused excessive spacing; replaced with two explicit rows and a 4px row gap.
-- Format downloads and expiration metadata initially displaced the artifact list. Moved these existing controls into a keyboard-accessible disclosure above the list.
-- Mobile inherited a hidden application title. Explicitly restored it on a second header line; final capture confirms visible title and full 375px content width without horizontal overflow.
-- Final source/desktop comparison shows the shared slim header, workflow navigation, blue primary action, neutral panels and flat rows. Mobile capture inspected separately after viewport layout settled.
+All three references and desktop captures visually inspected. Preserve source-first form, output sidebar, vertical pipeline, flat artifact rows and primary ZIP download. Shared type, semantic colors, borders and existing icons remain consistent. Intentional differences: centered 1120px content, 36px shared header controls, file removal, module identity, grouped downloads and expiry metadata. Job metadata and artifacts use real values.
 
-## Required fidelity surfaces
+QA fixes: stretch the selected filename grid cell; prevent workflow number flex shrinking in mobile English navigation. Browser recheck confirms both fixes. Mobile upload and results scroll width equals viewport width (375px). Theme and locale control heights both 36px. Light/dark and Korean/English inspected. Progress desktop capture catches the bar transition at numeric 70%; mobile progress was observed in the accessibility state but generation finished before its screenshot.
 
-- Typography: system sans, restrained heading sizes, readable filenames and secondary module metadata. Existing localized text stays intact.
-- Layout: flat bordered artifact list; aligned desktop columns; stacked mobile rows. Header and all download controls remain visible.
-- Colors: shared semantic tokens, blue primary action and neutral light/dark surfaces; both themes inspected.
-- Assets: existing Bootstrap Icons render file/download/theme/navigation icons; no custom artwork or raster assets are needed.
-- Content: preserves actual module names, file sizes, expiration metadata, grouped downloads, warnings and all generation controls. The API does not expose the original ZIP filename on the result view, so the mock's invented subtitle is not reproduced.
-
-## Verification
-
-- `mise exec -- ./gradlew check build`: passed, 149 tests, zero failures; Spotless and Detekt passed.
-- In-app browser: upload ZIP, generate, observe progress, automatic result navigation, switch KO/EN, switch theme, expand format downloads, inspect mobile and desktop.
-- Bundle download: HTTP 200, 164945 bytes from the generated sample.
-- Browser console error list: empty.
-- Intentional product differences: retain module metadata and grouped-download disclosure absent from the simplified reference.
+Verification: ./gradlew check build passed; 151 tests, zero failures/errors/skips, Spotless/Detekt/Kotlin compilation passed. Real /Users/dongjin/Downloads/institution-reservation-reference.zip produces DOCX 504.4 KB, XLSX 523.6 KB and MD 71.7 KB. Automatic result navigation, bundle browser download event and grouped download disclosure confirmed. English output generation also succeeds. Browser console errors empty. Viewport override reset. No push or deployment.
 
 final result: passed
