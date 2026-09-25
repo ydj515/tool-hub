@@ -1,4 +1,4 @@
-.app-shell { min-height: 100vh; max-width: var(--ds-container-wide); margin: 0 auto; padding: var(--ds-page-padding); display: flex; flex-direction: column; gap: 16px; }
+.app-shell { min-height: 100vh; width: 100%; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
 .openapi-header-actions { min-width: 0; display: flex; align-items: center; gap: 8px; }
 .select-label { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: var(--ds-font-size-caption); font-weight: var(--ds-font-weight-bold); white-space: nowrap; }
 .select-label select { height: 36px; min-width: 128px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--ds-radius-sm); color: var(--text); background: var(--surface-2); font-size: var(--ds-font-size-caption); font-weight: var(--ds-font-weight-bold); }
@@ -37,3 +37,28 @@ select:disabled { cursor: not-allowed; color: var(--disabled); background: var(-
 .preview-mode-switch button[aria-pressed="true"] { color: var(--text-neutral); background: var(--primary-surface); }
 .redoc-preview { min-height: 0; flex: 1; display: flex; flex-direction: column; }
 .redoc-preview iframe { width: 100%; min-height: 480px; flex: 1; border: 0; }
+
+/* Keep the editor, navigation and preview on one uninterrupted work surface. */
+.openapi-header-actions { width: 100%; }
+.select-label { margin-right: auto; }
+.workspace-grid { min-height: calc(100dvh - 176px); border: 0; border-radius: 0; }
+.panel-header { min-height: 52px; padding-inline: 16px; }
+.panel-tabs { padding: 0 12px; background: var(--surface); }
+.panel-tabs button.active { margin: 0; border: 0; border-bottom: 2px solid var(--primary); border-radius: 0; color: var(--primary-text); background: transparent; }
+.preview-mode-switch { gap: 8px; padding: 0 16px; }
+.preview-mode-switch button { min-height: 42px; border-bottom: 2px solid transparent; border-radius: 0; }
+.preview-mode-switch button[aria-pressed="true"] { border-bottom-color: var(--primary); color: var(--primary-text); background: transparent; }
+.swagger-preview .swagger-ui { min-width: 0; }
+.workspace-statusbar { order: 2; min-height: 40px; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding-inline: 20px; }
+.navigator-tree-item { min-height: 32px; }
+.panel-header strong { font-size: 14px; }
+.navigator-tree-item, .panel-tabs button, .preview-mode-switch button { font-size: 13px; }
+@media (max-width: 767px) {
+  .openapi-header-actions { grid-template-columns: minmax(0, 1fr) 36px auto 36px auto; }
+  .openapi-download { width: 36px; padding-inline: 0; }
+  .openapi-download span { display: none; }
+  .app-shell { padding: 0; gap: 0; }
+  .workspace-grid { min-height: calc(100dvh - 232px); border-radius: 0; }
+  .mobile-workspace-tabs { border-inline: 0; border-top: 0; border-radius: 0; }
+  .workspace-statusbar { padding: 10px 16px; }
+}

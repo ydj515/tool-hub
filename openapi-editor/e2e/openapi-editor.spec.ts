@@ -83,6 +83,14 @@ test('uses mobile workspace tabs', async ({ page }) => {
   await expect(page.getByLabel('API 미리보기')).toBeVisible();
 });
 
+test('downloads YAML from the primary workbench action', async ({ page }) => {
+  await page.goto('/');
+  await loadValidYaml(page);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'YAML 다운로드', exact: true }).click();
+  expect((await downloadPromise).suggestedFilename()).toMatch(/\.ya?ml$/);
+});
+
 test('keeps mobile header controls on intentional rows', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');

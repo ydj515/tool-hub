@@ -1,4 +1,4 @@
-import { BookOpen, FileUp, RotateCcw, WandSparkles } from 'lucide-react';
+import { ArrowLeftRight, BookOpen, Download, FileUp, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { UtilityMenu } from '../common/UtilityMenu';
 import type { DocumentFormat, SpecFamily } from '../../domain/document';
@@ -94,12 +94,13 @@ export function Topbar({ sourceVersion, target, conversionEnabled, reviewing, th
     <input ref={inputRef} className="hidden-file-input" type="file" accept=".yaml,.yml,.json" onChange={chooseFile} />
     <Button variant="secondary" className="openapi-upload" aria-label="파일 업로드" onClick={() => inputRef.current?.click()} disabled={reviewing}>
       <FileUp size={16} strokeWidth={2} />
-      <span className="openapi-action-label">업로드</span>
+      <span className="openapi-action-label">파일 열기</span>
     </Button>
-    <Button variant="primary" aria-label="문서 변환" onClick={onConvert} disabled={!conversionEnabled || reviewing}>
-      <WandSparkles size={16} strokeWidth={2} />
+    <Button variant="secondary" aria-label="문서 변환" onClick={onConvert} disabled={!conversionEnabled || reviewing}>
+      <ArrowLeftRight size={16} strokeWidth={2} />
       변환
     </Button>
+    <Button variant="primary" className="openapi-download" aria-label="YAML 다운로드" onClick={() => onDownload('yaml')} disabled={!canDownloadYaml}><Download size={16} /><span>다운로드</span></Button>
     <UtilityMenu triggerRef={moreTriggerRef} label="더보기" isOpen={openMenu === 'more'} onOpen={openMoreMenu} onClose={() => closeMenu('more')}>
       <Button variant="secondary" role="menuitem" onClick={() => runMenuAction(() => setVersionGuideOpen(true))}><BookOpen size={16} strokeWidth={2} />버전 가이드</Button>
       <span className="utility-menu-separator" role="separator" />

@@ -65,7 +65,7 @@ describe('OpenAPI Editor Topbar', () => {
       Array.from(actions.querySelectorAll('select, button')).map((control) =>
         control.getAttribute('aria-label') ?? control.textContent?.trim(),
       ),
-    ).toEqual(['대상 버전', '파일 업로드', '문서 변환', '더보기 메뉴']);
+    ).toEqual(['대상 버전', '파일 업로드', '문서 변환', 'YAML 다운로드', '더보기 메뉴']);
     expect(utilities.lastElementChild).toBe(screen.getByRole('button', { name: '다크 테마로 전환' }));
     expect(within(actions).getAllByRole('button').every((button) => button.hasAttribute('data-ds-button'))).toBe(true);
   });
