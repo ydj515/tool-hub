@@ -198,10 +198,6 @@
       "ownership": "managed",
       "sha256": "2a151cad5efe0cb3e743ad89912d479b8e03990765ac6daca1bce7ef27418340"
     },
-    ".gemini/styleguide.md": {
-      "ownership": "managed",
-      "sha256": "2a151cad5efe0cb3e743ad89912d479b8e03990765ac6daca1bce7ef27418340"
-    },
     ".worktreeinclude": {
       "ownership": "project-owned"
     },
