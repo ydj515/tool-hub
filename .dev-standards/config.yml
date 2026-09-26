@@ -1,0 +1,34 @@
+version: 1
+
+base: true
+
+languages:
+  - typescript
+  - kotlin
+
+architectures:
+  - feature-sliced
+  - route-feature
+  - layered-clean
+
+frameworks:
+  - react-ts
+  - next-ts
+  - tailwind
+  - spring
+  - thymeleaf
+  - bootstrap
+
+builds:
+  - gradle
+
+tools:
+  - eslint
+  - frameworks/react-ts/eslint-plugin-react-hooks
+  - frameworks/next-ts/eslint-config-next
+  - frameworks/react-ts/vitest
+  - detekt
+  - ktlint
+
+runtimes:
+  - mise
