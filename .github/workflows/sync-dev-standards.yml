@@ -25,5 +25,5 @@ jobs:
       standards_ref: latest-release
       delivery_mode: pull-request
       sync_gemini: false
-      bootstrap_templates: true
-      bootstrap_agent_files: true
+      bootstrap_templates: false
+      bootstrap_agent_files: false
