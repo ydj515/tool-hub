@@ -24,6 +24,6 @@ jobs:
       standards_repo: dev-standards
       standards_ref: latest-release
       delivery_mode: pull-request
-      sync_gemini: true
-      bootstrap_templates: false
-      bootstrap_agent_files: false
+      sync_gemini: false
+      bootstrap_templates: true
+      bootstrap_agent_files: true
