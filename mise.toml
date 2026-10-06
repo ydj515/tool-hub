@@ -1,0 +1,34 @@
+min_version = "2026.9.18"
+
+[settings]
+lockfile = true
+lockfile_platforms = ["macos-arm64", "linux-x64"]
+
+[vars]
+runtime_env = "local"
+
+[env]
+APP_ENV = "{{ vars.runtime_env }}"
+
+[tools]
+node = "24.19.0"
+
+[tasks."install"]
+description = "Install application dependencies from the lockfile"
+run = "npm ci --include=dev"
+
+[tasks."bootstrap"]
+description = "Install locked tools and project dependencies; do not start services"
+run = "mise install --locked node@24.19.0\nmise run install"
+
+[tasks."config:check"]
+description = "Validate task references without starting applications"
+run = "mise tasks validate --errors-only"
+
+[tasks."verify"]
+description = "Test and check the canonical design system"
+run = "npm run design-system:test\nnpm run design-system:check"
+
+[tasks."ci"]
+description = "Run root verification"
+run = "mise run verify"

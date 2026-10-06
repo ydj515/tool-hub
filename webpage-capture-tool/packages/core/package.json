@@ -5,11 +5,11 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "docx": "^9.6.1",
-    "iconv-lite": "^0.7.0",
-    "playwright": "^1.59.1",
+    "docx": "^9.8.1",
+    "iconv-lite": "^0.7.3",
+    "playwright": "^1.63.0",
     "pptxgenjs": "^4.0.1",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

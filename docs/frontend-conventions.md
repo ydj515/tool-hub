@@ -4,6 +4,11 @@
 
 ## 적용 대상
 
+Node는 mise에 고정한 24.19.0을 사용하고, TypeScript는 각 앱의 기존 버전 범위를 유지한다.
+Next.js 앱 세 곳(`config-diff-viewer`, `ddl-seed-generator`, `dummy-file-generator`)은
+`eslint-config-next`가 사용하는 `eslint-plugin-react`의 지원 범위에 맞춰 ESLint 9.39.5를 사용한다.
+해당 플러그인이 ESLint 10을 지원하고 lint 검증이 통과하면 함께 올린다.
+
 | 계약 | 프로젝트 |
 |---|---|
 | 테마 (8개 웹 앱) | `home`, `sign-maker`, `json-yaml-converter`, `openapi-editor`, `api-contract-test-generator`, `ddl-seed-generator`, `config-diff-viewer`, `dummy-file-generator` |

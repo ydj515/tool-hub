@@ -1,0 +1,4 @@
+# Shared prod settings; credentials are injected separately.
+[vars]
+runtime_env = "prod"
+vite_mode = "production"

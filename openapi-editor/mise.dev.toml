@@ -1,0 +1,4 @@
+# Shared dev settings; credentials are injected separately.
+[vars]
+runtime_env = "dev"
+vite_mode = "development"

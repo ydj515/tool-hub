@@ -1,3 +1,15 @@
+min_version = "2026.9.18"
+
+[settings]
+lockfile = true
+lockfile_platforms = ["macos-arm64", "linux-x64", "windows-x64"]
+
+[vars]
+runtime_env = "local"
+
+[env]
+APP_ENV = "{{ vars.runtime_env }}"
+
 [tools]
 node = "24.19.0"
 
@@ -5,10 +17,10 @@ node = "24.19.0"
 description = "Default task (runs start)"
 depends = ["start"]
 
-[tasks.install]
-alias = "i"
+[tasks."install"]
 description = "Install dependencies from the lockfile"
-run = "npm ci"
+alias = "i"
+run = "npm ci --include=dev"
 
 [tasks.lib]
 alias = "l"
@@ -20,9 +32,10 @@ alias = "c"
 description = "Run CLI workspace"
 run = "npm run cli --workspace @webpage-capture/cli --"
 
-[tasks.start]
-alias = "s"
+[tasks."start"]
 description = "Start Electron app"
+alias = "s"
+depends = ["guard:local"]
 run = "npm run start --workspace @webpage-capture/electron-app"
 
 [tasks.setup]
@@ -59,3 +72,24 @@ run = "npm run build:win --workspace @webpage-capture/electron-app"
 alias = "ch"
 description = "Run the full local verification suite"
 depends = ["test", "lint"]
+
+[tasks."bootstrap"]
+description = "Install locked tools and project dependencies; do not start services"
+run = "mise install --locked node@24.19.0\nmise run install"
+
+[tasks."config:check"]
+description = "Validate task references without starting applications"
+run = "mise tasks validate --errors-only"
+
+[tasks."verify"]
+description = "Run the repository quality gate"
+run = "mise run check"
+
+[tasks."ci"]
+description = "Run the repository quality gate"
+run = "mise run verify"
+
+[tasks."guard:local"]
+description = "Reject local services under a production environment"
+hide = true
+run = "case \"$APP_ENV\" in local|dev|development) ;; *) echo 'Local services require the default or dev environment' >&2; exit 1 ;; esac"

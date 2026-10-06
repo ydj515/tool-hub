@@ -23,7 +23,7 @@ import {
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = join(SCRIPT_DIR, '..');
 const CANONICAL_DIR = 'packages/design-system';
-const REQUIRED_LUCIDE_VERSION = '1.14.0';
+const REQUIRED_LUCIDE_VERSION = '1.52.0';
 
 /** 정본 파일명 → 앱에 복사될 파일명. */
 export const FILES = Object.freeze({

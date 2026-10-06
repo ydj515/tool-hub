@@ -117,7 +117,9 @@ function parseYaml(content: string): { parsed: Record<string, unknown>; errors: 
     return { parsed: {}, errors: [{ line: 1, message: "YAML alias 수가 너무 많습니다 (최대 100개)." }] };
   }
   try {
-    const result = yaml.load(content, { schema: yaml.DEFAULT_SCHEMA });
+    const result = yaml.load(content, {
+      schema: yaml.CORE_SCHEMA.withTags(yaml.mergeTag, yaml.timestampTag, yaml.binaryTag, yaml.omapTag, yaml.pairsTag, yaml.setTag),
+    });
     if (result === null || result === undefined) return { parsed: {}, errors: [] };
     if (typeof result !== "object" || Array.isArray(result)) {
       return { parsed: {}, errors: [{ line: 1, message: "YAML 루트가 객체가 아닙니다." }] };

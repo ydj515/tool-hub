@@ -67,6 +67,6 @@ describe("Config Diff Viewer Topbar", () => {
     );
     expect(comparingHtml).toMatch(/<button[^>]*data-variant="primary"[^>]*disabled=""/);
     expect(comparingHtml).not.toContain("파싱 오류를 먼저 수정하세요.");
-    expect(comparingHtml).toContain('class="lucide lucide-loader-circle spinning"');
+    expect(comparingHtml).toMatch(/<svg[^>]*class="[^"]*spinning[^"]*"/);
   });
 });
