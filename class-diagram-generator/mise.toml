@@ -1,8 +1,7 @@
 min_version = "2026.9.18"
 
 [settings]
-lockfile = true
-lockfile_platforms = ["macos-arm64", "linux-x64"]
+lockfile = false
 
 [vars]
 runtime_env = "local"
@@ -56,8 +55,8 @@ description = "clean 후 전체 검증 (CI 용도)"
 run = "./gradlew clean check"
 
 [tasks."bootstrap"]
-description = "Install locked tools and project dependencies; do not start services"
-run = "mise install --locked java@21.0.2\n./gradlew --version"
+description = "Install pinned tools and project dependencies; do not start services"
+run = "mise install java@21.0.2\n./gradlew --version"
 
 [tasks."config:check"]
 description = "Validate task references without starting applications"

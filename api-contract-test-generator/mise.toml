@@ -1,8 +1,7 @@
 min_version = "2026.9.18"
 
 [settings]
-lockfile = true
-lockfile_platforms = ["macos-arm64", "linux-x64"]
+lockfile = false
 
 [vars]
 runtime_env = "local"
@@ -56,8 +55,8 @@ description = "Run the full local verification suite"
 depends = ["test", "lint", "typecheck", "build", "e2e"]
 
 [tasks."bootstrap"]
-description = "Install locked tools and project dependencies; do not start services"
-run = "mise install --locked node@24.19.0\nmise run install"
+description = "Install pinned tools and project dependencies; do not start services"
+run = "mise install node@24.19.0\nmise run install"
 
 [tasks."config:check"]
 description = "Validate task references without starting applications"
