@@ -77,6 +77,10 @@ export async function assertShellContract(
   product: TestProduct,
   viewport: ViewportCase,
 ): Promise<void> {
+  if (product.id === 'openapi-editor') {
+    await expect(page.locator('.monaco-editor').first()).toBeVisible();
+    await expect(page.locator('.editor-loading')).toHaveCount(0);
+  }
   const rootMetrics = await page.evaluate(() => {
     const env = globalThis as unknown as ShellEnvironment;
     return {

@@ -128,7 +128,7 @@ const APP_PATHS = [
   'class-diagram-generator',
 ];
 
-const REQUIRED_LUCIDE_VERSION = '1.14.0';
+const REQUIRED_LUCIDE_VERSION = '1.52.0';
 const FIRST_TARGET = 'sign-maker/src/styles/ds-tokens.css';
 
 function manifestFor(product) {
@@ -263,12 +263,12 @@ describe('validatePreflight', () => {
       const root = makeRepo();
       const path = join(root, 'dummy-file-generator/package.json');
       const packageJson = JSON.parse(readFileSync(path, 'utf8'));
-      packageJson.dependencies['lucide-react'] = '^1.14.0';
+      packageJson.dependencies['lucide-react'] = '^1.52.0';
       writeJson(path, packageJson);
 
       assert.throws(
         () => sync({ root, check }),
-        /dummy-file-generator[\s\S]*package\.json[\s\S]*lucide-react[\s\S]*\^1\.14\.0/,
+        /dummy-file-generator[\s\S]*package\.json[\s\S]*lucide-react[\s\S]*\^1\.52\.0/,
       );
       assertFirstTargetWasNotWritten(root);
     });
