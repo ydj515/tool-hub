@@ -31,6 +31,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation(libs.konsist)
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.thymeleaf)
@@ -89,4 +90,10 @@ tasks.withType<Detekt>().configureEach {
 
 tasks.named("check") {
     dependsOn("spotlessCheck", "detekt")
+}
+
+// Konsist reads sources rather than compiled output.
+tasks.withType<Test>().configureEach {
+    inputs.files(fileTree("src/main/kotlin") { include("**/*.kt") })
+    systemProperty("architecture.sources", file("src/main/kotlin").absolutePath)
 }

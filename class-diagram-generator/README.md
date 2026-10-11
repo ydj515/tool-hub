@@ -128,3 +128,11 @@ Kotlin 파이프라인 중심 회귀 검증만 빠르게 확인하려면 아래 
 - Bootstrap 5.3.3 + Bootstrap Icons 1.11.x (WebJars) + 순수 Vanilla JS (`EventSource`)
 - Kotest 5.9.1 + MockK 1.13.x + Spring MockMvc
 - Spotless (ktlint 1.3.1) + Detekt 1.23.8
+
+### Konsist 아키텍처 검사
+
+Konsist 0.17.3으로 Domain에서 API·렌더링·저장 등 외부 계층으로의 import 금지을 검사합니다. 운영 Kotlin 소스만 읽고, 소스가 비어 있으면 실패합니다. 기본 `test`와 `check`에 포함됩니다.
+
+```bash
+./gradlew test --tests '*ArchitectureKonsistTest'
+```
