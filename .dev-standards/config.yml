@@ -29,6 +29,7 @@ tools:
   - frameworks/react-ts/vitest
   - detekt
   - ktlint
+  - konsist
 
 runtimes:
   - mise
