@@ -20,6 +20,11 @@
 
 - Detekt 설정은 저장소에 커밋하고 build 설정에서 경로를 명시합니다.
 - Kotlin DSL 시작점은 `templates/gradle/detekt/build.gradle.kts.example`을 사용합니다.
+- 현재 template과 version catalog는 Detekt 2.x의 `dev.detekt` plugin과 API를 사용합니다.
+  1.x를 유지하는 프로젝트는 plugin id, import와 rule 설정을 해당 major에 맞게 병합합니다.
+- Detekt 실행 classpath의 Kotlin compiler 버전은 분석 engine이 지원하는 버전에 맞춥니다.
+  프로젝트의 Kotlin 버전으로 일괄 치환하지 않으며, 전역 dependency resolution 규칙이
+  Detekt configuration까지 변경하는지 확인합니다.
 - `buildUponDefaultConfig`를 사용하면 파일에서 생략한 기본 규칙도 활성 상태일 수 있음을 문서화합니다.
 - major 버전을 변경할 때는 먼저 기본 설정을 다시 생성하고 제거·변경된 rule id를 점검합니다.
 - formatter와 중복되는 규칙은 어느 도구가 소유하는지 정하고 한쪽에서만 강제합니다.
@@ -58,3 +63,6 @@ Maven 프로젝트는 Detekt execution을 포함한 전체 lifecycle을 실행�
 ```sh
 ./mvnw verify
 ```
+
+참고: [Detekt Gradle plugin](https://detekt.dev/docs/gettingstarted/gradle/),
+[Detekt 1.23.8 Gradle plugin](https://detekt.dev/docs/1.23.8/gettingstarted/gradle/)

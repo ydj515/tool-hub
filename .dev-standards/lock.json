@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "source": {
     "repository": "ydj515/dev-standards",
-    "requestedRef": "latest-release",
-    "resolvedRef": "v1.3.0",
-    "commit": "549f49628fbd83e0d32ca4124025db74daa4e219"
+    "requestedRef": "v1.5.0",
+    "resolvedRef": "v1.5.0",
+    "commit": "52aa44ec3374d0d8d570fec9c26399f39406d5db"
   },
   "config": {
     "path": ".dev-standards/config.yml",
@@ -116,7 +116,7 @@
     },
     ".dev-standards/standards/build-tools/gradle.md": {
       "ownership": "managed",
-      "sha256": "d7021598c82fd1891921b67b6a273ef2de9e974d7b909591a234e3706ec4bca8"
+      "sha256": "3266ee33839b2536a8f86f9200eeacdb81eaa805369b33f21fee1ef3ae5cb8b0"
     },
     ".dev-standards/standards/frameworks/bootstrap.md": {
       "ownership": "managed",
@@ -152,7 +152,7 @@
     },
     ".dev-standards/standards/runtime/mise.md": {
       "ownership": "managed",
-      "sha256": "fd66a8ed4ffa1f28ef5537e90cb6c0fdc033e9890bc71935a2a27417eec164f9"
+      "sha256": "8de0bab13e5c043362e1b2f3053d0a6a049802b94108421121fc956fa8742701"
     },
     ".dev-standards/standards/tools/frameworks/next-ts/eslint-config-next.md": {
       "ownership": "managed",
@@ -160,7 +160,7 @@
     },
     ".dev-standards/standards/tools/frameworks/react-ts/eslint-plugin-react-hooks.md": {
       "ownership": "managed",
-      "sha256": "c407f0c0bf55fef2898fb32d3dbd871f28155666d016e1fef54da921683ec8a0"
+      "sha256": "84bfa9c56036015989988b8d343c728c7804bd942832d77c80ca0883f48180aa"
     },
     ".dev-standards/standards/tools/frameworks/react-ts/vitest.md": {
       "ownership": "managed",
@@ -168,15 +168,15 @@
     },
     ".dev-standards/standards/tools/languages/kotlin/detekt.md": {
       "ownership": "managed",
-      "sha256": "f7fc62244754323f89f74e39a442ff9106259e5deaf0813ccf90798730825bd0"
+      "sha256": "b0860f31e603e9e192d8db1919c2dbbbe0862766c0a8f0e1beb87747b31eb6d2"
     },
     ".dev-standards/standards/tools/languages/kotlin/ktlint.md": {
       "ownership": "managed",
-      "sha256": "927e9a1088a51ff29d8edd87a82cfa3927c7b8d500c559fd30f3f85286bb8f03"
+      "sha256": "7d1bd31d8d9173de3c518f70f704e2277528840e058144963ff88bf43f9ccd07"
     },
     ".dev-standards/standards/tools/languages/typescript/eslint.md": {
       "ownership": "managed",
-      "sha256": "714fde02297fb66e7b1438f3176716e6146fe55ed9599b9ccec9156e22f92e98"
+      "sha256": "460e4428c6f67fb910c85a96308f64c1868b5376d879b75bbbba36b2a4c2df60"
     },
     ".dev-standards/standards/workflows/branch.md": {
       "ownership": "managed",
@@ -196,7 +196,7 @@
     },
     ".dev-standards/styleguide.md": {
       "ownership": "managed",
-      "sha256": "2a151cad5efe0cb3e743ad89912d479b8e03990765ac6daca1bce7ef27418340"
+      "sha256": "fe46bf6f2f04e9eb0ca63c0364f17661f572fd9251219a4c140c7223067a9086"
     },
     ".worktreeinclude": {
       "ownership": "project-owned"

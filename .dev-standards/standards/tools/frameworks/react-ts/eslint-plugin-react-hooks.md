@@ -17,7 +17,8 @@
 - Next.js의 `eslint-config-next`를 사용하면 React와 React Hooks 규칙이 이미 포함되므로
   같은 preset을 중복 등록하지 않습니다.
 
-기존 `eslint.config.mjs`에 다음 preset을 병합합니다.
+기존 `eslint.config.mjs`에 다음 preset과 오류 수준을 병합합니다. `recommended`의
+`exhaustive-deps`는 warning이므로 본문의 오류 정책에 맞게 명시적으로 재정의합니다.
 
 ```js
 import { defineConfig } from "eslint/config";
@@ -25,6 +26,12 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default defineConfig([
   reactHooks.configs.flat.recommended,
+  {
+    rules: {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
+    },
+  },
 ]);
 ```
 
