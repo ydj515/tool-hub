@@ -8,7 +8,7 @@
   },
   "config": {
     "path": ".dev-standards/config.yml",
-    "sha256": "e3869107108bc5d5051425da40f01312414d491620453c4adf0583cd63804e9f"
+    "sha256": "fde77d99e898c0fa26fb87bdc806c4d0e82d656d6f97b0df230fb6455804449e"
   },
   "files": {
     ".dev-standards/claude/skills/merge-dev-standards/SKILL.md": {
@@ -170,6 +170,10 @@
       "ownership": "managed",
       "sha256": "b0860f31e603e9e192d8db1919c2dbbbe0862766c0a8f0e1beb87747b31eb6d2"
     },
+    ".dev-standards/standards/tools/languages/kotlin/konsist.md": {
+      "ownership": "managed",
+      "sha256": "90e3c5e98ec89e0078f9644e990beca55a6fe98f18d737857fe98c39d8788831"
+    },
     ".dev-standards/standards/tools/languages/kotlin/ktlint.md": {
       "ownership": "managed",
       "sha256": "7d1bd31d8d9173de3c518f70f704e2277528840e058144963ff88bf43f9ccd07"
@@ -196,7 +200,7 @@
     },
     ".dev-standards/styleguide.md": {
       "ownership": "managed",
-      "sha256": "fe46bf6f2f04e9eb0ca63c0364f17661f572fd9251219a4c140c7223067a9086"
+      "sha256": "7bfb5bb8673a6b9111808d725d45fe4f20c22b8942be9e57c2e26375d30209a3"
     },
     ".worktreeinclude": {
       "ownership": "project-owned"
