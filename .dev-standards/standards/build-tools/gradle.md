@@ -56,6 +56,10 @@ Checkstyle, PMD, SpotBugs, Detekt, ktlint, ArchUnit, Kover와 JaCoCo의 Kotlin D
 mirror나 allowlist를 사용하면 예제의 `mavenCentral()`을 해당 프로젝트의 repository 정책으로
 교체합니다.
 
+bootstrap은 version catalog만 복사하며 `build.gradle.kts`, Wrapper와 품질 task를 자동으로
+생성하거나 병합하지 않습니다. 선택한 예제를 기존 build에 연결한 뒤 실제 task 실행을
+확인합니다.
+
 ## Dependency resolution과 검증
 
 - `1.+`, version range, `latest.*` 같은 동적 버전은 기본적으로 사용하지 않습니다.
@@ -69,10 +73,18 @@ mirror나 allowlist를 사용하면 예제의 `mavenCentral()`을 해당 프로�
 - dependency lock과 verification metadata는 실제 resolution 결과에 종속되므로 중앙
   템플릿에서 복사하지 않습니다. 소비 저장소가 생성하고 변경 diff를 소유합니다.
 
+다음 명령은 locking을 활성화한 단일 프로젝트 예시입니다. 다중 모듈에서는 대상별
+`:module:dependencies` 또는 프로젝트가 구현한 집계 task를 사용합니다. 루트의
+`dependencies`만 실행하면 모든 subproject의 lock state가 생성되는 것은 아닙니다.
+
 ```sh
 ./gradlew dependencies --write-locks
-./gradlew --write-verification-metadata sha256
+./gradlew --write-verification-metadata sha256 check
 ```
+
+verification metadata 생성은 root, subproject와 included build의 해석 가능한 configuration을
+탐색합니다. task 실행 중에만 해석하는 의존성이나 custom resolution이 있으면 해당 task도
+실행해 포함 여부를 확인합니다. 생성 명령은 기존 lock과 metadata를 갱신하므로 diff를 검토합니다.
 
 ## 빌드 로직
 

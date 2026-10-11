@@ -27,14 +27,22 @@
 
 ## 검증
 
+CI에서는 파일을 수정하지 않는 검사만 실행합니다.
+
 ```sh
 ./gradlew ktlintCheck
-./gradlew ktlintFormat
 ./gradlew check
+```
+
+자동 수정이 필요할 때 개발자가 별도로 실행합니다.
+
+```sh
+./gradlew ktlintFormat
+./gradlew ktlintCheck
 ```
 
 format 명령 실행 후에는 변경 diff를 확인하고 check 명령을 다시 실행합니다. custom ruleset을
 사용하면 dependency version과 rule id를 함께 고정하고 정상·위반 fixture로 검증합니다.
 
 참고: [ktlint Gradle plugin](https://github.com/JLLeitschuh/ktlint-gradle),
-[ktlint configuration](https://pinterest.github.io/ktlint/latest/rules/configuration-ktlint/)
+[ktlint configuration](https://ktlint.github.io/ktlint/1.8.0/rules/configuration-ktlint/)

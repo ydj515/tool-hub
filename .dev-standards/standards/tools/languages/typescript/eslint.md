@@ -11,6 +11,8 @@
 - 일반 correctness는 recommended rules, TypeScript 의미 분석은
   `recommendedTypeChecked`와 `parserOptions.projectService: true`에서 시작합니다.
   type-aware lint 비용이 큰 저장소는 측정 결과와 제외 범위를 기록합니다.
+- type-aware lint 대상 파일이 해당 `tsconfig`에 포함되는지 확인합니다. 프로젝트 밖의
+  설정 파일은 대상 glob을 좁히거나 별도 config에서 type-aware 규칙을 해제합니다.
 - 시작점은 `templates/eslint/typescript/eslint.config.mjs.example`이며 소비할 때
   `.example` suffix를 제거하고 실제 source 및 generated 경로에 맞게 glob을 조정합니다.
 
