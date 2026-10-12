@@ -150,8 +150,10 @@ suspend fun loadOrder(orderId: OrderId): Order {
 - sealed 분기, null 경계와 domain transition을 단위 테스트합니다.
 - coroutine test는 실제 시간 지연보다 test dispatcher와 virtual time을 사용하고
   cancellation과 실패 전파를 확인합니다.
-- ktlint는 format, Detekt는 code quality와 type-aware rule, ArchUnit은 JVM bytecode의 package
-  의존성, Kover는 test coverage를 담당하게 합니다.
+- 선택한 도구의 역할을 구분합니다. ktlint 또는 Spotless는 formatting, Detekt는 code
+  quality와 type-aware rule, Konsist는 Kotlin source의 선언·package 구조, Kover는 test
+  coverage를 검사합니다. JVM bytecode 의존 검사가 필요하고 ArchUnit을 선택한 경우에는
+  Konsist의 source 검사와 검증 범위를 구분합니다.
 - Java와 함께 사용하는 build가 이미 JaCoCo를 표준 coverage gate로 운영하면 Kover를 추가로
   적용하지 않습니다.
 
@@ -161,7 +163,8 @@ suspend fun loadOrder(orderId: OrderId): Order {
 ```
 
 Detekt rule 시작점은 `templates/detekt/`, Gradle 연결 예시는 `templates/gradle/detekt/`에
-있습니다. ktlint, Kover와 ArchUnit 예시도 `templates/gradle/` 아래에서 제공합니다.
+있습니다. ktlint, Konsist, Kover, Spotless와 ArchUnit 예시도 `templates/gradle/` 아래에서
+제공합니다. 도구 선택은 [공통 설정](https://github.com/ydj515/dev-standards/blob/main/docs/configuration.md)의 `tools:`에 명시합니다.
 
 ## 10. 다른 언어 습관을 옮기지 않는다
 

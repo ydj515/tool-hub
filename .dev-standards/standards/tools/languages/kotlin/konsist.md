@@ -78,8 +78,8 @@ class NamingKonsistTest {
 
 ```kotlin
 import com.lemonappdev.konsist.api.Konsist
+import com.lemonappdev.konsist.api.architecture.KoArchitectureCreator.assertArchitecture
 import com.lemonappdev.konsist.api.architecture.Layer
-import com.lemonappdev.konsist.api.architecture.assertArchitecture
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -88,6 +88,14 @@ class DependencyKonsistTest {
     fun `domain does not depend on application`() {
         val scope = Konsist.scopeFromProduction()
         assertTrue(scope.files.isNotEmpty(), "No production Kotlin files found")
+        listOf("com.example.application", "com.example.domain").forEach { layer ->
+            assertTrue(
+                scope.files.any {
+                    it.packagee?.name == layer || it.packagee?.name?.startsWith("$layer.") == true
+                },
+                "Missing layer: $layer",
+            )
+        }
         scope.assertArchitecture {
             val application = Layer("Application", "com.example.application..")
             val domain = Layer("Domain", "com.example.domain..")

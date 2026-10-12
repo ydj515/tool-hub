@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "source": {
     "repository": "ydj515/dev-standards",
-    "requestedRef": "v1.5.0",
-    "resolvedRef": "v1.5.0",
-    "commit": "52aa44ec3374d0d8d570fec9c26399f39406d5db"
+    "requestedRef": "v1.5.1",
+    "resolvedRef": "v1.5.1",
+    "commit": "1c697564334aa64f822238ba434b9f24d911bdbd"
   },
   "config": {
     "path": ".dev-standards/config.yml",
@@ -116,7 +116,7 @@
     },
     ".dev-standards/standards/build-tools/gradle.md": {
       "ownership": "managed",
-      "sha256": "3266ee33839b2536a8f86f9200eeacdb81eaa805369b33f21fee1ef3ae5cb8b0"
+      "sha256": "392d249d22279af3760dc1d1fdd8b731f155c79a3b7e9ac3b0de3ab752147345"
     },
     ".dev-standards/standards/frameworks/bootstrap.md": {
       "ownership": "managed",
@@ -132,7 +132,7 @@
     },
     ".dev-standards/standards/frameworks/spring.md": {
       "ownership": "managed",
-      "sha256": "77e32faceb765f75400c3631a9e3f62fd1f22f98ae82156764d7204e5dc096f7"
+      "sha256": "76a57e02d463cd104137816bc1eca453d8c3b9d539f096993da39c0654513639"
     },
     ".dev-standards/standards/frameworks/tailwind.md": {
       "ownership": "managed",
@@ -144,7 +144,7 @@
     },
     ".dev-standards/standards/languages/kotlin.md": {
       "ownership": "managed",
-      "sha256": "40dbe63e8c16eb525e2819f051304e6044b0a4b99f76bcf7402525dd04989fd2"
+      "sha256": "4cf7be9990e6501aa512430f155c23465cf921427f76abb7a48ab922b8d42e65"
     },
     ".dev-standards/standards/languages/typescript.md": {
       "ownership": "managed",
@@ -172,7 +172,7 @@
     },
     ".dev-standards/standards/tools/languages/kotlin/konsist.md": {
       "ownership": "managed",
-      "sha256": "90e3c5e98ec89e0078f9644e990beca55a6fe98f18d737857fe98c39d8788831"
+      "sha256": "000fe856dae4986921f06bc9304c5879d5cd4de610a4b08232a712aa79635e82"
     },
     ".dev-standards/standards/tools/languages/kotlin/ktlint.md": {
       "ownership": "managed",
@@ -200,7 +200,7 @@
     },
     ".dev-standards/styleguide.md": {
       "ownership": "managed",
-      "sha256": "7bfb5bb8673a6b9111808d725d45fe4f20c22b8942be9e57c2e26375d30209a3"
+      "sha256": "d2167e42b14c56d98d751fbe09079e88bbd227e80c487c8458c22271a186e546"
     },
     ".worktreeinclude": {
       "ownership": "project-owned"
