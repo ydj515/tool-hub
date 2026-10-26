@@ -2,6 +2,7 @@
 
 [![Sync Development Standards](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml/badge.svg)](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-24.19.0-339933?logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-21.0.2-007396?logo=openjdk&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
