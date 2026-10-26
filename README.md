@@ -1,42 +1,74 @@
-## tool hub
+# Tool Hub
 
-간단한 기능 도구 모음집입니다.
+[![Sync Development Standards](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml/badge.svg)](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml)
+![Node.js](https://img.shields.io/badge/Node.js-24.19.0-339933?logo=nodedotjs&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21.0.2-007396?logo=openjdk&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
 
-- webpage-capture-tool : 웹페이지의 url을 등록하면 내장 브라우저가 사진을 캡처하는 도구입니다.
-- sign-maker : canvas에 서명을 그리면 배경없는 이미지로 다운로드 할 수 있는 도구입니다.
-- dummy-file-generator : 원하는 용량의 더미 파일을 생성하는 도구입니다.
-- ddl-seed-generator : DDL을 입력하면 FK 순서에 맞는 seed SQL과 rollback SQL을 생성하는 도구입니다.
-- config-diff-viewer : YAML/JSON/properties/.env 설정 파일을 비교하고, 누락 키·위험 설정·민감정보를 탐지하는 도구입니다.
-- class-diagram-generator : zip 파일을 업로드 하여 class 설계서(diagram 포함, xlsx, docx, md)를 받는 도구입니다.
-- json-yaml-converter : JSON과 YAML을 양방향으로 변환하고 Pretty formatting과 문법 오류 위치를 제공하는 도구입니다.
-- openapi-editor : Swagger 2.0과 OpenAPI 3.0/3.1/3.2 문서를 편집·검증하고 손실 경고와 함께 버전을 변환하는 도구입니다.
+일상적인 개발과 문서 작업에 쓰이는 유틸리티를 한곳에 모은 도구 모음입니다.
+각 도구는 독립된 애플리케이션으로 구성되어 개별 디렉터리에서 바로 실행하고 배포할 수 있으며, 공통 디자인 토큰과 UI 프리미티브로 일관된 사용 경험을 제공합니다.
+
+**기술 스택:** React 19 · Next.js · TypeScript · Vite · Tailwind CSS · Electron · Kotlin · Spring Boot
+
+## 포함된 도구
+
+- **API·데이터·설정:**
+  - [`json-yaml-converter`](./json-yaml-converter): JSON·YAML 양방향 변환, 포맷팅, 문법 오류 위치 진단
+  - [`openapi-editor`](./openapi-editor): Swagger 2.0 및 OpenAPI 3.0/3.1/3.2 편집·검증·버전 변환
+  - [`api-contract-test-generator`](./api-contract-test-generator): OpenAPI 명세 기반 정상·경계값·오류·인증 테스트 계획 생성
+  - [`ddl-seed-generator`](./ddl-seed-generator): DDL 분석 후 외래키(FK) 순서에 맞는 seed·rollback SQL 생성
+  - [`config-diff-viewer`](./config-diff-viewer): YAML/JSON/properties/.env 비교 및 누락 키·위험 설정·민감정보 탐지
+- **설계·문서·파일:**
+  - [`class-diagram-generator`](./class-diagram-generator): 소스 코드 ZIP 업로드를 통한 클래스 설계서(다이어그램, XLSX, DOCX, MD) 생성
+  - [`sign-maker`](./sign-maker): 캔버스 기반 손글씨 서명 작성 및 투명 배경 이미지 다운로드
+  - [`dummy-file-generator`](./dummy-file-generator): 지정한 형식과 용량의 테스트용 더미 파일 생성
+- **데스크톱·허브:**
+  - [`webpage-capture-tool`](./webpage-capture-tool): 등록한 URL을 내장 브라우저로 촬영하는 Electron 캡처 도구
+  - [`home`](./home): 전체 도구를 탐색하고 실행 경로를 안내하는 랜딩 페이지
+
+## 요구 사항
+
+- [mise](https://mise.jdx.dev/) — 프로젝트별 런타임(Node.js 24, Java 21) 버전은 각 디렉터리의 `mise.toml`에 고정되어 있으며 `mise`가 설치합니다.
+
+## 빠른 시작
+
+실행하려는 도구의 디렉터리로 이동해 초기 설정과 개발 서버를 실행합니다.
+
+```bash
+cd home             # 실행할 도구 디렉터리로 이동 (예: home, openapi-editor)
+mise trust          # 최초 1회, mise.toml 검토 후 신뢰
+mise run bootstrap  # 고정된 런타임 설치 + 의존성 설치
+mise run dev        # 개발 서버 실행 (webpage-capture-tool은 mise run start)
+```
+
+루트 디렉터리는 공통 디자인 시스템의 동기화와 검증만 담당하며, 하위 앱 전체를 일괄 실행하지 않습니다.
+
+## 주요 명령
+
+각 도구 디렉터리에서 아래 명령을 사용할 수 있습니다.
+
+| 명령 | 설명 |
+| --- | --- |
+| `mise run bootstrap` | 고정된 런타임 및 패키지 의존성 설치 |
+| `mise run dev` | 개발 서버 실행 (`webpage-capture-tool`은 `mise run start`) |
+| `mise run test` | 단위·컴포넌트 테스트 실행 |
+| `mise run check` | 테스트·린트·타입체크·빌드·E2E 통합 검증 |
+| `mise run verify` | 프로젝트 품질 게이트 실행 |
+
+루트 디렉터리에서 공통 디자인 시스템을 수정한 경우에는 `npm run design-system:sync`와 `mise run verify`로 정본 동기화 상태를 검증합니다.
+전체 작업 목록은 해당 디렉터리에서 `mise tasks`로 확인할 수 있습니다. dev/prod 환경 프로필과 개인 설정 방법은 [기여자 가이드의 Mise Environment Configuration](./docs/contributor-guide.md#mise-environment-configuration)을 참고하세요.
 
 ## 문서
 
-공통 가이드와 도구별 설계는 [문서 인덱스](docs/README.md)에서 확인할 수 있습니다.
+- [전체 문서 인덱스](./docs/README.md)
+- [기여자 가이드 및 프로젝트별 참조](./docs/contributor-guide.md)
+- [프론트엔드 컨벤션](./docs/frontend-conventions.md)
+- [디자인 시스템 구조와 유지보수](./docs/design-system.md)
+- [UI 검증 기준](./docs/ui-verification.md)
 
-## mise 환경과 초기 설정
+## 기여
 
-`mise.toml`은 도구·공통 task, `mise.dev.toml`/`mise.prod.toml`은 공유 환경 선택을 담당한다.
+변경 전 [기여 가이드](./CONTRIBUTING.md)를 확인해 주세요.
 
-```bash
-mise trust ./mise.toml   # task와 overlay를 검토한 뒤 신뢰
-mise run bootstrap     # 고정된 버전의 도구 설치 후 의존성 준비
-mise run config:check  # task 참조·순환 검사, 앱 실행 없음
-mise run verify        # 프로젝트 검증 (Docker 등 기존 검증 전제는 유지)
-mise -E dev run verify
-```
-
-- 기본 실행은 `APP_ENV=local`, `-E dev`는 개발 overlay, `-E prod`는 운영 설정 선택이다. 환경 선택 자체가 배포나 서비스 시작을 수행하지 않는다.
-- 개인 개발 설정은 `mise.dev.local.toml.example`을 검토해 `mise.dev.local.toml`로 복사한다. `.env.dev.local`을 만든 뒤 `env._.file`을 활성화하면 dev에서만 읽는다. 기존 개인 파일을 덮어쓰지 않는다.
-- `mise.local.toml`은 **모든 환경**에서 로드된다. prod checkout에 개인 override나 개발 dotenv를 두지 않는다. `-E local`은 사용하지 않는다.
-- `APP_ENV`는 공통 식별자다. Spring 실행 task의 프로파일은 해당 task에서 매핑하며, 존재하지 않는 운영 설정을 자동 생성하지 않는다. prod 선택만으로 기존 개발용 앱이 운영 준비를 마친 것은 아니다.
-- Vite 앱의 `build`는 기본/ prod에서 `production`, dev에서 `development` mode를 사용한다. Next.js는 자체 dev/build 모드를 유지한다. `NODE_ENV`를 전역 production으로 설정하지 않아 개발 의존성 설치가 누락되지 않는다.
-- mise는 개발 도구의 정확한 버전 고정과 프로필 분리에 사용한다. `[settings] lockfile = false`로 도구 lock 생성을 끄고 `mise.lock`은 관리하지 않는다. 공통 표준의 mise lock 지침보다 이 저장소의 정책을 우선한다. 설치 파일까지 고정해야 하는 요구가 생기면 다시 도입한다.
-- 도구 버전은 `mise.toml`의 `[tools]`에서 관리하며 dev/prod에서도 같은 버전을 사용한다. 로컬과 CI는 `mise install` 또는 같은 정확한 버전의 setup action으로 도구를 준비한다. `package-lock.json`, `pnpm-lock.yaml`, `uv.lock`, Gradle lock 등 애플리케이션 의존성 잠금과 검증 옵션은 유지한다.
-- 지원 OS는 각 도구와 실행 스크립트의 호환성에 따른다. mise lock을 사용하지 않는다고 Windows 실행까지 보장되는 것은 아니다.
-- `mise run bootstrap`은 프로젝트 초기 설정이다. OS package·dotfile·서비스를 관리하는 `mise bootstrap`은 개인 머신 설정에서 별도로 채택한다.
-
-하위 설정: `home`, `sign-maker`, `ddl-seed-generator`, `config-diff-viewer`, `api-contract-test-generator`, `dummy-file-generator`, `json-yaml-converter`, `class-diagram-generator`, `webpage-capture-tool`, `openapi-editor`. 각 앱 디렉터리에서 같은 명령을 실행한다. 루트 bootstrap/verify가 하위 앱 전체를 자동 실행하지는 않는다.
-
-`webpage-capture-tool` 잠금 파일은 Windows x64도 포함한다. 각 하위 앱의 bootstrap은 해당 앱의 package-lock만 설치한다.

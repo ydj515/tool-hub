@@ -1,26 +1,27 @@
-# openapi-editor Contributor Guide
+# OpenAPI Editor Contributor Guide
 
-## 프로젝트 구조
+## Project Structure
 
-- `src/lib/parser/`: YAML·JSON 파싱, 형식 감지, 직렬화
-- `src/lib/validation/`: 버전, 최소 구조, 내부·외부 `$ref` 검사
-- `src/lib/conversion/`: 브라우저 전용 변환 어댑터와 의미 인벤토리
-- `src/workers/`: revision 기반 분석·변환 Worker 프로토콜
-- `src/components/`: 탐색기, Monaco 편집기, Swagger UI, 레이아웃
+- `src/lib/parser/`: YAML/JSON parsing, format detection, and serialization
+- `src/lib/validation/`: Version checks, minimum structure validation, and internal/external `$ref` checks
+- `src/lib/conversion/`: Browser-only conversion adapters and semantic inventory
+- `src/workers/`: Revision-based analysis and conversion Worker protocol
+- `src/components/`: Explorer, Monaco editor, Swagger UI, and workspace layout
 
-## 변환 규칙
+## Conversion Rules
 
-변환 어댑터를 수정하면 입력과 대상 버전을 명확히 하고, 하향 변환으로 손실되는 필드는 `x-toolhub-original-<keyword>` 확장과 `lossy: true` 진단을 함께 추가한다. OpenAPI 3.2를 3.1 이하로 내릴 때는 3.2 전용 필드를 제거만 하지 말고 보존 경고를 남긴다. 외부 `$ref`를 해석하거나 네트워크 요청을 추가하지 않는다.
+When modifying conversion adapters, explicitly specify the input and target versions. For fields lost during downgrade conversions, preserve the original value under an `x-toolhub-original-<keyword>` extension and emit a diagnostic with `lossy: true`. When downgrading from OpenAPI 3.2 to 3.1 or lower, do not silently drop 3.2-specific fields—always record preservation warnings. Never resolve external `$ref` pointers or introduce network requests.
 
-## 검증
+## Verification
 
 ```bash
 mise run check
 ```
 
-변환 로직 변경에는 해당 방향의 단위 테스트와 의미 인벤토리 회귀 테스트를 추가한다. 버전별 예시 명세는 버전을 감지할 수 있고 YAML로 내려받을 수 있어야 한다. UI 변경은 데스크톱, 768px~1023px, 767px 이하에서 구조·편집기·미리보기를 확인한다.
+Add directional unit tests and semantic inventory regression tests whenever conversion logic changes. Version-specific sample specifications must remain detectable by version and downloadable as YAML. For UI changes, verify the structure tree, editor, and preview across desktop, `768px`–`1023px`, and `767px` or narrower viewports.
 
-## 설계 문서
+## Design References
 
-- [문서 분석과 버전 변환](document-processing.md)
-- [워크스페이스와 메뉴](workspace.md)
+- [Document analysis and version conversion](document-processing.md)
+- [Workspace and menu controls](workspace.md)
+

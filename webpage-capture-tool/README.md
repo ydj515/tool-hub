@@ -1,54 +1,58 @@
 # Webpage Capture Tool
 
-Playwright 기반으로 URL 목록을 순회하며 전체 페이지 스크린샷을 저장하는 CLI와 Electron UI를 한 저장소에서 관리합니다. npm workspaces를 사용합니다.
+URL 목록을 순회하며 전체 페이지 스크린샷을 촬영·편집·내보내는 CLI 및 Electron 데스크톱 애플리케이션입니다.
+`npm workspaces` 기반으로 코어 캡처 엔진(`packages/core`), CLI(`packages/cli`), Electron 워크벤치(`apps/electron`)를 함께 구성했습니다.
+
+**기술 스택:** Electron · Node.js · JavaScript (CommonJS) · Playwright · Vitest
 
 ![main](./docs/main.png)
 
-![fail](./docs/fail.png)
+## 주요 기능
 
-![log](./docs/log.png)
+- **일괄 및 수동 캡처:** 스프레드시트(`.xlsx`, `.csv`) 또는 텍스트 목록 기반 URL 순회 촬영, 대기 시간·탐색 깊이(`depth`)·헤드리스 옵션 제어
+- **DOM 규칙 및 이미지 편집:** 캡처 전 DOM 요소 숨김·강조 프리뷰, 촬영 이미지 크롭·블러·주석 편집
+- **문서 내보내기:** 촬영 결과를 Markdown, Word(`.docx`), PowerPoint(`.pptx`) 자산으로 내보내기
 
-## 패키지 구성
-- `packages/core` (`@webpage-capture/core`): 옵션 파서, 데이터 로더, Playwright 스크린샷 실행 로직.
-- `packages/cli` (`@webpage-capture/cli`): CLI 엔트리(`webpage-capture`), 샘플 데이터(`sample-files/`, `datalist.xlsx`).
-- `apps/electron` (`@webpage-capture/electron-app`): GUI 래퍼. 내부에서 CLI를 child process로 실행해 로그를 보여줍니다.
+## 요구 사항
 
-## 설치
+- [mise](https://mise.jdx.dev/) — Node.js 버전은 [`mise.toml`](./mise.toml)에 고정되어 있으며 `mise`가 설치합니다.
+
+## 빠른 시작
+
 ```bash
-npm install
-# Playwright Chromium 설치 (GUI/빌드 전 1회)
-npm run setup
+mise trust          # 최초 1회, mise.toml 검토 후 신뢰
+mise run bootstrap  # 고정된 Node.js 설치 + 의존성 설치
+mise run setup      # Playwright Chromium 브라우저 설치 (최초 1회)
+mise run start      # Electron 데스크톱 앱 실행
 ```
 
-## CLI 사용
-루트에서 실행:
+CLI로 바로 실행하려면 아래와 같이 입력합니다.
+
 ```bash
-npm run cli -- --file absolutePath/docs/sample-files/sample.xlsx
-# 또는
-npx webpage-capture --file docs/sample-files/sample.xlsx --wait 2500 --headless false
+mise run cli -- --file docs/sample-files/sample.xlsx --wait 2500
 ```
 
-주요 옵션은 `--sheet`, `--id`/`--subject`/`--url`, `--out`(기본: 실행 디렉토리의 `./screenshots`), `--wait`, `--depth 0|1|2`, `--headless false`, `--dedupe false`, `--csvEncoding utf8|cp949|euc-kr`. TXT 파일은 한 줄 한 URL, `#` 주석 허용.
+## 주요 명령
 
-샘플 데이터는 `packages/cli/sample-files`와 `packages/cli/datalist.xlsx`에 있습니다.
+| 명령 | 설명 |
+| --- | --- |
+| `mise run start` | Electron 데스크톱 앱 실행 |
+| `mise run cli` | CLI 캡처 도구 실행 |
+| `mise run setup` | Playwright 브라우저 설치 |
+| `mise run test` | Vitest 단위 테스트 실행 |
+| `mise run lint` | 스크립트 구문 및 린트 검사 |
+| `mise run check` | 테스트 및 린트 통합 검증 |
+| `mise run build-mac` | macOS 패키지(`.dmg`) 빌드 |
+| `mise run build-win` | Windows 패키지(`.nsis`) 빌드 |
 
-## Electron 앱
-```bash
-npm start                 # dev 모드로 GUI 실행
-npm install --workspace @webpage-capture/electron-app
-npm run setup:bundle      # Playwright 브라우저 번들 다운로드
-npm run build:mac         # macOS dmg (workspace 스크립트 호출)
-npm run build:win         # Windows nsis
-```
+전체 task 목록은 `mise tasks`로 확인할 수 있습니다.
 
-앱은 `@webpage-capture/cli`를 실행해 stdout/stderr를 실시간 스트리밍하며, 브라우저 경로가 없으면 Playwright 캐시/번들 순으로 탐색합니다.
+## 문서
 
-- 사용 설명서: [docs/manual-capture-workbench-user-guide.md](./docs/manual-capture-workbench-user-guide.md)
+- [수동 캡처 워크벤치 사용 가이드](./docs/manual-capture-workbench-user-guide.md)
+- [프로젝트 기여자 가이드](./docs/contributor-guide.md)
+- [루트 문서 인덱스](../docs/README.md)
 
-## 작업 메모
+## 기여
 
-- 의존성 추가/삭제시 항상 루트에서
-    ```sh
-    npm install some-lib --workspace @webpage-capture/cli
-    npm install some-lib --workspace @webpage-capture/electron-app
-    ```
+변경 전 [기여자 가이드](./docs/contributor-guide.md)를 확인해 주세요.

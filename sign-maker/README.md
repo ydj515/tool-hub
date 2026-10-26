@@ -1,32 +1,52 @@
-# Signature & Trace Studio
+# Sign Maker
 
-> 매력적인 서명을 직접 그리거나 사진에서 추출할 수 있는 스마트 웹 애플리케이션입니다.
+마우스·터치 드로잉이나 자필 서명 사진에서 배경이 투명한 서명 이미지를 만드는 웹 도구입니다.
+획 보정과 배경 투명도 임계값 조절을 브라우저에서 바로 처리하고 PNG 파일로 내려받을 수 있습니다.
 
-[웹페이지링크](https://tool-hubsign-maker.vercel.app/)
+**기술 스택:** React 19 · TypeScript · Vite · Tailwind CSS · perfect-freehand · Vitest · Playwright
 
 ![Preview](./docs/draw.png)
 ![Preview](./docs/upload.png)
 
-## 주요 기능 (Features)
+## 주요 기능
 
-### 1. 스마트 서명 보정 캔버스 (Intelligent Signature Pad)
-*   **자유로운 드로잉**: 마우스나 터치 환경에서 제한 없이 자유롭게 선을 그릴 수 있습니다.
-*   **3초 자동 보정 (Auto-beautify)**: 사용자가 입력을 멈추고 3초가 지나면 투박한 선을 부드럽고 매끄러운 곡선으로 자동 보정합니다. (실시간 카운트다운 UI 지원)
-*   **리얼 펜 이펙트**: 입력 속도에 비례한 선의 굵기 조절 및 끝부분 붓펜 효과(테이퍼링/안정화)를 `perfect-freehand` 라이브러리로 렌더링합니다.
+- **드로잉 캔버스:** 입력 속도에 반응하는 브러시 렌더링과 자동 곡선 보정
+- **이미지 배경 제거:** 자필 서명 이미지 업로드 후 임계값 슬라이더로 배경 투명화
+- **내보내기 및 테마:** 투명 배경 PNG 다운로드 및 라이트·다크 테마 전환
 
-### 2. 스마트 이미지 투명화 (Image Background Removal)
-*   **드래그 앤 드롭 업로더**: 종이에 쓴 자필 서명 사진을 클릭하거나 쉽게 드래그 앤 드롭하여 캔버스에 업로드할 수 있습니다.
-*   **실시간 투명도 임계값 조절 (Threshold Control)**: 업로드 후 조절 슬라이더를 통해 배경색(흰색 영역)을 정밀하게 날려버리고 서명 영역만 선별할 수 있습니다.
+## 요구 사항
 
-### 3. 공통 테마 및 내보내기
-*   **다크 ↔ 라이트 테마 토글**: 일관성 있는 글래스모피즘(Glassmorphism) 기반 디자인 안에서 취향에 맞게 라이트 모드와 다크 모드를 원버튼으로 전환합니다.
-*   **투명 PNG 다운로드**: 제작한 캔버스 결과물을 배경이 투명한 고화질 `.png` 파일로 단 한 번의 클릭을 통해 PC에 파일로 내려받을 수 있습니다.
+- [mise](https://mise.jdx.dev/) — Node.js 버전은 [`mise.toml`](./mise.toml)에 고정되어 있으며 `mise`가 설치합니다.
 
-## 기술 스택 (Tech Stack)
+## 빠른 시작
 
-*   **Framework**: React 18, Vite
-*   **Language**: TypeScript
-*   **Styling**: Vanilla CSS (CSS Variables 기반 라이트/다크 테마 스위칭, Glassmorphism UI)
-*   **Key Libraries**:
-    *   [`perfect-freehand`](https://github.com/steveruizok/perfect-freehand): 스트로크 알고리즘 연산 및 스플라인 렌더링
-    *   [`lucide-react`](https://lucide.dev/): 벡터 아이콘 (Sun, Moon, Pen, Image 등)
+```bash
+mise trust          # 최초 1회, mise.toml 검토 후 신뢰
+mise run bootstrap  # 고정된 Node.js 설치 + 의존성 설치
+mise run dev        # 개발 서버 실행
+```
+
+배포 데모는 [Sign Maker 웹페이지](https://tool-hubsign-maker.vercel.app/)에서 확인할 수 있습니다.
+
+## 주요 명령
+
+| 명령 | 설명 |
+| --- | --- |
+| `mise run dev` | 개발 서버 실행 |
+| `mise run test` | Vitest 테스트 실행 |
+| `mise run lint` | ESLint 검사 |
+| `mise run typecheck` | TypeScript 타입 검사 |
+| `mise run build` | 프로덕션 빌드 |
+| `mise run test-e2e` | Playwright E2E 테스트 실행 |
+| `mise run check` | 테스트·린트·타입체크·빌드·E2E 통합 검증 |
+
+전체 task 목록은 `mise tasks`로 확인할 수 있습니다.
+
+## 문서
+
+- [프로젝트 기여자 가이드](./docs/contributor-guide.md)
+- [루트 문서 인덱스](../docs/README.md)
+
+## 기여
+
+변경 전 [기여자 가이드](./docs/contributor-guide.md)를 확인해 주세요.
