@@ -1,14 +1,16 @@
 # Tool Hub
 
 [![Sync Development Standards](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml/badge.svg)](https://github.com/ydj515/tool-hub/actions/workflows/sync-dev-standards.yml)
-![Node.js](https://img.shields.io/badge/Node.js-24.19.0-339933?logo=nodedotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
-![Java](https://img.shields.io/badge/Java-21.0.2-007396?logo=openjdk&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
-![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss&logoColor=white)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
+[![Node.js 24.19.0](https://img.shields.io/badge/Node.js-24.19.0-339933?logo=nodedotjs&logoColor=white)](./mise.toml)
+[![TypeScript 6.0.3](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)](./home/package.json)
+[![React 19.3](https://img.shields.io/badge/React-19.3-61DAFB?logo=react&logoColor=black)](./package.json)
+[![Next.js 16.3](https://img.shields.io/badge/Next.js-16.3-000000?logo=nextdotjs&logoColor=white)](./ddl-seed-generator/package.json)
+[![Vite 8.3](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](./home/package.json)
+[![Tailwind CSS 4.3](https://img.shields.io/badge/Tailwind%20CSS-4.3-06B6D4?logo=tailwindcss&logoColor=white)](./home/package.json)
+[![Java 21.0.2](https://img.shields.io/badge/Java-21.0.2-ED8B00?logo=openjdk&logoColor=white)](./class-diagram-generator/mise.toml)
+[![Kotlin 2.0.21](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](./class-diagram-generator/gradle/libs.versions.toml)
+[![Spring Boot 3.3.5](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?logo=springboot&logoColor=white)](./class-diagram-generator/gradle/libs.versions.toml)
+[![Gradle 8.14.5](https://img.shields.io/badge/Gradle-8.14.5-02303A?logo=gradle&logoColor=white)](./class-diagram-generator/gradle/wrapper/gradle-wrapper.properties)
 
 일상적인 개발과 문서 작업에 쓰이는 유틸리티를 한곳에 모은 도구 모음입니다.
 각 도구는 독립된 애플리케이션으로 구성되어 개별 디렉터리에서 바로 실행하고 배포할 수 있으며, 공통 디자인 토큰과 UI 프리미티브로 일관된 사용 경험을 제공합니다.

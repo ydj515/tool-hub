@@ -1,5 +1,10 @@
 # Class Diagram Generator
 
+[![Java 21.0.2](https://img.shields.io/badge/Java-21.0.2-ED8B00?logo=openjdk&logoColor=white)](./mise.toml)
+[![Kotlin 2.0.21](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](./gradle/libs.versions.toml)
+[![Spring Boot 3.3.5](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?logo=springboot&logoColor=white)](./gradle/libs.versions.toml)
+[![Gradle 8.14.5](https://img.shields.io/badge/Gradle-8.14.5-02303A?logo=gradle&logoColor=white)](./gradle/wrapper/gradle-wrapper.properties)
+
 Java 또는 순수 Kotlin 프로젝트 ZIP 파일을 업로드하면 클래스 다이어그램을 포함한 설계서(`docx`, `xlsx`, `md`)를 자동 생성하는 웹 애플리케이션입니다.
 단일·멀티 모듈 구조의 Gradle·Maven 프로젝트를 분석하며, SSE 기반 실시간 진행 상태와 한·영 문서 라벨 전환을 지원합니다.
 
